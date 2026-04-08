@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+/media/
+/staticfiles/
+
+# Entorno y secretos
+.env
+.env.local
+.secrets
+reset_db.py
+test_pg.py
+.flake8
+.hintrc
+__pycache__/
+*.pyc
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos temporales
+*.tmp
+*.bak
+*.orig
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/

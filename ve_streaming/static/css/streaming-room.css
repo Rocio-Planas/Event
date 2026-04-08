@@ -1,0 +1,510 @@
+/* 
+   STREAMING ROOM - PREMIUM EDITION
+   Fiel a la preview de AI Studio y consistente con el Organizer Dashboard
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --sr-primary: #2563eb;
+  --sr-primary-hover: #1d4ed8;
+  --sr-bg: #f8fafc;
+  --sr-card-bg: #ffffff;
+  --sr-text-main: #0f172a;
+  --sr-text-muted: #64748b;
+  --sr-border: #e2e8f0;
+  --sr-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --sr-shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+}
+
+/* Reset & Global */
+body {
+  background-color: var(--sr-bg) !important;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif !important;
+  color: var(--sr-text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Contenedor de Tarjetas */
+.sr-card-main {
+  background: var(--sr-card-bg);
+  border-radius: 1.25rem !important;
+  border: 1px solid var(--sr-border) !important;
+  box-shadow: var(--sr-shadow) !important;
+  overflow: hidden;
+}
+
+/* Video Player */
+.sr-video-wrapper {
+  background-color: #000;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: var(--sr-shadow);
+}
+
+/* Métricas */
+.sr-metric-card {
+  background: var(--sr-card-bg);
+  padding: 1.25rem 0.75rem;
+  border-radius: 1.25rem;
+  border: 1px solid var(--sr-border);
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.sr-metric-card:hover {
+  border-color: var(--sr-primary);
+  transform: translateY(-4px);
+  box-shadow: var(--sr-shadow-lg);
+}
+
+.sr-metric-icon-container {
+  width: 40px;
+  height: 40px;
+  background-color: #eff6ff;
+  color: var(--sr-primary);
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.sr-metric-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--sr-text-main);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.sr-metric-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--sr-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+
+/* Chat Styles */
+.sr-chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 800px;
+  background: var(--sr-card-bg);
+  border-radius: 1.25rem;
+  border: 1px solid var(--sr-border);
+  box-shadow: var(--sr-shadow);
+  overflow: hidden;
+}
+
+.sr-chat-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--sr-border);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sr-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ============================================
+   BURBUJA DE CHAT - ESTRUCTURA CORRECTA
+   ============================================ */
+
+.sr-chat-bubble {
+  max-width: 85%;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background: #fff;
+  border: 1px solid var(--sr-border);
+  align-self: flex-start;
+}
+
+.sr-chat-bubble:not(.sr-mine) {
+  border-top-left-radius: 0;
+}
+
+.sr-chat-bubble.sr-mine {
+  background: var(--sr-primary);
+  color: #fff;
+  border-color: var(--sr-primary);
+  align-self: flex-end;
+  border-top-right-radius: 0;
+}
+
+/* FILA DEL MENSAJE: Flexbox horizontal para texto + pin */
+.message-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Contenido del mensaje */
+.message-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sr-chat-meta {
+  font-size: 0.7rem;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.sr-chat-bubble:not(.sr-mine) .sr-chat-meta {
+  color: var(--sr-text-muted);
+}
+
+.sr-chat-bubble.sr-mine .sr-chat-meta {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.sr-chat-text {
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* ============================================
+   BOTÓN DE PIN - SIEMPRE VISIBLE
+   ============================================ */
+
+.pin-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.pin-btn i {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.pin-btn i.bi-pin-fill {
+  color: #0d6efd;
+}
+
+.pin-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.sr-chat-bubble.sr-mine .pin-btn i {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.sr-chat-bubble.sr-mine .pin-btn i.bi-pin-fill {
+  color: #ffffff;
+}
+
+/* ============================================
+   MENSAJES FIJADOS
+   ============================================ */
+
+.sr-chat-bubble[data-pinned="true"] {
+  border-left: 3px solid #0d6efd;
+  background-color: #fffef7;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.1);
+}
+
+.sr-chat-bubble[data-pinned="true"].sr-mine {
+  border-left: none;
+  border-right: 3px solid rgba(255, 255, 255, 0.5);
+  background: var(--sr-primary);
+}
+
+/* ============================================
+   RESTO DE ESTILOS DEL CHAT
+   ============================================ */
+
+.sr-chat-input-area {
+  padding: 1.25rem;
+  background: #fff;
+  border-top: 1px solid var(--sr-border);
+}
+
+.sr-chat-input-area .d-flex {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.sr-chat-input-area .d-flex .btn-link {
+  white-space: nowrap;
+}
+
+.sr-chat-input:focus,
+.sr-chat-input:focus-visible,
+button:focus,
+button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.sr-chat-input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  background-color: transparent !important;
+}
+
+.sr-chat-input-wrapper {
+  background: #f1f5f9;
+  border-radius: 9999px;
+  padding: 0.25rem 0.5rem 0.25rem 1.25rem;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--sr-border);
+  transition: all 0.2s ease;
+  flex-wrap: nowrap;
+}
+
+.sr-chat-input-wrapper .btn-primary {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50% !important;
+}
+
+.sr-chat-input-wrapper .btn-primary i {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.sr-chat-input-wrapper:focus-within {
+  background: #fff;
+  border-color: var(--sr-primary);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.sr-chat-input {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: 0.9rem;
+  padding: 0.5rem 0;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Polls */
+.sr-poll-card {
+  background: var(--sr-card-bg);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  border: 1px solid var(--sr-border);
+  box-shadow: var(--sr-shadow);
+}
+
+/* Botones */
+.btn-primary {
+  background-color: var(--sr-primary) !important;
+  border: none !important;
+  border-radius: 0.75rem !important;
+  font-weight: 700 !important;
+  padding: 0.6rem 1.25rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--sr-primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.sr-btn-pill {
+  border-radius: 9999px !important;
+}
+
+/* Utilities */
+.sr-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--sr-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.sr-live-indicator {
+  font-size: 0.7rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.sr-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  display: inline-block;
+  animation: sr-pulse 1.5s infinite;
+}
+
+@keyframes sr-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+}
+
+/* Star Rating */
+.sr-star-rating {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.sr-star-rating input {
+  display: none;
+}
+
+.sr-star-rating label {
+  font-size: 2rem;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.sr-star-rating input:checked ~ label,
+.sr-star-rating label:hover,
+.sr-star-rating label:hover ~ label {
+  color: #fbbf24;
+}
+
+/* Utilities */
+.leading-relaxed {
+  line-height: 1.625;
+}
+
+.tracking-tighter {
+  letter-spacing: -0.05em;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Hands Raised List */
+.sr-hands-list {
+  max-height: 150px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.sr-hand-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.sr-hand-item:last-child {
+  border-bottom: none;
+}
+
+/* Recording Pulse */
+.sr-recording-active {
+  color: #dc3545;
+  animation: sr-pulse 1.5s infinite;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991.98px) {
+  .sr-chat-container {
+    height: 600px;
+  }
+}
+
+@media (max-width: 576px) {
+  .sr-chat-input-wrapper {
+    gap: 0.25rem;
+  }
+  .sr-chat-input-wrapper .btn-primary {
+    width: 34px;
+    height: 34px;
+  }
+  .sr-chat-input-wrapper .btn-primary i {
+    font-size: 1rem;
+  }
+
+  .sr-chat-bubble {
+    max-width: 95%;
+  }
+
+  .pin-btn {
+    width: 20px;
+    height: 20px;
+  }
+
+  .pin-btn i {
+    font-size: 12px;
+  }
+}

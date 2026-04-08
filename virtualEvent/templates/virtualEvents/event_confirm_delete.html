@@ -1,0 +1,12 @@
+{% extends 'base_bootstrap.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>¿Eliminar evento "{{ event.title }}"?</h2>
+    <p>Esta acción es irreversible.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+        <a href="{% url 'virtualEvent:organizer_dashboard' event.id %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

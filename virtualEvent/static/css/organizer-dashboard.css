@@ -1,0 +1,210 @@
+/* 
+   ORGANIZER DASHBOARD - PREMIUM EDITION
+   Fiel a la preview de AI Studio
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --od-primary: #2563eb;
+    --od-primary-hover: #1d4ed8;
+    --od-bg: #f8fafc;
+    --od-card-bg: #ffffff;
+    --od-text-main: #0f172a;
+    --od-text-muted: #64748b;
+    --od-border: #e2e8f0;
+    --od-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --od-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+}
+
+/* Reset & Global */
+body {
+    background-color: var(--od-bg) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    color: var(--od-text-main);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Contenedor de Tarjetas */
+.od-card-main {
+    background: var(--od-card-bg);
+    border-radius: 1.25rem !important;
+    border: 1px solid var(--od-border) !important;
+    box-shadow: var(--od-shadow) !important;
+    overflow: hidden;
+}
+
+/* Banner Inmersivo Perfeccionado */
+.od-banner-wrapper {
+    height: 340px;
+    background-color: #000;
+    position: relative;
+    overflow: hidden;
+}
+
+.od-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.od-banner-wrapper:hover .od-banner-img {
+    transform: scale(1.06);
+}
+
+.od-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 50%, transparent 100%);
+}
+
+.od-banner-tag {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    color: #60a5fa; /* Azul vibrante claro */
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+/* Inputs y Formularios Modernos */
+.od-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--od-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.od-input {
+    background-color: #f1f5f9 !important;
+    border: 1px solid var(--od-border) !important;
+    border-radius: 0.75rem !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9rem !important;
+    color: var(--od-text-main) !important;
+    transition: all 0.2s ease !important;
+}
+
+.od-input:focus {
+    background-color: #ffffff !important;
+    border-color: var(--od-primary) !important;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
+    outline: none !important;
+}
+
+/* Métricas (Grid de 6) */
+.od-metric-card {
+    background: var(--od-card-bg);
+    padding: 1.5rem 1rem;
+    border-radius: 1.25rem;
+    border: 1px solid var(--od-border);
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.od-metric-card:hover {
+    border-color: var(--od-primary);
+    transform: translateY(-4px);
+    box-shadow: var(--od-shadow-lg);
+}
+
+.od-metric-icon-container {
+    width: 44px;
+    height: 44px;
+    background-color: #eff6ff;
+    color: var(--od-primary);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.od-metric-card:hover .od-metric-icon-container {
+    background-color: var(--od-primary);
+    color: white;
+}
+
+.od-metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--od-text-main);
+    letter-spacing: -0.02em;
+}
+
+/* Botones */
+.btn-primary {
+    background-color: var(--od-primary) !important;
+    border: none !important;
+    border-radius: 0.75rem !important;
+    font-weight: 700 !important;
+    padding: 0.8rem 1.5rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--od-primary-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.btn-info {
+    background-color: #0ea5e9 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 1rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-info:hover {
+    background-color: #0284c7 !important;
+    box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3);
+}
+
+/* Enlace de Invitación */
+.od-url-box {
+    background-color: #f1f5f9;
+    border: 1px solid var(--od-border);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: var(--od-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .od-banner-wrapper { height: 240px; }
+    .od-banner-title { font-size: 1.25rem; }
+    .od-metric-value { font-size: 1.25rem; }
+}
+
+/* --- YouTube Section (Indigo - Adaptado para combinar) --- */
+.text-indigo { color: #4f46e5; }
+.text-indigo-dark { color: #3730a3; }
+.text-indigo-muted { color: #6366f1; }
+.btn-indigo { background-color: #4f46e5; color: white; border-radius: 0.75rem; border: none; padding: 0.5rem 1rem; font-weight: 600; }
+.btn-indigo:hover { background-color: #4338ca; }
+.od-youtube-instructions { background-color: #f5f3ff; border: 1px solid #e0e7ff; border-radius: 0.75rem; }
+.od-mini-iframe { border-radius: 0.75rem; overflow: hidden; background-color: #000; box-shadow: var(--od-shadow); border: 1px solid #e0e7ff; }
+
+/* Utilities */
+.smaller { font-size: 0.75rem !important; }
+.italic { font-style: italic; }
+.tracking-wider { letter-spacing: 0.05em; }
+.object-fit-cover { object-fit: cover; }
+.cursor-pointer { cursor: pointer; }
+.flex-fill { flex: 1 1 auto; }
+.od-dot { width: 8px; height: 8px; background-color: #ffffff; border-radius: 50%; display: inline-block; animation: od-pulse 1.5s infinite; }
+@keyframes od-pulse { 0% { transform: scale(0.9); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } 100% { transform: scale(0.9); opacity: 1; } }
+.od-live-indicator { font-size: 0.7rem; padding: 0.4rem 0.6rem; border-radius: 20px; display: flex; align-items: center; gap: 5px; }

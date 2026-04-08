@@ -1,0 +1,89 @@
+/* waiting-room.css */
+
+.wr-container {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.wr-card {
+    background-color: #ffffff;
+    transition: transform 0.3s ease;
+}
+
+.wr-title {
+    color: #1a1d23;
+    letter-spacing: -0.02em;
+}
+
+.wr-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.1) 100%);
+}
+
+.fw-extrabold {
+    font-weight: 800;
+}
+
+.fw-black {
+    font-weight: 900;
+}
+
+.wr-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+}
+
+.wr-link-group {
+    transition: border-color 0.2s ease;
+}
+
+.wr-link-group:hover {
+    border-color: #0d6efd !important;
+}
+
+.btn-white {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+}
+
+.btn-white:hover {
+    background-color: #0d6efd;
+    color: #ffffff !important;
+}
+
+.wr-btn-access {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+}
+
+.wr-btn-access:not(:disabled) {
+    background: linear-gradient(135deg, #0057cd 0%, #0d6efd 100%);
+}
+
+.wr-btn-access:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2) !important;
+}
+
+.wr-btn-access:active {
+    transform: scale(0.98);
+}
+
+/* Tooltip simple for copy feedback */
+.copy-success {
+    background-color: #198754 !important;
+    color: white !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .wr-card {
+        margin: 10px;
+    }
+    .h2 {
+        font-size: 1.5rem;
+    }
+}

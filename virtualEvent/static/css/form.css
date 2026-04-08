@@ -1,0 +1,209 @@
+:root {
+    /* Colores extraídos de tu Dashboard y Streaming Room */
+    --ev-primary: #2563eb; 
+    --ev-primary-hover: #1d4ed8;
+    --ev-bg-page: #f8fafc; /* Consistente con tus otros CSS */
+    --ev-card-bg: #ffffff;
+    --ev-border: #e2e8f0;
+    --ev-text-main: #1e293b; /* Slate 800: más suave para la vista */
+    --ev-text-muted: #64748b;
+    /* Sombra de "elevación natural" para evitar fatiga */
+    --ev-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.04), 0 4px 6px -4px rgb(0 0 0 / 0.02);
+}
+
+body {
+    background-color: var(--ev-bg-page) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--ev-text-main);
+    padding: 3rem 1rem;
+}
+
+.ev-form-card {
+    max-width: 760px; /* Ligeramente más estrecho para que no "coma" la pantalla */
+    margin: 0 auto;
+    background-color: var(--ev-card-bg);
+    border: 1px solid var(--ev-border) !important;
+    border-radius: 1.5rem !important;
+    box-shadow: var(--ev-shadow) !important;
+    overflow: hidden;
+}
+
+.ev-header {
+    padding: 3rem 3rem 1.5rem;
+    /* Un degradado casi imperceptible para dar volumen sin brillar */
+    background: linear-gradient(to bottom, #ffffff, #fafbfc);
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.ev-title {
+    color: var(--ev-text-main);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    font-size: 2.25rem;
+}
+
+.ev-subtitle {
+    color: var(--ev-text-muted);
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+.ev-form-body {
+    padding: 2.5rem 3rem 3rem;
+}
+
+.ev-label {
+    font-size: 0.75rem !important;
+    font-weight: 700;
+    color: var(--ev-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.6rem;
+    display: block;
+}
+
+/* INPUTS: El cambio clave para la vista */
+.ev-input {
+    /* Usamos el gris de tus otros archivos para que el input no "brille" */
+    background-color: #f1f5f9 !important; 
+    border: 1px solid var(--ev-border) !important;
+    border-radius: 0.85rem !important;
+    padding: 0.8rem 1.1rem !important;
+    font-size: 0.95rem !important;
+    color: var(--ev-text-main) !important;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.ev-input:focus {
+    background-color: #ffffff !important; /* Se vuelve blanco solo al escribir */
+    border-color: var(--ev-primary) !important;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
+    outline: none !important;
+}
+
+/* Drop Zone más integrada */
+.ev-drop-zone {
+    border: 2px dashed var(--ev-border) !important;
+    background-color: #f8fafc;
+    border-radius: 1.25rem !important;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.ev-drop-zone:hover {
+    border-color: var(--ev-primary) !important;
+    background-color: #eff6ff;
+}
+
+.ev-drop-zone-content p {
+    color: #475569;
+    font-weight: 600;
+}
+
+.ev-preview-container {
+    background-color: #f1f5f9;
+    z-index: 5;
+    border-radius: 1.25rem;
+    overflow: hidden;
+}
+
+/* Radio Cards (Access Type) */
+.ev-radio-card {
+    border: 1px solid var(--ev-border) !important;
+    background-color: #f8fafc;
+    border-radius: 1.25rem !important;
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+}
+
+.ev-radio-card:hover {
+    border-color: #cbd5e1 !important;
+    background-color: #f1f5f9;
+}
+
+.btn-check:checked + .ev-radio-card {
+    border-color: var(--ev-primary) !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+.ev-icon-box {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+}
+
+.extra-small {
+    font-size: 0.65rem !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Botón de envío con el azul de tu marca */
+.ev-btn-submit {
+    background-color: var(--ev-primary) !important;
+    border: none !important;
+    border-radius: 1rem !important;
+    color: #ffffff;
+    font-weight: 700;
+    padding: 1.1rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.ev-btn-submit:hover {
+    background-color: var(--ev-primary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2) !important;
+}
+
+.ev-input-duration {
+    padding-right: 6rem !important;
+}
+
+.ev-input-addon {
+    border: 1px solid var(--ev-border);
+    font-size: 0.65rem !important;
+    letter-spacing: 0.1em;
+    background-color: #f8fafc;
+    color: #94a3b8;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+}
+
+/* Hide spin buttons for number inputs */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body { padding: 1rem 0.5rem; }
+    .ev-form-card { border-radius: 1.25rem !important; margin: 1rem; }
+    .ev-header, .ev-form-body { padding: 2rem 1.5rem; }
+    .ev-title { font-size: 1.75rem; }
+}

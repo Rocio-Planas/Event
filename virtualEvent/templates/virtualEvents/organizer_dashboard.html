@@ -1,0 +1,214 @@
+{% extends 'base_bootstrap.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/organizer-dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 od-dashboard">
+
+    <div class="row g-4">
+        <!-- COLUMNA IZQUIERDA: Edición y Configuración -->
+        <div class="col-12 col-md-6 d-flex">
+            <div class="od-card-main w-100 flex-fill">
+                <!-- Banner Inmersivo -->
+                <div class="od-banner-wrapper position-relative">
+                    <img id="od-img-preview" 
+                         src="{% if event.image %}{{ event.image.url }}{% else %}{% static 'streaming/img/default-event.jpg' %}{% endif %}" 
+                         alt="Vista previa" 
+                         class="od-banner-img">
+                    <div class="od-banner-overlay d-flex flex-column justify-content-end p-4">
+                        <div class="od-banner-tag">Configuración del Evento</div>
+                        <h4 class="text-white fw-bold mb-0">{{ event.title }}</h4>
+                        <label for="od-image-input" class="btn btn-light btn-sm fw-bold shadow-sm cursor-pointer position-absolute top-0 end-0 m-3">
+                            <i class="bi bi-camera me-1"></i> Cambiar Portada
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 d-flex flex-column">
+                    <form id="od-event-form" method="post" enctype="multipart/form-data" class="flex-grow-1 d-flex flex-column">
+                        {% csrf_token %}
+                        <input type="hidden" name="event_id" id="od-event-id" value="{{ event.id }}">
+                        <input type="file" name="event_image" id="od-image-input" class="d-none" accept="image/*">
+
+                        <div class="mb-4">
+                            <label for="od-title" class="od-label">Título del Evento</label>
+                            <input type="text" class="form-control od-input" id="od-title" name="title" value="{{ event.title }}" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="od-description" class="od-label">Descripción</label>
+                            <textarea class="form-control od-input" id="od-description" name="description" rows="4" required>{{ event.description }}</textarea>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="od-start-time" class="od-label">Fecha y Hora de Inicio</label>
+                                <input type="datetime-local" class="form-control od-input" id="od-start-time" name="start_time" value="{{ event.start_datetime|date:'Y-m-d\TH:i' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="od-duration" class="od-label">Duración (minutos)</label>
+                                <input type="number" class="form-control od-input" id="od-duration" name="duration" min="1" value="{{ event.duration_minutes }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="od-label">Tipo de Acceso</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input od-access-radio" type="radio" name="access_type" id="access-public" value="public" {% if event.privacy == 'public' %}checked{% endif %}>
+                                    <label class="form-check-label small fw-medium" for="access-public">Público</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input od-access-radio" type="radio" name="access_type" id="access-private" value="private" {% if event.privacy == 'private' %}checked{% endif %}>
+                                    <label class="form-check-label small fw-medium" for="access-private">Privado</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Campo para invitaciones (condicional) -->
+                        <div id="od-invitations-container" class="mb-4 {% if event.privacy != 'private' %}d-none{% endif %}">
+                            <label for="od-emails" class="od-label">Invitaciones por Email</label>
+                            <textarea class="form-control od-input" id="od-emails" name="emails" rows="3" placeholder="ejemplo1@mail.com, ejemplo2@mail.com">{{ invited_emails }}</textarea>
+                            <small class="text-muted smaller">Separa los correos con comas.</small>
+                        </div>
+
+                        <div class="spacer flex-grow-1"></div>
+
+                        <!-- Enlace de invitación único -->
+                        <div class="mb-4">
+                            <label class="od-label mb-2">Enlace de invitación único:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control od-url-box" id="od-invite-link" value="{{ invite_link }}" readonly>
+                                <button class="btn btn-sm btn-secondary ms-2 rounded-3 px-3" type="button" id="od-btn-copy-link">Copiar</button>
+                            </div>
+                            <div id="od-copy-feedback" class="text-success smaller mt-1 d-none fw-medium">¡Copiado al portapapeles!</div>
+                        </div>
+
+                        <!-- Botón Save Changes -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg" id="od-btn-save-all">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: Métricas y Acciones -->
+        <div class="col-12 col-md-6 d-flex flex-column gap-4">
+            <!-- Métricas en tiempo real -->
+            <div class="od-card-main">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0 fw-bold">Métricas en Tiempo Real</h5>
+                        <span class="badge bg-success od-live-indicator">
+                            <span class="od-dot"></span> LIVE
+                        </span>
+                    </div>
+                    
+                    <div class="row row-cols-3 row-cols-md-3 g-3 mb-2" id="od-metrics-grid">
+                        <div class="col"><div class="od-metric-card"><div class="od-metric-icon-container"><i class="bi bi-people-fill"></i></div><div class="od-metric-value" id="metric-online">0</div><div class="od-label mb-0">En línea</div></div></div>
+                        <div class="col"><div class="od-metric-card"><div class="od-metric-icon-container"><i class="bi bi-chat-dots-fill"></i></div><div class="od-metric-value" id="metric-messages">0</div><div class="od-label mb-0">Mensajes</div></div></div>
+                        <div class="col"><div class="od-metric-card"><div class="od-metric-icon-container"><i class="bi bi-hand-index-thumb-fill"></i></div><div class="od-metric-value" id="metric-hands">0</div><div class="od-label mb-0">Manos</div></div></div>
+                        <div class="col"><div class="od-metric-card"><div class="od-metric-icon-container"><i class="bi bi-graph-up-arrow"></i></div><div class="od-metric-value" id="metric-participation">0%</div><div class="od-label mb-0">Participación</div></div></div>
+                        <div class="col"><div class="od-metric-card"><div class="od-metric-icon-container"><i class="bi bi-stopwatch-fill"></i></div><div class="od-metric-value" id="metric-time">00:00:00</div><div class="od-label mb-0">Tiempo</div></div></div>
+                        <div class="col"><div class="od-metric-card"><div class="od-metric-icon-container"><i class="bi bi-emoji-smile-fill"></i></div><div class="od-metric-value" id="metric-satisfaction">0.0</div><div class="od-label mb-0">Satisfacción</div></div></div>
+                    </div>
+                    <div class="text-center mt-3"><small class="text-muted italic smaller">Actualizado cada 5 segundos</small></div>
+                </div>
+            </div>
+
+            <!-- Acciones Rápidas -->
+            <div class="od-card-main">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4 fw-bold">Acciones Rápidas</h5>
+                    <div class="d-grid gap-3">
+                        <a href="{% url 've_streaming:streaming_room' unique_link=event.unique_link %}" class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-play-circle"></i> Go to Streaming Room
+                        </a>
+                        <button type="button" class="btn btn-info btn-lg d-flex align-items-center justify-content-center gap-2" id="od-btn-export-pdf">
+                            <i class="bi bi-file-earmark-pdf"></i> Export Report (PDF)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YouTube Live -->
+            <div class="od-card-main flex-grow-1">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0 fw-bold text-indigo"><i class="bi bi-youtube me-1"></i> Transmisión en vivo</h5>
+                        <button type="button" class="btn btn-link btn-sm text-decoration-none p-0" id="od-btn-preview-yt"><i class="bi bi-eye me-1"></i> Previsualizar</button>
+                    </div>
+                    <div class="od-youtube-instructions p-3 rounded mb-4">
+                        <h6 class="fw-bold small text-indigo-dark mb-2"><i class="bi bi-info-circle me-1"></i> ¿Cómo obtener la URL?</h6>
+                        <ol class="smaller text-indigo-muted mb-0 ps-3">
+                            <li>En YouTube, haz clic en <b>Compartir</b> bajo tu video.</li>
+                            <li>Selecciona la opción <b>Insertar (Embed)</b>.</li>
+                            <li>Copia solo el enlace dentro de <b>src="..."</b> (ej: https://www.youtube.com/embed/ABC).</li>
+                        </ol>
+                    </div>
+                    <div class="mb-3">
+                        <label for="od-youtube-url" class="od-label">YouTube Embed URL</label>
+                        <div class="input-group">
+                            <input type="url" class="form-control od-input" id="od-youtube-url" name="youtube_url" 
+                                   placeholder="https://www.youtube.com/embed/..." 
+                                   value="{{ youtube_embed }}">
+                            <button class="btn btn-indigo ms-2" type="button" id="od-btn-test-youtube">Probar</button>
+                        </div>
+                    </div>
+                    <div id="od-yt-preview-container" class="mb-0 d-none">
+                        <div class="ratio ratio-16x9 od-mini-iframe rounded shadow-sm">
+                            <iframe id="od-yt-mini-iframe" src="about:blank" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Probar YouTube URL -->
+<div class="modal fade" id="od-youtube-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Previsualización de YouTube</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 bg-black">
+                <div class="ratio ratio-16x9">
+                    <iframe id="od-modal-iframe" src="" allowfullscreen></iframe>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notificaciones Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="od-toast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="od-toast-body">Mensaje de notificación.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+    const EVENT_ID = {{ event.id }};
+    const CSRF_TOKEN = "{{ csrf_token }}";
+    const SAVE_YOUTUBE_URL = "{% url 'virtualEvent:save_youtube_embed' event.id %}";
+    const METRICS_URL = "{% url 'virtualEvent:event_metrics' event.id %}";
+</script>
+
+<script src="{% static 'js/organizer-dashboard.js' %}"></script>
+{% endblock %}

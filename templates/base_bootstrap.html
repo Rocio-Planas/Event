@@ -1,0 +1,526 @@
+{% load static %}
+<!doctype html>
+<html class="light" lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}EventPulse{% endblock %}</title>
+
+    <!-- Bootstrap CSS (local) -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.css' %}" />
+
+    <!-- Tus CSS personalizados -->
+    {% block extra_css %}{% endblock %}
+
+    <!-- Fuentes y estilos del navbar-->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+      /* ========== VARIABLES (EXACTAS a base_stitch.html) ========== */
+      :root {
+        --bg-surface: #f7f9ff;
+        --text-on-surface: #181c20;
+        --text-on-surface-variant: #424655;
+        --border-outline-variant: #c2c6d8;
+        --surface-container-lowest: #ffffff;
+        --surface-container-low: #f1f4f9;
+        --surface-container-high: #e5e8ee;
+        --primary: #0057cd;
+        --secondary: #425c9b;
+      }
+      .dark {
+        --bg-surface: #121212;
+        --text-on-surface: #eef1f6;
+        --text-on-surface-variant: #b0b3c0;
+        --border-outline-variant: #3a3e4a;
+        --surface-container-lowest: #1e1e2a;
+        --surface-container-low: #2a2a36;
+        --surface-container-high: #353542;
+        --primary: #7a9eff;
+        --secondary: #8a9fd0;
+      }
+
+      body {
+        background-color: var(--bg-surface);
+        color: var(--text-on-surface);
+        font-family: "Inter", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ========== NAVBAR (copiado exactamente de base_stitch.html) ========== */
+      .navbar-custom {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 50;
+        backdrop-filter: blur(12px);
+        background-color: var(--surface-container-low);
+        border-bottom: 1px solid var(--border-outline-variant);
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      }
+      .navbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1.5rem; /* py-3 px-6 */
+        max-width: 1280px;
+        margin: 0 auto;
+        width: 100%;
+      }
+      .logo {
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: var(--text-on-surface);
+      }
+      .nav-links {
+        display: none;
+        gap: 1.5rem;
+        margin-left: 2rem;
+      }
+      @media (min-width: 768px) {
+        .nav-links {
+          display: flex;
+        }
+      }
+      .nav-link {
+        font-family: "Inter", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-on-surface-variant);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .nav-link:hover {
+        color: var(--primary);
+      }
+      .lang-switch {
+        display: flex;
+        align-items: center;
+        background-color: var(--surface-container-high);
+        border-radius: 9999px;
+        padding: 0.25rem 0.75rem;
+        gap: 0.5rem;
+      }
+      .lang-btn {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: var(--text-on-surface-variant);
+        transition: all 0.2s;
+      }
+      .lang-active {
+        background-color: white;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        color: var(--primary);
+      }
+      .dark .lang-active {
+        background-color: var(--surface-container-lowest);
+        color: var(--primary);
+      }
+      .theme-btn {
+        background: transparent;
+        border: none;
+        border-radius: 9999px;
+        padding: 0.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-on-surface);
+        transition: background-color 0.2s;
+      }
+      .theme-btn:hover {
+        background-color: var(--surface-container-high);
+      }
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 0.875rem;
+        object-fit: cover;
+      }
+      .dropdown-menu-custom {
+        display: none;
+        position: absolute;
+        right: 0;
+        margin-top: 0.5rem;
+        background-color: var(--surface-container-lowest);
+        border: 1px solid var(--border-outline-variant);
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        z-index: 50;
+        min-width: 160px;
+      }
+      .dropdown-menu-custom a {
+        display: block;
+        padding: 0.5rem 1rem;
+        color: var(--text-on-surface);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: background-color 0.2s;
+      }
+      .dropdown-menu-custom a:hover {
+        background-color: var(--surface-container-high);
+      }
+      .relative {
+        position: relative;
+      }
+      .flex {
+        display: flex;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .gap-4 {
+        gap: 1rem;
+      }
+      .gap-8 {
+        gap: 2rem;
+      }
+
+      /* ========== AJUSTE DEL MAIN (reducido) ========== */
+      main {
+        padding-top: 96px;
+      }
+
+      /* ========== FOOTER (idéntico a base_stitch.html) ========== */
+      .footer-custom {
+        width: 100%;
+        border-top: 1px solid var(--border-outline-variant);
+        padding: 2rem 0;
+        margin-top: 1rem;
+        background-color: var(--surface-container-low);
+      }
+      .footer-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        text-align: center;
+        font-size: 0.875rem;
+        color: var(--text-on-surface-variant);
+      }
+      .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+      }
+      .footer-links a {
+        color: var(--text-on-surface-variant);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .footer-links a:hover {
+        color: var(--primary);
+        text-decoration: underline;
+      }
+
+      /* Evitar conflictos con Bootstrap */
+      .navbar-custom *,
+      .footer-custom * {
+        font-family: "Inter", sans-serif;
+        box-sizing: border-box;
+      }
+      .container {
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar-custom">
+      <div class="navbar-container">
+        <div class="flex items-center gap-8">
+          <span class="logo">EventPulse</span>
+          <div class="nav-links">
+            <a
+              class="nav-link"
+              href="{% url 'core:home' %}"
+              data-i18n="nav_inicio"
+              >Inicio</a
+            >
+            <a
+              class="nav-link"
+              href="#"
+              onclick="alert('Próximamente: Eventos Presenciales')"
+              data-i18n="nav_presenciales"
+              >Eventos Presenciales</a
+            >
+            <a
+              class="nav-link"
+              href="{% url 'virtualEvent:event_create' %}"
+              data-i18n="nav_virtuales"
+              >Eventos Virtuales</a
+            >
+            <a
+              class="nav-link"
+              href="{% url 'core:contacto' %}"
+              data-i18n="nav_contacto"
+              >Contacto</a
+            >
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="lang-switch">
+            <button class="lang-btn lang-active" id="lang-es">ES</button>
+            <button class="lang-btn" id="lang-en">EN</button>
+          </div>
+          <button class="theme-btn" id="theme-toggle">
+            <span class="material-symbols-outlined" id="theme-icon"
+              >light_mode</span
+            >
+          </button>
+          {% if user.is_authenticated %}
+          <div class="relative">
+            <button
+              id="user-menu-btn"
+              style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+              "
+            >
+              {% if user.avatar %}
+              <img
+                src="{{ user.avatar.url }}"
+                class="user-avatar"
+                style="object-fit: cover"
+              />
+              {% else %}
+              <div class="user-avatar">
+                {{ user.first_name|first|default:"U" }}
+              </div>
+              {% endif %}
+            </button>
+            <div class="dropdown-menu-custom" id="user-menu">
+              <a href="{% url 'usuarios:dashboard' %}" data-i18n="my_dashboard"
+                >Mi Panel</a
+              >
+              <a href="{% url 'usuarios:perfil' %}" data-i18n="my_profile"
+                >Mi Perfil</a
+              >
+            </div>
+          </div>
+          {% else %}
+          <a
+            href="{% url 'usuarios:login' %}"
+            class="nav-link"
+            style="
+              border: 1px solid var(--primary);
+              border-radius: 0.5rem;
+              padding: 0.5rem 1rem;
+            "
+            data-i18n="login"
+            >Login</a
+          >
+          <a
+            href="{% url 'usuarios:registro' %}"
+            class="nav-link"
+            style="
+              background-color: var(--primary);
+              color: white;
+              border-radius: 0.5rem;
+              padding: 0.5rem 1rem;
+            "
+            data-i18n="register"
+            >Registro</a
+          >
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <main>{% block content %}{% endblock %}</main>
+
+    <footer class="footer-custom">
+      <div class="footer-container">
+        <div class="footer-links">
+          <a href="{% url 'core:about' %}" data-i18n="about_link">Acerca de</a>
+          <a href="{% url 'core:terms' %}" data-i18n="terms_link"
+            >Términos y condiciones</a
+          >
+          <a href="{% url 'core:privacy' %}" data-i18n="privacy_link"
+            >Política de privacidad</a
+          >
+        </div>
+        <div>
+          &copy; {% now "Y" %} EventPulse.
+          <span data-i18n="footer_copyright"
+            >Todos los derechos reservados.</span
+          >
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Tema oscuro/claro
+      function initTheme() {
+        const stored = localStorage.getItem("theme");
+        const html = document.documentElement;
+        if (stored === "dark") {
+          html.classList.add("dark");
+          html.classList.remove("light");
+        } else if (stored === "light") {
+          html.classList.add("light");
+          html.classList.remove("dark");
+        } else {
+          if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            html.classList.add("dark");
+            html.classList.remove("light");
+          } else {
+            html.classList.add("light");
+            html.classList.remove("dark");
+          }
+        }
+        updateIcon();
+      }
+      function toggleTheme() {
+        const html = document.documentElement;
+        if (html.classList.contains("dark")) {
+          html.classList.remove("dark");
+          html.classList.add("light");
+          localStorage.setItem("theme", "light");
+        } else {
+          html.classList.remove("light");
+          html.classList.add("dark");
+          localStorage.setItem("theme", "dark");
+        }
+        updateIcon();
+      }
+      function updateIcon() {
+        const icon = document.getElementById("theme-icon");
+        if (icon) {
+          icon.textContent = document.documentElement.classList.contains("dark")
+            ? "dark_mode"
+            : "light_mode";
+        }
+      }
+
+      // Traducciones básicas
+      const translations = {
+        es: {
+          nav_inicio: "Inicio",
+          nav_presenciales: "Eventos Presenciales",
+          nav_virtuales: "Eventos Virtuales",
+          nav_contacto: "Contacto",
+          my_dashboard: "Mi Panel",
+          my_profile: "Mi Perfil",
+          about_link: "Acerca de",
+          terms_link: "Términos y condiciones",
+          privacy_link: "Política de privacidad",
+          footer_copyright: "Todos los derechos reservados.",
+          login: "Iniciar Sesión",
+          register: "Registrarse",
+        },
+        en: {
+          nav_inicio: "Home",
+          nav_presenciales: "In-Person Events",
+          nav_virtuales: "Virtual Events",
+          nav_contacto: "Contact",
+          my_dashboard: "My Dashboard",
+          my_profile: "My Profile",
+          about_link: "About",
+          terms_link: "Terms and Conditions",
+          privacy_link: "Privacy Policy",
+          footer_copyright: "All rights reserved.",
+          login: "Login",
+          register: "Sign up",
+        },
+      };
+
+      let currentLang = localStorage.getItem("lang") || "es";
+
+      function applyTranslations() {
+        const t = translations[currentLang];
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+          const key = el.getAttribute("data-i18n");
+          if (t[key]) {
+            if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+              if (el.hasAttribute("placeholder")) el.placeholder = t[key];
+            } else {
+              el.innerText = t[key];
+            }
+          }
+        });
+        const langEs = document.getElementById("lang-es");
+        const langEn = document.getElementById("lang-en");
+        if (langEs && langEn) {
+          if (currentLang === "es") {
+            langEs.classList.add("lang-active");
+            langEn.classList.remove("lang-active");
+          } else {
+            langEn.classList.add("lang-active");
+            langEs.classList.remove("lang-active");
+          }
+        }
+      }
+
+      function setLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem("lang", lang);
+        applyTranslations();
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        initTheme();
+        const themeToggle = document.getElementById("theme-toggle");
+        if (themeToggle) themeToggle.addEventListener("click", toggleTheme);
+        setLanguage(currentLang);
+        document
+          .getElementById("lang-es")
+          ?.addEventListener("click", () => setLanguage("es"));
+        document
+          .getElementById("lang-en")
+          ?.addEventListener("click", () => setLanguage("en"));
+        const userBtn = document.getElementById("user-menu-btn");
+        const userMenu = document.getElementById("user-menu");
+        if (userBtn && userMenu) {
+          userBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            userMenu.style.display =
+              userMenu.style.display === "block" ? "none" : "block";
+          });
+          document.addEventListener(
+            "click",
+            () => (userMenu.style.display = "none"),
+          );
+        }
+      });
+    </script>
+
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

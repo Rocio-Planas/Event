@@ -1,3 +1,8 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+from django.utils.translation import gettext_lazy as _
+
 """
 Django settings for config project.
 
@@ -14,10 +19,6 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 Django settings for config project.
 """
 
-import os
-from pathlib import Path
-from dotenv import load_dotenv
-from django.utils.translation import gettext_lazy as _
 
 load_dotenv()
 
@@ -39,7 +40,13 @@ INSTALLED_APPS = [
     'channels',
     'core',
     'usuarios',
-    'chat'
+    'chat',
+
+    # Eventos virtuales
+    'virtualEvent.apps.VirtualEventConfig',
+    've_streaming',
+    've_chat',
+    've_invitations',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +58,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    've_chat.middleware.FakeAuthMiddleware',
+    'virtualEvent.middleware.VisitTrackingMiddleware',
 
 ]
 
@@ -84,6 +93,9 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD', ''),
         'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT': os.getenv('DB_PORT', '5432'),
+        'OPTIONS': {
+            'options': '-c client_encoding=utf8'
+        }
     }
 }
 
@@ -137,7 +149,7 @@ LOGIN_REDIRECT_URL = 'usuarios:perfil'
 LOGOUT_REDIRECT_URL = 'usuarios:login'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-##EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
@@ -170,5 +182,16 @@ CHANNEL_LAYERS = {
 }
 
 
-TIME_ZONE = 'America/Lima'
+TIME_ZONE = 'America/Havana'
 USE_TZ = True
+
+
+# Email para desarrollo (ver emails en consola)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+BASE_URL = 'http://127.0.0.1:8000'  # Cambia en producción
+DEFAULT_FROM_EMAIL = 'noreply@tuplataforma.com'
+
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+# Palabras ofensivas para moderación automática
+OFFENSIVE_WORDS = ['palabra1', 'palabra2', 'insulto', 'ofensa']  # Personalizar luego

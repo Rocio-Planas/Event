@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.i18n import set_language
+from django.views.i18n import set_language  # noqa: F401
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,6 +28,12 @@ urlpatterns = [
     # Incluye las URLs de autenticación bajo el prefijo 'password-reset/'
     path('password-reset/', include('django.contrib.auth.urls')),
     path('chat/', include('chat.urls')),
+
+    # Eventos virtuales
+    path('eventos/', include('virtualEvent.urls', namespace='virtualEvent')),
+    path('streaming/', include('ve_streaming.urls')),
+    path('chat/', include('ve_chat.urls')),
+    path('invitacion/', include('ve_invitations.urls')),
 ]
 
 if settings.DEBUG:

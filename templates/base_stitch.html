@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}EventPulse{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -559,7 +559,7 @@
                 <div class="hidden md:flex items-center gap-6">
                     <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="{% url 'core:home' %}" data-i18n="nav_inicio">Inicio</a>
                     <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="#" onclick="alert('Próximamente: Eventos Presenciales')" data-i18n="nav_presenciales">Eventos Presenciales</a>
-                    <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="#" onclick="alert('Próximamente: Eventos Virtuales')" data-i18n="nav_virtuales">Eventos Virtuales</a>
+                    <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="{% url 'virtualEvent:event_create' %}" data-i18n="nav_virtuales">Eventos Virtuales</a>
                     <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="{% url 'core:contacto' %}" data-i18n="nav_contacto">Contacto</a>
                 </div>
             </div>
