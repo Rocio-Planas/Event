@@ -1,0 +1,242 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}EventPulse - Descubre Eventos{% endblock %}
+{% block content %}
+<section class="mb-12">
+    <div class="rounded-2xl p-8 text-center" style="background: linear-gradient(135deg, var(--primary) 0%, var(--surface-container-low) 100%);">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4" style="color: var(--text-on-surface);" data-i18n="hero_title">Descubre Experiencias Increíbles</h1>
+        <p class="text-lg mb-6" style="color: var(--text-on-surface-variant);" data-i18n="hero_subtitle">Eventos presenciales y virtuales adaptados a tus gustos.</p>
+        <form method="get" action="{% url 'core:home' %}" class="flex justify-center gap-3 max-w-md mx-auto">
+            <input type="text" name="busqueda" value="{{ busqueda }}" class="flex-1 px-4 py-3 rounded-lg border focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none" style="background-color: var(--surface-container-lowest); border-color: var(--border-outline-variant); color: var(--text-on-surface);" data-i18n-placeholder="search_placeholder" placeholder="Buscar eventos...">
+            <button type="submit" class="px-6 py-3 btn-gradient-primary text-white rounded-lg font-semibold" data-i18n="search_btn">Buscar</button>
+        </form>
+    </div>
+</section>
+
+<section class="mb-12">
+    <h2 class="text-2xl font-bold mb-6" style="color: var(--text-on-surface);" data-i18n="cat_title">Explorar por Categoría</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        {% for cat in categorias %}
+        <a href="?categoria={{ cat.nombre }}" class="rounded-xl p-4 text-center shadow-sm hover:shadow-md transition cursor-pointer" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
+            <span class="material-symbols-outlined text-3xl" style="color: var(--primary);">
+                {% if cat.icono == 'theater_comedy' %}theater_comedy
+                {% elif cat.icono == 'sports_dance' %}sports_dance
+                {% else %}{{ cat.icono|default:"event" }}
+                {% endif %}
+            </span>
+            <p class="mt-2 font-medium category-name" style="color: var(--text-on-surface);" data-cat-original="{{ cat.nombre }}">{{ cat.nombre }}</p>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="mb-12">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold" style="color: var(--text-on-surface);" data-i18n="rec_title">Recomendados para ti</h2>
+        <div class="flex gap-2">
+            {% if categoria_seleccionada or busqueda %}
+            <a href="{% url 'core:home' %}" class="p-2 rounded-full border transition-colors text-sm" style="border-color: var(--border-outline-variant); color: var(--text-on-surface-variant);">
+                ✖ Limpiar filtros
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% if eventos %}
+    <div class="relative overflow-hidden">
+        <div class="flex gap-6 overflow-x-auto pb-4 custom-scrollbar">
+            {% for evento in eventos %}
+            <div class="min-w-[280px] rounded-xl shadow-sm overflow-hidden flex flex-col" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
+                <img src="{{ evento.imagen }}" class="w-full h-48 object-cover" alt="{{ evento.titulo }}">
+                <div class="p-4 flex flex-col flex-grow">
+                    <h3 class="font-bold text-lg" style="color: var(--text-on-surface);">{{ evento.titulo }}</h3>
+                    <div class="flex items-center gap-1 mt-1">
+                        <span class="material-symbols-outlined text-yellow-500 text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="text-sm font-bold" style="color: var(--text-on-surface);">4.5</span>
+                        <span class="text-xs ml-1" style="color: var(--text-on-surface-variant);">(120)</span>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <form method="post" action="{% url 'core:suscribirse' %}" class="flex-1">
+                            {% csrf_token %}
+                            <input type="hidden" name="evento_id" value="{{ evento.id }}">
+                            <input type="hidden" name="tipo_evento" value="{{ evento.tipo }}">
+                            <input type="hidden" name="titulo" value="{{ evento.titulo }}">
+                            <input type="hidden" name="fecha" value="{{ evento.fecha }}">
+                            <input type="hidden" name="imagen" value="{{ evento.imagen }}">
+                            <button type="submit" class="w-full px-3 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:opacity-90 transition">
+                                <span data-i18n="subscribe_btn">Suscribirse</span>
+                            </button>
+                        </form>
+                        
+                        <div class="relative share-wrapper">
+                            <button class="share-trigger px-3 py-2 rounded-lg flex items-center justify-center gap-2 text-sm font-semibold transition w-full" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);">
+                                <i class="fas fa-share-alt"></i> <span data-i18n="share_btn">Compartir</span>
+                            </button>
+                            <div class="share-menu hidden absolute right-0 bottom-full mb-2 w-56 rounded-xl shadow-xl z-30 p-3" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button class="share-facebook flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                        <i class="fab fa-facebook-f text-xl" style="color: #1877f2;"></i>
+                                        <span class="text-xs">Facebook</span>
+                                    </button>
+                                    <button class="share-twitter flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                        <i class="fab fa-x-twitter text-xl" style="color: #000000;"></i>
+                                        <span class="text-xs">X</span>
+                                    </button>
+                                    <button class="share-whatsapp flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                        <i class="fab fa-whatsapp text-xl" style="color: #25D366;"></i>
+                                        <span class="text-xs">WhatsApp</span>
+                                    </button>
+                                    <button class="share-telegram flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                        <i class="fab fa-telegram-plane text-xl" style="color: #26A5E4;"></i>
+                                        <span class="text-xs">Telegram</span>
+                                    </button>
+                                    <button class="share-copy flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition col-span-2" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                        <i class="fas fa-link text-xl" style="color: var(--text-on-surface-variant);"></i>
+                                        <span class="text-xs">Copiar enlace (Instagram, etc.)</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <a href="{% url 'core:detalle_evento' evento.id %}" class="px-3 py-2 rounded-lg text-sm font-semibold transition text-center" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);">
+                            <span class="material-symbols-outlined text-sm">rate_review</span> <span data-i18n="view_reviews">Ver reseñas</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-8">
+        <p class="text-on-surface-variant">No se encontraron eventos con esos criterios.</p>
+        <a href="{% url 'core:home' %}" class="text-primary hover:underline">Mostrar todos los eventos</a>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Mapa interactivo (versión estable sin traducción de idioma) -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold mb-4" style="color: var(--text-on-surface);" data-i18n="map_title">Eventos cerca de ti</h2>
+    <div class="rounded-xl overflow-hidden shadow-sm" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
+        <div id="map" style="height: 400px; width: 100%; z-index: 1;"></div>
+        <div class="p-4 flex gap-2 bg-surface-container-low border-t border-outline-variant">
+            <div class="relative flex-grow">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-on-surface-variant);">location_on</span>
+                <input type="text" id="search-location" class="w-full pl-9 pr-4 py-2 rounded-lg border-none" style="background-color: var(--surface-container-low); color: var(--text-on-surface);" data-i18n-placeholder="map_placeholder" placeholder="Ingresa una dirección...">
+            </div>
+            <button id="search-map" class="px-6 py-2 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition" onclick="searchLocation()" data-i18n="map_btn">Ver mapa</button>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Eventos de ejemplo para el mapa
+    const eventosMapa = [
+        { titulo: "Concierto Rock 2025", categoria: "Conciertos", lat: -12.0464, lng: -77.0428, direccion: "Centro de Lima, Perú", fecha: "15/05/2025" },
+        { titulo: "Teatro Nacional", categoria: "Teatro", lat: -12.0621, lng: -77.0365, direccion: "San Borja, Lima", fecha: "20/06/2025" },
+        { titulo: "Webinar IA", categoria: "Conferencias", lat: -12.1194, lng: -77.0341, direccion: "Miraflores, Lima", fecha: "10/07/2025" },
+        { titulo: "Feria Gastronómica", categoria: "Gastronomía", lat: -12.1328, lng: -77.0301, direccion: "Barranco, Lima", fecha: "05/08/2025" }
+    ];
+
+    let map;
+    let markers = [];
+
+    function initMap() {
+        const centerLat = -12.0464;
+        const centerLng = -77.0428;
+        map = L.map('map').setView([centerLat, centerLng], 12);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19,
+            minZoom: 3
+        }).addTo(map);
+        
+        eventosMapa.forEach(evento => {
+            const marker = L.marker([evento.lat, evento.lng]).addTo(map);
+            marker.bindPopup(`
+                <b>${evento.titulo}</b><br>
+                ${evento.categoria}<br>
+                📍 ${evento.direccion}<br>
+                📅 ${evento.fecha}<br>
+                <button onclick="alert('Suscribirse a ${evento.titulo}')" style="background:#0057cd; color:white; border:none; padding:4px 8px; border-radius:8px; margin-top:4px; cursor:pointer;">Suscribirse</button>
+            `);
+            markers.push(marker);
+        });
+    }
+
+    function searchLocation() {
+        const address = document.getElementById('search-location').value;
+        if (!address.trim()) {
+            alert("Ingresa una dirección para buscar");
+            return;
+        }
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    map.setView([lat, lon], 14);
+                    L.marker([lat, lon]).addTo(map).bindPopup(`<b>${address}</b>`).openPopup();
+                } else {
+                    alert("No se encontró la ubicación");
+                }
+            })
+            .catch(error => {
+                console.error("Error en geocodificación:", error);
+                alert("Error al buscar la ubicación");
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initMap();
+        const searchBtn = document.getElementById('search-map');
+        if (searchBtn) searchBtn.onclick = (e) => { e.preventDefault(); searchLocation(); };
+
+        // Mostrar/ocultar menús de compartir
+        const shareTriggers = document.querySelectorAll('.share-trigger');
+        shareTriggers.forEach(trigger => {
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const menu = trigger.closest('.share-wrapper').querySelector('.share-menu');
+                document.querySelectorAll('.share-menu').forEach(m => { if (m !== menu) m.classList.add('hidden'); });
+                menu.classList.toggle('hidden');
+            });
+        });
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.share-menu').forEach(m => m.classList.add('hidden'));
+        });
+
+        // Compartir funciones
+        const shareData = (btn, platform) => {
+            const title = btn.dataset.eventTitle;
+            const url = btn.dataset.eventUrl;
+            let shareUrl = '';
+            if (platform === 'facebook') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}`;
+            if (platform === 'twitter') shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+            if (platform === 'whatsapp') shareUrl = `https://wa.me/?text=${encodeURIComponent(title + ' - ' + url)}`;
+            if (platform === 'telegram') shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+            if (shareUrl) window.open(shareUrl, '_blank', 'width=600,height=400');
+        };
+
+        document.querySelectorAll('.share-facebook').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); shareData(btn, 'facebook'); }));
+        document.querySelectorAll('.share-twitter').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); shareData(btn, 'twitter'); }));
+        document.querySelectorAll('.share-whatsapp').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); shareData(btn, 'whatsapp'); }));
+        document.querySelectorAll('.share-telegram').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); shareData(btn, 'telegram'); }));
+        
+        document.querySelectorAll('.share-copy').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const url = btn.dataset.eventUrl;
+                try {
+                    await navigator.clipboard.writeText(url);
+                    alert('✅ Enlace copiado al portapapeles. Ahora puedes pegarlo en Instagram u otra red social.');
+                } catch (err) {
+                    alert('❌ No se pudo copiar. Copia manualmente: ' + url);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

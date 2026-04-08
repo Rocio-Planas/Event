@@ -1,0 +1,214 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}Registro - EventPulse{% endblock %}
+{% block content %}
+<style>
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    .category-chip {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+        background: var(--surface-container-lowest, #ffffff);
+        border: 1px solid var(--border-outline-variant, #c2c6d8);
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-on-surface-variant, #424655);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        user-select: none;
+    }
+    .category-chip:hover {
+        background: var(--surface-container-high, #e5e8ee);
+        transform: translateY(-1px);
+    }
+    .category-chip.selected {
+        background: var(--primary, #0057cd);
+        border-color: var(--primary, #0057cd);
+        color: white;
+        box-shadow: 0 2px 8px rgba(0, 87, 206, 0.2);
+    }
+    .category-chip .material-symbols-outlined {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+    }
+</style>
+
+<div class="max-w-6xl w-full mx-auto">
+    <form method="post" id="registroForm">
+        {% csrf_token %}
+        <div class="rounded-xl shadow-sm overflow-hidden flex flex-col md:flex-row transition-all duration-300" style="background-color: var(--surface-container-lowest);">
+            <div class="w-full md:w-1/2 p-8 lg:p-12" style="border-right: 1px solid var(--border-outline-variant);">
+                <header class="mb-8">
+                    <h2 class="text-2xl font-bold mb-2" style="color: var(--text-on-surface);" data-i18n="register">Crear cuenta</h2>
+                    <p class="body-md" style="color: var(--text-on-surface-variant);" data-i18n="contact_subtitle">Únete a nuestra comunidad de eventos hoy mismo.</p>
+                </header>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="label-md" style="color: var(--text-on-surface-variant);" data-i18n="first_name">Nombre</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="space-y-1">
+                        <label class="label-md" style="color: var(--text-on-surface-variant);" data-i18n="last_name">Apellido</label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+                <div class="space-y-1 mt-4">
+                    <label class="label-md" style="color: var(--text-on-surface-variant);" data-i18n="email">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<p class="text-error text-xs mt-1">{{ form.email.errors.0 }}</p>{% endif %}
+                </div>
+                <div class="space-y-1 mt-4">
+                    <label class="label-md" style="color: var(--text-on-surface-variant);" data-i18n="phone">Teléfono</label>
+                    {{ form.telefono }}
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    <div class="space-y-1">
+                        <label class="label-md" style="color: var(--text-on-surface-variant);" data-i18n="birth_date">Fecha de nacimiento</label>
+                        {{ form.fecha_nacimiento }}
+                    </div>
+                    <div class="space-y-1">
+                        <label class="label-md" style="color: var(--text-on-surface-variant);" data-i18n="gender">Género</label>
+                        {{ form.sexo }}
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    <div class="space-y-1">
+                        <label class="label-md" style="color: var(--text-on-surface-variant);" data-i18n="password">Contraseña</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}<p class="text-error text-xs mt-1">{{ form.password1.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="space-y-1">
+                        <label class="label-md" style="color: var(--text-on-surface-variant);" data-i18n="confirm_password">Confirmar</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}<p class="text-error text-xs mt-1">{{ form.password2.errors.0 }}</p>{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="w-full md:w-1/2 p-8 lg:p-12" style="background-color: var(--surface-container-low);">
+                <div class="flex-grow">
+                    <header class="mb-8">
+                        <h2 class="text-2xl font-bold mb-2" style="color: var(--text-on-surface);" data-i18n="select_categories">Selecciona tus eventos favoritos</h2>
+                        <p class="body-md" style="color: var(--text-on-surface-variant);" data-i18n="select_categories_help">Elige al menos 3 para comenzar y personalizar tu experiencia.</p>
+                    </header>
+                    {{ form.categorias }}
+                    <div id="chipsContainer" class="categories-grid">
+                        {% for categoria in categorias %}
+                        <div class="category-chip" data-id="{{ categoria.id }}">
+                            {% if categoria.icono %}
+                            <span class="material-symbols-outlined">
+                                {% if categoria.icono == 'theater_comedy' %}theater_comedy
+                                {% elif categoria.icono == 'sports_dance' %}sports_dance
+                                {% else %}{{ categoria.icono }}
+                                {% endif %}
+                            </span>
+                            {% endif %}
+                            <span class="category-name" data-cat-original="{{ categoria.nombre }}">{{ categoria.nombre }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <p class="text-error text-[12px] font-semibold mt-4 hidden" id="categoryError" data-i18n="category_error">Debes seleccionar al menos 3 categorías.</p>
+                </div>
+                <div class="mt-8 flex flex-wrap gap-4 pt-8" style="border-top: 1px solid var(--border-outline-variant);">
+                    <button type="button" class="flex-1 py-3 px-6 rounded-lg border font-semibold transition-all text-sm flex items-center justify-center gap-2" id="selectAll" style="border-color: var(--secondary); color: var(--secondary); background: transparent;">
+                        <span class="material-symbols-outlined text-[18px]">done_all</span>
+                        <span data-i18n="select_all">Seleccionar todos</span>
+                    </button>
+                    <button type="button" class="flex-1 py-3 px-6 rounded-lg border font-semibold transition-all text-sm flex items-center justify-center gap-2" id="clearAll" style="border-color: var(--border-outline-variant); color: var(--text-on-surface-variant); background: transparent;">
+                        <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+                        <span data-i18n="clear_all">Limpiar selección</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="mt-6 text-center">
+            <button type="submit" class="w-full md:w-auto px-12 py-4 btn-gradient-primary text-white font-bold rounded-lg shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-2 mx-auto" data-i18n="register_btn">
+                Registrarme
+                <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const hiddenInput = document.getElementById('id_categorias');
+        const chipsContainer = document.getElementById('chipsContainer');
+        const form = document.getElementById('registroForm');
+        const categoryError = document.getElementById('categoryError');
+        const selectAllBtn = document.getElementById('selectAll');
+        const clearAllBtn = document.getElementById('clearAll');
+
+        if (!hiddenInput || !chipsContainer) return;
+        const chips = Array.from(document.querySelectorAll('.category-chip'));
+        let selectedValues = new Set();
+
+        function updateHiddenInput() {
+            const selectedArray = Array.from(selectedValues);
+            hiddenInput.value = selectedArray.join(',');
+            chips.forEach(chip => {
+                const value = chip.dataset.id;
+                if (selectedValues.has(value)) {
+                    chip.classList.add('selected');
+                } else {
+                    chip.classList.remove('selected');
+                }
+            });
+            if (selectedValues.size >= 3) {
+                categoryError.classList.add('hidden');
+            } else {
+                categoryError.classList.remove('hidden');
+            }
+        }
+
+        chips.forEach(chip => {
+            chip.addEventListener('click', function(e) {
+                e.preventDefault();
+                const value = this.dataset.id;
+                if (selectedValues.has(value)) {
+                    selectedValues.delete(value);
+                } else {
+                    selectedValues.add(value);
+                }
+                updateHiddenInput();
+            });
+        });
+
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', () => {
+                chips.forEach(chip => selectedValues.add(chip.dataset.id));
+                updateHiddenInput();
+            });
+        }
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', () => {
+                selectedValues.clear();
+                updateHiddenInput();
+            });
+        }
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (selectedValues.size < 3) {
+                    e.preventDefault();
+                    categoryError.classList.remove('hidden');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+        }
+        if (hiddenInput.value) {
+            const initialValues = hiddenInput.value.split(',').filter(v => v);
+            initialValues.forEach(v => selectedValues.add(v));
+            updateHiddenInput();
+        }
+    });
+</script>
+<div class="text-center mt-4">
+    <p class="text-sm text-on-surface-variant">¿Ya tienes cuenta? <a href="{% url 'usuarios:login' %}" class="text-primary hover:underline">Inicia sesión aquí</a></p>
+</div>
+{% endblock %}

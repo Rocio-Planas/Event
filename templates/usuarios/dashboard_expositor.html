@@ -1,0 +1,24 @@
+{% extends "base_stitch.html" %}
+{% block title %}Panel de Expositor - EventPulse{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <h1 class="text-3xl font-bold text-on-surface mb-8" data-i18n="exhibitor_panel">Panel de Expositor</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-semibold mb-4" data-i18n="my_stands">Mis Stands</h3>
+            <p class="text-on-surface-variant" data-i18n="my_stands_desc">Solicitar stands en eventos.</p>
+            <a href="#" class="mt-4 inline-block text-primary hover:underline" onclick="alert('Funcionalidad pendiente')" data-i18n="request_stand">Solicitar stand</a>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-semibold mb-4" data-i18n="my_talks">Charlas</h3>
+            <p class="text-on-surface-variant" data-i18n="my_talks_desc">Solicitar charlas en eventos.</p>
+            <a href="#" class="mt-4 inline-block text-primary hover:underline" onclick="alert('Funcionalidad pendiente')" data-i18n="request_talk">Solicitar charla</a>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-semibold mb-4" data-i18n="my_participations">Mis Participaciones</h3>
+            <p class="text-on-surface-variant" data-i18n="my_participations_desc">Ver eventos en los que participas.</p>
+            <a href="#" class="mt-4 inline-block text-primary hover:underline" onclick="alert('Funcionalidad pendiente')" data-i18n="view_participations">Ver participaciones</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

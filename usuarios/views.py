@@ -1,0 +1,179 @@
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.views.decorators.csrf import ensure_csrf_cookie
+import os
+from .forms import RegistroForm, LoginForm, RecuperacionPasswordForm, PerfilForm, CambiarPasswordForm, PreferenciasForm
+from .models import Usuario
+from core.models import CategoriaEvento, Suscripcion, Consulta, Resena
+from .decorators import role_required
+
+@login_required
+@role_required(['administrador'])
+def dashboard_metrics(request):
+    total_usuarios = Usuario.objects.count()
+    total_suscripciones = Suscripcion.objects.count()
+    total_resenas_aprobadas = Resena.objects.filter(aprobada=True).count()
+    total_consultas = Consulta.objects.count()
+    context = {
+        'total_usuarios': total_usuarios,
+        'total_suscripciones': total_suscripciones,
+        'total_resenas_aprobadas': total_resenas_aprobadas,
+        'total_consultas': total_consultas,
+    }
+    return render(request, 'usuarios/dashboard_metrics.html', context)
+
+def registro_view(request):
+    if request.user.is_authenticated:
+        return redirect('usuarios:dashboard')
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f'¡Bienvenido/a, {user.first_name}!')
+            return redirect('usuarios:dashboard')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = RegistroForm()
+    categorias = CategoriaEvento.objects.filter(activo=True)
+    return render(request, 'usuarios/registro.html', {'form': form, 'categorias': categorias})
+
+@ensure_csrf_cookie
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('usuarios:dashboard')
+    if request.method == 'POST':
+        form = LoginForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            if not form.cleaned_data.get('remember_me'):
+                request.session.set_expiry(0)
+            messages.success(request, f'¡Bienvenido/a de nuevo, {user.first_name}!')
+            return redirect('usuarios:dashboard')
+        else:
+            messages.error(request, 'Email o contraseña incorrectos')
+    else:
+        form = LoginForm()
+    return render(request, 'usuarios/login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'Has cerrado sesión correctamente.')
+    return redirect('usuarios:login')
+
+def recuperar_password_view(request):
+    if request.method == 'POST':
+        form = RecuperacionPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            # Simular envío de email
+            messages.success(request, f'Se ha enviado un enlace de recuperación a {email}')
+            return redirect('usuarios:login')  # Corregido con namespace
+    else:
+        form = RecuperacionPasswordForm()
+    return render(request, 'usuarios/recuperar_password.html', {'form': form})
+
+@login_required
+def perfil_view(request):
+    return render(request, 'usuarios/perfil.html', {'user': request.user})
+
+@login_required
+def editar_perfil_view(request):
+    usuario = request.user
+    if request.method == 'POST':
+        form = PerfilForm(request.POST, request.FILES, instance=usuario)
+        if form.is_valid():
+            if 'avatar' in request.FILES and usuario.avatar and usuario.avatar.name != 'avatars/default.png':
+                old_path = usuario.avatar.path
+                if os.path.exists(old_path):
+                    os.remove(old_path)
+            form.save()
+            messages.success(request, 'Perfil actualizado correctamente.')
+            return redirect('usuarios:perfil')
+    else:
+        form = PerfilForm(instance=usuario)
+    return render(request, 'usuarios/editar_perfil.html', {'form': form, 'usuario': usuario})
+
+@login_required
+def cambiar_password_view(request):
+    if request.method == 'POST':
+        form = CambiarPasswordForm(request.POST)
+        if form.is_valid():
+            user = authenticate(request, email=request.user.email, password=form.cleaned_data['password_actual'])
+            if user:
+                user.set_password(form.cleaned_data['nueva_password'])
+                user.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Contraseña cambiada correctamente.')
+                return redirect('usuarios:perfil')
+            else:
+                form.add_error('password_actual', 'La contraseña actual es incorrecta')
+    else:
+        form = CambiarPasswordForm()
+    return render(request, 'usuarios/cambiar_password.html', {'form': form})
+
+@login_required
+def dashboard_redirect(request):
+    if not request.user.rol:
+        request.user.rol = 'espectador'
+        request.user.save()
+    rol = request.user.rol
+    if rol == 'administrador':
+        return redirect('usuarios:dashboard_admin')
+    elif rol == 'organizador':
+        return redirect('usuarios:dashboard_organizador')
+    elif rol == 'expositor':
+        return redirect('usuarios:dashboard_expositor')
+    else:
+        return redirect('usuarios:dashboard_espectador')
+
+@login_required
+@role_required(['administrador'])
+def dashboard_admin(request):
+    return render(request, 'usuarios/dashboard_admin.html', {'user': request.user})
+
+@login_required
+@role_required(['organizador'])
+def dashboard_organizador(request):
+    return render(request, 'usuarios/dashboard_organizador.html', {'user': request.user})
+
+@login_required
+@role_required(['expositor'])
+def dashboard_expositor(request):
+    return render(request, 'usuarios/dashboard_expositor.html', {'user': request.user})
+
+@login_required
+@role_required(['espectador'])
+def dashboard_espectador(request):
+    return render(request, 'usuarios/dashboard_espectador.html', {'user': request.user})
+
+def contacto_view(request):
+    # Esta vista está en core, pero la mantenemos aquí si quieres, o la movemos a core.views
+    # Por simplicidad, la dejamos aquí y redirigimos a core:contacto
+    return redirect('core:contacto')
+
+@login_required
+def editar_preferencias(request):
+    if request.method == 'POST':
+        form = PreferenciasForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Tus preferencias se han actualizado correctamente.')
+            return redirect('usuarios:perfil')
+        else:
+            for error in form.errors.get('categorias', []):
+                messages.error(request, error)
+    else:
+        form = PreferenciasForm(request.user)
+    categorias = CategoriaEvento.objects.filter(activo=True).order_by('orden')
+    return render(request, 'usuarios/editar_preferencias.html', {
+        'form': form,
+        'categorias': categorias
+    })
+

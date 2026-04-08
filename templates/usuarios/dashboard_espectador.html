@@ -1,0 +1,25 @@
+{% extends "base_stitch.html" %}
+{% block title %}Mi Panel - EventPulse{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <h1 class="text-3xl font-bold text-on-surface mb-8" data-i18n="spectator_panel">Mi Panel</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-semibold mb-4" data-i18n="my_events_list">Mis Eventos</h3>
+            <p class="text-on-surface-variant" data-i18n="my_events_desc_spectator">Eventos a los que estás suscrito.</p>
+            <!-- Cambiado: redirige al perfil -->
+            <a href="{% url 'usuarios:perfil' %}" class="mt-4 inline-block text-primary hover:underline" data-i18n="view_my_events">Ver mis eventos</a>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-semibold mb-4" data-i18n="explore_events">Explorar Eventos</h3>
+            <p class="text-on-surface-variant" data-i18n="explore_events_desc">Descubre nuevos eventos.</p>
+            <a href="{% url 'core:home' %}" class="mt-4 inline-block text-primary hover:underline" data-i18n="explore_btn">Explorar</a>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-semibold mb-4" data-i18n="my_preferences">Mis Preferencias</h3>
+            <p class="text-on-surface-variant" data-i18n="my_preferences_desc">Personaliza tu feed de eventos.</p>
+            <a href="{% url 'usuarios:perfil' %}" class="mt-4 inline-block text-primary hover:underline" data-i18n="edit_preferences">Editar preferencias</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

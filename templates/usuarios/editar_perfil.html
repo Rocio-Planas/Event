@@ -1,0 +1,102 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}Editar Perfil - EventPulse{% endblock %}
+{% block content %}
+<div class="max-w-6xl w-full mx-auto">
+    <div class="bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden border border-outline-variant/10">
+        <div class="p-8 lg:p-12">
+            <header class="mb-8 text-center">
+                <h2 class="text-3xl font-bold text-on-surface mb-2" data-i18n="edit_profile">Editar Perfil</h2>
+                <p class="text-on-surface-variant" data-i18n="edit_profile_subtitle">Actualiza tus datos personales y preferencias</p>
+            </header>
+            
+            <form method="post" enctype="multipart/form-data" class="space-y-8">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    <!-- Primera columna -->
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="first_name">Nombre</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="last_name">Apellido</label>
+                            {{ form.last_name }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="phone">Teléfono</label>
+                            {{ form.telefono }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="birth_date">Fecha de nacimiento</label>
+                            {{ form.fecha_nacimiento }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="gender">Género</label>
+                            {{ form.sexo }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="avatar">Avatar</label>
+                            {{ form.avatar }}
+                            {% if user.avatar %}
+                                <div class="mt-3">
+                                    <img src="{{ user.avatar.url }}" class="w-20 h-20 rounded-full object-cover border-2 border-primary shadow-sm">
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Segunda columna -->
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="address">Dirección</label>
+                            {{ form.direccion }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="bio">Biografía</label>
+                            {{ form.biografia }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="website">Sitio Web</label>
+                            {{ form.website }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="twitter">Twitter</label>
+                            {{ form.twitter }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="instagram">Instagram</label>
+                            {{ form.instagram }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="linkedin">LinkedIn</label>
+                            {{ form.linkedin }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notificaciones -->
+                <div class="pt-6 border-t border-outline-variant/30">
+                    <div class="flex flex-wrap gap-8">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.recibir_notificaciones }}
+                            <span class="text-sm text-on-surface-variant" data-i18n="receive_notifications">Recibir notificaciones</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.recibir_newsletter }}
+                            <span class="text-sm text-on-surface-variant" data-i18n="receive_newsletter">Recibir newsletter</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Botones -->
+                <div class="flex flex-wrap justify-end gap-4 pt-4">
+                    <!-- CORREGIDO: añadido namespace 'usuarios:' -->
+                    <a href="{% url 'usuarios:perfil' %}" class="px-6 py-2.5 border border-outline-variant rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 font-medium" data-i18n="cancel">Cancelar</a>
+                    <button type="submit" class="px-8 py-2.5 btn-gradient-primary text-white rounded-xl font-semibold hover:shadow-lg hover:scale-[1.02] transition-all duration-200" data-i18n="save_changes">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

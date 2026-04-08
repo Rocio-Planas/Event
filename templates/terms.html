@@ -1,0 +1,25 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}EventPulse - Terms{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8">
+        <h1 class="text-3xl font-bold text-on-surface mb-6" data-i18n="terms_title">Términos y condiciones</h1>
+        <p class="text-on-surface-variant mb-4" data-i18n="last_update">Última actualización: 5 de abril de 2026</p>
+        <p class="text-on-surface-variant mb-4" data-i18n="terms_intro">Bienvenido a EventPulse. Al acceder o utilizar nuestra plataforma, aceptas cumplir con estos términos y condiciones.</p>
+        <h2 class="text-xl font-bold text-on-surface mt-6 mb-2" data-i18n="terms_use_title">1. Uso de la plataforma</h2>
+        <p class="text-on-surface-variant mb-4" data-i18n="terms_use_text">EventPulse es una plataforma de gestión de eventos que conecta organizadores, expositores y asistentes. No nos hacemos responsables por el contenido de los eventos publicados por terceros.</p>
+        <h2 class="text-xl font-bold text-on-surface mt-6 mb-2" data-i18n="terms_account_title">2. Registro y cuentas</h2>
+        <p class="text-on-surface-variant mb-4" data-i18n="terms_account_text">Para acceder a ciertas funcionalidades debes registrarte y proporcionar información veraz. Eres responsable de mantener la confidencialidad de tu contraseña.</p>
+        <h2 class="text-xl font-bold text-on-surface mt-6 mb-2" data-i18n="terms_ip_title">3. Propiedad intelectual</h2>
+        <p class="text-on-surface-variant mb-4" data-i18n="terms_ip_text">Todo el contenido de la plataforma (logotipos, diseño, código) es propiedad de EventPulse. No está permitida su reproducción sin autorización.</p>
+        <h2 class="text-xl font-bold text-on-surface mt-6 mb-2" data-i18n="terms_modifications_title">4. Modificaciones</h2>
+        <p class="text-on-surface-variant mb-4" data-i18n="terms_modifications_text">Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios serán notificados a través de la plataforma.</p>
+        <h2 class="text-xl font-bold text-on-surface mt-6 mb-2" data-i18n="terms_contact_title">5. Contacto</h2>
+        <p class="text-on-surface-variant mb-4" data-i18n="terms_contact_text">Para cualquier duda sobre estos términos, escríbenos a <a href="mailto:soporte@eventpulse.com" class="text-primary hover:underline">soporte@eventpulse.com</a>.</p>
+        <div class="mt-8 text-center">
+            <a href="{% url 'core:home' %}" class="text-primary hover:underline" data-i18n="back_home">← Volver al inicio</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

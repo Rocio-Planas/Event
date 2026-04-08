@@ -1,0 +1,24 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}EventPulse - About{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8">
+        <h1 class="text-3xl font-bold text-on-surface mb-6" data-i18n="about_title">Acerca de EventPulse</h1>
+        <p class="text-on-surface-variant mb-4" data-i18n="about_text1">EventPulse es una plataforma de gestión de eventos diseñada para conectar organizadores, expositores y asistentes en un solo lugar.</p>
+        <p class="text-on-surface-variant mb-4" data-i18n="about_text2">Nuestra misión es facilitar la creación, difusión y participación en eventos presenciales y virtuales, ofreciendo una experiencia moderna, responsiva y accesible para todos.</p>
+        <p class="text-on-surface-variant mb-4" data-i18n="about_text3">Este proyecto forma parte de una tesis universitaria y demuestra la implementación de funcionalidades como autenticación, roles, suscripciones, reseñas, mapa interactivo y modo oscuro.</p>
+        <h2 class="text-xl font-bold text-on-surface mt-6 mb-2" data-i18n="about_tech_title">Tecnologías utilizadas</h2>
+        <ul class="list-disc list-inside text-on-surface-variant mb-4">
+            <li>Django 6.0 (Python)</li>
+            <li>PostgreSQL</li>
+            <li>Tailwind CSS</li>
+            <li>Leaflet (mapas)</li>
+            <li>Font Awesome & Material Symbols</li>
+        </ul>
+        <div class="mt-8 text-center">
+            <a href="{% url 'core:home' %}" class="text-primary hover:underline" data-i18n="back_home">← Volver al inicio</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

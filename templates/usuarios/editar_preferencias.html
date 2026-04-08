@@ -1,0 +1,171 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}Editar Preferencias - EventPulse{% endblock %}
+{% block content %}
+<style>
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    .category-chip {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+        background: var(--surface-container-lowest, #ffffff);
+        border: 1px solid var(--border-outline-variant, #c2c6d8);
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-on-surface-variant, #424655);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        user-select: none;
+    }
+    .category-chip:hover {
+        background: var(--surface-container-high, #e5e8ee);
+        transform: translateY(-1px);
+    }
+    .category-chip.selected {
+        background: var(--primary, #0057cd);
+        border-color: var(--primary, #0057cd);
+        color: white;
+        box-shadow: 0 2px 8px rgba(0, 87, 206, 0.2);
+    }
+    .category-chip .material-symbols-outlined {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+    }
+</style>
+
+<div class="max-w-4xl mx-auto">
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8">
+        <h2 class="text-2xl font-bold text-on-surface mb-6" data-i18n="edit_preferences_title">Editar mis preferencias</h2>
+        <p class="text-on-surface-variant mb-6" data-i18n="select_categories_help">Selecciona al menos 3 categorías que te interesen.</p>
+        
+        <form method="post" id="preferenciasForm">
+            {% csrf_token %}
+            <!-- Campo oculto para almacenar los IDs seleccionados -->
+            <input type="hidden" name="categorias" id="id_categorias" value="">
+            
+            <!-- Chips de categorías -->
+            <div id="chipsContainer" class="categories-grid">
+                {% for categoria in categorias %}
+                <div class="category-chip" data-id="{{ categoria.id }}">
+                    {% if categoria.icono %}
+                    <span class="material-symbols-outlined">
+                        {% if categoria.icono == 'theater_comedy' %}theater_comedy
+                        {% elif categoria.icono == 'sports_dance' %}sports_dance
+                        {% else %}{{ categoria.icono }}
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                    <span class="category-name" data-cat-original="{{ categoria.nombre }}">{{ categoria.nombre }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            <p class="text-error text-[12px] font-semibold mt-4 hidden" id="categoryError" data-i18n="category_error">Debes seleccionar al menos 3 categorías.</p>
+            
+            <div class="mt-8 flex flex-wrap gap-4 pt-4 border-t border-outline-variant/30">
+                <button type="button" class="flex-1 py-3 px-6 rounded-lg border font-semibold transition-all text-sm flex items-center justify-center gap-2" id="selectAll" style="border-color: var(--secondary); color: var(--secondary); background: transparent;">
+                    <span class="material-symbols-outlined text-[18px]">done_all</span>
+                    <span data-i18n="select_all">Seleccionar todos</span>
+                </button>
+                <button type="button" class="flex-1 py-3 px-6 rounded-lg border font-semibold transition-all text-sm flex items-center justify-center gap-2" id="clearAll" style="border-color: var(--border-outline-variant); color: var(--text-on-surface-variant); background: transparent;">
+                    <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+                    <span data-i18n="clear_all">Limpiar selección</span>
+                </button>
+            </div>
+            
+            <div class="mt-8 flex justify-end gap-4">
+                <!-- CORREGIDO: añadido namespace 'usuarios:' -->
+                <a href="{% url 'usuarios:perfil' %}" class="px-6 py-2.5 border border-outline-variant rounded-xl text-on-surface-variant hover:bg-surface-container-high transition font-medium" data-i18n="cancel">Cancelar</a>
+                <button type="submit" class="px-8 py-2.5 btn-gradient-primary text-white rounded-xl font-semibold hover:opacity-90 transition" data-i18n="save_changes">Guardar cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const hiddenInput = document.getElementById('id_categorias');
+        const chips = Array.from(document.querySelectorAll('.category-chip'));
+        const form = document.getElementById('preferenciasForm');
+        const categoryError = document.getElementById('categoryError');
+        const selectAllBtn = document.getElementById('selectAll');
+        const clearAllBtn = document.getElementById('clearAll');
+
+        if (!hiddenInput) return;
+
+        let selectedValues = new Set();
+        
+        if (hiddenInput.value) {
+            const initialValues = hiddenInput.value.split(',').filter(v => v);
+            initialValues.forEach(v => selectedValues.add(v));
+        } else {
+            chips.forEach(chip => {
+                if (chip.classList.contains('selected')) {
+                    selectedValues.add(chip.dataset.id);
+                }
+            });
+        }
+
+        function updateHiddenInput() {
+            const selectedArray = Array.from(selectedValues);
+            hiddenInput.value = selectedArray.join(',');
+            chips.forEach(chip => {
+                const value = chip.dataset.id;
+                if (selectedValues.has(value)) {
+                    chip.classList.add('selected');
+                } else {
+                    chip.classList.remove('selected');
+                }
+            });
+            if (selectedValues.size >= 3) {
+                categoryError.classList.add('hidden');
+            } else {
+                categoryError.classList.remove('hidden');
+            }
+        }
+
+        chips.forEach(chip => {
+            chip.addEventListener('click', function(e) {
+                e.preventDefault();
+                const value = this.dataset.id;
+                if (selectedValues.has(value)) {
+                    selectedValues.delete(value);
+                } else {
+                    selectedValues.add(value);
+                }
+                updateHiddenInput();
+            });
+        });
+
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', () => {
+                chips.forEach(chip => selectedValues.add(chip.dataset.id));
+                updateHiddenInput();
+            });
+        }
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', () => {
+                selectedValues.clear();
+                updateHiddenInput();
+            });
+        }
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (selectedValues.size < 3) {
+                    e.preventDefault();
+                    categoryError.classList.remove('hidden');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+        }
+
+        updateHiddenInput();
+    });
+</script>
+{% endblock %}

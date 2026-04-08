@@ -1,0 +1,270 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}Contacto - EventPulse{% endblock %}
+{% block content %}
+<div class="max-w-4xl w-full mx-auto">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-4" style="color: var(--text-on-surface);" data-i18n="contact_title">¿Cómo podemos ayudarte?</h1>
+        <p class="text-lg" style="color: var(--text-on-surface-variant);" data-i18n="contact_subtitle">Ya sea que necesites soporte o quieras compartir tu experiencia, estamos aquí para escucharte.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Sidebar informativo -->
+        <div class="lg:col-span-4 flex flex-col gap-6">
+            <div class="p-6 rounded-xl shadow-sm border" style="background-color: var(--surface-container-lowest); border-color: var(--border-outline-variant);">
+                <span class="material-symbols-outlined mb-4" style="color: var(--primary); font-size: 32px;">support_agent</span>
+                <h3 class="text-lg font-semibold mb-2" style="color: var(--text-on-surface);" data-i18n="support_title">Soporte en vivo</h3>
+                <p class="text-sm mb-4" style="color: var(--text-on-surface-variant);" data-i18n="support_hours">Nuestro equipo está disponible de lunes a viernes, 9am - 6pm.</p>
+                <button id="chat-now-btn" class="text-primary font-bold text-sm hover:underline" data-i18n="chat_now">Chatear ahora</button>
+            </div>
+            <div class="p-6 rounded-xl shadow-sm overflow-hidden relative" style="background-color: var(--primary); color: white;">
+                <div class="relative z-10">
+                    <h3 class="text-lg font-bold mb-2" data-i18n="global_events_title">Eventos globales</h3>
+                    <p class="text-white/80 text-sm" data-i18n="global_events_text">Únete a miles de organizadores profesionales en nuestra plataforma.</p>
+                </div>
+                <div class="absolute -right-4 -bottom-4 opacity-20">
+                    <span class="material-symbols-outlined" style="font-size: 120px;">event_available</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario con pestañas -->
+        <div class="lg:col-span-8 rounded-xl shadow-sm border overflow-hidden" style="background-color: var(--surface-container-lowest); border-color: var(--border-outline-variant);">
+            <div class="flex border-b" style="border-color: var(--border-outline-variant);">
+                <button class="flex-1 py-4 text-sm font-bold tracking-wider uppercase border-b-2 border-primary text-primary transition-colors" id="tab-review" data-i18n="tab_review">Enviar reseña</button>
+                <button class="flex-1 py-4 text-sm font-bold tracking-wider uppercase border-b-2 border-transparent transition-colors" id="tab-inquiry" style="color: var(--text-on-surface-variant);" data-i18n="tab_inquiry">Consulta general</button>
+            </div>
+            <div class="p-8">
+                <!-- Formulario de reseña -->
+                <form method="post" class="space-y-6" id="form-review">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="review">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="full_name">Nombre completo</label>
+                            {{ review_form.nombre }}
+                        </div>
+                        <div>
+                            <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="email">Email</label>
+                            {{ review_form.email }}
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event_id">ID del evento</label>
+                            {{ review_form.evento_id }}
+                        </div>
+                        <div>
+                            <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event_title">Título del evento</label>
+                            {{ review_form.evento_titulo }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="rating">Calificación</label>
+                        {{ review_form.calificacion }}
+                    </div>
+                    <div>
+                        <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="comment">Comentario</label>
+                        {{ review_form.comentario }}
+                    </div>
+                    <button type="submit" class="w-full py-4 btn-gradient-primary text-white font-bold rounded-lg shadow-md hover:shadow-lg active:scale-[0.98] transition-all uppercase tracking-widest text-sm" data-i18n="send_review">Enviar reseña</button>
+                </form>
+
+                <!-- Formulario de consulta -->
+                <form method="post" class="space-y-6 hidden" id="form-inquiry">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="inquiry">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="full_name">Nombre completo</label>
+                            {{ inquiry_form.nombre }}
+                        </div>
+                        <div>
+                            <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="email">Email</label>
+                            {{ inquiry_form.email }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="type">Tipo de consulta</label>
+                        {{ inquiry_form.tipo }}
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event_id">ID del evento (opcional)</label>
+                            {{ inquiry_form.evento_id }}
+                        </div>
+                        <div>
+                            <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event_title">Título del evento (opcional)</label>
+                            {{ inquiry_form.evento_titulo }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="subject">Asunto</label>
+                        {{ inquiry_form.asunto }}
+                    </div>
+                    <div>
+                        <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="message">Mensaje</label>
+                        {{ inquiry_form.mensaje }}
+                    </div>
+                    <button type="submit" class="w-full py-4 btn-gradient-primary text-white font-bold rounded-lg shadow-md hover:shadow-lg active:scale-[0.98] transition-all uppercase tracking-widest text-sm" data-i18n="send_message">Enviar mensaje</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal del chat (flotante) -->
+<div id="chat-modal" class="fixed bottom-5 right-5 w-96 bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant hidden z-50 flex flex-col">
+    <div class="p-4 border-b border-outline-variant flex justify-between items-center">
+        <h3 class="font-bold text-on-surface">Chat de soporte</h3>
+        <button id="close-chat" class="text-on-surface-variant hover:text-on-surface text-2xl leading-5">&times;</button>
+    </div>
+    <div id="chat-messages" class="h-80 overflow-y-auto p-4 space-y-2 bg-surface-container-low"></div>
+    <div class="p-4 border-t border-outline-variant flex gap-2">
+        <input type="text" id="chat-input" class="flex-1 px-3 py-2 rounded-lg border focus:ring-primary" placeholder="Escribe tu mensaje...">
+        <button id="chat-send" class="px-4 py-2 bg-primary text-white rounded-lg">Enviar</button>
+    </div>
+</div>
+
+<script>
+    let conversacionId = null;
+    let lastMessageId = 0;
+    let pollingInterval = null;
+
+    const chatModal = document.getElementById('chat-modal');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
+    const closeChatBtn = document.getElementById('close-chat');
+    const chatNowBtn = document.getElementById('chat-now-btn');
+
+    // Obtener o crear la conversación del usuario
+    async function iniciarConversacion() {
+        try {
+            const response = await fetch('/chat/mi-conversacion/');
+            if (!response.ok) throw new Error('Error al obtener conversación');
+            const data = await response.json();
+            conversacionId = data.conversacion_id;
+            startPolling();
+            fetchMessages();
+        } catch (err) {
+            console.error('Error al iniciar conversación:', err);
+        }
+    }
+
+    function openChat() {
+        if (!conversacionId) {
+            iniciarConversacion().then(() => {
+                chatModal.classList.remove('hidden');
+            });
+        } else {
+            chatModal.classList.remove('hidden');
+            startPolling();
+            fetchMessages();
+        }
+    }
+
+    function closeChatModal() {
+        chatModal.classList.add('hidden');
+        if (pollingInterval) clearInterval(pollingInterval);
+    }
+
+    function startPolling() {
+        if (pollingInterval) clearInterval(pollingInterval);
+        pollingInterval = setInterval(fetchMessages, 3000);
+    }
+
+    async function fetchMessages() {
+        if (!conversacionId) return;
+        try {
+            const response = await fetch(`/chat/mensajes/${conversacionId}/?last_id=${lastMessageId}`);
+            if (!response.ok) throw new Error('Error al obtener mensajes');
+            const data = await response.json();
+            for (const msg of data.mensajes) {
+                const div = document.createElement('div');
+                div.className = `p-2 rounded-lg ${msg.es_propio ? 'bg-primary/10 text-right' : 'bg-surface-container-high'}`;
+                // Nombre del remitente sin etiquetas extra
+                let senderName = '';
+                if (msg.es_admin) {
+                    senderName = 'Soporte';
+                } else if (msg.es_propio) {
+                    senderName = 'Tú';
+                } else {
+                    senderName = 'Usuario';
+                }
+                div.innerHTML = `<strong>${escapeHtml(senderName)}</strong> <span class="text-xs text-on-surface-variant">${msg.fecha}</span><br>${escapeHtml(msg.texto)}`;
+                chatMessages.appendChild(div);
+                lastMessageId = msg.id;
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        } catch (err) {
+            console.error('Error fetching messages:', err);
+        }
+    }
+
+    async function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message || !conversacionId) return;
+        const formData = new FormData();
+        formData.append('texto', message);
+        try {
+            const response = await fetch(`/chat/enviar/${conversacionId}/`, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+            });
+            if (response.ok) {
+                chatInput.value = '';
+                fetchMessages(); // refrescar inmediatamente
+            }
+        } catch (err) {
+            console.error('Error sending message:', err);
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    if (chatNowBtn) chatNowBtn.onclick = openChat;
+    if (closeChatBtn) closeChatBtn.onclick = closeChatModal;
+    if (chatSend) chatSend.onclick = sendMessage;
+    if (chatInput) chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    window.addEventListener('beforeunload', function() {
+        if (pollingInterval) clearInterval(pollingInterval);
+    });
+
+    // Manejo de pestañas (reseña/consulta)
+    const tabReview = document.getElementById('tab-review');
+    const tabInquiry = document.getElementById('tab-inquiry');
+    const formReview = document.getElementById('form-review');
+    const formInquiry = document.getElementById('form-inquiry');
+    if (tabReview && tabInquiry) {
+        tabReview.addEventListener('click', () => {
+            tabReview.classList.add('border-primary', 'text-primary');
+            tabReview.classList.remove('border-transparent');
+            tabInquiry.classList.remove('border-primary', 'text-primary');
+            tabInquiry.classList.add('border-transparent');
+            formReview.classList.remove('hidden');
+            formInquiry.classList.add('hidden');
+        });
+        tabInquiry.addEventListener('click', () => {
+            tabInquiry.classList.add('border-primary', 'text-primary');
+            tabInquiry.classList.remove('border-transparent');
+            tabReview.classList.remove('border-primary', 'text-primary');
+            tabReview.classList.add('border-transparent');
+            formInquiry.classList.remove('hidden');
+            formReview.classList.add('hidden');
+        });
+    }
+</script>
+{% endblock %}
