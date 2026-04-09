@@ -3,6 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from django.utils.translation import gettext_lazy as _
 
+
 """
 Django settings for config project.
 
@@ -58,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    've_chat.middleware.FakeAuthMiddleware',
+    # 've_chat.middleware.FakeAuthMiddleware',
     'virtualEvent.middleware.VisitTrackingMiddleware',
 
 ]

@@ -142,6 +142,10 @@ body {
     letter-spacing: -0.02em;
 }
 
+.od-dashboard .row {
+    align-items: flex-start;
+}
+
 /* Botones */
 .btn-primary {
     background-color: var(--od-primary) !important;

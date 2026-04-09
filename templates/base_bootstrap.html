@@ -28,7 +28,10 @@
     />
 
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
 
     <style>
       /* ========== VARIABLES (EXACTAS a base_stitch.html) ========== */
@@ -149,9 +152,18 @@
         justify-content: center;
         color: var(--text-on-surface);
         transition: background-color 0.2s;
+        line-height: 1;
       }
       .theme-btn:hover {
         background-color: var(--surface-container-high);
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+        font-size: 1.5rem;
       }
       .user-avatar {
         width: 32px;
@@ -296,10 +308,12 @@
             <button class="lang-btn lang-active" id="lang-es">ES</button>
             <button class="lang-btn" id="lang-en">EN</button>
           </div>
-          <button class="theme-btn" id="theme-toggle">
-            <span class="material-symbols-outlined" id="theme-icon"
-              >light_mode</span
-            >
+          <button class="theme-btn" id="theme-toggle" aria-label="Cambiar tema">
+            <i
+              class="bi bi-brightness-high-fill"
+              id="theme-icon"
+              style="font-size: 1.5rem"
+            ></i>
           </button>
           {% if user.is_authenticated %}
           <div class="relative">
@@ -422,9 +436,11 @@
       function updateIcon() {
         const icon = document.getElementById("theme-icon");
         if (icon) {
-          icon.textContent = document.documentElement.classList.contains("dark")
-            ? "dark_mode"
-            : "light_mode";
+          if (document.documentElement.classList.contains("dark")) {
+            icon.className = "bi bi-moon-fill";
+          } else {
+            icon.className = "bi bi-brightness-high-fill";
+          }
         }
       }
 

@@ -20,7 +20,8 @@ class ChatMessage(models.Model):
         ordering = ["timestamp"]
 
     def __str__(self):
-        return f"{'Anónimo' if self.anonymous else self.user.username}: {self.content[:30]}"
+        nombre = self.user.email if self.user and not self.anonymous else "Anónimo"
+        return f"{nombre}: {self.content[:30]}"
 
 
 class HandRaise(models.Model):

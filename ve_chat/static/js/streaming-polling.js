@@ -1,4 +1,4 @@
-// streaming-polling.js - Versión limpia y funcional (sin manos)
+// streaming-polling.js - Versión CORREGIDA (encuestas funcionales, sin recarga)
 class StreamingPolling {
   constructor(eventSlug, isOrganizer) {
     this.eventSlug = eventSlug;
@@ -24,7 +24,6 @@ class StreamingPolling {
     try {
       const response = await fetch(`/chat/api/${this.eventSlug}/messages/`);
       const data = await response.json();
-      // Limpiar todo el contenedor y volver a pintar desde cero
       this.chatContainer.innerHTML = "";
       this.renderMessages(data.messages);
     } catch (err) {
@@ -37,7 +36,6 @@ class StreamingPolling {
     for (const msg of messages) {
       this.addMessageToDOM(msg);
     }
-    // Auto-scroll solo si estaba cerca del final
     const shouldScroll =
       this.chatContainer.scrollHeight - this.chatContainer.scrollTop < 300;
     if (shouldScroll)
@@ -55,7 +53,6 @@ class StreamingPolling {
       minute: "2-digit",
     });
 
-    // Botón de pin solo para organizador
     const pinButtonHtml = this.isOrganizer
       ? `<button class="pin-btn" data-message-id="${msg.id}" data-pinned="${msg.is_pinned}" title="${msg.is_pinned ? "Desfijar" : "Fijar"}">
             <i class="bi ${msg.is_pinned ? "bi-pin-fill" : "bi-pin"}"></i>
@@ -72,7 +69,6 @@ class StreamingPolling {
         </div>
     `;
 
-    // Evento del botón de pin
     const btn = div.querySelector(".pin-btn");
     if (btn) {
       btn.addEventListener("click", (e) => {
@@ -125,7 +121,6 @@ class StreamingPolling {
 
   async raiseHand() {
     try {
-      // 1. Llamar a la API para registrar la mano levantada
       const response = await fetch(`/chat/api/${this.eventSlug}/raise/`, {
         method: "POST",
         headers: {
@@ -134,18 +129,24 @@ class StreamingPolling {
         },
       });
 
-      if (response.ok) {
-        // 2. Si se registró correctamente, envía un mensaje al chat (opcional)
-        await this.sendMessage("✋ He levantado la mano", false);
+      if (
+        response.status === 302 ||
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        alert("Debes iniciar sesión para levantar la mano.");
+        window.location.href =
+          "/usuarios/login/?next=" + encodeURIComponent(window.location.href);
+        return;
+      }
 
-        // 3. Opcional: mostrar un pequeño feedback visual (ej. un toast)
+      if (response.ok) {
+        await this.sendMessage("✋ He levantado la mano", false);
         console.log("Mano levantada correctamente");
       } else {
         const errorData = await response.json();
-        // Si el error es "Ya tienes la mano levantada", no hacemos nada o mostramos un aviso
         if (errorData.error === "Ya tienes la mano levantada") {
           console.warn("Ya tienes la mano levantada");
-          // this.sendMessage("Ya tienes la mano levantada", false);
         } else {
           console.error("Error al levantar mano:", errorData.error);
         }
@@ -156,10 +157,15 @@ class StreamingPolling {
   }
 
   async loadActivePoll() {
-    const res = await fetch(`/chat/api/${this.eventSlug}/poll/active/`);
-    const data = await res.json();
-    if (data.active_poll !== null) {
-      this.showPoll(data);
+    try {
+      const res = await fetch(`/chat/api/${this.eventSlug}/poll/active/`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.active_poll !== null) {
+        this.showPoll(data);
+      }
+    } catch (err) {
+      console.error("Error al cargar encuesta activa:", err);
     }
   }
 
@@ -174,28 +180,72 @@ class StreamingPolling {
     });
     if (res.ok) {
       const poll = await res.json();
-      this.showPoll(poll);
+      this.showPoll(poll); // Solo muestra la encuesta para votar, no resultados
+    } else {
+      const error = await res.json();
+      alert("Error al crear encuesta: " + (error.error || "desconocido"));
     }
   }
 
-  async votePoll(pollId, optionId) {
-    await fetch(`/chat/api/${this.eventSlug}/poll/${pollId}/vote/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": this.getCsrfToken(),
-      },
-      body: JSON.stringify({ option_id: optionId }),
-    });
-    this.fetchPollResults(pollId);
+  // ✅ MÉTODO DE VOTACIÓN (antes faltaba)
+  async votePoll(pollId) {
+    const selectedRadio = document.querySelector(
+      'input[name="pollOption"]:checked',
+    );
+    if (!selectedRadio) {
+      alert("Selecciona una opción antes de votar");
+      return;
+    }
+    const optionId = parseInt(selectedRadio.value);
+
+    try {
+      const response = await fetch(
+        `/chat/api/${this.eventSlug}/poll/${pollId}/vote/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": this.getCsrfToken(),
+          },
+          body: JSON.stringify({ option_id: optionId }),
+        },
+      );
+
+      if (
+        response.status === 302 ||
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        alert("Debes iniciar sesión para votar. Serás redirigido.");
+        window.location.href =
+          "/usuarios/login/?next=" + encodeURIComponent(window.location.href);
+        return;
+      }
+
+      if (response.ok) {
+        // Voto exitoso: mostrar resultados actualizados
+        await this.fetchPollResults(pollId);
+      } else {
+        const errorData = await response.json();
+        alert("Error al votar: " + (errorData.error || "desconocido"));
+      }
+    } catch (err) {
+      console.error("Error de red al votar:", err);
+      alert("Error de conexión al votar");
+    }
   }
 
   async fetchPollResults(pollId) {
-    const res = await fetch(
-      `/chat/api/${this.eventSlug}/poll/${pollId}/results/`,
-    );
-    const data = await res.json();
-    this.updatePollResults(data);
+    try {
+      const res = await fetch(
+        `/chat/api/${this.eventSlug}/poll/${pollId}/results/`,
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      this.updatePollResults(data);
+    } catch (err) {
+      console.error("Error al obtener resultados:", err);
+    }
   }
 
   showPoll(poll) {
@@ -214,7 +264,7 @@ class StreamingPolling {
             )
             .join("")}
         </div>
-        <button class="btn btn-primary w-100 mt-3" onclick="room.votePoll(${poll.poll_id})">Votar</button>
+        <button class="btn btn-primary w-100 mt-3" onclick="window.room.votePoll(${poll.poll_id})">Votar</button>
       </div>
     `;
   }
@@ -314,8 +364,11 @@ class StreamingPolling {
     if (this.isOrganizer) {
       const pollForm = document.getElementById("sr-create-poll-form");
       if (pollForm) {
-        pollForm.addEventListener("submit", (e) => {
+        // Eliminar event listeners previos para evitar duplicados
+        pollForm.removeEventListener("submit", this._pollSubmitHandler);
+        this._pollSubmitHandler = (e) => {
           e.preventDefault();
+          e.stopPropagation(); // Asegurar que no se propaga
           const question = document.getElementById("sr-poll-question").value;
           const optionInputs = document.querySelectorAll(
             ".sr-poll-option-input",
@@ -325,8 +378,12 @@ class StreamingPolling {
             .filter((v) => v.trim());
           if (question && options.length >= 2) {
             this.createPoll(question, options);
+          } else {
+            alert("La pregunta y al menos 2 opciones son requeridas");
           }
-        });
+          return false;
+        };
+        pollForm.addEventListener("submit", this._pollSubmitHandler);
       }
       const addOptionBtn = document.getElementById("sr-add-option-btn");
       if (addOptionBtn) {

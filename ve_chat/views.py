@@ -311,6 +311,7 @@ def get_active_poll(request, room_slug):
 # ------------------------------------------------------------
 # SATISFACCIÓN
 # ------------------------------------------------------------
+@csrf_exempt
 @require_http_methods(["POST"])
 def satisfaction_rating(request, room_slug):
     room, error_response = get_room_or_error(room_slug)
