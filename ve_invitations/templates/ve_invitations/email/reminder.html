@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px;">
+    <h2>Recordatorio: {{ event.title }}</h2>
+    <p>El evento virtual <strong>{{ event.title }}</strong> comienza en 1 hora.</p>
+    <p><strong>Fecha:</strong> {{ event.start_datetime|date:"d/m/Y H:i" }}</p>
+    <p><strong>Duración:</strong> {{ event.duration_minutes }} minutos</p>
+    <p><strong>Organizado por:</strong> {{ event.created_by.get_full_name|default:event.created_by.username }}</p>
+    <p><a href="{{ link }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Unirse al evento</a></p>
+    <p style="color: #666; font-size: 12px;">Si no esperabas este recordatorio, ignora este mensaje.</p>
+</body>
+</html>

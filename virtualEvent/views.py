@@ -9,6 +9,7 @@ from django.urls import reverse
 from .models import EventAnalytics, OnlineViewer, VirtualEvent
 from ve_streaming.models import StreamingRoom
 from ve_invitations.models import Invitation
+from ve_invitations.models import EventFollower
 from ve_invitations.utils import send_invitation_email
 import uuid
 import re
@@ -23,10 +24,45 @@ def event_list(request):
     return render(request, "virtualEvent/event_list.html", {"events": events})
 
 
-# Detalle del evento (público)
 def event_detail(request, pk):
     event = get_object_or_404(VirtualEvent, pk=pk)
-    return render(request, "virtualEvent/event_detail.html", {"event": event})
+
+    # Construir el objeto 'evento' para el template (en español)
+    evento_data = {
+        "id": event.id,
+        "titulo": event.title,
+        "descripcion": event.description,
+        "imagen": (
+            event.image.url if event.image else "/static/images/default-event.jpg"
+        ),
+        "fecha": event.start_datetime.strftime("%d/%m/%Y %H:%M"),
+        "tipo": "Virtual",  # Forzamos virtual
+        "duracion_minutos": event.duration_minutes,
+        "categoria": event.category,
+        "privacidad": event.privacy,
+        "organizador": event.created_by.get_full_name() or event.created_by.username,
+    }
+
+    # Verificar si el usuario sigue el evento
+    is_following = False
+    if request.user.is_authenticated:
+        is_following = EventFollower.objects.filter(
+            user=request.user, event=event
+        ).exists()
+
+    # Datos de reseñas (vacíos por ahora, pero podrías integrar después)
+    resenas = []
+    promedio = 0
+    total_resenas = 0
+
+    context = {
+        "evento": evento_data,
+        "is_following": is_following,
+        "resenas": resenas,
+        "promedio": promedio,
+        "total_resenas": total_resenas,
+    }
+    return render(request, "virtualEvents/evento_detail.html", context)
 
 
 # Crear evento (solo organizador autenticado)

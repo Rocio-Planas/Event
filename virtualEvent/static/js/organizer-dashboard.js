@@ -93,12 +93,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ========================
-  // Evento para el botón de exportar PDF 
+  // Evento para el botón de exportar PDF
   // ========================
   const exportPdfBtn = document.getElementById("od-btn-export-pdf");
   if (exportPdfBtn && eventId) {
     exportPdfBtn.addEventListener("click", function () {
-      window.location.href = `/virtualEvent/${eventId}/pdf-report/`;
+      window.location.href = `/eventos/evento/${eventId}/pdf-report/`;
     });
   }
 

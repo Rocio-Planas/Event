@@ -1,0 +1,94 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}{{ evento.titulo }} - EventPulse{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Cabecera del evento -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-8">
+        <img src="{{ evento.imagen }}" class="w-full h-64 object-cover" alt="{{ evento.titulo }}">
+        <div class="p-6">
+            <h1 class="text-3xl font-bold text-on-surface">{{ evento.titulo }}</h1>
+            <div class="flex items-center gap-4 mt-2 text-on-surface-variant">
+                <span class="material-symbols-outlined text-sm">calendar_today</span>
+                <span>{{ evento.fecha }}</span>
+                <span class="material-symbols-outlined text-sm">videocam</span>
+                <span>Virtual</span>
+                <span class="material-symbols-outlined text-sm">category</span>
+                <span>{{ evento.categoria }}</span>
+            </div>
+            
+            <!-- Calificación promedio (placeholder) -->
+            <div class="mt-4 flex items-center gap-3">
+                <div class="flex items-center gap-1">
+                    {% for i in "12345"|make_list %}
+                        <span class="material-symbols-outlined text-yellow-500" style="font-variation-settings: 'FILL' 1;">star</span>
+                    {% endfor %}
+                </div>
+                <span class="text-on-surface font-bold">{{ promedio|default:"0" }}</span>
+                <span class="text-on-surface-variant">({{ total_resenas }} reseñas)</span>
+            </div>
+
+            <!-- Botón de suscripción (solo si el usuario está autenticado) -->
+            {% if user.is_authenticated %}
+                <form action="{% url 've_invitations:follow_event' evento.id %}" method="post" class="mt-4">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all
+                                   {% if is_following %}
+                                       bg-red-100 text-red-700 hover:bg-red-200 border border-red-300
+                                   {% else %}
+                                       bg-primary text-white hover:bg-primary-dark shadow-sm
+                                   {% endif %}">
+                        <span class="material-symbols-outlined text-base">
+                            {% if is_following %}notifications_off{% else %}notifications_active{% endif %}
+                        </span>
+                        {% if is_following %}
+                            Dejar de seguir
+                        {% else %}
+                            Suscribirse a recordatorios
+                        {% endif %}
+                    </button>
+                </form>
+            {% else %}
+                <div class="mt-4">
+                    <a href="{% url 'usuarios:login' %}" class="inline-flex items-center gap-2 text-primary hover:underline">
+                        <span class="material-symbols-outlined text-base">login</span>
+                        Inicia sesión para suscribirte
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 mb-8">
+        <h2 class="text-xl font-bold mb-3">Descripción</h2>
+        <p class="text-on-surface-variant">{{ evento.descripcion }}</p>
+        <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+            <div><span class="font-semibold">Duración:</span> {{ evento.duracion_minutos }} minutos</div>
+            <div><span class="font-semibold">Privacidad:</span> {{ evento.privacidad|capfirst }}</div>
+            <div><span class="font-semibold">Organizador:</span> {{ evento.organizador }}</div>
+        </div>
+    </div>
+
+    <!-- Sección de reseñas (placeholder) -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+        <h2 class="text-2xl font-bold text-on-surface mb-6" data-i18n="reviews_section">Reseñas</h2>
+        {% if resenas %}
+            <!-- Aquí irían las reseñas reales -->
+        {% else %}
+            <div class="text-center py-8">
+                <span class="material-symbols-outlined text-5xl text-outline-variant">rate_review</span>
+                <p class="text-on-surface-variant mt-2">Aún no hay reseñas para este evento. ¡Sé el primero en opinar!</p>
+                <a href="{% url 'core:contacto' %}" class="mt-4 inline-block text-primary hover:underline">Escribir una reseña</a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="mt-6 text-center">
+        <a href="{% url 'core:home' %}" class="text-primary hover:underline flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-sm">arrow_back</span> Volver al inicio
+        </a>
+    </div>
+</div>
+{% endblock %}
