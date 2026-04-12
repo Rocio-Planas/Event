@@ -2,12 +2,12 @@
 <html>
 <head><meta charset="UTF-8"></head>
 <body style="font-family: Arial, sans-serif; max-width: 600px;">
-    <h2>Has sido invitado a un evento privado</h2>
+    <h2 data-i18n="invitation_title">Has sido invitado a un evento privado</h2>
     <p><strong>{{ event.title }}</strong></p>
     <p>{{ event.description|truncatewords:30 }}</p>
     <p><strong>Fecha:</strong> {{ event.start_datetime|date:"d/m/Y H:i" }}</p>
     <p><strong>Organizador:</strong> {{ event.created_by.get_full_name|default:event.created_by.username }}</p>
-    <p><a href="{{ invite_link }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Aceptar invitación</a></p>
-    <p style="color: #666;">Si no esperabas esta invitación, ignora este mensaje.</p>
+    <p><a href="{{ invite_link }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;" data-i18n="accept_invitation">Aceptar invitación</a></p>
+    <p style="color: #666;" data-i18n="ignore_invitation">Si no esperabas esta invitación, ignora este mensaje.</p>
 </body>
 </html>

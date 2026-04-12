@@ -444,3 +444,33 @@ def generate_pdf_report(request, event_id):
         f'attachment; filename="reporte_{event.id}_{timezone.now().date()}.pdf"'
     )
     return response
+
+
+@login_required
+def upload_material(request, event_id):
+    event = get_object_or_404(VirtualEvent, pk=event_id, created_by=request.user)
+    if request.method == "POST":
+        recording_url = request.POST.get("recording_url", "").strip()
+        if recording_url:
+            if "materials" not in event.__dict__:
+                event.materials = {}
+            event.materials["recording"] = recording_url
+
+        if request.FILES.get("slides"):
+            slides_file = request.FILES["slides"]
+            ext = slides_file.name.split(".")[-1]
+            safe_name = f"material_{event.id}_{uuid.uuid4().hex}.{ext}"
+            saved_path = default_storage.save(
+                f"event_materials/{safe_name}", ContentFile(slides_file.read())
+            )
+            if "materials" not in event.__dict__:
+                event.materials = {}
+            event.materials["slides_url"] = default_storage.url(saved_path)
+
+        event.save(update_fields=["materials"])
+        from ve_invitations.utils import send_material_notification
+
+        send_material_notification(event)
+        messages.success(request, "Material subido y notificaciones enviadas.")
+        return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
+    return redirect("virtualEvent:organizer_dashboard", event_id=event.id)

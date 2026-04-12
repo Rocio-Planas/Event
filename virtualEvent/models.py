@@ -29,7 +29,7 @@ class VirtualEvent(models.Model):
     start_datetime = models.DateTimeField(verbose_name="Fecha y hora de inicio")
     duration_minutes = models.PositiveIntegerField(
         default=60, verbose_name="Duración (minutos)"
-    )  # ← CAMBIO: en minutos
+    )
     privacy = models.CharField(
         max_length=10,
         choices=PRIVACY_CHOICES,
@@ -44,6 +44,7 @@ class VirtualEvent(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     settings = models.JSONField(default=dict, blank=True)
+    materials = models.JSONField(default=dict, blank=True, verbose_name="Material post-evento")
 
     # Enlace único para acceso (para RF-04)
     unique_link = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
