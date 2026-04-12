@@ -27,47 +27,6 @@ def event_list(request):
     return render(request, "virtualEvent/event_list.html", {"events": events})
 
 
-def event_detail(request, pk):
-    event = get_object_or_404(VirtualEvent, pk=pk)
-
-    # Construir el objeto 'evento' para el template (en español)
-    evento_data = {
-        "id": event.id,
-        "titulo": event.title,
-        "descripcion": event.description,
-        "imagen": (
-            event.image.url if event.image else "/static/images/default-event.jpg"
-        ),
-        "fecha": event.start_datetime.strftime("%d/%m/%Y %H:%M"),
-        "tipo": "Virtual",  # Forzamos virtual
-        "duracion_minutos": event.duration_minutes,
-        "categoria": event.category,
-        "privacidad": event.privacy,
-        "organizador": event.created_by.get_full_name() or event.created_by.username,
-    }
-
-    # Verificar si el usuario sigue el evento
-    is_following = False
-    if request.user.is_authenticated:
-        is_following = EventFollower.objects.filter(
-            user=request.user, event=event
-        ).exists()
-
-    # Datos de reseñas (vacíos por ahora, pero podrías integrar después)
-    resenas = []
-    promedio = 0
-    total_resenas = 0
-
-    context = {
-        "evento": evento_data,
-        "is_following": is_following,
-        "resenas": resenas,
-        "promedio": promedio,
-        "total_resenas": total_resenas,
-    }
-    return render(request, "virtualEvents/event_detail.html", context)
-
-
 # Crear evento (solo organizador autenticado)
 @login_required
 def event_create(request):
@@ -448,7 +407,6 @@ def generate_pdf_report(request, event_id):
     )
     return response
 
-
 def event_detail(request, pk):
     event = get_object_or_404(VirtualEvent, pk=pk)
 
@@ -493,3 +451,33 @@ def event_detail(request, pk):
         "total_resenas": total_resenas,
     }
     return render(request, "virtualEvents/event_detail.html", context)
+
+@login_required
+def upload_material(request, event_id):
+    event = get_object_or_404(VirtualEvent, pk=event_id, created_by=request.user)
+    if request.method == "POST":
+        recording_url = request.POST.get("recording_url", "").strip()
+        if recording_url:
+            if "materials" not in event.__dict__:
+                event.materials = {}
+            event.materials["recording"] = recording_url
+
+        if request.FILES.get("slides"):
+            slides_file = request.FILES["slides"]
+            ext = slides_file.name.split(".")[-1]
+            safe_name = f"material_{event.id}_{uuid.uuid4().hex}.{ext}"
+            saved_path = default_storage.save(
+                f"event_materials/{safe_name}", ContentFile(slides_file.read())
+            )
+            if "materials" not in event.__dict__:
+                event.materials = {}
+            event.materials["slides_url"] = default_storage.url(saved_path)
+
+        event.save(update_fields=["materials"])
+        from ve_invitations.utils import send_material_notification
+
+        send_material_notification(event)
+        messages.success(request, "Material subido y notificaciones enviadas.")
+        return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
+    return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
+

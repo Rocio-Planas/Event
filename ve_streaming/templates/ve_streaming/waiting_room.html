@@ -22,7 +22,7 @@
 
         <div class="card-body p-4 p-md-5 text-center">
             <div class="mb-4">
-                <span class="text-primary fw-bold text-uppercase small tracking-wider mb-2 d-block">Evento Próximo</span>
+                <span class="text-primary fw-bold text-uppercase small tracking-wider mb-2 d-block" data-i18n="event_upcoming">Evento Próximo</span>
                 <h1 class="wr-title fw-extrabold mb-2">{{ event.title }}</h1>
                 <p class="text-muted fw-medium">{{ event.start_datetime|date:"l, j F Y, H:i" }}</p>
             </div>
@@ -32,32 +32,32 @@
                 <div class="col-3">
                     <div class="bg-light p-3 rounded-3 border">
                         <div class="h2 fw-black text-primary mb-0" id="days">00</div>
-                        <div class="wr-label text-uppercase text-muted fw-bold">Días</div>
+                        <div class="wr-label text-uppercase text-muted fw-bold" data-i18n="days">Días</div>
                     </div>
                 </div>
                 <div class="col-3">
                     <div class="bg-light p-3 rounded-3 border">
                         <div class="h2 fw-black text-primary mb-0" id="hours">00</div>
-                        <div class="wr-label text-uppercase text-muted fw-bold">Horas</div>
+                        <div class="wr-label text-uppercase text-muted fw-bold" data-i18n="hours">Horas</div>
                     </div>
                 </div>
                 <div class="col-3">
                     <div class="bg-light p-3 rounded-3 border">
                         <div class="h2 fw-black text-primary mb-0" id="minutes">00</div>
-                        <div class="wr-label text-uppercase text-muted fw-bold">Mins</div>
+                        <div class="wr-label text-uppercase text-muted fw-bold" data-i18n="minutes_short">Mins</div>
                     </div>
                 </div>
                 <div class="col-3">
                     <div class="bg-light p-3 rounded-3 border">
                         <div class="h2 fw-black text-primary mb-0" id="seconds">00</div>
-                        <div class="wr-label text-uppercase text-muted fw-bold">Segs</div>
+                        <div class="wr-label text-uppercase text-muted fw-bold" data-i18n="seconds">Segs</div>
                     </div>
                 </div>
             </div>
 
             <!-- Invite Link -->
             <div class="mb-5 text-start">
-                <label class="wr-label text-uppercase text-muted fw-bold mb-2 d-block ms-1">Invitar Colaboradores</label>
+                <label class="wr-label text-uppercase text-muted fw-bold mb-2 d-block ms-1" data-i18n="invite_collaborators">Invitar Colaboradores</label>
                 <div class="input-group wr-link-group p-1 bg-light border rounded-3">
                     <span class="form-control border-0 bg-transparent text-muted text-truncate py-2" id="event-link">
                         {{ request.build_absolute_uri }}{% url 've_streaming:waiting_room' unique_link=event.unique_link %}
@@ -70,10 +70,10 @@
 
             <!-- Action Button -->
             <div class="d-grid gap-3">
-                <button id="enter-room-btn" class="btn btn-primary btn-lg py-3 fw-bold rounded-3 shadow-sm wr-btn-access" disabled>
+                <button id="enter-room-btn" class="btn btn-primary btn-lg py-3 fw-bold rounded-3 shadow-sm wr-btn-access" disabled data-i18n="enter_room">
                     Entrar a la sala
                 </button>
-                <p id="status-message" class="small text-muted fw-medium">
+                <p id="status-message" class="small text-muted fw-medium" data-i18n="room_opens_at">
                     La sala se abrirá cuando llegue la hora del evento.
                 </p>
             </div>

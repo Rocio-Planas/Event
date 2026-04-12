@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px;">
+    <h2 data-i18n="new_material_available">📁 Nuevo material disponible</h2>
+    <p data-i18n="organizer_shared_material">El organizador ha compartido material del evento <strong>{{ event.title }}</strong>.</p>
+    {% if materials.recording %}
+        <p><strong data-i18n="recording_label">🎥 Grabación:</strong> <a href="{{ materials.recording }}" data-i18n="view_recording">Ver grabación</a></p>
+    {% endif %}
+    {% if materials.slides_url %}
+        <p><strong data-i18n="presentation_label">📊 Presentación:</strong> <a href="{{ materials.slides_url }}" data-i18n="download_presentation">Descargar presentación</a></p>
+    {% endif %}
+    <p><a href="{{ link }}" data-i18n="view_event">Ver evento</a></p>
+</body>
+</html>

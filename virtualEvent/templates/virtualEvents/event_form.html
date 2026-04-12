@@ -12,8 +12,8 @@
             <div class="card ev-form-card border-0 shadow-sm">
                 <div class="card-body p-4 p-md-5">
                     <header class="ev-header mb-5">
-                        <h1 class="ev-title h3 fw-extrabold mb-2">New Event Details</h1>
-                        <p class="ev-subtitle text-muted small">Configure your next remarkable gathering with precision.</p>
+                        <h1 class="ev-title h3 fw-extrabold mb-2" data-i18n="form_title">New Event Details</h1>
+                        <p class="ev-subtitle text-muted small" data-i18n="form_subtitle">Configure your next remarkable gathering with precision.</p>
                     </header>
 
                     <form id="eventCreationForm" method="POST" enctype="multipart/form-data" class="ev-form">
@@ -21,7 +21,7 @@
 
                         <!-- Event Cover Upload -->
                         <div class="ev-field-group mb-4">
-                            <label class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Event Cover</label>
+                            <label class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="event_cover" >Event Cover</label>
                             <div class="ev-drop-zone position-relative rounded-4 border-2 border-dashed d-flex flex-column align-items-center justify-content-center py-5 px-3">
                                 <input type="file" name="event_image" id="evImageInput" class="ev-file-input position-absolute w-100 h-100 opacity-0 cursor-pointer" accept=".jpg,.png,.gif" required>
                                 <div class="ev-drop-zone-content text-center" id="evDropZoneContent">
@@ -31,34 +31,33 @@
                                             <path fill-rule="evenodd" d="M7.646 5.354a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 7.207V13.5a.5.5 0 0 1-1 0V7.207L5.354 9.062a.5.5 0 1 1-.708-.708l3-3z"/>
                                         </svg>
                                     </div>
-                                    <p class="mb-1 fw-bold">Drop your image here or <span class="text-primary">browse</span></p>
-                                    <p class="text-muted small text-uppercase tracking-widest">High-res PNG or JPG (Max 10MB)</p>
+                                    <p class="mb-1 fw-bold" data-i18n="drop_image">Drop your image here or <span class="text-primary">browse</span></p>
+                                    <p class="text-muted small text-uppercase tracking-widest" data-i18n="image_hint">High-res PNG or JPG (Max 10MB)</p>
                                 </div>
                                 <div class="ev-preview-container d-none position-absolute top-0 start-0 w-100 h-100 rounded-4 overflow-hidden" id="evPreviewContainer">
                                     <img src="" alt="Preview" id="evImagePreview" class="w-100 h-100 object-fit-cover">
-                                    <button type="button" class="btn btn-sm btn-dark position-absolute top-0 end-0 m-2" id="evRemoveImage">
+                                    <button type="button" class="btn btn-sm btn-dark position-absolute top-0 end-0 m-2" id="evRemoveImage" data-i18n="remove_btn">
                                         <i class="bi bi-x-lg"></i> Remove
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Event Title -->
                         <div class="ev-field-group mb-4">
-                            <label for="id_title" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Event Title</label>
-                            <input type="text" name="title" id="id_title" class="form-control ev-input py-3 px-4 rounded-3" placeholder="Give your event a memorable name..." required>
+                            <label for="id_title" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="event_title_label">Event Title</label>
+                            <input type="text" name="title" id="id_title" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="event_title_placeholder" placeholder="Give your event a memorable name..." required>
                         </div>
 
                         <!-- Description -->
                         <div class="ev-field-group mb-4">
-                            <label for="id_description" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Description</label>
-                            <textarea name="description" id="id_description" rows="4" class="form-control ev-input py-3 px-4 rounded-3" placeholder="Tell people what to expect..." required></textarea>
+                            <label for="id_description" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="description_label">Description</label>
+                            <textarea name="description" id="id_description" rows="4" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="description_placeholder" placeholder="Tell people what to expect..." required></textarea>
                         </div>
 
                         <!-- Category -->
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
-                                <label for="id_category" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Category</label>
+                                <label for="id_category" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="category_label">Category</label>
                                 <div class="position-relative">
                                     <select name="category" id="id_category" class="form-select ev-input py-3 px-4 rounded-3 cursor-pointer" required>
                                         <option value="Seminario">Seminario</option>
@@ -69,29 +68,29 @@
                                 </div>
                             </div>
                             <div class="col-md-6 d-none" id="evCustomCategoryGroup">
-                                <label for="id_custom_category" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Custom Category Name</label>
-                                <input type="text" name="custom_category" id="id_custom_category" class="form-control ev-input py-3 px-4 rounded-3" placeholder="Enter category name...">
+                                <label for="id_custom_category" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="custom_category_label">Custom Category Name</label>
+                                <input type="text" name="custom_category" id="id_custom_category" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="custom_category_placeholder" placeholder="Enter category name...">
                             </div>
                         </div>
 
                         <!-- Schedule & Duration -->
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
-                                <label for="id_start_time" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Schedule</label>
+                                <label for="id_start_time" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="schedule_label">Schedule</label>
                                 <input type="datetime-local" name="start_time" id="id_start_time" class="form-control ev-input py-3 px-4 rounded-3" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="id_duration" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Duration</label>
+                                <label for="id_duration" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="duration_label">Duration</label>
                                 <div class="input-group">
                                     <input type="number" name="duration" id="id_duration" min="1" class="form-control ev-input py-3 px-4 rounded-start-3" placeholder="90" required>
-                                    <span class="input-group-text ev-input-addon bg-transparent border-start-0 text-muted small fw-bold text-uppercase px-3 rounded-end-3">Minutes</span>
+                                    <span class="input-group-text ev-input-addon bg-transparent border-start-0 text-muted small fw-bold text-uppercase px-3 rounded-end-3" data-i18n="minutes">Minutes</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Access Type -->
                         <div class="ev-field-group mb-4">
-                            <label class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Access Type</label>
+                            <label class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="access_type_label">Access Type</label>
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <input type="radio" class="btn-check" name="access_type" id="access_public" value="public" checked autocomplete="off">
@@ -103,8 +102,8 @@
                                                 </svg>
                                             </div>
                                             <div>
-                                                <div class="fw-bold text-dark">Public Event</div>
-                                                <div class="text-muted extra-small text-uppercase">Visible to everyone</div>
+                                                <div class="fw-bold text-dark" data-i18n="public_event">Public Event</div>
+                                                <div class="text-muted extra-small text-uppercase" data-i18n="public_desc">Visible to everyone</div>
                                             </div>
                                         </div>
                                     </label>
@@ -119,8 +118,8 @@
                                                 </svg>
                                             </div>
                                             <div>
-                                                <div class="fw-bold text-dark">Private Event</div>
-                                                <div class="text-muted extra-small text-uppercase">Invite only access</div>
+                                                <div class="fw-bold text-dark" data-i18n="private_event">Private Event</div>
+                                                <div class="text-muted extra-small text-uppercase" data-i18n="private_desc">Invite only access</div>
                                             </div>
                                         </div>
                                     </label>
@@ -130,13 +129,13 @@
 
                         <!-- Invitations (Conditional) -->
                         <div class="ev-field-group mb-4 d-none" id="evInvitationsGroup">
-                            <label for="id_invitations" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Invite by Email</label>
-                            <textarea name="invitations" id="id_invitations" rows="3" class="form-control ev-input py-3 px-4 rounded-3" placeholder="Enter email addresses separated by commas..."></textarea>
+                            <label for="id_invitations" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="invite_by_email">Invite by Email</label>
+                            <textarea name="invitations" id="id_invitations" rows="3" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="invite_placeholder" placeholder="Enter email addresses separated by commas..."></textarea>
                         </div>
 
                         <!-- Submit Button -->
                         <div class="ev-actions">
-                            <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-4 fw-bold text-uppercase tracking-widest shadow-sm ev-btn-submit">
+                            <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-4 fw-bold text-uppercase tracking-widest shadow-sm ev-btn-submit" data-i18n="create_event_btn">
                                 Create Event
                             </button>
                         </div>

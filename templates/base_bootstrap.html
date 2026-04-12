@@ -33,6 +33,9 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
     />
 
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    
+
     <style>
       /* ========== VARIABLES (EXACTAS a base_stitch.html) ========== */
       :root {
@@ -398,145 +401,10 @@
       </div>
     </footer>
 
-    <script>
-      // Tema oscuro/claro
-      function initTheme() {
-        const stored = localStorage.getItem("theme");
-        const html = document.documentElement;
-        if (stored === "dark") {
-          html.classList.add("dark");
-          html.classList.remove("light");
-        } else if (stored === "light") {
-          html.classList.add("light");
-          html.classList.remove("dark");
-        } else {
-          if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-            html.classList.add("dark");
-            html.classList.remove("light");
-          } else {
-            html.classList.add("light");
-            html.classList.remove("dark");
-          }
-        }
-        updateIcon();
-      }
-      function toggleTheme() {
-        const html = document.documentElement;
-        if (html.classList.contains("dark")) {
-          html.classList.remove("dark");
-          html.classList.add("light");
-          localStorage.setItem("theme", "light");
-        } else {
-          html.classList.remove("light");
-          html.classList.add("dark");
-          localStorage.setItem("theme", "dark");
-        }
-        updateIcon();
-      }
-      function updateIcon() {
-        const icon = document.getElementById("theme-icon");
-        if (icon) {
-          if (document.documentElement.classList.contains("dark")) {
-            icon.className = "bi bi-moon-fill";
-          } else {
-            icon.className = "bi bi-brightness-high-fill";
-          }
-        }
-      }
 
-      // Traducciones básicas
-      const translations = {
-        es: {
-          nav_inicio: "Inicio",
-          nav_presenciales: "Eventos Presenciales",
-          nav_virtuales: "Eventos Virtuales",
-          nav_contacto: "Contacto",
-          my_dashboard: "Mi Panel",
-          my_profile: "Mi Perfil",
-          about_link: "Acerca de",
-          terms_link: "Términos y condiciones",
-          privacy_link: "Política de privacidad",
-          footer_copyright: "Todos los derechos reservados.",
-          login: "Iniciar Sesión",
-          register: "Registrarse",
-        },
-        en: {
-          nav_inicio: "Home",
-          nav_presenciales: "In-Person Events",
-          nav_virtuales: "Virtual Events",
-          nav_contacto: "Contact",
-          my_dashboard: "My Dashboard",
-          my_profile: "My Profile",
-          about_link: "About",
-          terms_link: "Terms and Conditions",
-          privacy_link: "Privacy Policy",
-          footer_copyright: "All rights reserved.",
-          login: "Login",
-          register: "Sign up",
-        },
-      };
-
-      let currentLang = localStorage.getItem("lang") || "es";
-
-      function applyTranslations() {
-        const t = translations[currentLang];
-        document.querySelectorAll("[data-i18n]").forEach((el) => {
-          const key = el.getAttribute("data-i18n");
-          if (t[key]) {
-            if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-              if (el.hasAttribute("placeholder")) el.placeholder = t[key];
-            } else {
-              el.innerText = t[key];
-            }
-          }
-        });
-        const langEs = document.getElementById("lang-es");
-        const langEn = document.getElementById("lang-en");
-        if (langEs && langEn) {
-          if (currentLang === "es") {
-            langEs.classList.add("lang-active");
-            langEn.classList.remove("lang-active");
-          } else {
-            langEn.classList.add("lang-active");
-            langEs.classList.remove("lang-active");
-          }
-        }
-      }
-
-      function setLanguage(lang) {
-        currentLang = lang;
-        localStorage.setItem("lang", lang);
-        applyTranslations();
-      }
-
-      document.addEventListener("DOMContentLoaded", function () {
-        initTheme();
-        const themeToggle = document.getElementById("theme-toggle");
-        if (themeToggle) themeToggle.addEventListener("click", toggleTheme);
-        setLanguage(currentLang);
-        document
-          .getElementById("lang-es")
-          ?.addEventListener("click", () => setLanguage("es"));
-        document
-          .getElementById("lang-en")
-          ?.addEventListener("click", () => setLanguage("en"));
-        const userBtn = document.getElementById("user-menu-btn");
-        const userMenu = document.getElementById("user-menu");
-        if (userBtn && userMenu) {
-          userBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            userMenu.style.display =
-              userMenu.style.display === "block" ? "none" : "block";
-          });
-          document.addEventListener(
-            "click",
-            () => (userMenu.style.display = "none"),
-          );
-        }
-      });
-    </script>
 
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/i18n.js' %}"></script>
     {% block extra_js %}{% endblock %}
   </body>
 </html>

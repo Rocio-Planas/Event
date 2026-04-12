@@ -2,12 +2,12 @@
 <html>
 <head><meta charset="UTF-8"></head>
 <body style="font-family: Arial, sans-serif; max-width: 600px;">
-    <h2>Recordatorio: {{ event.title }}</h2>
-    <p>El evento virtual <strong>{{ event.title }}</strong> comienza en 1 hora.</p>
-    <p><strong>Fecha:</strong> {{ event.start_datetime|date:"d/m/Y H:i" }}</p>
-    <p><strong>Duración:</strong> {{ event.duration_minutes }} minutos</p>
-    <p><strong>Organizado por:</strong> {{ event.created_by.get_full_name|default:event.created_by.username }}</p>
-    <p><a href="{{ link }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Unirse al evento</a></p>
-    <p style="color: #666; font-size: 12px;">Si no esperabas este recordatorio, ignora este mensaje.</p>
+    <h2 data-i18n="reminder_title">Recordatorio: {{ event.title }}</h2>
+    <p data-i18n="event_starts_soon">El evento virtual <strong>{{ event.title }}</strong> <span data-i18n="starts_in_1_hour">comienza en 1 hora.</span></p>
+    <p><strong data-i18n="date_label">Fecha:</strong> {{ event.start_datetime|date:"d/m/Y H:i" }}</p>
+    <p><strong data-i18n="duration_label">Duración:</strong> {{ event.duration_minutes }} <span data-i18n="minutes">minutos</span></p>
+    <p><strong data-i18n="organized_by">Organizado por:</strong> {{ event.created_by.get_full_name|default:event.created_by.username }}</p>
+    <p><a href="{{ link }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;" data-i18n="join_event">Unirse al evento</a></p>
+    <p style="color: #666; font-size: 12px;" data-i18n="ignore_reminder">Si no esperabas este recordatorio, ignora este mensaje.</p>
 </body>
 </html>
