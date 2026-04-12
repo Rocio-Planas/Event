@@ -12,4 +12,5 @@ urlpatterns = [
     path('about/', views.about_view, name='about'),
     path('terms/', views.terms_view, name='terms'),
     path('privacy/', views.privacy_view, name='privacy'),
+    path('cancelar-suscripcion-virtual/<int:evento_id>/', views.cancelar_suscripcion_virtual, name='cancelar_suscripcion_virtual'),
 ]

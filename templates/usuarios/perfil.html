@@ -3,6 +3,7 @@
 {% block title %}Mi Perfil - EventPulse{% endblock %}
 {% block content %}
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Columna izquierda: perfil (sin cambios relevantes) -->
     <aside class="lg:col-span-4 space-y-6">
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8 flex flex-col items-center text-center">
             <div class="relative group mb-6">
@@ -23,11 +24,10 @@
                 <span class="material-symbols-outlined text-lg">edit</span>
                 <span data-i18n="edit_profile">Editar Perfil</span>
             </a>
-            <a href="{% url 'usuarios:cambiar_password' %}" class="w-full border border-outline-variant text-on-surface-variant font-bold py-3 px-6 rounded-lg hover:bg-surface-container-high transition-opacity flex items-center justify-center gap-2 mb-4">
+            <a href="{% url 'usuarios:cambiar_password' %}" class="w-full border border-outline-variant text-on-surface-variant font-bold py-3 px-6 rounded-lg hover:bg-surface-container-high transition-opacity flex items-center justify-center gap-2">
                 <span class="material-symbols-outlined text-lg">key</span>
                 <span data-i18n="change_password">Cambiar Contraseña</span>
             </a>
-            <!-- Botón Cerrar Sesión (reintegrado) -->
             <a href="{% url 'usuarios:logout' %}" class="w-full border border-red-300 text-red-600 font-bold py-3 px-6 rounded-lg hover:bg-red-50 transition-opacity flex items-center justify-center gap-2">
                 <span class="material-symbols-outlined text-lg">logout</span>
                 <span data-i18n="logout">Cerrar Sesión</span>
@@ -74,53 +74,144 @@
             </div>
         </div>
     </aside>
+
     <section class="lg:col-span-8 space-y-6">
-        <div class="flex items-center justify-between mb-2">
-            <h2 class="text-2xl font-bold tracking-tight text-on-surface" data-i18n="my_events_list">Mis Eventos</h2>
-            <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" data-i18n="subscriptions_count">{{ user.suscripciones.count }} suscripciones</span>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {% for suscripcion in user.suscripciones.all %}
-            <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
-                <div class="h-40 bg-surface-container-high flex items-center justify-center">
-                    {% if suscripcion.imagen_evento %}
-                        <img src="{{ suscripcion.imagen_evento }}" class="w-full h-full object-cover">
-                    {% else %}
-                        <span class="material-symbols-outlined text-5xl text-outline">event</span>
-                    {% endif %}
-                </div>
-                <div class="p-4">
-                    <h4 class="font-bold text-on-surface">{{ suscripcion.titulo_evento }}</h4>
-                    <div class="text-sm text-on-surface-variant mt-1">
-                        {% if suscripcion.fecha_evento %}
-                            {{ suscripcion.fecha_evento|date:"d/m/Y" }}
+        <!-- Eventos que organizo (antes "organizados por mí") -->
+        {% if eventos_organizados %}
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-2xl font-bold tracking-tight text-on-surface">Eventos que organizo</h2>
+                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ eventos_organizados.count }} eventos</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for evento in eventos_organizados %}
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+                    <div class="h-40 overflow-hidden bg-surface-container-high flex items-center justify-center">
+                        {% if evento.image %}
+                            <img src="{{ evento.image.url }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
                         {% else %}
-                            Fecha por confirmar
-                        {% endif %}
-                        • 
-                        {% if suscripcion.tipo_evento == 'presencial' %}
-                            Presencial
-                        {% else %}
-                            Virtual
+                            <span class="material-symbols-outlined text-5xl text-outline">event</span>
                         {% endif %}
                     </div>
-                    <form method="post" action="{% url 'core:cancelar_suscripcion' suscripcion.id %}" class="mt-4">
-                        {% csrf_token %}
-                        <button type="submit" class="w-full py-2 text-sm font-bold text-error border border-error/20 rounded-lg hover:bg-error-container/20 transition-colors">
-                            <span data-i18n="cancel_subscription">Cancelar Suscripción</span>
-                        </button>
-                    </form>
+                    <div class="p-4">
+                        <h4 class="font-bold text-on-surface">{{ evento.title }}</h4>
+                        <div class="text-sm text-on-surface-variant mt-1">
+                            {{ evento.start_datetime|date:"d/m/Y H:i" }} • Virtual
+                        </div>
+                        <div class="mt-3 flex gap-2">
+                            <a href="{% url 'virtualEvent:organizer_dashboard' evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold bg-primary text-white rounded-lg hover:opacity-90 transition">
+                                Gestionar
+                            </a>
+                            <a href="{% url 'virtualEvent:event_detail' evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition">
+                                Ver
+                            </a>
+                            <a href="#" onclick="alert('Eliminar evento (pendiente)')" class="flex-1 text-center py-2 text-sm font-semibold border border-error/20 text-error rounded-lg hover:bg-error-container/20 transition">
+                                Eliminar
+                            </a>
+                        </div>
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% empty %}
-            <div class="col-span-2 bg-surface-container-low rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center p-8 text-center min-h-[300px]">
-                <span class="material-symbols-outlined text-4xl text-outline-variant mb-4">add_circle</span>
-                <h4 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest" data-i18n="explore_events">Explora eventos</h4>
-                <p class="text-xs text-outline mb-6" data-i18n="no_suscripciones">Aún no te has suscrito a ningún evento.</p>
-                <a href="{% url 'core:home' %}" class="bg-white text-primary border border-primary-fixed-dim px-6 py-2 rounded-full text-xs font-bold shadow-sm hover:bg-primary-fixed transition-all" data-i18n="explore_btn">Explorar eventos</a>
-            </div>
-            {% endfor %}
         </div>
+        {% endif %}
+
+        <!-- Eventos virtuales en seguimiento -->
+        {% if suscripciones_virtuales %}
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-2xl font-bold tracking-tight text-on-surface">Eventos virtuales en seguimiento</h2>
+                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ suscripciones_virtuales.count }} seguimientos</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for follow in suscripciones_virtuales %}
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+                    <div class="h-40 overflow-hidden bg-surface-container-high flex items-center justify-center">
+                        {% if follow.event.image %}
+                            <img src="{{ follow.event.image.url }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+                        {% else %}
+                            <span class="material-symbols-outlined text-5xl text-outline">event</span>
+                        {% endif %}
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-bold text-on-surface">{{ follow.event.title }}</h4>
+                        <div class="text-sm text-on-surface-variant mt-1">
+                            {{ follow.event.start_datetime|date:"d/m/Y H:i" }} • Virtual
+                        </div>
+                        <div class="mt-4 flex gap-2">
+                            <a href="{% url 'virtualEvent:event_detail' follow.event.id %}" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition">
+                                Ver
+                            </a>
+                            <form method="post" action="{% url 'core:cancelar_suscripcion_virtual' follow.event.id %}" class="flex-1">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full text-center py-2 text-sm font-bold text-error border border-error/20 rounded-lg hover:bg-error-container/20 transition">
+                                    Cancelar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Eventos presenciales suscritos -->
+        {% if suscripciones_presenciales %}
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-2xl font-bold tracking-tight text-on-surface">Eventos presenciales suscritos</h2>
+                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ suscripciones_presenciales.count }} suscripciones</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for suscripcion in suscripciones_presenciales %}
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+                    <div class="h-40 overflow-hidden bg-surface-container-high flex items-center justify-center">
+                        {% if suscripcion.imagen_evento %}
+                            <img src="{{ suscripcion.imagen_evento }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+                        {% else %}
+                            <span class="material-symbols-outlined text-5xl text-outline">event_seat</span>
+                        {% endif %}
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-bold text-on-surface">{{ suscripcion.titulo_evento }}</h4>
+                        <div class="text-sm text-on-surface-variant mt-1">
+                            {% if suscripcion.fecha_evento %}
+                                {{ suscripcion.fecha_evento|date:"d/m/Y" }}
+                            {% else %}
+                                Fecha por confirmar
+                            {% endif %}
+                            • Presencial
+                        </div>
+                        <div class="mt-4 flex gap-2">
+                            <a href="#" onclick="alert('Detalle de evento presencial (pendiente)')" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition">
+                                Ver
+                            </a>
+                            <form method="post" action="{% url 'core:cancelar_suscripcion' suscripcion.id %}" class="flex-1">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full text-center py-2 text-sm font-bold text-error border border-error/20 rounded-lg hover:bg-error-container/20 transition">
+                                    Cancelar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Mensaje si no hay nada -->
+        {% if not eventos_organizados and not suscripciones_virtuales and not suscripciones_presenciales %}
+        <div class="bg-surface-container-low rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center p-8 text-center min-h-[300px]">
+            <span class="material-symbols-outlined text-4xl text-outline-variant mb-4">add_circle</span>
+            <h4 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest">Explora eventos</h4>
+            <p class="text-xs text-outline mb-6">Aún no has organizado ni te has suscrito a ningún evento.</p>
+            <a href="{% url 'core:home' %}" class="bg-white text-primary border border-primary-fixed-dim px-6 py-2 rounded-full text-xs font-bold shadow-sm hover:bg-primary-fixed transition-all">Explorar eventos</a>
+        </div>
+        {% endif %}
+
+        <!-- Mis preferencias (igual, al final) -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
             <h3 class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4" data-i18n="my_preferences">Mis preferencias</h3>
             <div class="flex flex-wrap gap-2 mb-3">

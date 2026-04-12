@@ -6,6 +6,8 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
+
+from core.models import Resena
 from .models import EventAnalytics, OnlineViewer, VirtualEvent
 from ve_streaming.models import StreamingRoom
 from ve_invitations.models import Invitation
@@ -16,6 +18,7 @@ import re
 import json
 from django.views.decorators.csrf import csrf_exempt
 from .report_generator import generate_event_pdf  # type: ignore
+
 
 
 # Lista de eventos (pública)
@@ -62,7 +65,7 @@ def event_detail(request, pk):
         "promedio": promedio,
         "total_resenas": total_resenas,
     }
-    return render(request, "virtualEvents/evento_detail.html", context)
+    return render(request, "virtualEvents/event_detail.html", context)
 
 
 # Crear evento (solo organizador autenticado)
@@ -444,3 +447,49 @@ def generate_pdf_report(request, event_id):
         f'attachment; filename="reporte_{event.id}_{timezone.now().date()}.pdf"'
     )
     return response
+
+
+def event_detail(request, pk):
+    event = get_object_or_404(VirtualEvent, pk=pk)
+
+    # Construir el objeto 'evento' para el template
+    evento_data = {
+        "id": event.id,
+        "titulo": event.title,
+        "descripcion": event.description,
+        "imagen": event.image.url if event.image else "/static/images/default-event.jpg",
+        "fecha": event.start_datetime.strftime("%d/%m/%Y %H:%M"),
+        "tipo": "Virtual",
+        "duracion_minutos": event.duration_minutes,
+        "categoria": event.category,
+        "privacidad": event.privacy,
+        "organizador": event.created_by.get_full_name() or event.created_by.username,
+        "creado_por_id": event.created_by.id,  # ← para saber si el usuario actual es el organizador
+    }
+
+    # Verificar si el usuario sigue el evento (solo si está autenticado y no es el organizador)
+    is_following = False
+    es_organizador = False
+    if request.user.is_authenticated:
+        es_organizador = (request.user == event.created_by)
+        if not es_organizador:
+            is_following = EventFollower.objects.filter(
+                user=request.user, event=event
+            ).exists()
+
+    # Obtener reseñas aprobadas
+    resenas = Resena.objects.filter(evento=event, aprobada=True).order_by('-fecha_creacion')
+    promedio = 0
+    total_resenas = resenas.count()
+    if total_resenas > 0:
+        promedio = round(sum(r.calificacion for r in resenas) / total_resenas, 1)
+
+    context = {
+        "evento": evento_data,
+        "is_following": is_following,
+        "es_organizador": es_organizador,
+        "resenas": resenas,
+        "promedio": promedio,
+        "total_resenas": total_resenas,
+    }
+    return render(request, "virtualEvents/event_detail.html", context)

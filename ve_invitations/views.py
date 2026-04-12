@@ -12,19 +12,21 @@ from .models import EventFollower, Invitation
 @login_required
 def follow_event(request, event_id):
     event = get_object_or_404(VirtualEvent, pk=event_id)
-    # Verificar si ya sigue
+    
+    # No permitir que el organizador se siga a sí mismo
+    if event.created_by == request.user:
+        messages.error(request, 'No puedes suscribirte a tu propio evento.')
+        return redirect('virtualEvent:event_detail', pk=event_id)
+    
     follow, created = EventFollower.objects.get_or_create(
         user=request.user, event=event
     )
     if not created:
-        # Ya sigue, entonces lo eliminamos (toggle)
         follow.delete()
-        messages.success(request, f'Has dejado de seguir "{event.title}".')
+        messages.success(request, f'Has cancelado tu suscripción a "{event.title}".')
     else:
-        messages.success(
-            request, f'Ahora sigues "{event.title}". Recibirás recordatorios.'
-        )
-    return redirect("virtualEvent:event_detail", pk=event_id)
+        messages.success(request, f'Te has suscrito a "{event.title}". Recibirás recordatorios.')
+    return redirect('virtualEvent:event_detail', pk=event_id)
 
 
 # Opcional: vista AJAX para seguir sin recargar

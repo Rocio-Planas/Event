@@ -62,6 +62,12 @@
         .dark .leaflet-tile {
             filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
         }
+        .hover-zoom {
+            transition: transform 0.3s ease;
+        }
+        .group:hover .hover-zoom {
+            transform: scale(1.08);
+        }
     </style>
     <script>
         // ==================== TRADUCCIONES COMPLETAS ====================
@@ -103,6 +109,17 @@
                 'my_dashboard': 'Mi Panel',
                 'login': 'Iniciar Sesión',
                 'register': 'Registrarse',
+                'event_title': 'Título del evento',
+                'description_label': 'Descripción',
+                'date_label': 'Fecha',
+                'virtual_type': 'Virtual',
+                'duration': 'Duración',
+                'privacy': 'Privacidad',
+                'organizer': 'Organizador',
+                'reviews_section': 'Reseñas',
+                'no_reviews': 'Aún no hay reseñas para este evento. ¡Sé el primero en opinar!',
+                'write_review': 'Escribir una reseña',
+                'back_home': 'Volver al inicio',
                 'email': 'Correo electrónico',
                 'password': 'Contraseña',
                 'remember_me': 'Recordarme',
@@ -244,6 +261,7 @@
                 'no_reviews': 'Aún no hay reseñas para este evento. ¡Sé el primero en opinar!',
                 'view_reviews': 'Ver reseñas',
                 'about_link': 'Acerca de',
+                'delete_event': 'Eliminar',
                 'terms_link': 'Términos y condiciones',
                 'privacy_link': 'Política de privacidad'
             },
@@ -252,6 +270,7 @@
                 'nav_presenciales': 'In-Person Events',
                 'nav_virtuales': 'Virtual Events',
                 'nav_contacto': 'Contact',
+                'delete_event': 'Delete',
                 'hero_title': 'Discover Amazing Experiences',
                 'hero_subtitle': 'In-person and virtual events tailored to your taste.',
                 'search_placeholder': 'Search events...',
@@ -267,6 +286,21 @@
                 'cat_Eventos familiares': 'Family Events',
                 'cat_Networking': 'Networking',
                 'cat_Eventos virtuales': 'Virtual Events',
+                'event_title': 'Event title',
+                'description_label': 'Description',
+                'date_label': 'Date',
+                'virtual_type': 'Virtual',
+                'duration': 'Duration',
+                'privacy': 'Privacy',
+                'organizer': 'Organizer',
+                'reviews_section': 'Reviews',
+                'no_reviews': 'No reviews yet. Be the first to comment!',
+                'write_review': 'Write a review',
+                'eventos_organizados_title': 'Events I organize',
+                'eventos_virtuales_seguimiento': 'Virtual events I follow',
+                'eventos_presenciales_suscritos': 'Subscribed in-person events',
+                'delete_event_btn': 'Delete',
+                'back_home': 'Back to home',
                 'rec_title': 'Recommended for you',
                 'filter_popular': '⭐ Popular',
                 'filter_recent': '🕒 Recent',

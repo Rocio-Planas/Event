@@ -21,6 +21,8 @@
             <span class="material-symbols-outlined text-3xl" style="color: var(--primary);">
                 {% if cat.icono == 'theater_comedy' %}theater_comedy
                 {% elif cat.icono == 'sports_dance' %}sports_dance
+                {% elif cat.icono == 'school' %}school
+                {% elif cat.icono == 'handyman' %}handyman
                 {% else %}{{ cat.icono|default:"event" }}
                 {% endif %}
             </span>
@@ -42,64 +44,87 @@
         </div>
     </div>
     {% if eventos %}
-    <div class="relative overflow-hidden">
-        <div class="flex gap-6 overflow-x-auto pb-4 custom-scrollbar">
+    <div class="relative overflow-x-auto pb-4 custom-scrollbar">
+        <div class="flex gap-6" style="width: max-content;">
             {% for evento in eventos %}
-            <div class="min-w-[280px] rounded-xl shadow-sm overflow-hidden flex flex-col" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
-                <img src="{{ evento.imagen }}" class="w-full h-48 object-cover" alt="{{ evento.titulo }}">
+            <div class="w-[400px] rounded-xl shadow-sm overflow-hidden flex flex-col group" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
+                <div class="h-64 overflow-hidden">
+                    <img src="{{ evento.imagen }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" alt="{{ evento.titulo }}">
+                </div>
                 <div class="p-4 flex flex-col flex-grow">
-                    <h3 class="font-bold text-lg" style="color: var(--text-on-surface);">{{ evento.titulo }}</h3>
-                    <div class="flex items-center gap-1 mt-1">
-                        <span class="material-symbols-outlined text-yellow-500 text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <h3 class="font-bold text-xl" style="color: var(--text-on-surface);">{{ evento.titulo }}</h3>
+                    
+                    <div class="mt-2 mb-2">
+                        <span class="text-xs px-2 py-1 rounded-full {% if evento.tipo == 'virtual' %}bg-blue-100 text-blue-800{% else %}bg-green-100 text-green-800{% endif %}">
+                            {% if evento.tipo == 'virtual' %}Virtual{% else %}Presencial{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-yellow-500 text-base" style="font-variation-settings: 'FILL' 1;">star</span>
                         <span class="text-sm font-bold" style="color: var(--text-on-surface);">4.5</span>
                         <span class="text-xs ml-1" style="color: var(--text-on-surface-variant);">(120)</span>
                     </div>
-                    <div class="flex gap-2 mt-4">
-                        <form method="post" action="{% url 'core:suscribirse' %}" class="flex-1">
-                            {% csrf_token %}
-                            <input type="hidden" name="evento_id" value="{{ evento.id }}">
-                            <input type="hidden" name="tipo_evento" value="{{ evento.tipo }}">
-                            <input type="hidden" name="titulo" value="{{ evento.titulo }}">
-                            <input type="hidden" name="fecha" value="{{ evento.fecha }}">
-                            <input type="hidden" name="imagen" value="{{ evento.imagen }}">
-                            <button type="submit" class="w-full px-3 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:opacity-90 transition">
-                                <span data-i18n="subscribe_btn">Suscribirse</span>
-                            </button>
-                        </form>
+                    
+                    <div class="flex flex-col gap-2 mt-4">
+                        {% if user_authenticated %}
+                            {% if evento.creado_por != user.id %}
+                                <form method="post" action="{% url 'core:suscribirse' %}" class="w-full">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="evento_id" value="{{ evento.id }}">
+                                    <input type="hidden" name="tipo_evento" value="{{ evento.tipo }}">
+                                    <input type="hidden" name="titulo" value="{{ evento.titulo }}">
+                                    <input type="hidden" name="fecha" value="{{ evento.fecha }}">
+                                    <input type="hidden" name="imagen" value="{{ evento.imagen }}">
+                                    <button type="submit" class="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition">
+                                        <span data-i18n="subscribe_btn">Suscribirse</span>
+                                    </button>
+                                </form>
+                            {% else %}
+                                <div class="w-full py-2.5 bg-gray-200 text-gray-500 rounded-xl text-sm font-semibold text-center">
+                                    Eres el organizador
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'usuarios:login' %}" class="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-semibold text-center hover:opacity-90 transition">
+                                <span data-i18n="login_to_subscribe">Iniciar sesión</span>
+                            </a>
+                        {% endif %}
                         
-                        <div class="relative share-wrapper">
-                            <button class="share-trigger px-3 py-2 rounded-lg flex items-center justify-center gap-2 text-sm font-semibold transition w-full" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);">
-                                <i class="fas fa-share-alt"></i> <span data-i18n="share_btn">Compartir</span>
-                            </button>
-                            <div class="share-menu hidden absolute right-0 bottom-full mb-2 w-56 rounded-xl shadow-xl z-30 p-3" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
-                                <div class="grid grid-cols-2 gap-3">
-                                    <button class="share-facebook flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
-                                        <i class="fab fa-facebook-f text-xl" style="color: #1877f2;"></i>
-                                        <span class="text-xs">Facebook</span>
-                                    </button>
-                                    <button class="share-twitter flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
-                                        <i class="fab fa-x-twitter text-xl" style="color: #000000;"></i>
-                                        <span class="text-xs">X</span>
-                                    </button>
-                                    <button class="share-whatsapp flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
-                                        <i class="fab fa-whatsapp text-xl" style="color: #25D366;"></i>
-                                        <span class="text-xs">WhatsApp</span>
-                                    </button>
-                                    <button class="share-telegram flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
-                                        <i class="fab fa-telegram-plane text-xl" style="color: #26A5E4;"></i>
-                                        <span class="text-xs">Telegram</span>
-                                    </button>
-                                    <button class="share-copy flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition col-span-2" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
-                                        <i class="fas fa-link text-xl" style="color: var(--text-on-surface-variant);"></i>
-                                        <span class="text-xs">Copiar enlace (Instagram, etc.)</span>
-                                    </button>
+                        <div class="flex gap-2">
+                            <div class="relative share-wrapper flex-1">
+                                <button class="share-trigger w-full py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);">
+                                    <i class="fas fa-share-alt"></i> <span data-i18n="share_btn">Compartir</span>
+                                </button>
+                                <div class="share-menu hidden absolute right-0 bottom-full mb-2 w-56 rounded-xl shadow-xl z-30 p-3" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <button class="share-facebook flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                            <i class="fab fa-facebook-f text-xl" style="color: #1877f2;"></i>
+                                            <span class="text-xs">Facebook</span>
+                                        </button>
+                                        <button class="share-twitter flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                            <i class="fab fa-x-twitter text-xl" style="color: #000000;"></i>
+                                            <span class="text-xs">X</span>
+                                        </button>
+                                        <button class="share-whatsapp flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                            <i class="fab fa-whatsapp text-xl" style="color: #25D366;"></i>
+                                            <span class="text-xs">WhatsApp</span>
+                                        </button>
+                                        <button class="share-telegram flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                            <i class="fab fa-telegram-plane text-xl" style="color: #26A5E4;"></i>
+                                            <span class="text-xs">Telegram</span>
+                                        </button>
+                                        <button class="share-copy flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition col-span-2" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                            <i class="fas fa-link text-xl" style="color: var(--text-on-surface-variant);"></i>
+                                            <span class="text-xs">Copiar enlace</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
+                            <a href="{% url 'virtualEvent:event_detail' evento.id %}" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition text-center" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);">
+                                <span class="material-symbols-outlined text-base align-middle">rate_review</span> <span data-i18n="view_reviews">Reseñas</span>
+                            </a>
                         </div>
-                        
-                        <a href="{% url 'core:detalle_evento' evento.id %}" class="px-3 py-2 rounded-lg text-sm font-semibold transition text-center" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);">
-                            <span class="material-symbols-outlined text-sm">rate_review</span> <span data-i18n="view_reviews">Ver reseñas</span>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -114,7 +139,6 @@
     {% endif %}
 </section>
 
-<!-- Mapa interactivo (versión estable sin traducción de idioma) -->
 <section class="mb-12">
     <h2 class="text-2xl font-bold mb-4" style="color: var(--text-on-surface);" data-i18n="map_title">Eventos cerca de ti</h2>
     <div class="rounded-xl overflow-hidden shadow-sm" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
@@ -130,7 +154,6 @@
 </section>
 
 <script>
-    // Eventos de ejemplo para el mapa
     const eventosMapa = [
         { titulo: "Concierto Rock 2025", categoria: "Conciertos", lat: -12.0464, lng: -77.0428, direccion: "Centro de Lima, Perú", fecha: "15/05/2025" },
         { titulo: "Teatro Nacional", categoria: "Teatro", lat: -12.0621, lng: -77.0365, direccion: "San Borja, Lima", fecha: "20/06/2025" },
@@ -194,7 +217,6 @@
         const searchBtn = document.getElementById('search-map');
         if (searchBtn) searchBtn.onclick = (e) => { e.preventDefault(); searchLocation(); };
 
-        // Mostrar/ocultar menús de compartir
         const shareTriggers = document.querySelectorAll('.share-trigger');
         shareTriggers.forEach(trigger => {
             trigger.addEventListener('click', (e) => {
@@ -208,7 +230,6 @@
             document.querySelectorAll('.share-menu').forEach(m => m.classList.add('hidden'));
         });
 
-        // Compartir funciones
         const shareData = (btn, platform) => {
             const title = btn.dataset.eventTitle;
             const url = btn.dataset.eventUrl;

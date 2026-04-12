@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from virtualEvent.models import VirtualEvent
 
 class CategoriaEvento(models.Model):
     nombre = models.CharField(_('nombre'), max_length=100, unique=True)
@@ -17,6 +18,7 @@ class CategoriaEvento(models.Model):
 
     def __str__(self):
         return self.nombre
+
 
 class Suscripcion(models.Model):
     TIPO_EVENTO = (
@@ -38,13 +40,13 @@ class Suscripcion(models.Model):
     def __str__(self):
         return f"{self.usuario.email} -> {self.titulo_evento} (ID:{self.evento_id})"
 
+
 class Resena(models.Model):
     CALIFICACION_CHOICES = [(i, str(i)) for i in range(1, 6)]
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='resenas')
     nombre = models.CharField(max_length=100)
     email = models.EmailField()
-    evento_id = models.PositiveIntegerField(help_text="ID del evento (del sistema de compañeras)")
-    evento_titulo = models.CharField(max_length=200, blank=True)
+    evento = models.ForeignKey('virtualEvent.VirtualEvent', on_delete=models.CASCADE, related_name='resenas')
     calificacion = models.IntegerField(choices=CALIFICACION_CHOICES)
     comentario = models.TextField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)
@@ -56,7 +58,8 @@ class Resena(models.Model):
         ordering = ['-fecha_creacion']
 
     def __str__(self):
-        return f"{self.nombre} - {self.evento_titulo} ({self.calificacion}★)"
+        return f"{self.nombre} - {self.evento.title} ({self.calificacion}★)"
+
 
 class Consulta(models.Model):
     TIPO_CONSULTA = (
@@ -69,8 +72,7 @@ class Consulta(models.Model):
     nombre = models.CharField(max_length=100)
     email = models.EmailField()
     tipo = models.CharField(max_length=20, choices=TIPO_CONSULTA, default='consulta')
-    evento_id = models.PositiveIntegerField(null=True, blank=True, help_text="ID del evento relacionado (opcional)")
-    evento_titulo = models.CharField(max_length=200, blank=True)
+    evento = models.ForeignKey(VirtualEvent, on_delete=models.SET_NULL, null=True, blank=True, related_name='consultas')
     asunto = models.CharField(max_length=200)
     mensaje = models.TextField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)
