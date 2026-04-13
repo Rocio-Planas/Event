@@ -15,7 +15,7 @@ urlpatterns = [
     path('evento/<int:event_id>/guardar-youtube/', views.save_youtube_embed, name='save_youtube_embed'),
     path('evento/<int:event_id>/heartbeat/', views.update_heartbeat, name='update_heartbeat'),
     path('evento/<int:event_id>/pdf-report/', views.generate_pdf_report, name='generate_pdf_report'),
-    
-    
+
     path('upload-material/<int:event_id>/', views.upload_material, name='upload_material'),
+    path('<int:event_id>/download-ics/', views.download_ics, name='download_ics'),
 ]

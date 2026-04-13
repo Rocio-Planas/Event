@@ -1,36 +1,36 @@
-{% extends "base_stitch.html" %}
+{% extends "base_bootstrap.html" %}
 {% load static %}
-{% block title %}{{ evento.titulo }} - EventPulse{% endblock %}
+{% block title %}{{ event.title }} - EventPulse{% endblock %}
 {% block content %}
 <div class="max-w-4xl mx-auto">
-    <!-- Cabecera del evento -->
+    <!-- Header -->
     <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-8">
-        <img src="{{ evento.imagen }}" class="w-full h-64 object-cover" alt="{{ evento.titulo }}">
+        <img src="{{ event.image }}" class="w-full h-64 object-cover" alt="{{ event.title }}">
         <div class="p-6">
-            <h1 class="text-3xl font-bold text-on-surface">{{ evento.titulo }}</h1>
+            <h1 class="text-3xl font-bold text-on-surface">{{ event.title }}</h1>
             <div class="flex items-center gap-4 mt-2 text-on-surface-variant">
                 <span class="material-symbols-outlined text-sm">calendar_today</span>
-                <span>{{ evento.fecha }}</span>
+                <span>{{ event.display_date }}</span>
                 <span class="material-symbols-outlined text-sm">videocam</span>
                 <span>Virtual</span>
                 <span class="material-symbols-outlined text-sm">category</span>
-                <span>{{ evento.categoria }}</span>
+                <span>{{ event.category }}</span>
             </div>
             
-            <!-- Calificación promedio (placeholder) -->
+            <!-- Rating placeholder -->
             <div class="mt-4 flex items-center gap-3">
                 <div class="flex items-center gap-1">
                     {% for i in "12345"|make_list %}
                         <span class="material-symbols-outlined text-yellow-500" style="font-variation-settings: 'FILL' 1;">star</span>
                     {% endfor %}
                 </div>
-                <span class="text-on-surface font-bold">{{ promedio|default:"0" }}</span>
-                <span class="text-on-surface-variant">({{ total_resenas }} reseñas)</span>
+                <span class="text-on-surface font-bold">{{ average_rating|default:"0" }}</span>
+                <span class="text-on-surface-variant">({{ total_reviews }} reseñas)</span>
             </div>
 
-            <!-- Botón de suscripción (solo si el usuario está autenticado) -->
+            <!-- Follow button -->
             {% if user.is_authenticated %}
-                <form action="{% url 've_invitations:follow_event' evento.id %}" method="post" class="mt-4">
+                <form action="{% url 've_invitations:follow_event' event.id %}" method="post" class="mt-4">
                     {% csrf_token %}
                     <button type="submit" 
                             class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all
@@ -57,25 +57,40 @@
                     </a>
                 </div>
             {% endif %}
+
+            <!-- CALENDAR ACTIONS (NEW) -->
+            <div class="mt-6 flex flex-wrap gap-3">
+                <a href="{% url 'virtualEvent:download_ics' event.id %}" 
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-surface-variant text-on-surface-variant rounded-lg hover:bg-surface-variant-hover transition">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    Descargar (.ics)
+                </a>
+                <a href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ event.title|urlencode }}&dates={{ event.start_google }}/{{ event.end_google }}&details={{ event.description|urlencode }}&location=Virtual&trp=false"
+                   target="_blank"
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
+                    <span class="material-symbols-outlined">google</span>
+                    Agregar a Google Calendar
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Descripción -->
+    <!-- Description -->
     <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 mb-8">
         <h2 class="text-xl font-bold mb-3">Descripción</h2>
-        <p class="text-on-surface-variant">{{ evento.descripcion }}</p>
+        <p class="text-on-surface-variant">{{ event.description }}</p>
         <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
-            <div><span class="font-semibold">Duración:</span> {{ evento.duracion_minutos }} minutos</div>
-            <div><span class="font-semibold">Privacidad:</span> {{ evento.privacidad|capfirst }}</div>
-            <div><span class="font-semibold">Organizador:</span> {{ evento.organizador }}</div>
+            <div><span class="font-semibold">Duración:</span> {{ event.duration_minutes }} minutos</div>
+            <div><span class="font-semibold">Privacidad:</span> {{ event.privacy|capfirst }}</div>
+            <div><span class="font-semibold">Organizador:</span> {{ event.organizer }}</div>
         </div>
     </div>
 
-    <!-- Sección de reseñas (placeholder) -->
+    <!-- Reviews section (placeholder) -->
     <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
-        <h2 class="text-2xl font-bold text-on-surface mb-6" data-i18n="reviews_section">Reseñas</h2>
-        {% if resenas %}
-            <!-- Aquí irían las reseñas reales -->
+        <h2 class="text-2xl font-bold text-on-surface mb-6">Reseñas</h2>
+        {% if reviews %}
+            <!-- actual reviews go here -->
         {% else %}
             <div class="text-center py-8">
                 <span class="material-symbols-outlined text-5xl text-outline-variant">rate_review</span>

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -16,6 +18,7 @@ import re
 import json
 from django.views.decorators.csrf import csrf_exempt
 from .report_generator import generate_event_pdf  # type: ignore
+from .utils.calendar_utils import generate_ics  # type: ignore
 
 
 # Lista de eventos (pública)
@@ -27,42 +30,39 @@ def event_list(request):
 def event_detail(request, pk):
     event = get_object_or_404(VirtualEvent, pk=pk)
 
-    # Construir el objeto 'evento' para el template (en español)
-    evento_data = {
-        "id": event.id,
-        "titulo": event.title,
-        "descripcion": event.description,
-        "imagen": (
-            event.image.url if event.image else "/static/images/default-event.jpg"
-        ),
-        "fecha": event.start_datetime.strftime("%d/%m/%Y %H:%M"),
-        "tipo": "Virtual",  # Forzamos virtual
-        "duracion_minutos": event.duration_minutes,
-        "categoria": event.category,
-        "privacidad": event.privacy,
-        "organizador": event.created_by.get_full_name() or event.created_by.username,
-    }
+    # Calculate end datetime
+    end_datetime = event.start_datetime + timedelta(minutes=event.duration_minutes)
 
-    # Verificar si el usuario sigue el evento
-    is_following = False
-    if request.user.is_authenticated:
-        is_following = EventFollower.objects.filter(
-            user=request.user, event=event
-        ).exists()
+    # Formats for Google Calendar and display
+    start_google = event.start_datetime.strftime("%Y%m%dT%H%M%S")
+    end_google = end_datetime.strftime("%Y%m%dT%H%M%S")
+    display_date = event.start_datetime.strftime("%d/%m/%Y %H:%M")
 
-    # Datos de reseñas (vacíos por ahora, pero podrías integrar después)
-    resenas = []
-    promedio = 0
-    total_resenas = 0
-
+    # Prepare context (all keys in English)
     context = {
-        "evento": evento_data,
-        "is_following": is_following,
-        "resenas": resenas,
-        "promedio": promedio,
-        "total_resenas": total_resenas,
+        "event": {
+            "id": event.id,
+            "title": event.title,
+            "description": event.description,
+            "image": (
+                event.image.url if event.image else "/static/images/default-event.jpg"
+            ),
+            "display_date": display_date,
+            "start_google": start_google,
+            "end_google": end_google,
+            "type": "Virtual",
+            "duration_minutes": event.duration_minutes,
+            "category": event.category,
+            "privacy": event.privacy,
+            "organizer": event.created_by.get_full_name() or event.created_by.username,
+        },
+        "is_following": request.user.is_authenticated
+        and EventFollower.objects.filter(user=request.user, event=event).exists(),
+        "reviews": [],  # placeholder
+        "average_rating": 0,  # placeholder
+        "total_reviews": 0,  # placeholder
     }
-    return render(request, "virtualEvents/evento_detail.html", context)
+    return render(request, "virtualEvents/event_detail.html", context)
 
 
 # Crear evento (solo organizador autenticado)
@@ -474,3 +474,11 @@ def upload_material(request, event_id):
         messages.success(request, "Material subido y notificaciones enviadas.")
         return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
     return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
+
+
+def download_ics(request, event_id):
+    event = get_object_or_404(VirtualEvent, pk=event_id)
+    ics_content = generate_ics(event)
+    response = HttpResponse(ics_content, content_type="text/calendar")
+    response["Content-Disposition"] = f'attachment; filename="event_{event.id}.ics"'
+    return response
