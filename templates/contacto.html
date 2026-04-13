@@ -49,15 +49,10 @@
                             {{ review_form.email }}
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event_id">ID del evento</label>
-                            {{ review_form.evento_id }}
-                        </div>
-                        <div>
-                            <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event_title">Título del evento</label>
-                            {{ review_form.evento_titulo }}
-                        </div>
+                    <!-- Selector de evento (nuevo) -->
+                    <div>
+                        <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event">Evento</label>
+                        {{ review_form.evento }}
                     </div>
                     <div>
                         <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="rating">Calificación</label>
@@ -88,15 +83,10 @@
                         <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="type">Tipo de consulta</label>
                         {{ inquiry_form.tipo }}
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event_id">ID del evento (opcional)</label>
-                            {{ inquiry_form.evento_id }}
-                        </div>
-                        <div>
-                            <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event_title">Título del evento (opcional)</label>
-                            {{ inquiry_form.evento_titulo }}
-                        </div>
+                    <!-- Selector de evento (opcional) -->
+                    <div>
+                        <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event">Evento (opcional)</label>
+                        {{ inquiry_form.evento }}
                     </div>
                     <div>
                         <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="subject">Asunto</label>
@@ -126,8 +116,15 @@
     </div>
 </div>
 
+<!-- Datos del chat (evita errores de sintaxis) -->
+{{ chat_config|json_script:"chat-config" }}
+
 <script>
-    let conversacionId = null;
+    // Leer configuración del chat
+    const chatConfig = JSON.parse(document.getElementById('chat-config').textContent);
+    const chatAvailable = chatConfig.available;
+    const userId = chatConfig.user_id;
+
     let lastMessageId = 0;
     let pollingInterval = null;
 
@@ -138,30 +135,14 @@
     const closeChatBtn = document.getElementById('close-chat');
     const chatNowBtn = document.getElementById('chat-now-btn');
 
-    // Obtener o crear la conversación del usuario
-    async function iniciarConversacion() {
-        try {
-            const response = await fetch('/chat/mi-conversacion/');
-            if (!response.ok) throw new Error('Error al obtener conversación');
-            const data = await response.json();
-            conversacionId = data.conversacion_id;
-            startPolling();
-            fetchMessages();
-        } catch (err) {
-            console.error('Error al iniciar conversación:', err);
-        }
-    }
-
     function openChat() {
-        if (!conversacionId) {
-            iniciarConversacion().then(() => {
-                chatModal.classList.remove('hidden');
-            });
-        } else {
-            chatModal.classList.remove('hidden');
-            startPolling();
-            fetchMessages();
+        if (!chatAvailable) {
+            alert('El chat está disponible de lunes a viernes de 9:00 a 21:00 horas.');
+            return;
         }
+        chatModal.classList.remove('hidden');
+        startPolling();
+        fetchMessages();
     }
 
     function closeChatModal() {
@@ -175,24 +156,13 @@
     }
 
     async function fetchMessages() {
-        if (!conversacionId) return;
         try {
-            const response = await fetch(`/chat/mensajes/${conversacionId}/?last_id=${lastMessageId}`);
-            if (!response.ok) throw new Error('Error al obtener mensajes');
+            const response = await fetch(`/chat/get/?last_id=${lastMessageId}`);
             const data = await response.json();
-            for (const msg of data.mensajes) {
+            for (const msg of data.messages) {
                 const div = document.createElement('div');
-                div.className = `p-2 rounded-lg ${msg.es_propio ? 'bg-primary/10 text-right' : 'bg-surface-container-high'}`;
-                // Nombre del remitente sin etiquetas extra
-                let senderName = '';
-                if (msg.es_admin) {
-                    senderName = 'Soporte';
-                } else if (msg.es_propio) {
-                    senderName = 'Tú';
-                } else {
-                    senderName = 'Usuario';
-                }
-                div.innerHTML = `<strong>${escapeHtml(senderName)}</strong> <span class="text-xs text-on-surface-variant">${msg.fecha}</span><br>${escapeHtml(msg.texto)}`;
+                div.className = `p-2 rounded-lg ${msg.is_owner ? 'bg-primary/10 text-right' : 'bg-surface-container-high'}`;
+                div.innerHTML = `<strong>${escapeHtml(msg.username)}</strong> <span class="text-xs text-on-surface-variant">${msg.timestamp}</span><br>${escapeHtml(msg.message)}`;
                 chatMessages.appendChild(div);
                 lastMessageId = msg.id;
             }
@@ -204,19 +174,13 @@
 
     async function sendMessage() {
         const message = chatInput.value.trim();
-        if (!message || !conversacionId) return;
+        if (!message) return;
         const formData = new FormData();
-        formData.append('texto', message);
+        formData.append('message', message);
         try {
-            const response = await fetch(`/chat/enviar/${conversacionId}/`, {
-                method: 'POST',
-                body: formData,
-                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
-            });
-            if (response.ok) {
-                chatInput.value = '';
-                fetchMessages(); // refrescar inmediatamente
-            }
+            await fetch('/chat/send/', { method: 'POST', body: formData, headers: { 'X-CSRFToken': '{{ csrf_token }}' } });
+            chatInput.value = '';
+            fetchMessages();
         } catch (err) {
             console.error('Error sending message:', err);
         }

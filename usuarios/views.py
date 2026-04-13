@@ -4,10 +4,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.csrf import ensure_csrf_cookie
 import os
+
+from ve_invitations.models import EventFollower
+from virtualEvent.models import VirtualEvent
 from .forms import RegistroForm, LoginForm, RecuperacionPasswordForm, PerfilForm, CambiarPasswordForm, PreferenciasForm
 from .models import Usuario
 from core.models import CategoriaEvento, Suscripcion, Consulta, Resena
 from .decorators import role_required
+
 
 @login_required
 @role_required(['administrador'])
@@ -81,7 +85,21 @@ def recuperar_password_view(request):
 
 @login_required
 def perfil_view(request):
-    return render(request, 'usuarios/perfil.html', {'user': request.user})
+    user = request.user
+    # Eventos que el usuario organiza (crea)
+    eventos_organizados = VirtualEvent.objects.filter(created_by=user).order_by('-start_datetime')
+    # Eventos virtuales a los que sigue
+    suscripciones_virtuales = EventFollower.objects.filter(user=user).select_related('event')
+    # Eventos presenciales (tu modelo)
+    suscripciones_presenciales = Suscripcion.objects.filter(usuario=user).order_by('-fecha_suscripcion')
+    
+    context = {
+        'user': user,
+        'eventos_organizados': eventos_organizados,
+        'suscripciones_virtuales': suscripciones_virtuales,
+        'suscripciones_presenciales': suscripciones_presenciales,
+    }
+    return render(request, 'usuarios/perfil.html', context)
 
 @login_required
 def editar_perfil_view(request):
@@ -158,22 +176,53 @@ def contacto_view(request):
     # Por simplicidad, la dejamos aquí y redirigimos a core:contacto
     return redirect('core:contacto')
 
+
 @login_required
 def editar_preferencias(request):
     if request.method == 'POST':
+        # 1. Crea el formulario con los datos POST
         form = PreferenciasForm(request.user, request.POST)
+        
         if form.is_valid():
+            # 2. Guarda el formulario. Como estás usando una relación ManyToManyField
+            #    con un modelo intermedio (through='PreferenciaUsuario'), Django
+            #    se encarga de crear las instancias en la tabla intermedia
+            #    automáticamente.
             form.save()
+            
+            # 3. Mensaje de éxito
             messages.success(request, 'Tus preferencias se han actualizado correctamente.')
+            
+            # 4. Redirige al perfil del usuario
             return redirect('usuarios:perfil')
         else:
-            for error in form.errors.get('categorias', []):
-                messages.error(request, error)
+            # Si el formulario no es válido, muestra los errores
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
+        # GET request: muestra el formulario con las preferencias actuales
         form = PreferenciasForm(request.user)
+    
+    # Obtén todas las categorías activas para mostrarlas en la plantilla
     categorias = CategoriaEvento.objects.filter(activo=True).order_by('orden')
+    
     return render(request, 'usuarios/editar_preferencias.html', {
         'form': form,
         'categorias': categorias
     })
 
+@login_required
+def dashboard_unificado(request):
+    user = request.user
+    eventos_organizados = VirtualEvent.objects.filter(created_by=user).order_by('-start_datetime')
+    suscripciones_virtuales = EventFollower.objects.filter(user=user).select_related('event')
+    suscripciones_presenciales = Suscripcion.objects.filter(usuario=user).order_by('-fecha_suscripcion')
+    
+    context = {
+        'user': user,
+        'eventos_organizados': eventos_organizados,
+        'suscripciones_virtuales': suscripciones_virtuales,
+        'suscripciones_presenciales': suscripciones_presenciales,
+    }
+    return render(request, 'usuarios/dashboard_unificado.html', context)

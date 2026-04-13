@@ -19,9 +19,10 @@ class SuscripcionAdmin(admin.ModelAdmin):
 
 @admin.register(Resena)
 class ResenaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'evento_titulo', 'calificacion', 'aprobada', 'fecha_creacion')
+    list_display = ('nombre', 'evento', 'calificacion', 'aprobada', 'fecha_creacion')
     list_filter = ('calificacion', 'aprobada', 'fecha_creacion')
-    search_fields = ('nombre', 'email', 'evento_titulo', 'comentario')
+    search_fields = ('nombre', 'email', 'evento__title', 'comentario')
+    raw_id_fields = ('evento',)
     actions = ['aprobar_resenas']
 
     def aprobar_resenas(self, request, queryset):
