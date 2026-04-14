@@ -72,22 +72,28 @@
                 </div>
             {% endif %}
 
-            <!-- CALENDAR ACTIONS -->
-            <div class="mt-6 flex flex-wrap gap-3">
-                <a href="{% url 'virtualEvent:download_ics' evento.id %}" 
-                class="inline-flex items-center gap-2 px-4 py-2 bg-surface-variant text-on-surface-variant rounded-lg hover:bg-surface-variant-hover transition">
-                    <span class="material-symbols-outlined">calendar_month</span>
-                    Descargar (.ics)
-                </a>
-                <a href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ evento.titulo|urlencode }}&dates={{ evento.fecha_inicio_google }}/{{ evento.fecha_fin_google }}&details={{ evento.descripcion|urlencode }}&location=Virtual&trp=false"
-                target="_blank"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
-                    Agregar a Google Calendar
-                </a>
-            </div>
+    <!-- CALENDAR ACTIONS -->
+        <div class="mt-6 flex flex-wrap gap-3">
+            <a href="{% url 'virtualEvent:download_ics' evento.id %}" 
+            class="inline-flex items-center gap-2 px-4 py-2 bg-surface-variant text-on-surface-variant rounded-lg hover:bg-surface-variant-hover transition">
+                <span class="material-symbols-outlined">calendar_month</span>
+                Descargar (.ics)
+            </a>
+            <a href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ evento.titulo|urlencode }}&dates={{ evento.fecha_inicio_google }}/{{ evento.fecha_fin_google }}&details={{ evento.descripcion|urlencode }}&location=Virtual&trp=false"
+            target="_blank"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
+                Agregar a Google Calendar
+            </a>
 
-        </div>
-    </div>
+            <!-- Botón para ir a la sala de espera (visible solo para usuarios autenticados) -->
+            {% if user.is_authenticated and evento.unique_link %}
+        <a href="{% url 've_streaming:waiting_room' evento.unique_link %}" 
+            class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+        <span class="material-symbols-outlined">meeting_room</span>
+            Sala de espera
+        </a>
+    {% endif %}
+        </div>  
 
     <!-- Descripción -->
     <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 mb-8">

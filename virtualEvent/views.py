@@ -425,6 +425,7 @@ def event_detail(request, pk):
         "privacidad": event.privacy,
         "organizador": event.created_by.get_full_name() or event.created_by.username,
         "creado_por_id": event.created_by.id,  # ← para saber si el usuario actual es el organizador
+        "unique_link": str(event.unique_link) if event.unique_link else "",
     }
 
     # Verificar si el usuario sigue el evento (solo si está autenticado y no es el organizador)
