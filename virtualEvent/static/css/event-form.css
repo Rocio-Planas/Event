@@ -42,8 +42,8 @@ body {
 .ev-header {
   padding: 1.5rem 0rem 2.3rem;
   text-align: left;
-  border-bottom: 1px solid #f1f5f9;
-  background: linear-gradient(to bottom, #ffffff, #fafbfc);
+  border-bottom: 1px solid var(--ev-border);
+  background: var(--ev-card-bg);
 }
 
 .ev-title {
@@ -188,6 +188,18 @@ body {
   border-radius: 0.5rem;
 }
 
+/* Eliminar bordes redondeados donde se unen input y addon */
+.ev-form .input-group .ev-input {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.ev-form .input-group .ev-input-addon {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -209,4 +221,129 @@ input[type="number"] {
   .ev-title {
     font-size: 1.75rem;
   }
+}
+
+/* ========== MODO OSCURO para event-form ========== */
+.dark .ev-form-card {
+  background: var(--surface-container-lowest) !important;
+  border-color: var(--border-outline-variant) !important;
+}
+
+.dark .ev-form-container,
+.dark .ev-form-body {
+  background-color: transparent !important;
+}
+
+.dark .ev-header {
+  border-bottom-color: var(--border-outline-variant) !important;
+  background: var(--surface-container-lowest) !important; /* sólido */
+}
+
+.dark .ev-title {
+  color: var(--text-on-surface) !important;
+}
+
+.dark .ev-subtitle,
+.dark .ev-label {
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dark .ev-input {
+  background-color: var(--surface-container-high) !important;
+  border-color: var(--border-outline-variant) !important;
+  color: var(--text-on-surface) !important;
+}
+
+.dark .ev-input:focus {
+  background-color: var(--surface-container-lowest) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Placeholder */
+.dark .ev-input::placeholder {
+  color: var(--text-on-surface-variant) !important;
+  opacity: 0.8;
+}
+
+.dark .ev-drop-zone {
+  background-color: var(--surface-container-low) !important;
+  border-color: var(--border-outline-variant) !important;
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dark .ev-drop-zone:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--primary) 5%,
+    var(--surface-container-low)
+  ) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .ev-radio-card {
+  background-color: var(--surface-container-low) !important;
+  border-color: var(--border-outline-variant) !important;
+  color: var(--text-on-surface) !important;
+}
+
+.dark .ev-radio-card:hover {
+  background-color: var(--surface-container-high) !important;
+}
+
+.dark .btn-check:checked + .ev-radio-card {
+  background-color: var(--surface-container-lowest) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .ev-icon-box {
+  background-color: var(--surface-container-high) !important;
+  color: var(--primary) !important;
+}
+
+.dark .ev-input-addon {
+  background-color: var(--surface-container-low) !important;
+  border-color: var(--border-outline-variant) !important;
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dark .ev-radio-card .form-check-label {
+  color: var(--text-on-surface) !important;
+}
+
+/* Texto de los radio buttons en modo oscuro */
+.dark .ev-radio-card .form-check-label,
+.dark .ev-radio-card span:not(.ev-icon-box),
+.dark .form-check-label {
+  color: var(--text-on-surface) !important;
+}
+
+/* Si el texto está dentro de un label o párrafo */
+.dark .ev-radio-card label,
+.dark .ev-radio-card p {
+  color: var(--text-on-surface) !important;
+}
+
+/* Forzar colores de textos fijos en modo oscuro (público/privado) */
+.dark .ev-radio-card .fw-bold.text-dark,
+.dark .ev-radio-card div:not(.ev-icon-box) .fw-bold,
+.dark .ev-radio-card .text-dark {
+  color: var(--text-on-surface) !important;
+}
+
+.dark .ev-radio-card .text-muted,
+.dark .ev-radio-card .extra-small {
+  color: var(--text-on-surface-variant) !important;
+}
+
+/* Texto del dropzone (PNG O JPG) */
+.dark .ev-drop-zone .text-muted,
+.dark .ev-drop-zone small {
+  color: var(--text-on-surface-variant) !important;
+}
+
+/* Asegurar que los placeholders usen la variable (ya lo tienes, pero reforzamos) */
+.dark .ev-input::placeholder,
+.dark .ev-drop-zone p::placeholder {
+  color: var(--text-on-surface-variant) !important;
+  opacity: 0.8 !important;
 }

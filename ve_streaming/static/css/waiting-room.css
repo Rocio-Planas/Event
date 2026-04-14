@@ -1,89 +1,272 @@
 /* waiting-room.css */
 
 .wr-container {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
 }
 
 .wr-card {
-    background-color: #ffffff;
-    transition: transform 0.3s ease;
+  background-color: #ffffff;
+  transition: transform 0.3s ease;
 }
 
 .wr-title {
-    color: #1a1d23;
-    letter-spacing: -0.02em;
+  color: #1a1d23;
+  letter-spacing: -0.02em;
 }
 
 .wr-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.1) 100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
 }
 
 .fw-extrabold {
-    font-weight: 800;
+  font-weight: 800;
 }
 
 .fw-black {
-    font-weight: 900;
+  font-weight: 900;
 }
 
 .wr-label {
-    font-size: 0.65rem;
-    letter-spacing: 0.05em;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
 }
 
 .wr-link-group {
-    transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease;
 }
 
 .wr-link-group:hover {
-    border-color: #0d6efd !important;
+  border-color: #0d6efd !important;
 }
 
 .btn-white {
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
 }
 
 .btn-white:hover {
-    background-color: #0d6efd;
-    color: #ffffff !important;
+  background-color: #0d6efd;
+  color: #ffffff !important;
 }
 
 .wr-btn-access {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
 }
 
 .wr-btn-access:not(:disabled) {
-    background: linear-gradient(135deg, #0057cd 0%, #0d6efd 100%);
+  background: linear-gradient(135deg, #0057cd 0%, #0d6efd 100%);
 }
 
 .wr-btn-access:not(:disabled):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2) !important;
 }
 
 .wr-btn-access:active {
-    transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 /* Tooltip simple for copy feedback */
 .copy-success {
-    background-color: #198754 !important;
-    color: white !important;
+  background-color: #198754 !important;
+  color: white !important;
 }
 
 /* Responsive adjustments */
 @media (max-width: 576px) {
-    .wr-card {
-        margin: 10px;
-    }
-    .h2 {
-        font-size: 1.5rem;
-    }
+  .wr-card {
+    margin: 10px;
+  }
+  .h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* ========== MODO OSCURO COMPLETO PARA WAITING ROOM ========== */
+.dark .wr-card,
+.dark .card {
+  background-color: var(--surface-container-lowest) !important;
+  border: 1px solid var(--border-outline-variant) !important;
+  box-shadow: none !important;
+}
+
+.dark .wr-title,
+.dark .countdown-digit,
+.dark .countdown-label,
+.dark .event-datetime,
+.dark .event-date-text,
+.dark .h2,
+.dark .display-4,
+.dark .countdown-number,
+.dark .countdown-unit,
+.dark .fs-1,
+.dark .fs-2,
+.dark .fs-3,
+.dark .fs-4,
+.dark .fw-bold,
+.dark .fw-extrabold,
+.dark .fw-black {
+  color: var(--text-on-surface) !important;
+}
+
+.dark .wr-label,
+.dark .invite-label,
+.dark .colaborators-label,
+.dark .text-muted,
+.dark small,
+.dark .form-text {
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dark .countdown-container,
+.dark .countdown-item,
+.dark .wr-countdown,
+.dark .countdown-wrapper {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.dark .wr-link-group,
+.dark .invite-link-container,
+.dark .input-group {
+  background-color: var(--surface-container-low) !important;
+  border-color: var(--border-outline-variant) !important;
+}
+
+.dark .invite-link-input,
+.dark .od-url-box,
+.dark .form-control,
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark textarea,
+.dark select {
+  background-color: var(--surface-container-high) !important;
+  border: 1px solid var(--border-outline-variant) !important;
+  color: var(--text-on-surface) !important;
+}
+
+.dark .invite-link-input::placeholder,
+.dark .form-control::placeholder {
+  color: var(--text-on-surface-variant) !important;
+  opacity: 0.8 !important;
+}
+
+.dark .btn-white {
+  background-color: var(--surface-container-lowest) !important;
+  border-color: var(--border-outline-variant) !important;
+  color: var(--text-on-surface) !important;
+}
+
+.dark .btn-white:hover {
+  background-color: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .wr-btn-access:not(:disabled) {
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 80%, white) 100%
+  ) !important;
+  color: white !important;
+}
+
+/* Forzar cualquier elemento que pueda tener fondo blanco fijo */
+.dark .wr-card *,
+.dark .countdown-container *,
+.dark .invite-link-container *,
+.dark .card-body,
+.dark .card-header,
+.dark .card-footer {
+  background-color: transparent !important; /* hereda el fondo del padre */
+}
+
+.dark div[class*="countdown"],
+.dark div[class*="Countdown"] {
+  background: transparent !important;
+}
+
+/* ===== REFUERZO EXTREMO PARA MODO OSCURO EN WAITING ROOM ===== */
+
+.dark .wr-card,
+.dark .card,
+.dark .card-body,
+.dark .container,
+.dark .row,
+.dark [class*="card"] {
+  background-color: var(--surface-container-lowest) !important;
+  background-image: none !important;
+}
+
+.dark .countdown-digit,
+.dark .countdown-number,
+.dark .display-4,
+.dark .h1,
+.dark .h2,
+.dark .h3,
+.dark .fw-extrabold,
+.dark .fw-black {
+  color: var(--text-on-surface) !important;
+}
+
+.dark .countdown-label,
+.dark .wr-label {
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dark .event-datetime,
+.dark .event-date-text,
+.dark .text-muted {
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dark .invite-link-input,
+.dark .od-url-box,
+.dark .form-control-plaintext,
+.dark .wr-link-group .text-break {
+  outline: none !important;
+  box-shadow: none !important;
+  border-style: solid !important;
+  border-width: 1px !important;
+  border-color: var(--border-outline-variant) !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+}
+
+.dark .wr-btn-access:not(:disabled) {
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 80%, white) 100%
+  ) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.dark .bg-white,
+.dark .bg-light,
+.dark .card.bg-white {
+  background-color: var(--surface-container-low) !important;
+}
+
+.dark body,
+.dark .wr-container {
+  background-color: var(--bg-surface) !important;
 }

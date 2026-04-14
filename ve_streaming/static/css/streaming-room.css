@@ -255,7 +255,7 @@ body {
 
 .sr-chat-input-area {
   padding: 1.25rem;
-  background: #fff;
+  background: var(--sr-card-bg);
   border-top: 1px solid var(--sr-border);
 }
 
@@ -329,10 +329,21 @@ button:focus-visible {
 .sr-poll-card {
   background: var(--sr-card-bg);
   border-radius: 1.25rem;
-  padding: 1.5rem;
+  padding: 1rem 1.25rem ;
   border: 1px solid var(--sr-border);
   box-shadow: var(--sr-shadow);
 }
+
+/* Separación entre header y contenido */
+.sr-poll-card .card-body {
+  padding-top: 1.25rem !important;
+  padding-bottom: 1.25rem !important;
+}
+/* Si el header no tiene padding suficiente */
+.sr-poll-card .card-header {
+  padding: 1rem 1.25rem !important;
+}
+
 
 /* Botones */
 .btn-primary {
@@ -507,4 +518,243 @@ button:focus-visible {
   .pin-btn i {
     font-size: 12px;
   }
+}
+
+/* ========== MODO OSCURO COMPLETO para streaming-room ========== */
+.dark {
+  --sr-bg: #121212;
+  --sr-card-bg: var(--surface-container-lowest);
+  --sr-text-main: var(--text-on-surface);
+  --sr-text-muted: var(--text-on-surface-variant);
+  --sr-border: var(--border-outline-variant);
+  --sr-primary: var(--primary);
+}
+
+.dark body {
+  background-color: var(--sr-bg) !important;
+  color: var(--sr-text-main) !important;
+}
+
+.dark .sr-card-main,
+.dark .sr-metric-card,
+.dark .sr-chat-container,
+.dark .sr-poll-card,
+.dark .sr-hands-list {
+  background: var(--sr-card-bg) !important;
+  border-color: var(--sr-border) !important;
+}
+
+.dark .sr-chat-header {
+  background: var(--surface-container-low) !important;
+  border-color: var(--sr-border) !important;
+}
+
+.dark .sr-chat-messages {
+  background: var(--sr-bg) !important;
+}
+
+.dark .sr-chat-bubble:not(.sr-mine) {
+  background: var(--sr-card-bg) !important;
+  color: var(--sr-text-main) !important;
+  border-color: var(--sr-border) !important;
+}
+
+.dark .sr-chat-bubble.sr-mine {
+  background: #0d6efd !important; /* azul más oscuro que el primario claro */
+  color: white !important;
+}
+
+.dark .sr-chat-bubble.sr-mine .sr-chat-meta {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.dark .sr-chat-bubble.sr-mine .pin-btn i {
+  color: white !important;
+}
+
+.dark .sr-chat-bubble.sr-mine .pin-btn i.bi-pin-fill {
+  color: white !important;
+}
+
+.dark .sr-chat-meta {
+  color: var(--sr-text-muted) !important;
+}
+
+.dark .sr-chat-input-area {
+  background: var(--surface-container-low) !important;
+  border-top-color: var(--sr-border) !important;
+}
+
+.dark .sr-chat-input-wrapper {
+  background: var(--surface-container-high) !important;
+  border-color: var(--sr-border) !important;
+}
+
+.dark .sr-chat-input-wrapper:focus-within {
+  background: var(--surface-container-lowest) !important;
+  border-color: var(--sr-primary) !important;
+}
+
+.dark .sr-chat-input {
+  color: var(--sr-text-main) !important;
+}
+
+/* Placeholder */
+.dark .sr-chat-input::placeholder {
+  color: var(--sr-text-muted) !important;
+  opacity: 0.7;
+}
+
+.dark .sr-metric-card {
+  background: var(--sr-card-bg) !important;
+  border-color: var(--sr-border) !important;
+}
+
+.dark .sr-metric-icon-container {
+  background-color: color-mix(
+    in srgb,
+    var(--sr-primary) 15%,
+    transparent
+  ) !important;
+}
+
+.dark .sr-metric-value {
+  color: var(--sr-text-main) !important;
+}
+
+.dark .sr-metric-label {
+  color: var(--sr-text-muted) !important;
+}
+
+.dark .sr-hand-item {
+  background: var(--sr-card-bg) !important;
+  border-bottom-color: var(--sr-border) !important;
+  color: var(--sr-text-main) !important;
+}
+
+.dark .pin-btn i {
+  color: var(--sr-text-muted) !important;
+}
+
+.dark .pin-btn i.bi-pin-fill {
+  color: var(--sr-primary) !important;
+}
+
+.dark .sr-star-rating label {
+  color: var(--sr-border) !important;
+}
+
+.dark .sr-live-indicator,
+.dark .live-badge,
+.dark .event-date,
+.dark .event-duration,
+.dark .online-status,
+.dark .sr-metric-card .metric-value,
+.dark .sr-metric-card .metric-label {
+  color: var(--text-on-surface) !important;
+}
+
+.dark .sr-live-indicator {
+  background-color: var(--sr-primary);
+}
+
+.dark .btn-outline-secondary,
+.dark .btn-link {
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dark .btn-link:hover {
+  color: var(--primary) !important;
+}
+
+.dark .sr-chat-input-area .btn-link,
+.dark .sr-chat-input-area button {
+  font-size: 0.85rem !important;
+  padding: 0.4rem 0.8rem !important;
+}
+
+.dark .event-date,
+.dark .event-duration,
+.dark .online-status {
+  color: var(--sr-text-main) !important;
+}
+
+.dark .text-muted,
+.dark .small.text-muted,
+.dark .text-secondary {
+  color: var(--text-on-surface-variant) !important;
+}
+
+/* Forzar el indicador EN VIVO */
+.dark .sr-live-indicator {
+  background-color: #dc3545 !important; /* rojo estándar */
+  color: white !important;
+}
+
+.dark .sr-live-indicator .sr-dot {
+  background-color: white !important;
+}
+
+
+.dark .sr-poll-card .card-header.bg-white {
+  background-color: var(--surface-container-high);
+  border-bottom: 1px solid var(--border-outline-variant);
+}
+
+.dark .sr-poll-card .card-header .sr-label {
+  color: var(--text-on-surface);
+}
+
+.dark .sr-poll-card .card-header {
+  padding: 1rem 1.25rem;
+}
+
+.dark .sr-poll-card .card-body {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  background-color: var(--surface-container-lowest);
+  color: var(--text-on-surface);
+}
+
+.dark .sr-poll-card .form-check-label,
+.dark .sr-poll-card .fw-bold {
+  color: var(--text-on-surface-variant);
+}
+
+.dark .sr-poll-card .btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* ===== CORRECCIÓN DEL ÁREA BLANCA DEBAJO DEL REPRODUCTOR ===== */
+.dark .sr-video-wrapper + div.bg-white,
+.dark .bg-white.py-3.px-4.d-flex {
+  background-color: var(--surface-container-high) !important;
+  border-top-color: var(--border-outline-variant) !important;
+  color: var(--text-on-surface) !important;
+}
+
+.dark .sr-live-indicator {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.dark .sr-video-wrapper + div .text-muted {
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dark .btn-light,
+.dark .btn-light.btn-sm.sr-btn-pill {
+  background-color: var(--surface-container-high) !important;
+  color: var(--text-on-surface) !important;
+  border: 1px solid var(--border-outline-variant) !important;
+}
+
+.dark .btn-light:hover {
+  background-color: var(--surface-container-lowest) !important;
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
 }

@@ -416,3 +416,97 @@ body {
   align-items: center;
   gap: 5px;
 }
+
+/* ========== MODO OSCURO para organizer-dashboard ========== */
+.dark .od-card-main,
+.dark .od-metric-card,
+.dark .material-shared {
+  background: var(--surface-container-lowest) !important;
+  border-color: var(--border-outline-variant) !important;
+}
+
+.dark .od-label,
+.dark .material-shared h5 {
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dark .od-input {
+  background-color: var(--surface-container-high) !important;
+  border-color: var(--border-outline-variant) !important;
+  color: var(--text-on-surface) !important;
+}
+
+.dark .od-input:focus {
+  background-color: var(--surface-container-lowest) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .od-input::placeholder {
+  color: var(--text-on-surface-variant) !important;
+  color: #94a3b8;
+  opacity: 0.8;
+}
+
+.dark .od-metric-icon-container {
+  background-color: color-mix(
+    in srgb,
+    var(--primary) 15%,
+    transparent
+  ) !important;
+}
+
+.dark .od-metric-value {
+  color: var(--text-on-surface) !important;
+}
+
+.dark .btn-material.btn-material {
+  background-color: var(--surface-container-low) !important;
+  border-color: var(--border-outline-variant) !important;
+  color: var(--text-on-surface) !important;
+}
+
+.dark .btn-material.btn-material i {
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dark .od-url-box {
+  background-color: var(--surface-container-high) !important;
+  border-color: var(--border-outline-variant) !important;
+  color: var(--primary) !important;
+}
+
+.dark .od-youtube-instructions {
+  background-color: var(--surface-container-low) !important;
+  border-color: var(--border-outline-variant) !important;
+}
+
+.dark .od-mini-iframe {
+  border-color: var(--border-outline-variant) !important;
+}
+
+.dark .text-muted,
+.dark .small-text {
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dark .od-metric-card,
+.dark .od-card-main,
+.dark .dashboard-section,
+.dark .card {
+  background-color: var(--surface-container-lowest) !important;
+  border-color: var(--border-outline-variant) !important;
+}
+.dark .od-metric-value,
+.dark .od-metric-label,
+.dark .section-title,
+.dark .card-title {
+  color: var(--text-on-surface) !important;
+}
+.dark .text-muted,
+.dark .small-text {
+  color: var(--text-on-surface-variant) !important;
+}
+.dark .btn-outline-primary {
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
