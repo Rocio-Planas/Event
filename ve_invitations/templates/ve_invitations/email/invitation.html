@@ -9,5 +9,10 @@
     <p><strong>Organizador:</strong> {{ event.created_by.get_full_name|default:event.created_by.username }}</p>
     <p><a href="{{ invite_link }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;" data-i18n="accept_invitation">Aceptar invitación</a></p>
     <p style="color: #666;" data-i18n="ignore_invitation">Si no esperabas esta invitación, ignora este mensaje.</p>
+    <p>Para agregar este evento a tu calendario:</p>
+    <ul>
+        <li><a href="{{ ics_download_link }}">Descargar archivo .ics</a></li>
+        <li><a href="{{ google_calendar_url }}" target="_blank">Añadir a Google Calendar</a></li>
+    </ul>
 </body>
 </html>

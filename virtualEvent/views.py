@@ -6,7 +6,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
-
+from .utils.calendar_utils import generate_ics  # type: ignore
 from core.models import Resena
 from .models import EventAnalytics, OnlineViewer, VirtualEvent
 from ve_streaming.models import StreamingRoom
@@ -18,7 +18,6 @@ import re
 import json
 from django.views.decorators.csrf import csrf_exempt
 from .report_generator import generate_event_pdf  # type: ignore
-
 
 
 # Lista de eventos (pública)
@@ -407,6 +406,7 @@ def generate_pdf_report(request, event_id):
     )
     return response
 
+
 def event_detail(request, pk):
     event = get_object_or_404(VirtualEvent, pk=pk)
 
@@ -415,7 +415,9 @@ def event_detail(request, pk):
         "id": event.id,
         "titulo": event.title,
         "descripcion": event.description,
-        "imagen": event.image.url if event.image else "/static/images/default-event.jpg",
+        "imagen": (
+            event.image.url if event.image else "/static/images/default-event.jpg"
+        ),
         "fecha": event.start_datetime.strftime("%d/%m/%Y %H:%M"),
         "tipo": "Virtual",
         "duracion_minutos": event.duration_minutes,
@@ -429,14 +431,16 @@ def event_detail(request, pk):
     is_following = False
     es_organizador = False
     if request.user.is_authenticated:
-        es_organizador = (request.user == event.created_by)
+        es_organizador = request.user == event.created_by
         if not es_organizador:
             is_following = EventFollower.objects.filter(
                 user=request.user, event=event
             ).exists()
 
     # Obtener reseñas aprobadas
-    resenas = Resena.objects.filter(evento=event, aprobada=True).order_by('-fecha_creacion')
+    resenas = Resena.objects.filter(evento=event, aprobada=True).order_by(
+        "-fecha_creacion"
+    )
     promedio = 0
     total_resenas = resenas.count()
     if total_resenas > 0:
@@ -451,6 +455,7 @@ def event_detail(request, pk):
         "total_resenas": total_resenas,
     }
     return render(request, "virtualEvents/event_detail.html", context)
+
 
 @login_required
 def upload_material(request, event_id):
@@ -481,3 +486,10 @@ def upload_material(request, event_id):
         return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
     return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
 
+
+def download_ics(request, event_id):
+    event = get_object_or_404(VirtualEvent, pk=event_id)
+    ics_content = generate_ics(event)
+    response = HttpResponse(ics_content, content_type="text/calendar")
+    response["Content-Disposition"] = f'attachment; filename="evento_{event.id}.ics"'
+    return response

@@ -71,6 +71,21 @@
                     </a>
                 </div>
             {% endif %}
+
+            <!-- CALENDAR ACTIONS -->
+            <div class="mt-6 flex flex-wrap gap-3">
+                <a href="{% url 'virtualEvent:download_ics' evento.id %}" 
+                class="inline-flex items-center gap-2 px-4 py-2 bg-surface-variant text-on-surface-variant rounded-lg hover:bg-surface-variant-hover transition">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    Descargar (.ics)
+                </a>
+                <a href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ evento.titulo|urlencode }}&dates={{ evento.fecha_inicio_google }}/{{ evento.fecha_fin_google }}&details={{ evento.descripcion|urlencode }}&location=Virtual&trp=false"
+                target="_blank"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
+                    Agregar a Google Calendar
+                </a>
+            </div>
+
         </div>
     </div>
 

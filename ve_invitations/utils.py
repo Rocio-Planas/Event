@@ -10,15 +10,13 @@ from virtualEvent.utils.calendar_utils import (  # type: ignore
 
 
 def send_invitation_email(email, event, token):
-    """Envía email de invitación a evento privado (usa token para validación).
-    Incluye archivo .ics adjunto y enlace a Google Calendar.
-    """
+    """Envía email de invitación con enlace de acceso y archivo .ics adjunto."""
     invite_link = f"{settings.BASE_URL}{reverse('ve_invitations:accept_invitation', args=[token])}"
     ics_download_link = (
         f"{settings.BASE_URL}{reverse('virtualEvent:download_ics', args=[event.id])}"
     )
 
-    # Preparar fechas para Google Calendar
+    # Fechas para Google Calendar
     start_google = event.start_datetime.strftime("%Y%m%dT%H%M%S")
     end_datetime = event.start_datetime + timedelta(minutes=event.duration_minutes)
     end_google = end_datetime.strftime("%Y%m%dT%H%M%S")
@@ -28,12 +26,10 @@ def send_invitation_email(email, event, token):
         f"&details={event.description}&location=Virtual"
     )
 
-    # Imprimir enlace para depuración
     print(
         f"\n{'='*60}\n📨 INVITACIÓN PRIVADA\nPara: {email}\nEnlace completo:\n{invite_link}\n{'='*60}\n"
     )
 
-    # Contexto para la plantilla HTML (puedes añadir google_cal_url e ics_download_link si quieres mostrarlos)
     context = {
         "event": event,
         "invite_link": invite_link,
@@ -41,18 +37,23 @@ def send_invitation_email(email, event, token):
         "google_calendar_url": google_cal_url,
         "ics_download_link": ics_download_link,
     }
+
     subject = f"Invitación al evento privado: {event.title}"
     html_message = render_to_string("ve_invitations/email/invitation.html", context)
-    plain_message = f"Haz clic para unirte: {invite_link}\n\nAgenda el evento:\n- Descargar .ics: {ics_download_link}\n- Google Calendar: {google_cal_url}"
+    plain_message = (
+        f"Haz clic para unirte: {invite_link}\n\n"
+        f"Agenda el evento:\n"
+        f"- Descargar .ics: {ics_download_link}\n"
+        f"- Google Calendar: {google_cal_url}"
+    )
 
-    # Crear email con adjunto .ics
     email_msg = EmailMessage(
         subject,
         plain_message,
         settings.DEFAULT_FROM_EMAIL,
         [email],
     )
-    email_msg.attach_alternative(html_message, "text/html")  # versión HTML
+    email_msg.attach_alternative(html_message, "text/html")
 
     # Adjuntar el archivo .ics
     ics_content = generate_ics(event)

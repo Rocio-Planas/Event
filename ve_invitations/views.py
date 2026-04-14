@@ -12,12 +12,12 @@ from .models import EventFollower, Invitation
 @login_required
 def follow_event(request, event_id):
     event = get_object_or_404(VirtualEvent, pk=event_id)
-    
+
     # No permitir que el organizador se siga a sí mismo
     if event.created_by == request.user:
         messages.error(request, 'No puedes suscribirte a tu propio evento.')
         return redirect('virtualEvent:event_detail', pk=event_id)
-    
+
     follow, created = EventFollower.objects.get_or_create(
         user=request.user, event=event
     )
