@@ -46,6 +46,32 @@ class VirtualEvent(models.Model):
     settings = models.JSONField(default=dict, blank=True)
     materials = models.JSONField(default=dict, blank=True, verbose_name="Material post-evento")
 
+    ESTADO_CHOICES = (
+        ('pendiente', 'Pendiente de aprobación'),
+        ('aprobado', 'Aprobado'),
+        ('rechazado', 'Rechazado'),
+    )
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default='pendiente',
+        verbose_name="Estado de aprobación"
+    )
+    fecha_aprobacion = models.DateTimeField(null=True, blank=True, verbose_name="Fecha de aprobación")
+
+    def aprobar(self):
+        """Aprueba el evento, guarda fecha y envía notificación (señal)."""
+        from django.utils import timezone
+        self.estado = 'aprobado'
+        self.fecha_aprobacion = timezone.now()
+        self.save()
+
+    def rechazar(self):
+        """Rechaza el evento."""
+        self.estado = 'rechazado'
+        self.save()
+
+
     # Enlace único para acceso (para RF-04)
     unique_link = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 

@@ -188,7 +188,7 @@ USE_TZ = True
 
 
 # Email para desarrollo (ver emails en consola)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 BASE_URL = 'http://127.0.0.1:8000'  # Cambia en producción
 DEFAULT_FROM_EMAIL = 'noreply@tuplataforma.com'
 

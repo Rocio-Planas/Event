@@ -18,11 +18,18 @@ import re
 import json
 from django.views.decorators.csrf import csrf_exempt
 from .report_generator import generate_event_pdf  # type: ignore
-
+from django.db.models import Q
+from django.http import Http404
+from datetime import timedelta
 
 # Lista de eventos (pública)
 def event_list(request):
-    events = VirtualEvent.objects.all()
+    if request.user.is_authenticated and request.user.rol == 'organizador':
+        events = VirtualEvent.objects.filter(
+            Q(estado='aprobado') | Q(created_by=request.user)
+        ).distinct()
+    else:
+        events = VirtualEvent.objects.filter(estado='aprobado')
     return render(request, "virtualEvent/event_list.html", {"events": events})
 
 
@@ -120,7 +127,7 @@ def event_create(request):
                 Invitation.objects.create(event=event, email=email, token=token)
                 send_invitation_email(email, event, token)
 
-        messages.success(request, f'Evento "{event.title}" creado exitosamente.')
+        messages.success(request, f'Evento "{event.title}" creado exitosamente. Queda pendiente de aprobación por el administrador.')
         return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
 
     return render(
@@ -406,44 +413,47 @@ def generate_pdf_report(request, event_id):
     )
     return response
 
-
 def event_detail(request, pk):
     event = get_object_or_404(VirtualEvent, pk=pk)
+
+    # Restricción de visibilidad: solo aprobados o si es el organizador/admin
+    if event.estado != 'aprobado':
+        if not request.user.is_authenticated or (request.user != event.created_by and not request.user.is_staff):
+            raise Http404("Evento no disponible o pendiente de aprobación")
+
+    # Calcular fecha fin para Google Calendar
+    fecha_fin = event.start_datetime + timedelta(minutes=event.duration_minutes) if event.duration_minutes else event.start_datetime
 
     # Construir el objeto 'evento' para el template
     evento_data = {
         "id": event.id,
         "titulo": event.title,
         "descripcion": event.description,
-        "imagen": (
-            event.image.url if event.image else "/static/images/default-event.jpg"
-        ),
+        "imagen": event.image.url if event.image else "/static/images/default-event.jpg",
         "fecha": event.start_datetime.strftime("%d/%m/%Y %H:%M"),
         "tipo": "Virtual",
         "duracion_minutos": event.duration_minutes,
         "categoria": event.category,
         "privacidad": event.privacy,
         "organizador": event.created_by.get_full_name() or event.created_by.username,
-        "creado_por_id": event.created_by.id,  # ← para saber si el usuario actual es el organizador
+        "creado_por_id": event.created_by.id,
         "unique_link": str(event.unique_link) if event.unique_link else "",
+        "fecha_inicio_google": event.start_datetime.strftime("%Y%m%dT%H%M%S"),
+        "fecha_fin_google": fecha_fin.strftime("%Y%m%dT%H%M%S"),
     }
 
-    # Verificar si el usuario sigue el evento (solo si está autenticado y no es el organizador)
+    # Verificar si el usuario sigue el evento
     is_following = False
     es_organizador = False
     if request.user.is_authenticated:
-        es_organizador = request.user == event.created_by
+        es_organizador = (request.user == event.created_by)
         if not es_organizador:
-            is_following = EventFollower.objects.filter(
-                user=request.user, event=event
-            ).exists()
+            is_following = EventFollower.objects.filter(user=request.user, event=event).exists()
 
     # Obtener reseñas aprobadas
-    resenas = Resena.objects.filter(evento=event, aprobada=True).order_by(
-        "-fecha_creacion"
-    )
-    promedio = 0
+    resenas = Resena.objects.filter(evento=event, aprobada=True).order_by('-fecha_creacion')
     total_resenas = resenas.count()
+    promedio = 0
     if total_resenas > 0:
         promedio = round(sum(r.calificacion for r in resenas) / total_resenas, 1)
 

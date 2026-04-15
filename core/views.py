@@ -10,13 +10,21 @@ from django.utils import timezone
 from virtualEvent.models import VirtualEvent
 from ve_invitations.models import EventFollower
 from ve_invitations.views import follow_event 
+from django.db.models import Q
 
 def home(request):
     # 1. Obtener tus categorías predefinidas (con sus iconos)
     tus_categorias = {cat.nombre.lower(): cat for cat in CategoriaEvento.objects.filter(activo=True)}
     
     # 2. Obtener todos los eventos virtuales
-    eventos_virtuales = VirtualEvent.objects.all().order_by('-start_datetime')
+    if request.user.is_authenticated and request.user.rol == 'organizador':
+        # El organizador ve sus propios eventos (aprobados o pendientes) + eventos aprobados de otros
+        eventos_virtuales = VirtualEvent.objects.filter(
+            Q(estado='aprobado') | Q(created_by=request.user)
+        ).order_by('-start_datetime')
+    else:
+        # Usuarios normales o no autenticados solo ven eventos aprobados
+        eventos_virtuales = VirtualEvent.objects.filter(estado='aprobado').order_by('-start_datetime')
     
     # 3. Extraer categorías únicas de los eventos virtuales
     categorias_virtuales = {}
