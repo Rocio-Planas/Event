@@ -47,10 +47,8 @@
         
         <form method="post" id="preferenciasForm">
             {% csrf_token %}
-            <!-- Campo oculto para almacenar los IDs seleccionados -->
             <input type="hidden" name="categorias" id="id_categorias" value="">
             
-            <!-- Chips de categorías -->
             <div id="chipsContainer" class="categories-grid">
                 {% for categoria in categorias %}
                 <div class="category-chip" data-id="{{ categoria.id }}">
@@ -80,7 +78,6 @@
             </div>
             
             <div class="mt-8 flex justify-end gap-4">
-                <!-- CORREGIDO: añadido namespace 'usuarios:' -->
                 <a href="{% url 'usuarios:perfil' %}" class="px-6 py-2.5 border border-outline-variant rounded-xl text-on-surface-variant hover:bg-surface-container-high transition font-medium" data-i18n="cancel">Cancelar</a>
                 <button type="submit" class="px-8 py-2.5 btn-gradient-primary text-white rounded-xl font-semibold hover:opacity-90 transition" data-i18n="save_changes">Guardar cambios</button>
             </div>

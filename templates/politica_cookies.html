@@ -1,0 +1,36 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}Política de Cookies - EventPulse{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8">
+        <h1 class="text-3xl font-bold text-on-surface mb-6" data-i18n="cookie_policy_title">Política de Cookies</h1>
+        <p class="text-on-surface-variant mb-4" data-i18n="cookie_policy_intro">En cumplimiento con lo dispuesto en el artículo 22.2 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico, esta página web le informa, en esta sección, sobre la política de recogida y tratamiento de cookies.</p>
+
+        <h2 class="text-xl font-bold text-on-surface mt-6 mb-2" data-i18n="cookie_policy_what_title">¿Qué son las cookies?</h2>
+        <p class="text-on-surface-variant mb-4" data-i18n="cookie_policy_what_text">Una cookie es un fichero que se descarga en su ordenador al acceder a determinadas páginas web. Las cookies permiten a una página web, entre otras cosas, almacenar y recuperar información sobre los hábitos de navegación de un usuario o de su equipo y, dependiendo de la información que contengan y de la forma en que utilice su equipo, pueden utilizarse para reconocer al usuario.</p>
+
+        <h2 class="text-xl font-bold text-on-surface mt-6 mb-2" data-i18n="cookie_policy_types_title">Tipos de cookies que utiliza esta página web</h2>
+        <p class="text-on-surface-variant mb-4" data-i18n="cookie_policy_types_text">Esta página web utiliza los siguientes tipos de cookies:</p>
+        <ul class="list-disc list-inside text-on-surface-variant mb-4">
+            <li><span data-i18n="cookie_policy_type_essential_label">Cookies técnicas o necesarias:</span> <span data-i18n="cookie_policy_type_essential_text">Son aquellas que permiten al usuario la navegación a través de una página web, plataforma o aplicación y la utilización de las diferentes opciones o servicios que en ella existan. Estas cookies son esenciales y no se pueden desactivar en nuestros sistemas.</span></li>
+            <li><span data-i18n="cookie_policy_type_analytics_label">Cookies de análisis o medición:</span> <span data-i18n="cookie_policy_type_analytics_text">Son aquellas que permiten al responsable de las mismas el seguimiento y análisis del comportamiento de los usuarios de los sitios web a los que están vinculadas. La información recogida mediante este tipo de cookies se utiliza en la medición de la actividad de los sitios web, aplicación o plataforma, con el fin de introducir mejoras en función del análisis de los datos de uso que hacen los usuarios del servicio. (Actualmente, tu plataforma no utiliza este tipo de cookies de terceros, pero se informa para ser transparentes).</span></li>
+        </ul>
+
+        <h2 class="text-xl font-bold text-on-surface mt-6 mb-2" data-i18n="cookie_policy_disable_title">¿Cómo puedo desactivar las cookies?</h2>
+        <p class="text-on-surface-variant mb-4" data-i18n="cookie_policy_disable_text">Puede usted permitir, bloquear o eliminar las cookies instaladas en su equipo mediante la configuración de las opciones del navegador instalado en su ordenador:</p>
+        <ul class="list-disc list-inside text-on-surface-variant mb-4">
+            <li><a href="https://support.google.com/chrome/answer/95647?hl=es" target="_blank" rel="noopener noreferrer" data-i18n="cookie_policy_link_chrome">Chrome</a></li>
+            <li><a href="https://support.mozilla.org/es/kb/habilitar-y-deshabilitar-cookies-sitios-web-rastrear-preferencias" target="_blank" rel="noopener noreferrer" data-i18n="cookie_policy_link_firefox">Firefox</a></li>
+            <li><a href="https://support.microsoft.com/es-es/help/17442/windows-internet-explorer-delete-manage-cookies" target="_blank" rel="noopener noreferrer" data-i18n="cookie_policy_link_ie">Internet Explorer</a></li>
+            <li><a href="https://support.apple.com/es-es/guide/safari/sfri11471/mac" target="_blank" rel="noopener noreferrer" data-i18n="cookie_policy_link_safari">Safari</a></li>
+        </ul>
+
+        <div class="mt-8 text-center">
+            <a href="{% url 'core:home' %}" class="text-primary hover:underline flex items-center justify-center gap-1" data-i18n="back_home">
+                <span class="material-symbols-outlined text-sm">arrow_back</span> Volver al inicio
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

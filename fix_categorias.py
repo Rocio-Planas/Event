@@ -17,7 +17,6 @@ categorias_correctas = [
     {'nombre': 'Deportes', 'icono': 'sports_soccer', 'color': '#2ECC71', 'orden': 7},
     {'nombre': 'Eventos familiares', 'icono': 'family_history', 'color': '#E67E22', 'orden': 8},
     {'nombre': 'Networking', 'icono': 'groups', 'color': '#1ABC9C', 'orden': 9},
-    {'nombre': 'Eventos virtuales', 'icono': 'videocam', 'color': '#3498DB', 'orden': 10},
     {'nombre': 'Seminario', 'icono': 'school', 'color': '#FFA07A', 'orden': 11},
     {'nombre': 'Taller', 'icono': 'handyman', 'color': '#9370DB', 'orden': 12},
 ]

@@ -11,6 +11,7 @@ from .forms import RegistroForm, LoginForm, RecuperacionPasswordForm, PerfilForm
 from .models import Usuario
 from core.models import CategoriaEvento, Suscripcion, Consulta, Resena
 from .decorators import role_required
+from core.models import Favorito
 
 
 @login_required
@@ -93,11 +94,14 @@ def perfil_view(request):
     # Eventos presenciales (tu modelo)
     suscripciones_presenciales = Suscripcion.objects.filter(usuario=user).order_by('-fecha_suscripcion')
     
+    favoritos = Favorito.objects.filter(usuario=user).select_related('evento')
+
     context = {
         'user': user,
         'eventos_organizados': eventos_organizados,
         'suscripciones_virtuales': suscripciones_virtuales,
         'suscripciones_presenciales': suscripciones_presenciales,
+        'favoritos': favoritos,
     }
     return render(request, 'usuarios/perfil.html', context)
 

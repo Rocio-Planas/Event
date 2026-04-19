@@ -1,60 +1,72 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from chat.views import is_chat_available
-from .models import CategoriaEvento, Suscripcion, Consulta, Resena
+from .models import CategoriaEvento, Favorito, Suscripcion, Consulta, Resena
 from .forms import ConsultaForm, ResenaForm
 from virtualEvent.models import VirtualEvent
 from django.utils import timezone
 from virtualEvent.models import VirtualEvent
 from ve_invitations.models import EventFollower
 from ve_invitations.views import follow_event 
-from django.db.models import Q
+from django.db.models import Q, Avg, Count
+from django.core.paginator import PageNotAnInteger, Paginator, EmptyPage
+from django.views.decorators.http import require_POST
 
 def home(request):
-    # 1. Obtener tus categorías predefinidas (con sus iconos)
-    tus_categorias = {cat.nombre.lower(): cat for cat in CategoriaEvento.objects.filter(activo=True)}
-    
-    # 2. Obtener todos los eventos virtuales
+    # 1. Categorías predefinidas
+    categorias_predefinidas = CategoriaEvento.objects.filter(activo=True).order_by('orden', 'nombre')
+    nombres_predefinidos = list(categorias_predefinidas.values_list('nombre', flat=True))
+
+    # 2. Base de eventos según rol y estado
     if request.user.is_authenticated and request.user.rol == 'organizador':
-        # El organizador ve sus propios eventos (aprobados o pendientes) + eventos aprobados de otros
-        eventos_virtuales = VirtualEvent.objects.filter(
+        eventos_qs = VirtualEvent.objects.filter(
             Q(estado='aprobado') | Q(created_by=request.user)
         ).order_by('-start_datetime')
     else:
-        # Usuarios normales o no autenticados solo ven eventos aprobados
-        eventos_virtuales = VirtualEvent.objects.filter(estado='aprobado').order_by('-start_datetime')
-    
-    # 3. Extraer categorías únicas de los eventos virtuales
-    categorias_virtuales = {}
-    for ev in eventos_virtuales:
-        if ev.category:
-            nombre_original = ev.category.strip()
-            clave = nombre_original.lower()
-            if clave not in categorias_virtuales:
-                categorias_virtuales[clave] = nombre_original
-    
-    # 4. Construir la lista de categorías para el filtro con sus iconos
-    categorias_filtro = []
-    for clave, nombre in sorted(categorias_virtuales.items()):
-        # Buscar si esta categoría existe en tus categorías predefinidas
-        if clave in tus_categorias:
-            icono = tus_categorias[clave].icono
-        else:
-            # Icono por defecto para categorías nuevas
-            icono = 'event'
-        categorias_filtro.append({
-            'nombre': nombre,
-            'icono': icono,
-            'activo': True,
-            'orden': len(categorias_filtro) + 1,
-        })
-    
-    # 5. Convertir eventos a lista de diccionarios
-    eventos = []
-    for ev in eventos_virtuales:
-        eventos.append({
+        eventos_qs = VirtualEvent.objects.filter(estado='aprobado').order_by('-start_datetime')
+
+    # 3. Categorías únicas de eventos (para el filtro combinado)
+    categorias_eventos = eventos_qs.exclude(category__isnull=True).exclude(category='').values_list('category', flat=True).distinct()
+    categorias_combinadas = list(nombres_predefinidos)
+    for cat in categorias_eventos:
+        if cat not in categorias_combinadas:
+            categorias_combinadas.append(cat)
+
+    categorias_para_template = []
+    for nombre in categorias_combinadas:
+        predef = categorias_predefinidas.filter(nombre=nombre).first()
+        icono = predef.icono if predef else 'category'
+        categorias_para_template.append({'nombre': nombre, 'icono': icono})
+
+    # 4. Filtros
+    categoria_seleccionada = request.GET.get('categoria')
+    busqueda = request.GET.get('busqueda', '').strip()
+
+    if categoria_seleccionada:
+        eventos_qs = eventos_qs.filter(category__iexact=categoria_seleccionada)
+    if busqueda:
+        eventos_qs = eventos_qs.filter(
+            Q(title__icontains=busqueda) |
+            Q(category__icontains=busqueda) |
+            Q(description__icontains=busqueda) |
+            Q(created_by__first_name__icontains=busqueda) |
+            Q(created_by__last_name__icontains=busqueda) |
+            Q(created_by__email__icontains=busqueda)
+        )
+
+    # 5. Anotar promedio y cantidad de reseñas
+    eventos_qs = eventos_qs.annotate(
+        promedio_resenas=Avg('resenas__calificacion', filter=Q(resenas__aprobada=True)),
+        total_resenas=Count('resenas', filter=Q(resenas__aprobada=True))
+    )
+
+    # 6. Convertir a lista de diccionarios ANTES de paginar (para poder reordenar)
+    eventos_lista = []
+    for ev in eventos_qs:
+        eventos_lista.append({
             'id': ev.id,
             'titulo': ev.title,
             'categoria': ev.category,
@@ -63,37 +75,84 @@ def home(request):
             'fecha': ev.start_datetime.strftime('%Y-%m-%d'),
             'descripcion': ev.description,
             'creado_por': ev.created_by.id,
+            'promedio': round(ev.promedio_resenas or 0, 1),
+            'total_resenas': ev.total_resenas or 0,
         })
-    
-    # 6. Filtros
-    categoria_filtro = request.GET.get('categoria')
-    busqueda = request.GET.get('busqueda', '').strip()
-    
-    eventos_filtrados = eventos
-    if categoria_filtro:
-        eventos_filtrados = [e for e in eventos_filtrados if e['categoria'].lower() == categoria_filtro.lower()]
-    if busqueda:
-        eventos_filtrados = [e for e in eventos_filtrados if busqueda.lower() in e['titulo'].lower() or busqueda.lower() in e['categoria'].lower()]
-    
-    # 7. Personalización para usuario autenticado
-    if not categoria_filtro and not busqueda and request.user.is_authenticated:
-        categorias_preferidas = list(request.user.preferencias.values_list('nombre', flat=True))
-        categorias_preferidas_lower = [c.lower() for c in categorias_preferidas]
-        eventos_preferidos = [e for e in eventos if e['categoria'].lower() in categorias_preferidas_lower]
-        
-        if len(eventos_preferidos) < 3:
-            otros_eventos = [e for e in eventos if e not in eventos_preferidos]
-            eventos_recomendados = eventos_preferidos + otros_eventos[:3 - len(eventos_preferidos)]
-        else:
-            eventos_recomendados = eventos_preferidos[:6]
-        eventos_filtrados = eventos_recomendados
-    
-    return render(request, 'homepage.html', {
-        'categorias': categorias_filtro,
-        'eventos': eventos_filtrados,
-        'categoria_seleccionada': categoria_filtro,
+
+    # 7. Personalización por preferencias (solo si NO hay filtros activos y usuario autenticado)
+    if not categoria_seleccionada and not busqueda and request.user.is_authenticated:
+        preferencias = list(request.user.preferencias.values_list('nombre', flat=True))
+        if preferencias:
+            categorias_preferidas_lower = [c.lower() for c in preferencias]
+            # Eventos preferidos (coincidencia insensible a mayúsculas)
+            eventos_preferidos = [e for e in eventos_lista if e['categoria'].lower() in categorias_preferidas_lower]
+            if len(eventos_preferidos) < 3:
+                otros_eventos = [e for e in eventos_lista if e not in eventos_preferidos]
+                eventos_recomendados = eventos_preferidos + otros_eventos[:3 - len(eventos_preferidos)]
+            else:
+                eventos_recomendados = eventos_preferidos[:6]
+            eventos_lista = eventos_recomendados
+
+    # 8. Paginación (6 elementos por página)
+    paginator = Paginator(eventos_lista, 6)
+    page = request.GET.get('page', 1)
+    try:
+        eventos_paginados = paginator.page(page)
+    except PageNotAnInteger:
+        eventos_paginados = paginator.page(1)
+    except EmptyPage:
+        eventos_paginados = paginator.page(paginator.num_pages)
+
+    # 9. IDs de eventos favoritos del usuario
+    favoritos_ids = []
+    if request.user.is_authenticated:
+        favoritos_ids = list(request.user.favoritos.values_list('evento_id', flat=True))
+
+    # Añadir campo 'es_favorito' a cada evento de la página actual
+    for evento in eventos_paginados:
+        evento['es_favorito'] = evento['id'] in favoritos_ids
+
+    context = {
+        'categorias': categorias_para_template,
+        'eventos': eventos_paginados,
+        'categoria_seleccionada': categoria_seleccionada,
         'busqueda': busqueda,
         'user_authenticated': request.user.is_authenticated,
+        'paginator': paginator,
+        'page_obj': eventos_paginados,
+    }
+    return render(request, 'homepage.html', context)
+
+
+# ========== VISTA PARA TOGGLE FAVORITO (AJAX) ==========
+@login_required
+@require_POST
+def toggle_favorito(request):
+    evento_id = request.POST.get('evento_id')
+    if not evento_id:
+        return JsonResponse({'error': 'ID de evento requerido'}, status=400)
+
+    try:
+        evento = VirtualEvent.objects.get(id=evento_id)
+    except VirtualEvent.DoesNotExist:
+        return JsonResponse({'error': 'Evento no encontrado'}, status=404)
+
+    favorito, created = Favorito.objects.get_or_create(
+        usuario=request.user,
+        evento=evento
+    )
+    if not created:
+        favorito.delete()
+        liked = False
+    else:
+        liked = True
+
+    total_likes = Favorito.objects.filter(evento=evento).count()
+
+    return JsonResponse({
+        'liked': liked,
+        'total_likes': total_likes,
+        'evento_id': evento_id
     })
 
 @login_required
@@ -238,3 +297,40 @@ def terms_view(request):
 
 def privacy_view(request):
     return render(request, 'privacy.html')
+
+def aviso_legal_view(request):
+    return render(request, 'aviso_legal.html')
+
+def politica_cookies_view(request):
+    return render(request, 'politica_cookies.html')
+
+@login_required
+@require_POST
+def toggle_favorito(request):
+    evento_id = request.POST.get('evento_id')
+    if not evento_id:
+        return JsonResponse({'error': 'ID de evento requerido'}, status=400)
+    
+    try:
+        evento = VirtualEvent.objects.get(id=evento_id)
+    except VirtualEvent.DoesNotExist:
+        return JsonResponse({'error': 'Evento no encontrado'}, status=404)
+    
+    favorito, created = Favorito.objects.get_or_create(
+        usuario=request.user,
+        evento=evento
+    )
+    if not created:
+        favorito.delete()
+        liked = False
+    else:
+        liked = True
+    
+    # Opcional: contar cuántos likes tiene el evento
+    total_likes = Favorito.objects.filter(evento=evento).count()
+    
+    return JsonResponse({
+        'liked': liked,
+        'total_likes': total_likes,
+        'evento_id': evento_id
+    })
