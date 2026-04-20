@@ -1,784 +1,1063 @@
 {% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html class="light" lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}EventPulse{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
-        .btn-gradient-primary {
-            background: linear-gradient(135deg, #0057cd 0%, #0d6efd 100%);
-        }
-        :root {
-            --bg-surface: #f7f9ff;
-            --text-on-surface: #181c20;
-            --text-on-surface-variant: #424655;
-            --border-outline-variant: #c2c6d8;
-            --surface-container-lowest: #ffffff;
-            --surface-container-low: #f1f4f9;
-            --surface-container-high: #e5e8ee;
-            --primary: #0057cd;
-            --secondary: #425c9b;
-        }
-        .dark {
-            --bg-surface: #121212;
-            --text-on-surface: #eef1f6;
-            --text-on-surface-variant: #b0b3c0;
-            --border-outline-variant: #3a3e4a;
-            --surface-container-lowest: #1e1e2a;
-            --surface-container-low: #2a2a36;
-            --surface-container-high: #353542;
-            --primary: #7a9eff;
-            --secondary: #8a9fd0;
-        }
-        body {
-            background-color: var(--bg-surface);
-            color: var(--text-on-surface);
-        }
-        .bg-surface-container-lowest { background-color: var(--surface-container-lowest); }
-        .bg-surface-container-low { background-color: var(--surface-container-low); }
-        .bg-surface-container-high { background-color: var(--surface-container-high); }
-        .text-on-surface { color: var(--text-on-surface); }
-        .text-on-surface-variant { color: var(--text-on-surface-variant); }
-        .border-outline-variant { border-color: var(--border-outline-variant); }
-        .text-primary { color: var(--primary); }
-        .border-primary { border-color: var(--primary); }
-        .bg-primary { background-color: var(--primary); }
-        .dark .btn-gradient-primary {
-            background: linear-gradient(135deg, #3a7bdd 0%, #5c9eff 100%);
-        }
-        .dark input, .dark select, .dark textarea {
-            background-color: var(--surface-container-low);
-            color: var(--text-on-surface);
-            border-color: var(--border-outline-variant);
-        }
-        .dark .leaflet-tile {
-            filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
-        }
-        .hover-zoom {
-            transition: transform 0.3s ease;
-        }
-        .group:hover .hover-zoom {
-            transform: scale(1.08);
-        }
-    </style>
-    <script>
-        // ==================== TRADUCCIONES COMPLETAS ====================
-        const translations = {
-            es: {
-                'nav_inicio': 'Inicio',
-                'nav_presenciales': 'Eventos Presenciales',
-                'nav_virtuales': 'Eventos Virtuales',
-                'nav_contacto': 'Contacto',
-                'hero_title': 'Descubre Experiencias Increíbles',
-                'hero_subtitle': 'Eventos presenciales y virtuales adaptados a tus gustos.',
-                'search_placeholder': 'Buscar eventos...',
-                'search_btn': 'Buscar',
-                'cat_title': 'Explorar por Categoría',
-                'cat_Conciertos': 'Conciertos',
-                'cat_Teatro': 'Teatro',
-                'cat_Baile': 'Baile',
-                'cat_Exposiciones': 'Exposiciones',
-                'cat_Conferencias': 'Conferencias',
-                'cat_Gastronomía': 'Gastronomía',
-                'cat_Deportes': 'Deportes',
-                'cat_Eventos familiares': 'Eventos familiares',
-                'cat_Networking': 'Networking',
-                'cat_Eventos virtuales': 'Eventos virtuales',
-                'rec_title': 'Recomendados para ti',
-                'filter_popular': '⭐ Populares',
-                'filter_recent': '🕒 Recientes',
-                'share_btn': 'Compartir',
-                'subscribe_btn': 'Suscribirse',
-                'map_title': 'Eventos cerca de ti',
-                'map_placeholder': 'Ingresa una dirección...',
-                'map_btn': 'Ver mapa',
-                'footer_copyright': 'Todos los derechos reservados.',
-                'edit_profile': 'Editar Perfil',
-                'change_password': 'Cambiar Contraseña',
-                'logout': 'Cerrar Sesión',
-                'my_events': 'Mis Eventos',
-                'my_profile': 'Mi Perfil',
-                'my_dashboard': 'Mi Panel',
-                'login': 'Iniciar Sesión',
-                'register': 'Registrarse',
-                'event_title': 'Título del evento',
-                'description_label': 'Descripción',
-                'date_label': 'Fecha',
-                'virtual_type': 'Virtual',
-                'duration': 'Duración',
-                'privacy': 'Privacidad',
-                'organizer': 'Organizador',
-                'reviews_section': 'Reseñas',
-                'no_reviews': 'Aún no hay reseñas para este evento. ¡Sé el primero en opinar!',
-                'write_review': 'Escribir una reseña',
-                'back_home': 'Volver al inicio',
-                'email': 'Correo electrónico',
-                'password': 'Contraseña',
-                'remember_me': 'Recordarme',
-                'forgot_password': '¿Olvidaste tu contraseña?',
-                'no_account': '¿No tienes cuenta?',
-                'register_here': 'Regístrate aquí',
-                'first_name': 'Nombre',
-                'last_name': 'Apellido',
-                'phone': 'Teléfono',
-                'birth_date': 'Fecha de nacimiento',
-                'gender': 'Género',
-                'confirm_password': 'Confirmar contraseña',
-                'select_categories': 'Selecciona tus eventos favoritos',
-                'select_categories_help': 'Elige al menos 3 para comenzar y personalizar tu experiencia.',
-                'select_all': 'Seleccionar todos',
-                'clear_all': 'Limpiar selección',
-                'register_btn': 'Registrarme',
-                'contact_title': '¿Cómo podemos ayudarte?',
-                'contact_subtitle': 'Ya sea que necesites soporte o quieras compartir tu experiencia, estamos aquí para escucharte.',
-                'support_title': 'Soporte en vivo',
-                'support_hours': 'Nuestro equipo está disponible de lunes a viernes, 9am - 6pm.',
-                'chat_now': 'Chatear ahora',
-                'global_events_title': 'Eventos globales',
-                'global_events_text': 'Únete a miles de organizadores profesionales en nuestra plataforma.',
-                'tab_review': 'Enviar reseña',
-                'tab_inquiry': 'Consulta general',
-                'full_name': 'Nombre completo',
-                'event': 'Evento',
-                'rating': 'Calificación',
-                'comment': 'Comentario',
-                'send_review': 'Enviar reseña',
-                'subject': 'Asunto',
-                'message': 'Mensaje',
-                'send_message': 'Enviar mensaje',
-                'my_events_list': 'Mis Eventos',
-                'explore_events': 'Explorar Eventos',
-                'my_preferences': 'Mis Preferencias',
-                'cancel_subscription': 'Cancelar Suscripción',
-                'admin_panel': 'Panel de Administrador',
-                'organizer_panel': 'Panel de Organizador',
-                'exhibitor_panel': 'Panel de Expositor',
-                'spectator_panel': 'Panel de Espectador',
-                'manage_users': 'Gestionar usuarios',
-                'manage_events': 'Gestionar eventos',
-                'view_stats': 'Ver estadísticas',
-                'my_stands': 'Mis Stands',
-                'request_stand': 'Solicitar stand',
-                'my_talks': 'Charlas',
-                'request_talk': 'Solicitar charla',
-                'my_participations': 'Mis Participaciones',
-                'create_event': 'Crear Evento',
-                'manage_requests': 'Gestionar solicitudes',
-                'password_actual': 'Contraseña actual',
-                'new_password': 'Nueva contraseña',
-                'confirm_new_password': 'Confirmar nueva contraseña',
-                'cancel': 'Cancelar',
-                'save_changes': 'Guardar cambios',
-                'member_since': 'Miembro desde',
-                'personal_details': 'Detalles personales',
-                'registered_on': 'Registrado',
-                'coming_soon': 'Próximamente',
-                'explore_hint': 'Cuando tus compañeras integren sus módulos, aquí aparecerán los eventos reales.',
-                'explore_btn': 'Explorar eventos',
-                'no_preferences': 'No has seleccionado preferencias aún.',
-                'avatar': 'Avatar',
-                'address': 'Dirección',
-                'bio': 'Biografía',
-                'website': 'Sitio Web',
-                'twitter': 'Twitter',
-                'instagram': 'Instagram',
-                'linkedin': 'LinkedIn',
-                'receive_notifications': 'Recibir notificaciones',
-                'receive_newsletter': 'Recibir newsletter',
-                'forgot_password_title': '¿Olvidaste tu contraseña?',
-                'forgot_password_subtitle': 'Te enviaremos un enlace para restablecerla',
-                'send_instructions': 'Enviar instrucciones',
-                'back_to_login': 'Volver al inicio de sesión',
-                'go_to_admin': 'Ir al panel de administración',
-                'manage_events_desc': 'Aprobar y gestionar eventos de organizadores.',
-                'manage_events_btn': 'Gestionar eventos',
-                'view_stats_desc': 'Ver métricas de la plataforma.',
-                'view_reports': 'Ver reportes',
-                'my_events_desc': 'Gestionar eventos que has creado.',
-                'view_my_events': 'Ver mis eventos',
-                'create_event_desc': 'Agregar un nuevo evento a la plataforma.',
-                'create_event_btn': 'Crear evento',
-                'manage_requests_desc': 'Revisar solicitudes de expositores.',
-                'manage_requests_btn': 'Gestionar solicitudes',
-                'my_stands_desc': 'Solicitar stands en eventos.',
-                'my_talks_desc': 'Solicitar charlas en eventos.',
-                'my_participations_desc': 'Ver eventos en los que participas.',
-                'view_participations': 'Ver participaciones',
-                'my_events_desc_spectator': 'Eventos a los que estás suscrito.',
-                'explore_events_desc': 'Descubre nuevos eventos.',
-                'my_preferences_desc': 'Personaliza tu feed de eventos.',
-                'ejemplo_conferencia': 'Ejemplo: Conferencia Tech',
-                'edit_preferences_title': 'Editar mis preferencias',
-                'edit_preferences': 'Editar preferencias',
-                'login_to_subscribe': 'Iniciar sesión',
-                'no_suscripciones': 'Aún no te has suscrito a ningún evento.',
-                'subscriptions_count': 'suscripciones',
-                'back_home': '← Volver al inicio',
-                'about_title': 'Acerca de EventPulse',
-                'about_text1': 'EventPulse es una plataforma de gestión de eventos diseñada para conectar organizadores, expositores y asistentes en un solo lugar.',
-                'about_text2': 'Nuestra misión es facilitar la creación, difusión y participación en eventos presenciales y virtuales, ofreciendo una experiencia moderna, responsiva y accesible para todos.',
-                'about_text3': 'Este proyecto forma parte de una tesis universitaria y demuestra la implementación de funcionalidades como autenticación, roles, suscripciones, reseñas, mapa interactivo y modo oscuro.',
-                'about_tech_title': 'Tecnologías utilizadas',
-                'terms_title': 'Términos y condiciones',
-                'terms_intro': 'Bienvenido a EventPulse. Al acceder o utilizar nuestra plataforma, aceptas cumplir con estos términos y condiciones.',
-                'terms_use_title': '1. Uso de la plataforma',
-                'terms_use_text': 'EventPulse es una plataforma de gestión de eventos que conecta organizadores, expositores y asistentes. No nos hacemos responsables por el contenido de los eventos publicados por terceros.',
-                'terms_account_title': '2. Registro y cuentas',
-                'terms_account_text': 'Para acceder a ciertas funcionalidades debes registrarte y proporcionar información veraz. Eres responsable de mantener la confidencialidad de tu contraseña.',
-                'terms_ip_title': '3. Propiedad intelectual',
-                'terms_ip_text': 'Todo el contenido de la plataforma (logotipos, diseño, código) es propiedad de EventPulse. No está permitida su reproducción sin autorización.',
-                'terms_modifications_title': '4. Modificaciones',
-                'terms_modifications_text': 'Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios serán notificados a través de la plataforma.',
-                'terms_contact_title': '5. Contacto',
-                'terms_contact_text': 'Para cualquier duda sobre estos términos, escríbenos a soporte@eventpulse.com.',
-                'privacy_title': 'Política de privacidad',
-                'privacy_intro': 'En EventPulse nos tomamos en serio tu privacidad. Esta política explica qué datos recopilamos y cómo los usamos.',
-                'privacy_info_title': '1. Información que recopilamos',
-                'privacy_info_text': 'Registramos tu nombre, correo electrónico, teléfono (opcional) y preferencias de eventos. También almacenamos tus suscripciones, reseñas y consultas.',
-                'privacy_use_title': '2. Uso de la información',
-                'privacy_use_text': 'Usamos tus datos para: autenticarte, mostrarte eventos relevantes, gestionar tus suscripciones, enviarte notificaciones (si aceptas) y mejorar nuestros servicios.',
-                'privacy_cookies_title': '3. Cookies y tecnologías similares',
-                'privacy_cookies_text': 'Utilizamos cookies de sesión para mantener tu inicio de sesión y preferencias de tema oscuro/claro. No utilizamos cookies de terceros con fines publicitarios.',
-                'privacy_sharing_title': '4. Compartición de datos',
-                'privacy_sharing_text': 'No vendemos ni alquilamos tus datos personales. Solo compartimos información agregada y anónima con organizadores de eventos para estadísticas.',
-                'privacy_rights_title': '5. Derechos del usuario',
-                'privacy_rights_text': 'Puedes acceder, rectificar o eliminar tus datos desde tu perfil. Para solicitar la eliminación completa de tu cuenta, contáctanos.',
-                'privacy_security_title': '6. Seguridad',
-                'privacy_security_text': 'Implementamos medidas de seguridad para proteger tu información, pero recuerda que ningún sistema es 100% seguro.',
-                'last_update': 'Última actualización: 5 de abril de 2026',
-                'event_id': 'ID del evento',
-                'event_title': 'Título del evento',
-                'type': 'Tipo de consulta',
-                'reviews_section': 'Reseñas',
-                'no_reviews': 'Aún no hay reseñas para este evento. ¡Sé el primero en opinar!',
-                'view_reviews': 'Ver reseñas',
-                'about_link': 'Acerca de',
-                'delete_event': 'Eliminar',
-                'terms_link': 'Términos y condiciones',
-                'privacy_link': 'Política de privacidad'
-            },
-            en: {
-                'nav_inicio': 'Home',
-                'nav_presenciales': 'In-Person Events',
-                'nav_virtuales': 'Virtual Events',
-                'nav_contacto': 'Contact',
-                'delete_event': 'Delete',
-                'hero_title': 'Discover Amazing Experiences',
-                'hero_subtitle': 'In-person and virtual events tailored to your taste.',
-                'search_placeholder': 'Search events...',
-                'search_btn': 'Search',
-                'cat_title': 'Explore by Category',
-                'cat_Conciertos': 'Concerts',
-                'cat_Teatro': 'Theater',
-                'cat_Baile': 'Dance',
-                'cat_Exposiciones': 'Exhibitions',
-                'cat_Conferencias': 'Conferences',
-                'cat_Gastronomía': 'Gastronomy',
-                'cat_Deportes': 'Sports',
-                'cat_Eventos familiares': 'Family Events',
-                'cat_Networking': 'Networking',
-                'cat_Eventos virtuales': 'Virtual Events',
-                'event_title': 'Event title',
-                'description_label': 'Description',
-                'date_label': 'Date',
-                'virtual_type': 'Virtual',
-                'duration': 'Duration',
-                'privacy': 'Privacy',
-                'organizer': 'Organizer',
-                'reviews_section': 'Reviews',
-                'no_reviews': 'No reviews yet. Be the first to comment!',
-                'write_review': 'Write a review',
-                'eventos_organizados_title': 'Events I organize',
-                'eventos_virtuales_seguimiento': 'Virtual events I follow',
-                'eventos_presenciales_suscritos': 'Subscribed in-person events',
-                'delete_event_btn': 'Delete',
-                'back_home': 'Back to home',
-                'rec_title': 'Recommended for you',
-                'filter_popular': '⭐ Popular',
-                'filter_recent': '🕒 Recent',
-                'share_btn': 'Share',
-                'subscribe_btn': 'Subscribe',
-                'map_title': 'Events near you',
-                'map_placeholder': 'Enter an address...',
-                'map_btn': 'View map',
-                'footer_copyright': 'All rights reserved.',
-                'edit_profile': 'Edit Profile',
-                'change_password': 'Change Password',
-                'logout': 'Logout',
-                'my_events': 'My Events',
-                'my_profile': 'My Profile',
-                'my_dashboard': 'My Dashboard',
-                'login': 'Login',
-                'register': 'Sign up',
-                'email': 'Email',
-                'password': 'Password',
-                'remember_me': 'Remember me',
-                'forgot_password': 'Forgot password?',
-                'no_account': "Don't have an account?",
-                'register_here': 'Sign up here',
-                'first_name': 'First name',
-                'last_name': 'Last name',
-                'phone': 'Phone',
-                'birth_date': 'Date of birth',
-                'gender': 'Gender',
-                'confirm_password': 'Confirm password',
-                'select_categories': 'Select your favorite events',
-                'select_categories_help': 'Choose at least 3 to start and personalize your experience.',
-                'select_all': 'Select all',
-                'clear_all': 'Clear all',
-                'register_btn': 'Sign up',
-                'contact_title': 'How can we help you?',
-                'contact_subtitle': 'Whether you need support or want to share your experience, we are here to listen.',
-                'support_title': 'Live support',
-                'support_hours': 'Our team is available Monday to Friday, 9am - 6pm.',
-                'chat_now': 'Chat now',
-                'global_events_title': 'Global events',
-                'global_events_text': 'Join thousands of professional organizers on our platform.',
-                'tab_review': 'Submit review',
-                'tab_inquiry': 'General inquiry',
-                'full_name': 'Full name',
-                'event': 'Event',
-                'rating': 'Rating',
-                'comment': 'Comment',
-                'send_review': 'Send review',
-                'subject': 'Subject',
-                'message': 'Message',
-                'send_message': 'Send message',
-                'my_events_list': 'My Events',
-                'explore_events': 'Explore Events',
-                'my_preferences': 'My Preferences',
-                'cancel_subscription': 'Cancel Subscription',
-                'admin_panel': 'Admin Panel',
-                'organizer_panel': 'Organizer Panel',
-                'exhibitor_panel': 'Exhibitor Panel',
-                'spectator_panel': 'Spectator Panel',
-                'manage_users': 'Manage users',
-                'manage_events': 'Manage events',
-                'view_stats': 'View statistics',
-                'my_stands': 'My Stands',
-                'request_stand': 'Request stand',
-                'my_talks': 'Talks',
-                'request_talk': 'Request talk',
-                'my_participations': 'My Participations',
-                'create_event': 'Create Event',
-                'manage_requests': 'Manage requests',
-                'password_actual': 'Current password',
-                'new_password': 'New password',
-                'confirm_new_password': 'Confirm new password',
-                'cancel': 'Cancel',
-                'save_changes': 'Save changes',
-                'member_since': 'Member since',
-                'personal_details': 'Personal details',
-                'registered_on': 'Registered on',
-                'coming_soon': 'Coming soon',
-                'explore_hint': 'When your classmates integrate their modules, real events will appear here.',
-                'explore_btn': 'Explore events',
-                'no_preferences': "You haven't selected any preferences yet.",
-                'avatar': 'Avatar',
-                'address': 'Address',
-                'bio': 'Biography',
-                'website': 'Website',
-                'twitter': 'Twitter',
-                'instagram': 'Instagram',
-                'linkedin': 'LinkedIn',
-                'receive_notifications': 'Receive notifications',
-                'receive_newsletter': 'Receive newsletter',
-                'forgot_password_title': 'Forgot your password?',
-                'forgot_password_subtitle': 'We will send you a link to reset it',
-                'send_instructions': 'Send instructions',
-                'back_to_login': 'Back to login',
-                'go_to_admin': 'Go to admin panel',
-                'manage_events_desc': 'Approve and manage organizer events.',
-                'manage_events_btn': 'Manage events',
-                'view_stats_desc': 'View platform metrics.',
-                'view_reports': 'View reports',
-                'my_events_desc': 'Manage events you have created.',
-                'view_my_events': 'View my events',
-                'create_event_desc': 'Add a new event to the platform.',
-                'create_event_btn': 'Create event',
-                'manage_requests_desc': 'Review exhibitor requests.',
-                'manage_requests_btn': 'Manage requests',
-                'my_stands_desc': 'Request stands at events.',
-                'my_talks_desc': 'Request talks at events.',
-                'my_participations_desc': 'View events you participate in.',
-                'view_participations': 'View participations',
-                'my_events_desc_spectator': 'Events you are subscribed to.',
-                'explore_events_desc': 'Discover new events.',
-                'my_preferences_desc': 'Personalize your event feed.',
-                'ejemplo_conferencia': 'Example: Tech Conference',
-                'edit_preferences_title': 'Edit my preferences',
-                'edit_preferences': 'Edit preferences',
-                'login_to_subscribe': 'Log in to subscribe',
-                'no_suscripciones': "You haven't subscribed to any events yet.",
-                'subscriptions_count': 'subscriptions',
-                'back_home': '← Back to home',
-                'about_title': 'About EventPulse',
-                'about_text1': 'EventPulse is an event management platform designed to connect organizers, exhibitors and attendees in one place.',
-                'about_text2': 'Our mission is to facilitate the creation, dissemination and participation in in-person and virtual events, offering a modern, responsive and accessible experience for everyone.',
-                'about_text3': 'This project is part of a university thesis and demonstrates the implementation of features such as authentication, roles, subscriptions, reviews, interactive map and dark mode.',
-                'about_tech_title': 'Technologies used',
-                'terms_title': 'Terms and Conditions',
-                'terms_intro': 'Welcome to EventPulse. By accessing or using our platform, you agree to comply with these terms and conditions.',
-                'terms_use_title': '1. Use of the platform',
-                'terms_use_text': 'EventPulse is an event management platform that connects organizers, exhibitors and attendees. We are not responsible for the content of events published by third parties.',
-                'terms_account_title': '2. Registration and accounts',
-                'terms_account_text': 'To access certain features you must register and provide truthful information. You are responsible for maintaining the confidentiality of your password.',
-                'terms_ip_title': '3. Intellectual property',
-                'terms_ip_text': 'All content of the platform (logos, design, code) is the property of EventPulse. Reproduction without authorization is not allowed.',
-                'terms_modifications_title': '4. Modifications',
-                'terms_modifications_text': 'We reserve the right to modify these terms at any time. Changes will be notified through the platform.',
-                'terms_contact_title': '5. Contact',
-                'terms_contact_text': 'For any questions about these terms, write to us at soporte@eventpulse.com.',
-                'privacy_title': 'Privacy Policy',
-                'privacy_intro': 'At EventPulse we take your privacy seriously. This policy explains what data we collect and how we use it.',
-                'privacy_info_title': '1. Information we collect',
-                'privacy_info_text': 'We record your name, email, phone (optional) and event preferences. We also store your subscriptions, reviews and inquiries.',
-                'privacy_use_title': '2. Use of information',
-                'privacy_use_text': 'We use your data to: authenticate you, show you relevant events, manage your subscriptions, send you notifications (if you accept) and improve our services.',
-                'privacy_cookies_title': '3. Cookies and similar technologies',
-                'privacy_cookies_text': 'We use session cookies to maintain your login and dark/light theme preferences. We do not use third-party cookies for advertising purposes.',
-                'privacy_sharing_title': '4. Data sharing',
-                'privacy_sharing_text': 'We do not sell or rent your personal data. We only share aggregated and anonymous information with event organizers for statistics.',
-                'privacy_rights_title': '5. User rights',
-                'privacy_rights_text': 'You can access, rectify or delete your data from your profile. To request complete deletion of your account, contact us.',
-                'privacy_security_title': '6. Security',
-                'privacy_security_text': 'We implement security measures to protect your information, but remember that no system is 100% secure.',
-                'last_update': 'Last updated: April 5, 2026',
-                'event_id': 'Event ID',
-                'event_title': 'Event title',
-                'type': 'Inquiry type',
-                'reviews_section': 'Reviews',
-                'no_reviews': 'There are no reviews for this event yet. Be the first to comment!',
-                'view_reviews': 'View reviews',
-                'about_link': 'About',
-                'terms_link': 'Terms and Conditions',
-                'privacy_link': 'Privacy Policy'
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{% block title %}EventPulse{% endblock %}</title>
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <style>
+            body {
+                font-family: "Inter", sans-serif;
+                transition:
+                    background-color 0.3s,
+                    color 0.3s;
             }
-        };
+            .btn-gradient-primary {
+                background: linear-gradient(135deg, #0057cd 0%, #0d6efd 100%);
+            }
+            :root {
+                --bg-surface: #f7f9ff;
+                --text-on-surface: #181c20;
+                --text-on-surface-variant: #424655;
+                --border-outline-variant: #c2c6d8;
+                --surface-container-lowest: #ffffff;
+                --surface-container-low: #f1f4f9;
+                --surface-container-high: #e5e8ee;
+                --primary: #0057cd;
+                --secondary: #425c9b;
+            }
+            .dark {
+                --bg-surface: #121212;
+                --text-on-surface: #eef1f6;
+                --text-on-surface-variant: #b0b3c0;
+                --border-outline-variant: #3a3e4a;
+                --surface-container-lowest: #1e1e2a;
+                --surface-container-low: #2a2a36;
+                --surface-container-high: #353542;
+                --primary: #7a9eff;
+                --secondary: #8a9fd0;
+            }
+            body {
+                background-color: var(--bg-surface);
+                color: var(--text-on-surface);
+            }
+            .bg-surface-container-lowest {
+                background-color: var(--surface-container-lowest);
+            }
+            .bg-surface-container-low {
+                background-color: var(--surface-container-low);
+            }
+            .bg-surface-container-high {
+                background-color: var(--surface-container-high);
+            }
+            .text-on-surface {
+                color: var(--text-on-surface);
+            }
+            .text-on-surface-variant {
+                color: var(--text-on-surface-variant);
+            }
+            .border-outline-variant {
+                border-color: var(--border-outline-variant);
+            }
+            .text-primary {
+                color: var(--primary);
+            }
+            .border-primary {
+                border-color: var(--primary);
+            }
+            .bg-primary {
+                background-color: var(--primary);
+            }
+            .dark .btn-gradient-primary {
+                background: linear-gradient(135deg, #3a7bdd 0%, #5c9eff 100%);
+            }
+            .dark input,
+            .dark select,
+            .dark textarea {
+                background-color: var(--surface-container-low);
+                color: var(--text-on-surface);
+                border-color: var(--border-outline-variant);
+            }
+            .dark .leaflet-tile {
+                filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg)
+                    saturate(0.3);
+            }
+            .hover-zoom {
+                transition: transform 0.3s ease;
+            }
+            .group:hover .hover-zoom {
+                transform: scale(1.08);
+            }
+        </style>
+        <script>
+            // ==================== TRADUCCIONES COMPLETAS ====================
+            const translations = {
+                es: {
+                    nav_inicio: "Inicio",
+                    nav_presenciales: "Eventos Presenciales",
+                    nav_virtuales: "Eventos Virtuales",
+                    nav_contacto: "Contacto",
+                    hero_title: "Descubre Experiencias Increíbles",
+                    hero_subtitle:
+                        "Eventos presenciales y virtuales adaptados a tus gustos.",
+                    search_placeholder: "Buscar eventos...",
+                    search_btn: "Buscar",
+                    cat_title: "Explorar por Categoría",
+                    cat_Conciertos: "Conciertos",
+                    cat_Teatro: "Teatro",
+                    cat_Baile: "Baile",
+                    cat_Exposiciones: "Exposiciones",
+                    cat_Conferencias: "Conferencias",
+                    cat_Gastronomía: "Gastronomía",
+                    cat_Deportes: "Deportes",
+                    "cat_Eventos familiares": "Eventos familiares",
+                    cat_Networking: "Networking",
+                    "cat_Eventos virtuales": "Eventos virtuales",
+                    rec_title: "Recomendados para ti",
+                    filter_popular: "⭐ Populares",
+                    filter_recent: "🕒 Recientes",
+                    share_btn: "Compartir",
+                    subscribe_btn: "Suscribirse",
+                    map_title: "Eventos cerca de ti",
+                    map_placeholder: "Ingresa una dirección...",
+                    map_btn: "Ver mapa",
+                    footer_copyright: "Todos los derechos reservados.",
+                    edit_profile: "Editar Perfil",
+                    change_password: "Cambiar Contraseña",
+                    logout: "Cerrar Sesión",
+                    my_events: "Mis Eventos",
+                    my_profile: "Mi Perfil",
+                    my_dashboard: "Mi Panel",
+                    login: "Iniciar Sesión",
+                    register: "Registrarse",
+                    event_title: "Título del evento",
+                    description_label: "Descripción",
+                    date_label: "Fecha",
+                    virtual_type: "Virtual",
+                    duration: "Duración",
+                    privacy: "Privacidad",
+                    organizer: "Organizador",
+                    reviews_section: "Reseñas",
+                    no_reviews:
+                        "Aún no hay reseñas para este evento. ¡Sé el primero en opinar!",
+                    write_review: "Escribir una reseña",
+                    back_home: "Volver al inicio",
+                    email: "Correo electrónico",
+                    password: "Contraseña",
+                    remember_me: "Recordarme",
+                    forgot_password: "¿Olvidaste tu contraseña?",
+                    no_account: "¿No tienes cuenta?",
+                    register_here: "Regístrate aquí",
+                    first_name: "Nombre",
+                    last_name: "Apellido",
+                    phone: "Teléfono",
+                    birth_date: "Fecha de nacimiento",
+                    gender: "Género",
+                    confirm_password: "Confirmar contraseña",
+                    select_categories: "Selecciona tus eventos favoritos",
+                    select_categories_help:
+                        "Elige al menos 3 para comenzar y personalizar tu experiencia.",
+                    select_all: "Seleccionar todos",
+                    clear_all: "Limpiar selección",
+                    register_btn: "Registrarme",
+                    contact_title: "¿Cómo podemos ayudarte?",
+                    contact_subtitle:
+                        "Ya sea que necesites soporte o quieras compartir tu experiencia, estamos aquí para escucharte.",
+                    support_title: "Soporte en vivo",
+                    support_hours:
+                        "Nuestro equipo está disponible de lunes a viernes, 9am - 6pm.",
+                    chat_now: "Chatear ahora",
+                    global_events_title: "Eventos globales",
+                    global_events_text:
+                        "Únete a miles de organizadores profesionales en nuestra plataforma.",
+                    tab_review: "Enviar reseña",
+                    tab_inquiry: "Consulta general",
+                    full_name: "Nombre completo",
+                    event: "Evento",
+                    rating: "Calificación",
+                    comment: "Comentario",
+                    send_review: "Enviar reseña",
+                    subject: "Asunto",
+                    message: "Mensaje",
+                    send_message: "Enviar mensaje",
+                    my_events_list: "Mis Eventos",
+                    explore_events: "Explorar Eventos",
+                    my_preferences: "Mis Preferencias",
+                    cancel_subscription: "Cancelar Suscripción",
+                    admin_panel: "Panel de Administrador",
+                    organizer_panel: "Panel de Organizador",
+                    exhibitor_panel: "Panel de Expositor",
+                    spectator_panel: "Panel de Espectador",
+                    manage_users: "Gestionar usuarios",
+                    manage_events: "Gestionar eventos",
+                    view_stats: "Ver estadísticas",
+                    my_stands: "Mis Stands",
+                    request_stand: "Solicitar stand",
+                    my_talks: "Charlas",
+                    request_talk: "Solicitar charla",
+                    my_participations: "Mis Participaciones",
+                    create_event: "Crear Evento",
+                    manage_requests: "Gestionar solicitudes",
+                    password_actual: "Contraseña actual",
+                    new_password: "Nueva contraseña",
+                    confirm_new_password: "Confirmar nueva contraseña",
+                    cancel: "Cancelar",
+                    save_changes: "Guardar cambios",
+                    member_since: "Miembro desde",
+                    personal_details: "Detalles personales",
+                    registered_on: "Registrado",
+                    coming_soon: "Próximamente",
+                    explore_hint:
+                        "Cuando tus compañeras integren sus módulos, aquí aparecerán los eventos reales.",
+                    explore_btn: "Explorar eventos",
+                    no_preferences: "No has seleccionado preferencias aún.",
+                    avatar: "Avatar",
+                    address: "Dirección",
+                    bio: "Biografía",
+                    website: "Sitio Web",
+                    twitter: "Twitter",
+                    instagram: "Instagram",
+                    linkedin: "LinkedIn",
+                    receive_notifications: "Recibir notificaciones",
+                    receive_newsletter: "Recibir newsletter",
+                    forgot_password_title: "¿Olvidaste tu contraseña?",
+                    forgot_password_subtitle:
+                        "Te enviaremos un enlace para restablecerla",
+                    send_instructions: "Enviar instrucciones",
+                    back_to_login: "Volver al inicio de sesión",
+                    go_to_admin: "Ir al panel de administración",
+                    manage_events_desc:
+                        "Aprobar y gestionar eventos de organizadores.",
+                    manage_events_btn: "Gestionar eventos",
+                    view_stats_desc: "Ver métricas de la plataforma.",
+                    view_reports: "Ver reportes",
+                    my_events_desc: "Gestionar eventos que has creado.",
+                    view_my_events: "Ver mis eventos",
+                    create_event_desc:
+                        "Agregar un nuevo evento a la plataforma.",
+                    create_event_btn: "Crear evento",
+                    manage_requests_desc: "Revisar solicitudes de expositores.",
+                    manage_requests_btn: "Gestionar solicitudes",
+                    my_stands_desc: "Solicitar stands en eventos.",
+                    my_talks_desc: "Solicitar charlas en eventos.",
+                    my_participations_desc:
+                        "Ver eventos en los que participas.",
+                    view_participations: "Ver participaciones",
+                    my_events_desc_spectator:
+                        "Eventos a los que estás suscrito.",
+                    explore_events_desc: "Descubre nuevos eventos.",
+                    my_preferences_desc: "Personaliza tu feed de eventos.",
+                    ejemplo_conferencia: "Ejemplo: Conferencia Tech",
+                    edit_preferences_title: "Editar mis preferencias",
+                    edit_preferences: "Editar preferencias",
+                    login_to_subscribe: "Iniciar sesión",
+                    no_suscripciones: "Aún no te has suscrito a ningún evento.",
+                    subscriptions_count: "suscripciones",
+                    back_home: "← Volver al inicio",
+                    about_title: "Acerca de EventPulse",
+                    about_text1:
+                        "EventPulse es una plataforma de gestión de eventos diseñada para conectar organizadores, expositores y asistentes en un solo lugar.",
+                    about_text2:
+                        "Nuestra misión es facilitar la creación, difusión y participación en eventos presenciales y virtuales, ofreciendo una experiencia moderna, responsiva y accesible para todos.",
+                    about_text3:
+                        "Este proyecto forma parte de una tesis universitaria y demuestra la implementación de funcionalidades como autenticación, roles, suscripciones, reseñas, mapa interactivo y modo oscuro.",
+                    about_tech_title: "Tecnologías utilizadas",
+                    terms_title: "Términos y condiciones",
+                    terms_intro:
+                        "Bienvenido a EventPulse. Al acceder o utilizar nuestra plataforma, aceptas cumplir con estos términos y condiciones.",
+                    terms_use_title: "1. Uso de la plataforma",
+                    terms_use_text:
+                        "EventPulse es una plataforma de gestión de eventos que conecta organizadores, expositores y asistentes. No nos hacemos responsables por el contenido de los eventos publicados por terceros.",
+                    terms_account_title: "2. Registro y cuentas",
+                    terms_account_text:
+                        "Para acceder a ciertas funcionalidades debes registrarte y proporcionar información veraz. Eres responsable de mantener la confidencialidad de tu contraseña.",
+                    terms_ip_title: "3. Propiedad intelectual",
+                    terms_ip_text:
+                        "Todo el contenido de la plataforma (logotipos, diseño, código) es propiedad de EventPulse. No está permitida su reproducción sin autorización.",
+                    terms_modifications_title: "4. Modificaciones",
+                    terms_modifications_text:
+                        "Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios serán notificados a través de la plataforma.",
+                    terms_contact_title: "5. Contacto",
+                    terms_contact_text:
+                        "Para cualquier duda sobre estos términos, escríbenos a soporte@eventpulse.com.",
+                    privacy_title: "Política de privacidad",
+                    privacy_intro:
+                        "En EventPulse nos tomamos en serio tu privacidad. Esta política explica qué datos recopilamos y cómo los usamos.",
+                    privacy_info_title: "1. Información que recopilamos",
+                    privacy_info_text:
+                        "Registramos tu nombre, correo electrónico, teléfono (opcional) y preferencias de eventos. También almacenamos tus suscripciones, reseñas y consultas.",
+                    privacy_use_title: "2. Uso de la información",
+                    privacy_use_text:
+                        "Usamos tus datos para: autenticarte, mostrarte eventos relevantes, gestionar tus suscripciones, enviarte notificaciones (si aceptas) y mejorar nuestros servicios.",
+                    privacy_cookies_title: "3. Cookies y tecnologías similares",
+                    privacy_cookies_text:
+                        "Utilizamos cookies de sesión para mantener tu inicio de sesión y preferencias de tema oscuro/claro. No utilizamos cookies de terceros con fines publicitarios.",
+                    privacy_sharing_title: "4. Compartición de datos",
+                    privacy_sharing_text:
+                        "No vendemos ni alquilamos tus datos personales. Solo compartimos información agregada y anónima con organizadores de eventos para estadísticas.",
+                    privacy_rights_title: "5. Derechos del usuario",
+                    privacy_rights_text:
+                        "Puedes acceder, rectificar o eliminar tus datos desde tu perfil. Para solicitar la eliminación completa de tu cuenta, contáctanos.",
+                    privacy_security_title: "6. Seguridad",
+                    privacy_security_text:
+                        "Implementamos medidas de seguridad para proteger tu información, pero recuerda que ningún sistema es 100% seguro.",
+                    last_update: "Última actualización: 5 de abril de 2026",
+                    event_id: "ID del evento",
+                    event_title: "Título del evento",
+                    type: "Tipo de consulta",
+                    reviews_section: "Reseñas",
+                    no_reviews:
+                        "Aún no hay reseñas para este evento. ¡Sé el primero en opinar!",
+                    view_reviews: "Ver reseñas",
+                    about_link: "Acerca de",
+                    delete_event: "Eliminar",
+                    terms_link: "Términos y condiciones",
+                    privacy_link: "Política de privacidad",
+                },
+                en: {
+                    nav_inicio: "Home",
+                    nav_presenciales: "In-Person Events",
+                    nav_virtuales: "Virtual Events",
+                    nav_contacto: "Contact",
+                    delete_event: "Delete",
+                    hero_title: "Discover Amazing Experiences",
+                    hero_subtitle:
+                        "In-person and virtual events tailored to your taste.",
+                    search_placeholder: "Search events...",
+                    search_btn: "Search",
+                    cat_title: "Explore by Category",
+                    cat_Conciertos: "Concerts",
+                    cat_Teatro: "Theater",
+                    cat_Baile: "Dance",
+                    cat_Exposiciones: "Exhibitions",
+                    cat_Conferencias: "Conferences",
+                    cat_Gastronomía: "Gastronomy",
+                    cat_Deportes: "Sports",
+                    "cat_Eventos familiares": "Family Events",
+                    cat_Networking: "Networking",
+                    "cat_Eventos virtuales": "Virtual Events",
+                    event_title: "Event title",
+                    description_label: "Description",
+                    date_label: "Date",
+                    virtual_type: "Virtual",
+                    duration: "Duration",
+                    privacy: "Privacy",
+                    organizer: "Organizer",
+                    reviews_section: "Reviews",
+                    no_reviews: "No reviews yet. Be the first to comment!",
+                    write_review: "Write a review",
+                    eventos_organizados_title: "Events I organize",
+                    eventos_virtuales_seguimiento: "Virtual events I follow",
+                    eventos_presenciales_suscritos:
+                        "Subscribed in-person events",
+                    delete_event_btn: "Delete",
+                    back_home: "Back to home",
+                    rec_title: "Recommended for you",
+                    filter_popular: "⭐ Popular",
+                    filter_recent: "🕒 Recent",
+                    share_btn: "Share",
+                    subscribe_btn: "Subscribe",
+                    map_title: "Events near you",
+                    map_placeholder: "Enter an address...",
+                    map_btn: "View map",
+                    footer_copyright: "All rights reserved.",
+                    edit_profile: "Edit Profile",
+                    change_password: "Change Password",
+                    logout: "Logout",
+                    my_events: "My Events",
+                    my_profile: "My Profile",
+                    my_dashboard: "My Dashboard",
+                    login: "Login",
+                    register: "Sign up",
+                    email: "Email",
+                    password: "Password",
+                    remember_me: "Remember me",
+                    forgot_password: "Forgot password?",
+                    no_account: "Don't have an account?",
+                    register_here: "Sign up here",
+                    first_name: "First name",
+                    last_name: "Last name",
+                    phone: "Phone",
+                    birth_date: "Date of birth",
+                    gender: "Gender",
+                    confirm_password: "Confirm password",
+                    select_categories: "Select your favorite events",
+                    select_categories_help:
+                        "Choose at least 3 to start and personalize your experience.",
+                    select_all: "Select all",
+                    clear_all: "Clear all",
+                    register_btn: "Sign up",
+                    contact_title: "How can we help you?",
+                    contact_subtitle:
+                        "Whether you need support or want to share your experience, we are here to listen.",
+                    support_title: "Live support",
+                    support_hours:
+                        "Our team is available Monday to Friday, 9am - 6pm.",
+                    chat_now: "Chat now",
+                    global_events_title: "Global events",
+                    global_events_text:
+                        "Join thousands of professional organizers on our platform.",
+                    tab_review: "Submit review",
+                    tab_inquiry: "General inquiry",
+                    full_name: "Full name",
+                    event: "Event",
+                    rating: "Rating",
+                    comment: "Comment",
+                    send_review: "Send review",
+                    subject: "Subject",
+                    message: "Message",
+                    send_message: "Send message",
+                    my_events_list: "My Events",
+                    explore_events: "Explore Events",
+                    my_preferences: "My Preferences",
+                    cancel_subscription: "Cancel Subscription",
+                    admin_panel: "Admin Panel",
+                    organizer_panel: "Organizer Panel",
+                    exhibitor_panel: "Exhibitor Panel",
+                    spectator_panel: "Spectator Panel",
+                    manage_users: "Manage users",
+                    manage_events: "Manage events",
+                    view_stats: "View statistics",
+                    my_stands: "My Stands",
+                    request_stand: "Request stand",
+                    my_talks: "Talks",
+                    request_talk: "Request talk",
+                    my_participations: "My Participations",
+                    create_event: "Create Event",
+                    manage_requests: "Manage requests",
+                    password_actual: "Current password",
+                    new_password: "New password",
+                    confirm_new_password: "Confirm new password",
+                    cancel: "Cancel",
+                    save_changes: "Save changes",
+                    member_since: "Member since",
+                    personal_details: "Personal details",
+                    registered_on: "Registered on",
+                    coming_soon: "Coming soon",
+                    explore_hint:
+                        "When your classmates integrate their modules, real events will appear here.",
+                    explore_btn: "Explore events",
+                    no_preferences: "You haven't selected any preferences yet.",
+                    avatar: "Avatar",
+                    address: "Address",
+                    bio: "Biography",
+                    website: "Website",
+                    twitter: "Twitter",
+                    instagram: "Instagram",
+                    linkedin: "LinkedIn",
+                    receive_notifications: "Receive notifications",
+                    receive_newsletter: "Receive newsletter",
+                    forgot_password_title: "Forgot your password?",
+                    forgot_password_subtitle:
+                        "We will send you a link to reset it",
+                    send_instructions: "Send instructions",
+                    back_to_login: "Back to login",
+                    go_to_admin: "Go to admin panel",
+                    manage_events_desc: "Approve and manage organizer events.",
+                    manage_events_btn: "Manage events",
+                    view_stats_desc: "View platform metrics.",
+                    view_reports: "View reports",
+                    my_events_desc: "Manage events you have created.",
+                    view_my_events: "View my events",
+                    create_event_desc: "Add a new event to the platform.",
+                    create_event_btn: "Create event",
+                    manage_requests_desc: "Review exhibitor requests.",
+                    manage_requests_btn: "Manage requests",
+                    my_stands_desc: "Request stands at events.",
+                    my_talks_desc: "Request talks at events.",
+                    my_participations_desc: "View events you participate in.",
+                    view_participations: "View participations",
+                    my_events_desc_spectator: "Events you are subscribed to.",
+                    explore_events_desc: "Discover new events.",
+                    my_preferences_desc: "Personalize your event feed.",
+                    ejemplo_conferencia: "Example: Tech Conference",
+                    edit_preferences_title: "Edit my preferences",
+                    edit_preferences: "Edit preferences",
+                    login_to_subscribe: "Log in to subscribe",
+                    no_suscripciones:
+                        "You haven't subscribed to any events yet.",
+                    subscriptions_count: "subscriptions",
+                    back_home: "← Back to home",
+                    about_title: "About EventPulse",
+                    about_text1:
+                        "EventPulse is an event management platform designed to connect organizers, exhibitors and attendees in one place.",
+                    about_text2:
+                        "Our mission is to facilitate the creation, dissemination and participation in in-person and virtual events, offering a modern, responsive and accessible experience for everyone.",
+                    about_text3:
+                        "This project is part of a university thesis and demonstrates the implementation of features such as authentication, roles, subscriptions, reviews, interactive map and dark mode.",
+                    about_tech_title: "Technologies used",
+                    terms_title: "Terms and Conditions",
+                    terms_intro:
+                        "Welcome to EventPulse. By accessing or using our platform, you agree to comply with these terms and conditions.",
+                    terms_use_title: "1. Use of the platform",
+                    terms_use_text:
+                        "EventPulse is an event management platform that connects organizers, exhibitors and attendees. We are not responsible for the content of events published by third parties.",
+                    terms_account_title: "2. Registration and accounts",
+                    terms_account_text:
+                        "To access certain features you must register and provide truthful information. You are responsible for maintaining the confidentiality of your password.",
+                    terms_ip_title: "3. Intellectual property",
+                    terms_ip_text:
+                        "All content of the platform (logos, design, code) is the property of EventPulse. Reproduction without authorization is not allowed.",
+                    terms_modifications_title: "4. Modifications",
+                    terms_modifications_text:
+                        "We reserve the right to modify these terms at any time. Changes will be notified through the platform.",
+                    terms_contact_title: "5. Contact",
+                    terms_contact_text:
+                        "For any questions about these terms, write to us at soporte@eventpulse.com.",
+                    privacy_title: "Privacy Policy",
+                    privacy_intro:
+                        "At EventPulse we take your privacy seriously. This policy explains what data we collect and how we use it.",
+                    privacy_info_title: "1. Information we collect",
+                    privacy_info_text:
+                        "We record your name, email, phone (optional) and event preferences. We also store your subscriptions, reviews and inquiries.",
+                    privacy_use_title: "2. Use of information",
+                    privacy_use_text:
+                        "We use your data to: authenticate you, show you relevant events, manage your subscriptions, send you notifications (if you accept) and improve our services.",
+                    privacy_cookies_title:
+                        "3. Cookies and similar technologies",
+                    privacy_cookies_text:
+                        "We use session cookies to maintain your login and dark/light theme preferences. We do not use third-party cookies for advertising purposes.",
+                    privacy_sharing_title: "4. Data sharing",
+                    privacy_sharing_text:
+                        "We do not sell or rent your personal data. We only share aggregated and anonymous information with event organizers for statistics.",
+                    privacy_rights_title: "5. User rights",
+                    privacy_rights_text:
+                        "You can access, rectify or delete your data from your profile. To request complete deletion of your account, contact us.",
+                    privacy_security_title: "6. Security",
+                    privacy_security_text:
+                        "We implement security measures to protect your information, but remember that no system is 100% secure.",
+                    last_update: "Last updated: April 5, 2026",
+                    event_id: "Event ID",
+                    event_title: "Event title",
+                    type: "Inquiry type",
+                    reviews_section: "Reviews",
+                    no_reviews:
+                        "There are no reviews for this event yet. Be the first to comment!",
+                    view_reviews: "View reviews",
+                    about_link: "About",
+                    terms_link: "Terms and Conditions",
+                    privacy_link: "Privacy Policy",
+                },
+            };
 
-        let currentLang = localStorage.getItem('lang') || 'es';
+            let currentLang = localStorage.getItem("lang") || "es";
 
-        function applyTranslations() {
-            const t = translations[currentLang];
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key]) {
-                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                        if (el.hasAttribute('placeholder')) el.placeholder = t[key];
-                        else el.value = t[key];
+            function applyTranslations() {
+                const t = translations[currentLang];
+                document.querySelectorAll("[data-i18n]").forEach((el) => {
+                    const key = el.getAttribute("data-i18n");
+                    if (t[key]) {
+                        if (
+                            el.tagName === "INPUT" ||
+                            el.tagName === "TEXTAREA"
+                        ) {
+                            if (el.hasAttribute("placeholder"))
+                                el.placeholder = t[key];
+                            else el.value = t[key];
+                        } else {
+                            el.innerText = t[key];
+                        }
+                    }
+                });
+                document
+                    .querySelectorAll("[data-i18n-placeholder]")
+                    .forEach((el) => {
+                        const key = el.getAttribute("data-i18n-placeholder");
+                        if (t[key]) el.placeholder = t[key];
+                    });
+                document.querySelectorAll(".category-name").forEach((el) => {
+                    const catOriginal = el.getAttribute("data-cat-original");
+                    if (catOriginal && t[`cat_${catOriginal}`]) {
+                        el.innerText = t[`cat_${catOriginal}`];
+                    }
+                });
+                const langEs = document.getElementById("lang-es");
+                const langEn = document.getElementById("lang-en");
+                if (langEs && langEn) {
+                    if (currentLang === "es") {
+                        langEs.classList.add(
+                            "bg-white",
+                            "shadow-sm",
+                            "text-primary",
+                        );
+                        langEs.classList.remove("text-slate-500");
+                        langEn.classList.remove(
+                            "bg-white",
+                            "shadow-sm",
+                            "text-primary",
+                        );
+                        langEn.classList.add("text-slate-500");
                     } else {
-                        el.innerText = t[key];
+                        langEn.classList.add(
+                            "bg-white",
+                            "shadow-sm",
+                            "text-primary",
+                        );
+                        langEn.classList.remove("text-slate-500");
+                        langEs.classList.remove(
+                            "bg-white",
+                            "shadow-sm",
+                            "text-primary",
+                        );
+                        langEs.classList.add("text-slate-500");
                     }
                 }
-            });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                if (t[key]) el.placeholder = t[key];
-            });
-            document.querySelectorAll('.category-name').forEach(el => {
-                const catOriginal = el.getAttribute('data-cat-original');
-                if (catOriginal && t[`cat_${catOriginal}`]) {
-                    el.innerText = t[`cat_${catOriginal}`];
-                }
-            });
-            const langEs = document.getElementById('lang-es');
-            const langEn = document.getElementById('lang-en');
-            if (langEs && langEn) {
-                if (currentLang === 'es') {
-                    langEs.classList.add('bg-white', 'shadow-sm', 'text-primary');
-                    langEs.classList.remove('text-slate-500');
-                    langEn.classList.remove('bg-white', 'shadow-sm', 'text-primary');
-                    langEn.classList.add('text-slate-500');
+            }
+
+            function setLanguage(lang) {
+                currentLang = lang;
+                localStorage.setItem("lang", lang);
+                document.documentElement.lang = lang === "es" ? "es" : "en";
+                applyTranslations();
+                window.dispatchEvent(
+                    new CustomEvent("languageChanged", {
+                        detail: { lang: lang },
+                    }),
+                );
+            }
+
+            function initTheme() {
+                const storedTheme = localStorage.getItem("theme");
+                const html = document.documentElement;
+                if (storedTheme === "dark") {
+                    html.classList.add("dark");
+                    html.classList.remove("light");
+                } else if (storedTheme === "light") {
+                    html.classList.add("light");
+                    html.classList.remove("dark");
                 } else {
-                    langEn.classList.add('bg-white', 'shadow-sm', 'text-primary');
-                    langEn.classList.remove('text-slate-500');
-                    langEs.classList.remove('bg-white', 'shadow-sm', 'text-primary');
-                    langEs.classList.add('text-slate-500');
-                }
-            }
-        }
-
-        function setLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('lang', lang);
-            document.documentElement.lang = lang === 'es' ? 'es' : 'en';
-            applyTranslations();
-            window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: lang } }));
-        }
-
-        function initTheme() {
-            const storedTheme = localStorage.getItem('theme');
-            const html = document.documentElement;
-            if (storedTheme === 'dark') {
-                html.classList.add('dark');
-                html.classList.remove('light');
-            } else if (storedTheme === 'light') {
-                html.classList.add('light');
-                html.classList.remove('dark');
-            } else {
-                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    html.classList.add('dark');
-                    html.classList.remove('light');
-                } else {
-                    html.classList.add('light');
-                    html.classList.remove('dark');
-                }
-            }
-            updateThemeIcon();
-        }
-
-        function toggleTheme() {
-            const html = document.documentElement;
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                html.classList.add('light');
-                localStorage.setItem('theme', 'light');
-            } else {
-                html.classList.remove('light');
-                html.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-            }
-            updateThemeIcon();
-        }
-
-        function updateThemeIcon() {
-            const icon = document.getElementById('theme-icon');
-            if (!icon) return;
-            if (document.documentElement.classList.contains('dark')) {
-                icon.textContent = 'dark_mode';
-            } else {
-                icon.textContent = 'light_mode';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            initTheme();
-            const themeToggle = document.getElementById('theme-toggle');
-            if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
-            setLanguage(currentLang);
-            const langEs = document.getElementById('lang-es');
-            const langEn = document.getElementById('lang-en');
-            if (langEs) langEs.addEventListener('click', () => setLanguage('es'));
-            if (langEn) langEn.addEventListener('click', () => setLanguage('en'));
-
-            const userMenuBtn = document.getElementById('user-menu-btn');
-            const userMenu = document.getElementById('user-menu');
-            if (userMenuBtn) {
-                userMenuBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    userMenu.classList.toggle('hidden');
-                });
-                document.addEventListener('click', (e) => {
-                    if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
-                        userMenu.classList.add('hidden');
+                    if (
+                        window.matchMedia("(prefers-color-scheme: dark)")
+                            .matches
+                    ) {
+                        html.classList.add("dark");
+                        html.classList.remove("light");
+                    } else {
+                        html.classList.add("light");
+                        html.classList.remove("dark");
                     }
-                });
+                }
+                updateThemeIcon();
             }
-        });
-    </script>
-</head>
-<body class="min-h-screen flex flex-col">
-    <nav class="fixed top-0 w-full z-50 backdrop-blur-md shadow-sm" style="background-color: var(--surface-container-low); border-bottom: 1px solid var(--border-outline-variant);">
-        <div class="flex justify-between items-center px-6 py-3 max-w-7xl mx-auto w-full">
-            <div class="flex items-center gap-8">
-                <span class="text-xl font-bold tracking-tight text-on-surface">EventPulse</span>
-                <div class="hidden md:flex items-center gap-6">
-                    <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="{% url 'core:home' %}" data-i18n="nav_inicio">Inicio</a>
-                    <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="#" onclick="alert('Próximamente: Eventos Presenciales')" data-i18n="nav_presenciales">Eventos Presenciales</a>
-                    <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="{% url 'virtualEvent:event_create' %}" data-i18n="nav_virtuales">Eventos Virtuales</a>
-                    <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="{% url 'core:contacto' %}" data-i18n="nav_contacto">Contacto</a>
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <div class="flex items-center rounded-full px-3 py-1 gap-2" style="background-color: var(--surface-container-high);">
-                    <button class="text-xs font-bold px-2 py-1 rounded-full bg-white shadow-sm text-primary" id="lang-es">ES</button>
-                    <button class="text-xs font-bold px-2 py-1 text-slate-500" id="lang-en">EN</button>
-                </div>
-                <button class="p-2 rounded-full hover:bg-surface-container-high transition-colors active:scale-95" id="theme-toggle">
-                    <span class="material-symbols-outlined" id="theme-icon" style="color: var(--text-on-surface);">light_mode</span>
-                </button>
-                {% if user.is_authenticated %}
-                <div class="relative">
-                    <button class="flex items-center gap-2" id="user-menu-btn">
-                        {% if user.avatar %}
-                            <img src="{{ user.avatar.url }}" class="w-8 h-8 rounded-full object-cover">
-                        {% else %}
-                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold">{{ user.first_name|first|default:"U" }}</div>
-                        {% endif %}
-                    </button>
-                    <div class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-2 z-50" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);" id="user-menu">
-                        <a href="{% url 'usuarios:dashboard' %}" class="block px-4 py-2 text-sm hover:bg-surface-container-high" data-i18n="my_dashboard">Mi Panel</a>
-                        <a href="{% url 'usuarios:perfil' %}" class="block px-4 py-2 text-sm hover:bg-surface-container-high" data-i18n="my_profile">Mi Perfil</a>
+
+            function toggleTheme() {
+                const html = document.documentElement;
+                if (html.classList.contains("dark")) {
+                    html.classList.remove("dark");
+                    html.classList.add("light");
+                    localStorage.setItem("theme", "light");
+                } else {
+                    html.classList.remove("light");
+                    html.classList.add("dark");
+                    localStorage.setItem("theme", "dark");
+                }
+                updateThemeIcon();
+            }
+
+            function updateThemeIcon() {
+                const icon = document.getElementById("theme-icon");
+                if (!icon) return;
+                if (document.documentElement.classList.contains("dark")) {
+                    icon.textContent = "dark_mode";
+                } else {
+                    icon.textContent = "light_mode";
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                initTheme();
+                const themeToggle = document.getElementById("theme-toggle");
+                if (themeToggle)
+                    themeToggle.addEventListener("click", toggleTheme);
+                setLanguage(currentLang);
+                const langEs = document.getElementById("lang-es");
+                const langEn = document.getElementById("lang-en");
+                if (langEs)
+                    langEs.addEventListener("click", () => setLanguage("es"));
+                if (langEn)
+                    langEn.addEventListener("click", () => setLanguage("en"));
+
+                const userMenuBtn = document.getElementById("user-menu-btn");
+                const userMenu = document.getElementById("user-menu");
+                if (userMenuBtn) {
+                    userMenuBtn.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        userMenu.classList.toggle("hidden");
+                    });
+                    document.addEventListener("click", (e) => {
+                        if (
+                            !userMenuBtn.contains(e.target) &&
+                            !userMenu.contains(e.target)
+                        ) {
+                            userMenu.classList.add("hidden");
+                        }
+                    });
+                }
+            });
+        </script>
+    </head>
+    <body class="min-h-screen flex flex-col">
+        <nav
+            class="fixed top-0 w-full z-50 backdrop-blur-md shadow-sm"
+            style="
+                background-color: var(--surface-container-low);
+                border-bottom: 1px solid var(--border-outline-variant);
+            "
+        >
+            <div
+                class="flex justify-between items-center px-6 py-3 max-w-7xl mx-auto w-full"
+            >
+                <div class="flex items-center gap-8">
+                    <span
+                        class="text-xl font-bold tracking-tight text-on-surface"
+                        >EventPulse</span
+                    >
+                    <div class="hidden md:flex items-center gap-6">
+                        <a
+                            class="font-sans text-sm font-medium transition-colors duration-200"
+                            style="color: var(--text-on-surface-variant)"
+                            href="{% url 'core:home' %}"
+                            data-i18n="nav_inicio"
+                            >Inicio</a
+                        >
+                        <a
+                            class="font-sans text-sm font-medium transition-colors duration-200"
+                            style="color: var(--text-on-surface-variant)"
+                            href="{% url 'in_person_events:create_event_form' %}"
+                            data-i18n="nav_presenciales"
+                            >Eventos Presenciales</a
+                        >
+                        <a
+                            class="font-sans text-sm font-medium transition-colors duration-200"
+                            style="color: var(--text-on-surface-variant)"
+                            href="{% url 'virtualEvent:event_create' %}"
+                            data-i18n="nav_virtuales"
+                            >Eventos Virtuales</a
+                        >
+                        <a
+                            class="font-sans text-sm font-medium transition-colors duration-200"
+                            style="color: var(--text-on-surface-variant)"
+                            href="{% url 'core:contacto' %}"
+                            data-i18n="nav_contacto"
+                            >Contacto</a
+                        >
                     </div>
                 </div>
-                {% else %}
-                <a href="{% url 'usuarios:login' %}" class="text-sm font-semibold px-4 py-2 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white transition" data-i18n="login">Login</a>
-                <a href="{% url 'usuarios:registro' %}" class="text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-white shadow-sm" data-i18n="register">Registro</a>
-                {% endif %}
+                <div class="flex items-center gap-4">
+                    <div
+                        class="flex items-center rounded-full px-3 py-1 gap-2"
+                        style="background-color: var(--surface-container-high)"
+                    >
+                        <button
+                            class="text-xs font-bold px-2 py-1 rounded-full bg-white shadow-sm text-primary"
+                            id="lang-es"
+                        >
+                            ES
+                        </button>
+                        <button
+                            class="text-xs font-bold px-2 py-1 text-slate-500"
+                            id="lang-en"
+                        >
+                            EN
+                        </button>
+                    </div>
+                    <button
+                        class="p-2 rounded-full hover:bg-surface-container-high transition-colors active:scale-95"
+                        id="theme-toggle"
+                    >
+                        <span
+                            class="material-symbols-outlined"
+                            id="theme-icon"
+                            style="color: var(--text-on-surface)"
+                            >light_mode</span
+                        >
+                    </button>
+                    {% if user.is_authenticated %}
+                    <div class="relative">
+                        <button
+                            class="flex items-center gap-2"
+                            id="user-menu-btn"
+                        >
+                            {% if user.avatar %}
+                            <img
+                                src="{{ user.avatar.url }}"
+                                class="w-8 h-8 rounded-full object-cover"
+                            />
+                            {% else %}
+                            <div
+                                class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold"
+                            >
+                                {{ user.first_name|first|default:"U" }}
+                            </div>
+                            {% endif %}
+                        </button>
+                        <div
+                            class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-2 z-50"
+                            style="
+                                background-color: var(
+                                    --surface-container-lowest
+                                );
+                                border: 1px solid var(--border-outline-variant);
+                            "
+                            id="user-menu"
+                        >
+                            <a
+                                href="{% url 'usuarios:dashboard' %}"
+                                class="block px-4 py-2 text-sm hover:bg-surface-container-high"
+                                data-i18n="my_dashboard"
+                                >Mi Panel</a
+                            >
+                            <a
+                                href="{% url 'usuarios:perfil' %}"
+                                class="block px-4 py-2 text-sm hover:bg-surface-container-high"
+                                data-i18n="my_profile"
+                                >Mi Perfil</a
+                            >
+                        </div>
+                    </div>
+                    {% else %}
+                    <a
+                        href="{% url 'usuarios:login' %}"
+                        class="text-sm font-semibold px-4 py-2 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white transition"
+                        data-i18n="login"
+                        >Login</a
+                    >
+                    <a
+                        href="{% url 'usuarios:registro' %}"
+                        class="text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-white shadow-sm"
+                        data-i18n="register"
+                        >Registro</a
+                    >
+                    {% endif %}
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <main class="flex-grow pt-24">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {% block content %}{% endblock %}
-        </div>
-    </main>
-
-    <footer class="w-full border-t py-8 mt-12" style="background-color: var(--surface-container-low); border-color: var(--border-outline-variant);">
-        <div class="max-w-7xl mx-auto px-4 text-center text-sm" style="color: var(--text-on-surface-variant);">
-            <div class="flex flex-wrap justify-center gap-4 mb-3">
-                <a href="{% url 'core:about' %}" class="hover:underline transition-colors" data-i18n="about_link">Acerca de</a>
-                <a href="{% url 'core:terms' %}" class="hover:underline transition-colors" data-i18n="terms_link">Términos y condiciones</a>
-                <a href="{% url 'core:privacy' %}" class="hover:underline transition-colors" data-i18n="privacy_link">Política de privacidad</a>
+        <main class="flex-grow pt-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {% block content %}{% endblock %}
             </div>
-            <div>&copy; {% now "Y" %} EventPulse. <span data-i18n="footer_copyright">Todos los derechos reservados.</span></div>
-        </div>
-    </footer>
+        </main>
 
-<!-- Mensajes de Django convertidos a toasts con traducción condicional -->
-{% if messages %}
-<div id="django-messages-data" style="display: none;" data-messages='[
+        <footer
+            class="w-full border-t py-8 mt-12"
+            style="
+                background-color: var(--surface-container-low);
+                border-color: var(--border-outline-variant);
+            "
+        >
+            <div
+                class="max-w-7xl mx-auto px-4 text-center text-sm"
+                style="color: var(--text-on-surface-variant)"
+            >
+                <div class="flex flex-wrap justify-center gap-4 mb-3">
+                    <a
+                        href="{% url 'core:about' %}"
+                        class="hover:underline transition-colors"
+                        data-i18n="about_link"
+                        >Acerca de</a
+                    >
+                    <a
+                        href="{% url 'core:terms' %}"
+                        class="hover:underline transition-colors"
+                        data-i18n="terms_link"
+                        >Términos y condiciones</a
+                    >
+                    <a
+                        href="{% url 'core:privacy' %}"
+                        class="hover:underline transition-colors"
+                        data-i18n="privacy_link"
+                        >Política de privacidad</a
+                    >
+                </div>
+                <div>
+                    &copy; {% now "Y" %} EventPulse.
+                    <span data-i18n="footer_copyright"
+                        >Todos los derechos reservados.</span
+                    >
+                </div>
+            </div>
+        </footer>
+
+        <!-- Mensajes de Django convertidos a toasts con traducción condicional -->
+        {% if messages %}
+        <div
+            id="django-messages-data"
+            style="display: none"
+            data-messages='[
     {% for message in messages %}
         {"text": "{{ message|escapejs }}", "tags": "{{ message.tags }}"}{% if not forloop.last %},{% endif %}
     {% endfor %}
-]'></div>
-<script>
-    // Diccionario de traducción de mensajes comunes (español -> inglés)
-    const messageTranslations = {
-        // Login/registro
-        "Email o contraseña incorrectos": "Incorrect email or password",
-        "¡Bienvenido/a de nuevo": "Welcome back",
-        "¡Bienvenido/a": "Welcome",
-        "Has cerrado sesión correctamente.": "You have been logged out successfully.",
-        "Se ha enviado un enlace de recuperación a": "A recovery link has been sent to",
-        "No existe una cuenta con este email": "No account exists with this email",
-        "Este email ya está registrado": "This email is already registered",
-        "Las contraseñas no coinciden": "Passwords do not match",
-        "Debes seleccionar al menos 3 categorías.": "You must select at least 3 categories.",
-        "Perfil actualizado correctamente.": "Profile updated successfully.",
-        "Contraseña cambiada correctamente.": "Password changed successfully.",
-        "La contraseña actual es incorrecta": "Current password is incorrect",
-        "Tus preferencias se han actualizado correctamente.": "Your preferences have been updated successfully.",
-        // Suscripciones
-        " Te has suscrito a": " You have subscribed to",
-        " Ya estabas suscrito a": " You were already subscribed to",
-        " Has cancelado tu suscripción a": " You have cancelled your subscription to",
-        // Contacto
-        "¡Gracias por tu reseña! Será revisada por nuestro equipo.": "Thank you for your review! It will be reviewed by our team.",
-        "Hubo un error al enviar la reseña. Revisa los datos.": "There was an error sending the review. Check your data.",
-        "Consulta enviada correctamente. Te responderemos pronto.": "Inquiry sent successfully. We will reply soon.",
-        "Hubo un error al enviar la consulta. Revisa los datos.": "There was an error sending the inquiry. Check your data.",
-        // Otros
-        "Debes iniciar sesión para enviar una reseña o consulta.": "You must log in to send a review or inquiry.",
-    };
+]'
+        ></div>
+        <script>
+            // Diccionario de traducción de mensajes comunes (español -> inglés)
+            const messageTranslations = {
+                // Login/registro
+                "Email o contraseña incorrectos": "Incorrect email or password",
+                "¡Bienvenido/a de nuevo": "Welcome back",
+                "¡Bienvenido/a": "Welcome",
+                "Has cerrado sesión correctamente.":
+                    "You have been logged out successfully.",
+                "Se ha enviado un enlace de recuperación a":
+                    "A recovery link has been sent to",
+                "No existe una cuenta con este email":
+                    "No account exists with this email",
+                "Este email ya está registrado":
+                    "This email is already registered",
+                "Las contraseñas no coinciden": "Passwords do not match",
+                "Debes seleccionar al menos 3 categorías.":
+                    "You must select at least 3 categories.",
+                "Perfil actualizado correctamente.":
+                    "Profile updated successfully.",
+                "Contraseña cambiada correctamente.":
+                    "Password changed successfully.",
+                "La contraseña actual es incorrecta":
+                    "Current password is incorrect",
+                "Tus preferencias se han actualizado correctamente.":
+                    "Your preferences have been updated successfully.",
+                // Suscripciones
+                " Te has suscrito a": " You have subscribed to",
+                " Ya estabas suscrito a": " You were already subscribed to",
+                " Has cancelado tu suscripción a":
+                    " You have cancelled your subscription to",
+                // Contacto
+                "¡Gracias por tu reseña! Será revisada por nuestro equipo.":
+                    "Thank you for your review! It will be reviewed by our team.",
+                "Hubo un error al enviar la reseña. Revisa los datos.":
+                    "There was an error sending the review. Check your data.",
+                "Consulta enviada correctamente. Te responderemos pronto.":
+                    "Inquiry sent successfully. We will reply soon.",
+                "Hubo un error al enviar la consulta. Revisa los datos.":
+                    "There was an error sending the inquiry. Check your data.",
+                // Otros
+                "Debes iniciar sesión para enviar una reseña o consulta.":
+                    "You must log in to send a review or inquiry.",
+            };
 
-    function translateMessage(text) {
-        // Solo traducir si el idioma actual es inglés
-        if (typeof currentLang !== 'undefined' && currentLang === 'en') {
-            // Buscar traducción exacta
-            if (messageTranslations[text]) {
-                return messageTranslations[text];
-            }
-            // Buscar traducción por prefijo (para mensajes con variables)
-            for (let key in messageTranslations) {
-                if (text.startsWith(key)) {
-                    return text.replace(key, messageTranslations[key]);
+            function translateMessage(text) {
+                // Solo traducir si el idioma actual es inglés
+                if (
+                    typeof currentLang !== "undefined" &&
+                    currentLang === "en"
+                ) {
+                    // Buscar traducción exacta
+                    if (messageTranslations[text]) {
+                        return messageTranslations[text];
+                    }
+                    // Buscar traducción por prefijo (para mensajes con variables)
+                    for (let key in messageTranslations) {
+                        if (text.startsWith(key)) {
+                            return text.replace(key, messageTranslations[key]);
+                        }
+                    }
                 }
+                // Si no es inglés o no hay traducción, devolver el texto original
+                return text;
             }
-        }
-        // Si no es inglés o no hay traducción, devolver el texto original
-        return text;
-    }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const messagesDiv = document.getElementById('django-messages-data');
-        if (messagesDiv) {
-            const messages = JSON.parse(messagesDiv.getAttribute('data-messages'));
-            messages.forEach(function(msg) {
-                let type = 'info';
-                if (msg.tags === 'error') type = 'error';
-                else if (msg.tags === 'success') type = 'success';
-                const translatedText = translateMessage(msg.text);
-                showToast(translatedText, type);
+            document.addEventListener("DOMContentLoaded", function () {
+                const messagesDiv = document.getElementById(
+                    "django-messages-data",
+                );
+                if (messagesDiv) {
+                    const messages = JSON.parse(
+                        messagesDiv.getAttribute("data-messages"),
+                    );
+                    messages.forEach(function (msg) {
+                        let type = "info";
+                        if (msg.tags === "error") type = "error";
+                        else if (msg.tags === "success") type = "success";
+                        const translatedText = translateMessage(msg.text);
+                        showToast(translatedText, type);
+                    });
+                }
             });
-        }
-    });
-</script>
-{% endif %}
+        </script>
+        {% endif %}
 
-    <!-- Toast notifications (floating) -->
-    <style>
-        .toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .toast {
-            min-width: 250px;
-            max-width: 350px;
-            background: var(--surface-container-lowest);
-            color: var(--text-on-surface);
-            border-left: 4px solid var(--primary);
-            border-radius: 12px;
-            padding: 12px 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            backdrop-filter: blur(8px);
-            font-size: 0.875rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transform: translateX(120%);
-            transition: transform 0.3s ease;
-            pointer-events: none;
-        }
-        .toast.show {
-            transform: translateX(0);
-        }
-        .toast.success {
-            border-left-color: #10b981;
-        }
-        .toast.error {
-            border-left-color: #ef4444;
-        }
-        .toast.info {
-            border-left-color: var(--primary);
-        }
-        .toast .toast-icon {
-            font-size: 1.25rem;
-        }
-    </style>
-    <div class="toast-container" id="toast-container"></div>
-    <script>
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            let icon = '';
-            if (type === 'success') icon = '✅';
-            else if (type === 'error') icon = '❌';
-            else icon = 'ℹ️';
-            toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-    </script>
-</body>
+        <!-- Toast notifications (floating) -->
+        <style>
+            .toast-container {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .toast {
+                min-width: 250px;
+                max-width: 350px;
+                background: var(--surface-container-lowest);
+                color: var(--text-on-surface);
+                border-left: 4px solid var(--primary);
+                border-radius: 12px;
+                padding: 12px 16px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                backdrop-filter: blur(8px);
+                font-size: 0.875rem;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                transform: translateX(120%);
+                transition: transform 0.3s ease;
+                pointer-events: none;
+            }
+            .toast.show {
+                transform: translateX(0);
+            }
+            .toast.success {
+                border-left-color: #10b981;
+            }
+            .toast.error {
+                border-left-color: #ef4444;
+            }
+            .toast.info {
+                border-left-color: var(--primary);
+            }
+            .toast .toast-icon {
+                font-size: 1.25rem;
+            }
+        </style>
+        <div class="toast-container" id="toast-container"></div>
+        <script>
+            function showToast(message, type = "info") {
+                const container = document.getElementById("toast-container");
+                const toast = document.createElement("div");
+                toast.className = `toast ${type}`;
+                let icon = "";
+                if (type === "success") icon = "✅";
+                else if (type === "error") icon = "❌";
+                else icon = "ℹ️";
+                toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
+                container.appendChild(toast);
+                setTimeout(() => toast.classList.add("show"), 10);
+                setTimeout(() => {
+                    toast.classList.remove("show");
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        </script>
+    </body>
 </html>

@@ -48,6 +48,10 @@ INSTALLED_APPS = [
     've_streaming',
     've_chat',
     've_invitations',
+    
+    # Eventos presenciales
+    'in_person_events.apps.InPersonEventsConfig',
+    'pe_registration.apps.PeRegistrationConfig',
 ]
 
 MIDDLEWARE = [

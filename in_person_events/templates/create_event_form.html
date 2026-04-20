@@ -1,0 +1,325 @@
+{% extends "base_bootstrap.html" %} {% load static %} {% block title %}Crear
+Evento Presencial{% endblock %} {% block extra_css %}
+<!-- Custom CSS -->
+<link
+    rel="stylesheet"
+    href="{% static 'in_person_events/event_form/css/style.css' %}"
+/>
+{% endblock %} {% block content %}
+<!-- Main Content -->
+<main class="container py-5 mt-5" style="max-width: 900px">
+    <header class="text-center mb-5">
+        <h1 class="display-5 fw-extrabold tracking-tight mb-2">
+            Crear Evento Presencial
+        </h1>
+        <p class="text-muted lead">
+            Define los detalles de tu próximo gran evento.
+        </p>
+    </header>
+
+    {% if messages %}
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="card-custom">
+        <form
+            id="eventForm"
+            action="{% url 'in_person_events:create_event_form' %}"
+            method="POST"
+            enctype="multipart/form-data"
+        >
+            {% csrf_token %}
+            <input
+                type="hidden"
+                name="tickets_data"
+                id="ticketsData"
+                value="[]"
+            />
+
+            <!-- Section: Basic Info -->
+            <div class="p-4 p-md-5">
+                <h2 class="h5 fw-bold mb-4">Información Básica</h2>
+
+                <div class="row g-4">
+                    <div class="col-12">
+                        <label class="form-label">Título del Evento</label>
+                        {{ form.title }}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Descripción</label>
+                        {{ form.description }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha de Inicio</label>
+                        {{ form.start_date }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha de Finalización</label>
+                        {{ form.end_date }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Categoría</label>
+                        {{ form.category }}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Ubicación</label>
+                        <div class="position-relative mb-3">
+                            {{ form.location }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Configuration -->
+            <div class="p-4 p-md-5 border-top border-light">
+                <h2 class="h5 fw-bold mb-4">Configuración</h2>
+
+                <div class="row g-5">
+                    <div class="col-md-6">
+                        <div
+                            class="d-flex justify-content-between align-items-end mb-3"
+                        >
+                            <label class="form-label mb-0"
+                                >Capacidad Máxima</label
+                            >
+                            <span
+                                class="text-primary fw-bold fs-4"
+                                id="capacityValue"
+                                >0</span
+                            >
+                        </div>
+                        {{ form.capacity }}
+                        <div
+                            class="d-flex justify-content-between small text-muted mt-1"
+                        >
+                            <span>0</span>
+                            <span>1000</span>
+                            <span>2000</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Visibilidad del Evento</label>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div
+                                    class="visibility-card active"
+                                    id="publicVisibility"
+                                >
+                                    <input
+                                        type="radio"
+                                        name="visibility"
+                                        value="publico"
+                                        checked
+                                        style="display: none"
+                                    />
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold small"
+                                            >Público</span
+                                        >
+                                        <span
+                                            class="text-muted"
+                                            style="font-size: 0.7rem"
+                                            >Visible para todos</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div
+                                    class="visibility-card"
+                                    id="privateVisibility"
+                                >
+                                    <input
+                                        type="radio"
+                                        name="visibility"
+                                        value="privado"
+                                        style="display: none"
+                                    />
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold small"
+                                            >Privado</span
+                                        >
+                                        <span
+                                            class="text-muted"
+                                            style="font-size: 0.7rem"
+                                            >Solo invitación</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Ticket Management -->
+            <div class="p-4 p-md-5 border-top border-light">
+                <div
+                    class="d-flex justify-content-between align-items-center mb-4"
+                >
+                    <h2 class="h5 fw-bold mb-0">Gestión de Entradas</h2>
+                    <button
+                        type="button"
+                        class="btn btn-link text-primary fw-bold text-decoration-none p-0 d-flex align-items-center gap-1"
+                        id="addTicketBtn"
+                    >
+                        <span class="material-symbols-outlined">add</span>
+                        Añadir Tipo
+                    </button>
+                </div>
+
+                <div id="ticketContainer">
+                    <!-- Ticket Item -->
+                    <div
+                        class="ticket-item d-flex flex-column flex-md-row align-items-center gap-3"
+                    >
+                        <div class="flex-grow-1 w-100">
+                            <label class="form-label mb-1"
+                                >Nombre del Ticket</label
+                            >
+                            <input
+                                type="text"
+                                class="form-control border-0 bg-transparent p-0 fw-medium shadow-none"
+                                value="Entrada General"
+                            />
+                        </div>
+                        <div class="w-100 w-md-25">
+                            <label class="form-label mb-1">Precio</label>
+                            <div class="d-flex align-items-center">
+                                <span class="fw-bold me-1">€</span>
+                                <input
+                                    type="number"
+                                    class="form-control border-0 bg-transparent p-0 fw-bold shadow-none"
+                                    value="25"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            class="btn text-danger p-2 remove-ticket"
+                        >
+                            <span class="material-symbols-outlined"
+                                >delete</span
+                            >
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Multimedia -->
+            <div class="p-4 p-md-5 border-top border-light">
+                <h2 class="h5 fw-bold mb-4">Multimedia</h2>
+
+                <div class="ev-field-group mb-4">
+                    <label
+                        class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block"
+                        >Imagen de Portada</label
+                    >
+                    <div
+                        class="ev-drop-zone position-relative rounded-4 border-2 border-dashed d-flex flex-column align-items-center justify-content-center"
+                    >
+                        <input
+                            type="file"
+                            name="image"
+                            id="evImageInput"
+                            class="ev-file-input position-absolute w-100 h-100 opacity-0 cursor-pointer"
+                            accept=".jpg,.png,.gif"
+                            required
+                        />
+                        <div
+                            class="ev-drop-zone-content text-center"
+                            id="evDropZoneContent"
+                        >
+                            <div class="ev-upload-icon mb-3">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="40"
+                                    height="40"
+                                    fill="currentColor"
+                                    class="bi bi-cloud-upload text-primary"
+                                    viewBox="0 0 16 16"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-3.441 1.57.5.5 0 1 1-.757-.653z"
+                                    />
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M7.646 5.354a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 7.207V13.5a.5.5 0 0 1-1 0V7.207L5.354 9.062a.5.5 0 1 1-.708-.708l3-3z"
+                                    />
+                                </svg>
+                            </div>
+                            <p class="mb-1 fw-bold">
+                                Arrastra tu imagen aquí o
+                                <span class="text-primary">explora</span>
+                            </p>
+                            <p
+                                class="text-muted small text-uppercase tracking-widest"
+                            >
+                                PNG o JPG de alta resolución (Máx 10MB)
+                            </p>
+                        </div>
+                        <div
+                            class="ev-preview-container d-none position-absolute top-0 start-0 w-100 h-100 rounded-4 overflow-hidden"
+                            id="evPreviewContainer"
+                        >
+                            <img
+                                src=""
+                                alt="Vista previa"
+                                id="evImagePreview"
+                                class="w-100 h-100 object-fit-cover"
+                            />
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-dark position-absolute top-0 end-0 m-2"
+                                id="evRemoveImage"
+                            >
+                                <i class="bi bi-x-lg"></i> Remover
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div
+                class="p-4 p-md-5 border-top border-light d-flex align-items-center justify-content-between gap-3 flex-wrap"
+            >
+                <button
+                    type="button"
+                    class="btn btn-link text-muted fw-bold text-decoration-none p-0"
+                >
+                    Guardar Borrador
+                </button>
+
+                <div class="d-flex gap-3">
+                    <button type="button" class="btn btn-outline-custom">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary-custom">
+                        Crear Evento
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %} {% block extra_js %}
+<!-- Custom JS -->
+<script
+    src="{% static 'in_person_events/event_form/js/main.js' %}?v=2"
+    defer
+></script>
+{% endblock %}

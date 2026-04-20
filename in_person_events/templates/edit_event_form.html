@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Evento | Stratos Event Suite</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="{% static 'in_person_events/common/css/bootstrap.min.css' %}" rel="stylesheet">
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{% static 'in_person_events/editor_event_form/css/style.css' %}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{% url 'in_person_events:dashboard_organizer' event.id %}" class="btn btn-link text-muted p-0">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <h1 class="h5 mb-0 fw-bold">Editar Evento</h1>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'in_person_events:dashboard_organizer' event.id %}" class="btn btn-link text-muted text-decoration-none fw-medium">Cancelar</a>
+            <button type="submit" form="eventForm" class="btn btn-save">Guardar Cambios</button>
+        </div>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form id="eventForm" action="{% url 'in_person_events:edit_event' event.id %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="tickets_data" id="ticketsData" value="[]">
+
+        <main class="container py-5 mt-5">
+        <div class="row g-4">
+            
+            <!-- Left Column -->
+            <div class="col-lg-7">
+                
+                <!-- Información General -->
+                <section class="event-card">
+                    <h2 class="card-title">
+                        <span class="material-symbols-outlined">info</span> Información General
+                    </h2>
+                    <div class="mb-4">
+                        <label for="id_title" class="form-label">Título del Evento</label>
+                        {{ form.title }}
+                    </div>
+                    <div>
+                        <label for="id_description" class="form-label">Descripción</label>
+                        {{ form.description }}
+                    </div>
+                </section>
+
+                <!-- Gestión de Entradas -->
+                <section class="event-card">
+                    <div
+                        class="d-flex justify-content-between align-items-center mb-4"
+                    >
+                        <h2 class="h5 fw-bold mb-0">Gestión de Entradas</h2>
+                        <button
+                            type="button"
+                            class="btn btn-link text-primary fw-bold text-decoration-none p-0 d-flex align-items-center gap-1"
+                            id="addTicketBtn"
+                        >
+                            <span class="material-symbols-outlined"
+                                >add</span
+                            >
+                            Añadir Tipo
+                        </button>
+                    </div>
+
+                    <div id="ticketContainer">
+                        {% for ticket in ticket_types %}
+                        <!-- Ticket Item -->
+                        <div
+                            class="ticket-item d-flex flex-column flex-md-row align-items-center gap-3"
+                        >
+                            <div class="flex-grow-1 w-100">
+                                <label class="form-label mb-1"
+                                    >Nombre del Ticket</label
+                                >
+                                <input
+                                    type="text"
+                                    class="form-control border-0 bg-transparent p-0 fw-medium shadow-none"
+                                    value="{{ ticket.name }}"
+                                />
+                            </div>
+                            <div class="w-100 w-md-25">
+                                <label class="form-label mb-1"
+                                    >Precio</label
+                                >
+                                <div class="d-flex align-items-center">
+                                    <span class="fw-bold me-1">€</span>
+                                    <input
+                                        type="number"
+                                        class="form-control border-0 bg-transparent p-0 fw-bold shadow-none"
+                                        value="{{ ticket.price }}"
+                                    />
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                class="btn text-danger p-2 remove-ticket"
+                            >
+                                <span class="material-symbols-outlined"
+                                    >delete</span
+                                >
+                            </button>
+                        </div>
+                        {% empty %}
+                        <!-- Ticket Item por defecto -->
+                        <div
+                            class="ticket-item d-flex flex-column flex-md-row align-items-center gap-3"
+                        >
+                            <div class="flex-grow-1 w-100">
+                                <label class="form-label mb-1"
+                                    >Nombre del Ticket</label
+                                >
+                                <input
+                                    type="text"
+                                    class="form-control border-0 bg-transparent p-0 fw-medium shadow-none"
+                                    value="Entrada General"
+                                />
+                            </div>
+                            <div class="w-100 w-md-25">
+                                <label class="form-label mb-1"
+                                    >Precio</label
+                                >
+                                <div class="d-flex align-items-center">
+                                    <span class="fw-bold me-1">€</span>
+                                    <input
+                                        type="number"
+                                        class="form-control border-0 bg-transparent p-0 fw-bold shadow-none"
+                                        value="25"
+                                    />
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                class="btn text-danger p-2 remove-ticket"
+                            >
+                                <span class="material-symbols-outlined"
+                                    >delete</span
+                                >
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <!-- Multimedia -->
+                <section class="event-card">
+                    <h2 class="h5 fw-bold mb-4">Multimedia</h2>
+
+                    <label class="form-label">Imagen de Portada</label>
+                    <div class="upload-zone" id="uploadZone">
+                        {{ form.image }}
+                        <div class="image-preview-container mt-4" id="imagePreview">
+                            {% if form.image.value %}
+                                <div class="image-preview-existing">
+                                    <img src="{{ form.image.value.url }}" alt="Imagen actual" class="img-fluid rounded">
+                                    <p class="text-muted small mt-2">Imagen actual del evento</p>
+                                </div>
+                            {% else %}
+                                <div class="image-preview-empty">
+                                    <span class="material-symbols-outlined text-muted" style="font-size: 3rem;">image</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-5">
+                
+                <!-- Ubicación -->
+                <section class="event-card">
+                    <h2 class="card-title">
+                        <span class="material-symbols-outlined">location_on</span> Ubicación y Sede
+                    </h2>
+                    <div class="mb-3">
+                        <label for="id_location" class="form-label">Dirección de la Sede</label>
+                        {{ form.location }}
+                    </div>
+                </section>
+
+                <!-- Fecha y Horario -->
+                <section class="event-card">
+                    <h2 class="card-title">
+                        <span class="material-symbols-outlined">calendar_today</span> Fecha y Horario
+                    </h2>
+                    <div class="mb-4">
+                        <label for="id_start_date" class="form-label text-uppercase small fw-bold">Inicio</label>
+                        {{ form.start_date }}
+                    </div>
+                    <div>
+                        <label for="id_end_date" class="form-label text-uppercase small fw-bold">Fin</label>
+                        {{ form.end_date }}
+                    </div>
+                </section>
+
+                <!-- Ajustes -->
+                <section class="event-card">
+                    <h2 class="card-title">
+                        <span class="material-symbols-outlined">settings</span> Ajustes
+                    </h2>
+                    <div class="mb-4">
+                        <label for="id_category" class="form-label">Categoría</label>
+                        {{ form.category }}
+                    </div>
+                    <div>
+                        <div
+                            class="d-flex justify-content-between align-items-end mb-3"
+                        >
+                            <label class="form-label mb-0"
+                                >Cupo Máximo</label
+                            >
+                            <span
+                                class="text-primary fw-bold fs-4"
+                                id="capacityValue"
+                                >{{ event.capacity|default:0 }}</span
+                            >
+                        </div>
+                        <input
+                            type="range"
+                            id="capacitySlider"
+                            name="capacity"
+                            class="form-control form-control-custom"
+                            min="0"
+                            max="2000"
+                            step="10"
+                            value="{{ form.capacity.value|default:event.capacity|default:0 }}"
+                            oninput="document.getElementById('capacityValue').textContent = this.value"
+                        />
+                        <div
+                            class="d-flex justify-content-between small text-muted mt-1"
+                        >
+                            <span>0</span>
+                            <span>1000</span>
+                            <span>2000</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Privacidad -->
+                <section class="event-card">
+                    <h3 class="small text-uppercase fw-bold text-muted mb-4">Privacidad</h3>
+                    <div class="privacy-options">
+                        <div class="privacy-option{% if event.visibility == 'publico' %} active{% endif %}">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">public</span>
+                                <div>
+                                    <p class="mb-0 fw-bold{% if event.visibility == 'publico' %} text-primary{% endif %}">Público</p>
+                                    <small class="text-muted">Visible para todos en las búsquedas</small>
+                                </div>
+                            </div>
+                            <input type="radio" name="visibility" value="publico" {% if event.visibility == 'publico' %}checked{% endif %} class="form-check-input">
+                        </div>
+                        <div class="privacy-option mt-2{% if event.visibility == 'privado' %} active{% endif %}">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="material-symbols-outlined text-muted">lock</span>
+                                <div>
+                                    <p class="mb-0 fw-bold{% if event.visibility == 'privado' %} text-primary{% endif %}">Privado</p>
+                                    <small class="text-muted">Solo accesible mediante enlace</small>
+                                </div>
+                            </div>
+                            <input type="radio" name="visibility" value="privado" {% if event.visibility == 'privado' %}checked{% endif %} class="form-check-input">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Status -->
+                <div class="status-badge">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="dot"></span>
+                        <span class="small fw-bold text-uppercase" style="color: #006c49;">Draft Activo</span>
+                    </div>
+                    <p class="small text-muted mb-0">Último autoguardado hace 2 minutos. Todos los cambios se publicarán inmediatamente al guardar.</p>
+                </div>
+
+            </div>
+        </div>
+    </form>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="{% static 'in_person_events/common/js/bootstrap.bundle.min.js' %}"></script>
+    
+    <!-- Custom Script -->
+    <script src="{% static 'in_person_events/editor_event_form/js/script.js' %}"></script>
+</body>
+</html>

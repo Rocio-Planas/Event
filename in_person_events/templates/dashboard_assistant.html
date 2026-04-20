@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Tech Summit 2024 - Concierge 360</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    <!-- Bootstrap (Placeholder for future integration) -->
+    <!-- <link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css"> -->
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="glass-header">
+        <div class="max-w-7xl px-6 py-4 header-content">
+            <div style="display: flex; align-items: center; gap: 3rem;">
+                <span style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">Concierge 360</span>
+                <nav class="nav-links">
+                    <a href="#" class="active">Agenda</a>
+                    <a href="#">Networking</a>
+                    <a href="#">Recursos</a>
+                </nav>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1.25rem;">
+                <button class="material-symbols-outlined" style="background: none; border: none; color: var(--on-surface-variant); cursor: pointer;">notifications</button>
+                <div style="width: 2.25rem; height: 2.25rem; border-radius: 50%; border: 1px solid var(--outline-variant); padding: 2px;">
+                    <img src="https://picsum.photos/seed/user/100/100" alt="User profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl px-6 py-10">
+        <!-- Event Header -->
+        <section class="grid" style="grid-template-columns: 1fr; margin-bottom: 2.5rem;">
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <a href="#" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--primary); font-weight: 700; font-size: 0.875rem;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span>
+                    Volver
+                </a>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                        <span class="badge" style="background-color: var(--secondary-container); color: var(--secondary);">Inscrito</span>
+                        <span style="color: var(--primary); font-weight: 700; font-size: 0.875rem;">Faltan 2 días, 4 horas</span>
+                    </div>
+                    <h1>Global Tech Summit 2024</h1>
+                    <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; color: var(--on-surface-variant); font-weight: 500;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="material-symbols-outlined" style="color: var(--primary);">calendar_today</span>
+                            24 Octubre
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="material-symbols-outlined" style="color: var(--primary);">location_on</span>
+                            SF Convention Center
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-start; align-items: flex-end;">
+                <button class="btn-primary">
+                    <span class="material-symbols-outlined">qr_code_2</span>
+                    Ver mi Ticket QR
+                </button>
+            </div>
+        </section>
+
+        <!-- Notification Banner -->
+        <div style="background-color: rgba(0, 88, 190, 0.05); padding: 1.25rem; border-radius: 1rem; border: 1px solid rgba(0, 88, 190, 0.1); display: flex; align-items: center; gap: 1rem; margin-bottom: 2.5rem;">
+            <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background-color: rgba(0, 88, 190, 0.1); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0;">
+                <span class="material-symbols-outlined">campaign</span>
+            </div>
+            <p style="font-size: 0.875rem; font-weight: 500;">
+                <span style="color: var(--primary); font-weight: 700;">Aviso importante:</span> Cambio de sala para la Charla AI, ahora en el Salón B.
+            </p>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-12">
+            <!-- Left Column: Agenda -->
+            <div class="col-span-8" style="display: flex; flex-direction: column; gap: 2rem;">
+                <div class="card">
+                    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 2.5rem;">
+                        <div>
+                            <h2>Cronograma del Evento</h2>
+                            <p style="font-size: 0.875rem; color: var(--on-surface-variant); font-weight: 500; margin-top: 0.25rem;">Actividades destacadas para hoy</p>
+                        </div>
+                        <a href="#" style="color: var(--primary); font-weight: 700; font-size: 0.875rem; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">
+                            Ver completo
+                            <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+                        </a>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <!-- Session 1 -->
+                        <div class="agenda-item">
+                            <div class="time-col">
+                                <span class="time-main">09:00</span>
+                                <span class="time-period">AM</span>
+                            </div>
+                            <div style="flex-grow: 1;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                    <span class="badge badge-ai">AI</span>
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--on-surface-variant); display: flex; align-items: center; gap: 0.25rem;">
+                                        <span class="material-symbols-outlined" style="font-size: 14px;">meeting_room</span>
+                                        Salón Principal
+                                    </span>
+                                </div>
+                                <h3 style="font-size: 1.125rem; font-weight: 700;">The Future of Generative AI</h3>
+                                <p style="font-size: 0.875rem; color: var(--on-surface-variant); font-weight: 500; margin-top: 0.5rem;">Keynote by Sarah Jenkins, Lead AI Scientist at Quantum Mind.</p>
+                            </div>
+                            <button class="material-symbols-outlined" style="background: none; border: none; color: var(--outline-variant); cursor: pointer; align-self: flex-start; margin-top: 0.5rem;">bookmark_add</button>
+                        </div>
+
+                        <!-- Session 2 -->
+                        <div class="agenda-item">
+                            <div class="time-col">
+                                <span class="time-main">11:30</span>
+                                <span class="time-period">AM</span>
+                            </div>
+                            <div style="flex-grow: 1;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                    <span class="badge badge-ux">UX</span>
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--on-surface-variant); display: flex; align-items: center; gap: 0.25rem;">
+                                        <span class="material-symbols-outlined" style="font-size: 14px;">meeting_room</span>
+                                        Salón B
+                                    </span>
+                                </div>
+                                <h3 style="font-size: 1.125rem; font-weight: 700;">Neuro-design: UX for the Human Brain</h3>
+                                <p style="font-size: 0.875rem; color: var(--on-surface-variant); font-weight: 500; margin-top: 0.5rem;">Interactive workshop on cognitive patterns in modern interfaces.</p>
+                            </div>
+                            <button class="material-symbols-outlined" style="background: none; border: none; color: var(--primary); cursor: pointer; align-self: flex-start; margin-top: 0.5rem;">bookmark</button>
+                        </div>
+
+                        <!-- Session 3 -->
+                        <div class="agenda-item">
+                            <div class="time-col">
+                                <span class="time-main">02:00</span>
+                                <span class="time-period">PM</span>
+                            </div>
+                            <div style="flex-grow: 1;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                    <span class="badge badge-devops">DEVOPS</span>
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--on-surface-variant); display: flex; align-items: center; gap: 0.25rem;">
+                                        <span class="material-symbols-outlined" style="font-size: 14px;">meeting_room</span>
+                                        Studio 4
+                                    </span>
+                                </div>
+                                <h3 style="font-size: 1.125rem; font-weight: 700;">Scaling to 10M: Lessons Learned</h3>
+                                <p style="font-size: 0.875rem; color: var(--on-surface-variant); font-weight: 500; margin-top: 0.5rem;">Real-world case study on cloud infrastructure and high availability.</p>
+                            </div>
+                            <button class="material-symbols-outlined" style="background: none; border: none; color: var(--outline-variant); cursor: pointer; align-self: flex-start; margin-top: 0.5rem;">bookmark_add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resources -->
+                <div style="background-color: var(--surface-container-low); padding: 2rem; border-radius: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+                            <span class="material-symbols-outlined" style="color: var(--primary);">folder_open</span>
+                            Recursos Digitales
+                        </h2>
+                        <a href="#" style="color: var(--primary); font-weight: 700; font-size: 0.875rem; text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">
+                            Ver todos
+                            <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+                        </a>
+                    </div>
+                    <div class="resource-grid">
+                        <div style="background: white; padding: 1.25rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(225, 228, 237, 0.3);">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 2.5rem; height: 2.5rem; border-radius: 0.5rem; background-color: #fef2f2; display: flex; align-items: center; justify-content: center; color: #dc2626; flex-shrink: 0;">
+                                    <span class="material-symbols-outlined">picture_as_pdf</span>
+                                </div>
+                                <div>
+                                    <span style="display: block; font-size: 0.875rem; font-weight: 700;">Presentación.pdf</span>
+                                    <span style="font-size: 0.625rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase;">2.4 MB</span>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined" style="color: var(--on-surface-variant); cursor: pointer;">download</span>
+                        </div>
+                        <div style="background: white; padding: 1.25rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(225, 228, 237, 0.3);">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 2.5rem; height: 2.5rem; border-radius: 0.5rem; background-color: #eff6ff; display: flex; align-items: center; justify-content: center; color: #2563eb; flex-shrink: 0;">
+                                    <span class="material-symbols-outlined">link</span>
+                                </div>
+                                <div>
+                                    <span style="display: block; font-size: 0.875rem; font-weight: 700;">Guía de Enlaces</span>
+                                    <span style="font-size: 0.625rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase;">Recurso externo</span>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined" style="color: var(--on-surface-variant); cursor: pointer;">open_in_new</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Sidebar -->
+            <div class="col-span-4" style="display: flex; flex-direction: column; gap: 2rem;">
+                <div class="card organizer-card">
+                    <h2 style="font-size: 1.125rem; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 0.05em;">Quién lo organiza</h2>
+                    <div class="profile-img-container">
+                        <img src="https://picsum.photos/seed/organizer/300/300" alt="Organizador" class="profile-img">
+                        <div class="verified-badge">
+                            <span class="material-symbols-outlined" style="font-size: 14px; font-weight: bold;">verified</span>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="font-size: 1.5rem; font-weight: 900;">Juan Pérez</h3>
+                        <p style="color: var(--primary); font-weight: 700; font-size: 0.875rem; margin-top: 0.25rem; text-transform: uppercase;">CEO, TechEvents Global</p>
+                        <p style="font-size: 0.875rem; color: var(--on-surface-variant); font-weight: 500; margin-top: 1.25rem; line-height: 1.6;">
+                            Apasionado por conectar mentes brillantes a través de la tecnología y la innovación con más de una década de experiencia liderando eventos de clase mundial.
+                        </p>
+                    </div>
+                    <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
+                        <!-- Social Icons (Simulated) -->
+                        <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background-color: var(--surface-container-low); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn" style="width: 1.25rem; height: 1.25rem;">
+                        </div>
+                        <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background-color: var(--surface-container-low); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" style="width: 1.25rem; height: 1.25rem;">
+                        </div>
+                        <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background-color: var(--surface-container-low); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            <span class="material-symbols-outlined" style="font-size: 20px;">language</span>
+                        </div>
+                    </div>
+                    <button style="width: 100%; padding: 1rem; border-radius: 0.75rem; background-color: var(--primary); color: white; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">mail</span>
+                        Enviar Mensaje
+                    </button>
+                </div>
+
+                <div class="card" style="padding: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+                        <span class="material-symbols-outlined" style="color: var(--primary);">confirmation_number</span>
+                        <h2 style="font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em;">Entradas Disponibles</h2>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid var(--outline-variant);">
+                            <span style="font-size: 0.875rem; font-weight: 700; color: var(--on-surface-variant);">Entrada General</span>
+                            <span style="font-weight: 900; color: var(--primary);">25 €</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.875rem; font-weight: 700; color: var(--on-surface-variant);">Pase VIP Early Bird</span>
+                            <span style="font-weight: 900; color: var(--secondary);">75 €</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom JS -->
+    <script src="/static/js/script.js"></script>
+</body>
+</html>
