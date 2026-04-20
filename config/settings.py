@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'core',
     'usuarios',
     'chat',
+    'cookie_consent',
+    
 
     # Eventos virtuales
     'virtualEvent.apps.VirtualEventConfig',
@@ -78,6 +80,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',  # para {{ LANGUAGE_CODE }}
+                'core.context_processors.cookie_consent_processor',
             ],
         },
     },
@@ -120,6 +123,8 @@ LOCALE_PATHS = [BASE_DIR / 'locale']
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+COOKIE_CONSENT_NAME = "cookie_consent"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -196,3 +201,5 @@ SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # Palabras ofensivas para moderación automática
 OFFENSIVE_WORDS = ['palabra1', 'palabra2', 'insulto', 'ofensa']  # Personalizar luego
+
+

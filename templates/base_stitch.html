@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <title>{% block title %}EventPulse{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -13,9 +14,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
-        .btn-gradient-primary {
-            background: linear-gradient(135deg, #0057cd 0%, #0d6efd 100%);
-        }
+        .btn-gradient-primary { background: linear-gradient(135deg, #0057cd 0%, #0d6efd 100%); }
         :root {
             --bg-surface: #f7f9ff;
             --text-on-surface: #181c20;
@@ -51,9 +50,7 @@
         .text-primary { color: var(--primary); }
         .border-primary { border-color: var(--primary); }
         .bg-primary { background-color: var(--primary); }
-        .dark .btn-gradient-primary {
-            background: linear-gradient(135deg, #3a7bdd 0%, #5c9eff 100%);
-        }
+        .dark .btn-gradient-primary { background: linear-gradient(135deg, #3a7bdd 0%, #5c9eff 100%); }
         .dark input, .dark select, .dark textarea {
             background-color: var(--surface-container-low);
             color: var(--text-on-surface);
@@ -62,26 +59,28 @@
         .dark .leaflet-tile {
             filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
         }
-        .hover-zoom {
-            transition: transform 0.3s ease;
-        }
-        .group:hover .hover-zoom {
-            transform: scale(1.08);
-        }
+        .hover-zoom { transition: transform 0.3s ease; }
+        .group:hover .hover-zoom { transform: scale(1.08); }
+        .like-icon { font-variation-settings: 'FILL' 0; }
+        .like-icon.filled { font-variation-settings: 'FILL' 1; }
     </style>
     <script>
         // ==================== TRADUCCIONES COMPLETAS ====================
         const translations = {
             es: {
+                // Navegación
                 'nav_inicio': 'Inicio',
                 'nav_presenciales': 'Eventos Presenciales',
                 'nav_virtuales': 'Eventos Virtuales',
                 'nav_contacto': 'Contacto',
+                // Hero
                 'hero_title': 'Descubre Experiencias Increíbles',
                 'hero_subtitle': 'Eventos presenciales y virtuales adaptados a tus gustos.',
                 'search_placeholder': 'Buscar eventos...',
                 'search_btn': 'Buscar',
+                // Categorías
                 'cat_title': 'Explorar por Categoría',
+                'all_categories': 'Todas',
                 'cat_Conciertos': 'Conciertos',
                 'cat_Teatro': 'Teatro',
                 'cat_Baile': 'Baile',
@@ -92,15 +91,27 @@
                 'cat_Eventos familiares': 'Eventos familiares',
                 'cat_Networking': 'Networking',
                 'cat_Eventos virtuales': 'Eventos virtuales',
-                'rec_title': 'Recomendados para ti',
-                'filter_popular': '⭐ Populares',
-                'filter_recent': '🕒 Recientes',
+                // Eventos
+                'rec_title': 'Eventos disponibles',
+                'virtual': 'Virtual',
+                'presencial': 'Presencial',
                 'share_btn': 'Compartir',
                 'subscribe_btn': 'Suscribirse',
+                'login_to_subscribe': 'Iniciar sesión',
+                'view_reviews': 'Ver reseñas',
+                'eres_organizador': 'Eres el organizador',
+                // Paginación
+                'previous': 'Anterior',
+                'next': 'Siguiente',
+                'first': 'Primera',
+                'last': 'Última',
+                'page': 'Página',
+                'of': 'de',
+                // Mapa
                 'map_title': 'Eventos cerca de ti',
                 'map_placeholder': 'Ingresa una dirección...',
                 'map_btn': 'Ver mapa',
-                'footer_copyright': 'Todos los derechos reservados.',
+                // Perfil y usuario
                 'edit_profile': 'Editar Perfil',
                 'change_password': 'Cambiar Contraseña',
                 'logout': 'Cerrar Sesión',
@@ -109,17 +120,6 @@
                 'my_dashboard': 'Mi Panel',
                 'login': 'Iniciar Sesión',
                 'register': 'Registrarse',
-                'event_title': 'Título del evento',
-                'description_label': 'Descripción',
-                'date_label': 'Fecha',
-                'virtual_type': 'Virtual',
-                'duration': 'Duración',
-                'privacy': 'Privacidad',
-                'organizer': 'Organizador',
-                'reviews_section': 'Reseñas',
-                'no_reviews': 'Aún no hay reseñas para este evento. ¡Sé el primero en opinar!',
-                'write_review': 'Escribir una reseña',
-                'back_home': 'Volver al inicio',
                 'email': 'Correo electrónico',
                 'password': 'Contraseña',
                 'remember_me': 'Recordarme',
@@ -137,6 +137,32 @@
                 'select_all': 'Seleccionar todos',
                 'clear_all': 'Limpiar selección',
                 'register_btn': 'Registrarme',
+                'member_since': 'Miembro desde',
+                'personal_details': 'Detalles personales',
+                'registered_on': 'Registrado',
+                'no_preferences': 'No has seleccionado preferencias aún.',
+                'avatar': 'Avatar',
+                'address': 'Dirección',
+                'bio': 'Biografía',
+                'website': 'Sitio Web',
+                'twitter': 'Twitter',
+                'instagram': 'Instagram',
+                'linkedin': 'LinkedIn',
+                'receive_notifications': 'Recibir notificaciones',
+                'receive_newsletter': 'Recibir newsletter',
+                // Perfil secciones
+                'eventos_organizados_title': 'Eventos que organizo',
+                'eventos_virtuales_seguimiento': 'Eventos virtuales en seguimiento',
+                'eventos_presenciales_suscritos': 'Eventos presenciales suscritos',
+                'mis_favoritos': 'Mis eventos favoritos',
+                'favoritos_count': 'favoritos',
+                'ver_evento': 'Ver evento',
+                'quitar_favorito': 'Quitar favorito',
+                'gestionar': 'Gestionar',
+                'ver': 'Ver',
+                'eliminar': 'Eliminar',
+                'cancelar_subscripcion': 'Cancelar suscripción',
+                // Contacto
                 'contact_title': '¿Cómo podemos ayudarte?',
                 'contact_subtitle': 'Ya sea que necesites soporte o quieras compartir tu experiencia, estamos aquí para escucharte.',
                 'support_title': 'Soporte en vivo',
@@ -151,77 +177,21 @@
                 'rating': 'Calificación',
                 'comment': 'Comentario',
                 'send_review': 'Enviar reseña',
+                'type': 'Tipo de consulta',
                 'subject': 'Asunto',
                 'message': 'Mensaje',
                 'send_message': 'Enviar mensaje',
-                'my_events_list': 'Mis Eventos',
-                'explore_events': 'Explorar Eventos',
-                'my_preferences': 'Mis Preferencias',
-                'cancel_subscription': 'Cancelar Suscripción',
-                'admin_panel': 'Panel de Administrador',
-                'organizer_panel': 'Panel de Organizador',
-                'exhibitor_panel': 'Panel de Expositor',
-                'spectator_panel': 'Panel de Espectador',
-                'manage_users': 'Gestionar usuarios',
-                'manage_events': 'Gestionar eventos',
-                'view_stats': 'Ver estadísticas',
-                'my_stands': 'Mis Stands',
-                'request_stand': 'Solicitar stand',
-                'my_talks': 'Charlas',
-                'request_talk': 'Solicitar charla',
-                'my_participations': 'Mis Participaciones',
-                'create_event': 'Crear Evento',
-                'manage_requests': 'Gestionar solicitudes',
-                'password_actual': 'Contraseña actual',
-                'new_password': 'Nueva contraseña',
-                'confirm_new_password': 'Confirmar nueva contraseña',
-                'cancel': 'Cancelar',
-                'save_changes': 'Guardar cambios',
-                'member_since': 'Miembro desde',
-                'personal_details': 'Detalles personales',
-                'registered_on': 'Registrado',
-                'coming_soon': 'Próximamente',
-                'explore_hint': 'Cuando tus compañeras integren sus módulos, aquí aparecerán los eventos reales.',
-                'explore_btn': 'Explorar eventos',
-                'no_preferences': 'No has seleccionado preferencias aún.',
-                'avatar': 'Avatar',
-                'address': 'Dirección',
-                'bio': 'Biografía',
-                'website': 'Sitio Web',
-                'twitter': 'Twitter',
-                'instagram': 'Instagram',
-                'linkedin': 'LinkedIn',
-                'receive_notifications': 'Recibir notificaciones',
-                'receive_newsletter': 'Recibir newsletter',
-                'forgot_password_title': '¿Olvidaste tu contraseña?',
-                'forgot_password_subtitle': 'Te enviaremos un enlace para restablecerla',
-                'send_instructions': 'Enviar instrucciones',
-                'back_to_login': 'Volver al inicio de sesión',
-                'go_to_admin': 'Ir al panel de administración',
-                'manage_events_desc': 'Aprobar y gestionar eventos de organizadores.',
-                'manage_events_btn': 'Gestionar eventos',
-                'view_stats_desc': 'Ver métricas de la plataforma.',
-                'view_reports': 'Ver reportes',
-                'my_events_desc': 'Gestionar eventos que has creado.',
-                'view_my_events': 'Ver mis eventos',
-                'create_event_desc': 'Agregar un nuevo evento a la plataforma.',
-                'create_event_btn': 'Crear evento',
-                'manage_requests_desc': 'Revisar solicitudes de expositores.',
-                'manage_requests_btn': 'Gestionar solicitudes',
-                'my_stands_desc': 'Solicitar stands en eventos.',
-                'my_talks_desc': 'Solicitar charlas en eventos.',
-                'my_participations_desc': 'Ver eventos en los que participas.',
-                'view_participations': 'Ver participaciones',
-                'my_events_desc_spectator': 'Eventos a los que estás suscrito.',
-                'explore_events_desc': 'Descubre nuevos eventos.',
-                'my_preferences_desc': 'Personaliza tu feed de eventos.',
-                'ejemplo_conferencia': 'Ejemplo: Conferencia Tech',
-                'edit_preferences_title': 'Editar mis preferencias',
-                'edit_preferences': 'Editar preferencias',
-                'login_to_subscribe': 'Iniciar sesión',
-                'no_suscripciones': 'Aún no te has suscrito a ningún evento.',
-                'subscriptions_count': 'suscripciones',
-                'back_home': '← Volver al inicio',
+                // Event detail (común)
+                'description_label': 'Descripción',
+                'duration_label': 'Duración',
+                'minutes_unit': 'minutos',
+                'privacy_label': 'Privacidad',
+                'organizer': 'Organizador',
+                'reviews_section': 'Reseñas',
+                'no_reviews': 'Aún no hay reseñas para este evento. ¡Sé el primero en opinar!',
+                'write_review': 'Escribir una reseña',
+                'back_home': 'Volver al inicio',
+                // Páginas estáticas
                 'about_title': 'Acerca de EventPulse',
                 'about_text1': 'EventPulse es una plataforma de gestión de eventos diseñada para conectar organizadores, expositores y asistentes en un solo lugar.',
                 'about_text2': 'Nuestra misión es facilitar la creación, difusión y participación en eventos presenciales y virtuales, ofreciendo una experiencia moderna, responsiva y accesible para todos.',
@@ -254,28 +224,115 @@
                 'privacy_security_title': '6. Seguridad',
                 'privacy_security_text': 'Implementamos medidas de seguridad para proteger tu información, pero recuerda que ningún sistema es 100% seguro.',
                 'last_update': 'Última actualización: 5 de abril de 2026',
-                'event_id': 'ID del evento',
+                // Aviso legal y cookies
+                'aviso_legal_title': 'Aviso Legal',
+                'aviso_legal_intro': 'En cumplimiento con el deber de información recogido en el artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico, a continuación se reflejan los siguientes datos:',
+                'cookie_policy_title': 'Política de Cookies',
+                'cookie_policy_intro': 'En cumplimiento con lo dispuesto en el artículo 22.2 de la Ley 34/2002...',
+                // Otros
+                'footer_copyright': 'Todos los derechos reservados.',
+                'about_link': 'Acerca de',
+                'terms_link': 'Términos y condiciones',
+                'privacy_link': 'Política de privacidad',
+                'aviso_legal_link': 'Aviso Legal',
+                'cookie_policy_link': 'Política de Cookies',
                 'event_title': 'Título del evento',
-                'type': 'Tipo de consulta',
+                'date_label': 'Fecha',
+                'virtual_type': 'Virtual',
+                'duration': 'Duración',
+                'privacy': 'Privacidad',
+                'organizer': 'Organizador',
                 'reviews_section': 'Reseñas',
                 'no_reviews': 'Aún no hay reseñas para este evento. ¡Sé el primero en opinar!',
                 'view_reviews': 'Ver reseñas',
-                'about_link': 'Acerca de',
                 'delete_event': 'Eliminar',
-                'terms_link': 'Términos y condiciones',
-                'privacy_link': 'Política de privacidad'
+                'forgot_password_title': '¿Olvidaste tu contraseña?',
+                'forgot_password_subtitle': 'Te enviaremos un enlace para restablecerla',
+                'send_instructions': 'Enviar instrucciones',
+                'back_to_login': 'Volver al inicio de sesión',
+                'go_to_admin': 'Ir al panel de administración',
+                'manage_events_desc': 'Aprobar y gestionar eventos de organizadores.',
+                'manage_events_btn': 'Gestionar eventos',
+                'view_stats_desc': 'Ver métricas de la plataforma.',
+                'view_reports': 'Ver reportes',
+                'my_events_desc': 'Gestionar eventos que has creado.',
+                'view_my_events': 'Ver mis eventos',
+                'create_event_desc': 'Agregar un nuevo evento a la plataforma.',
+                'create_event_btn': 'Crear evento',
+                'manage_requests_desc': 'Revisar solicitudes de expositores.',
+                'manage_requests_btn': 'Gestionar solicitudes',
+                'my_stands_desc': 'Solicitar stands en eventos.',
+                'my_talks_desc': 'Solicitar charlas en eventos.',
+                'my_participations_desc': 'Ver eventos en los que participas.',
+                'view_participations': 'Ver participaciones',
+                'my_events_desc_spectator': 'Eventos a los que estás suscrito.',
+                'explore_events_desc': 'Descubre nuevos eventos.',
+                'my_preferences_desc': 'Personaliza tu feed de eventos.',
+                'edit_preferences_title': 'Editar mis preferencias',
+                'edit_preferences': 'Editar preferencias',
+                'no_suscripciones': 'Aún no te has suscrito a ningún evento.',
+                'subscriptions_count': 'suscripciones',
+                'coming_soon': 'Próximamente',
+                'explore_hint': 'Cuando tus compañeras integren sus módulos, aquí aparecerán los eventos reales.',
+                'explore_btn': 'Explorar eventos',
+                'metrics_title': 'Métricas de la plataforma',
+                'total_users': 'Usuarios registrados',
+                'total_subscriptions': 'Suscripciones a eventos',
+                'total_approved_reviews': 'Reseñas aprobadas',
+                'total_inquiries': 'Consultas recibidas',
+                'back_to_admin': '← Volver al panel de administrador',
+                'edit_profile_subtitle': 'Actualiza tus datos personales y preferencias',
+                'select_event': 'Seleccione un evento',
+                'select_event_optional': 'Seleccione un evento (opcional)',
+                'not_registered': 'No registrado',
+                'aviso_legal_link': 'Aviso Legal',
+                'cookie_policy_link': 'Política de Cookies',
+                // Aviso legal
+                'aviso_legal_section1_title': '1. DATOS IDENTIFICATIVOS',
+                'aviso_legal_section1_text': 'En cumplimiento con el deber de información recogido en el artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico, a continuación se reflejan los siguientes datos:',
+                'aviso_legal_section2_title': '2. PROPIEDAD INTELECTUAL E INDUSTRIAL',
+                'aviso_legal_section2_text': 'El diseño de la página web y sus códigos fuente, así como los logotipos, marcas y demás signos distintivos que aparecen en el mismo, pertenecen a su responsable y están protegidos por los correspondientes derechos de propiedad intelectual e industrial.',
+                'aviso_legal_section3_title': '3. CONDICIONES DE USO',
+                'aviso_legal_section3_text': 'El acceso a este sitio web es responsabilidad exclusiva del usuario. El acceso no implica la aceptación de los términos y condiciones aquí descritos, que sí deben ser aceptados explícitamente en el momento del registro. El usuario se compromete a hacer un uso adecuado y lícito del sitio.',
+
+                // Política de cookies
+                'cookie_policy_what_title': '¿Qué son las cookies?',
+                'cookie_policy_what_text': 'Una cookie es un fichero que se descarga en su ordenador al acceder a determinadas páginas web. Las cookies permiten a una página web, entre otras cosas, almacenar y recuperar información sobre los hábitos de navegación de un usuario o de su equipo y, dependiendo de la información que contengan y de la forma en que utilice su equipo, pueden utilizarse para reconocer al usuario.',
+                'cookie_policy_types_title': 'Tipos de cookies que utiliza esta página web',
+                'cookie_policy_types_text': 'Esta página web utiliza los siguientes tipos de cookies:',
+                'cookie_policy_type_essential': '<strong>Cookies técnicas o necesarias:</strong> Son aquellas que permiten al usuario la navegación a través de una página web, plataforma o aplicación y la utilización de las diferentes opciones o servicios que en ella existan. Estas cookies son esenciales y no se pueden desactivar en nuestros sistemas.',
+                'cookie_policy_type_analytics': '<strong>Cookies de análisis o medición:</strong> Son aquellas que permiten al responsable de las mismas el seguimiento y análisis del comportamiento de los usuarios de los sitios web a los que están vinculadas. La información recogida mediante este tipo de cookies se utiliza en la medición de la actividad de los sitios web, aplicación o plataforma, con el fin de introducir mejoras en función del análisis de los datos de uso que hacen los usuarios del servicio. (Actualmente, tu plataforma no utiliza este tipo de cookies de terceros, pero se informa para ser transparentes).',
+                'cookie_policy_disable_title': '¿Cómo puedo desactivar las cookies?',
+                'cookie_policy_disable_text': 'Puede usted permitir, bloquear o eliminar las cookies instaladas en su equipo mediante la configuración de las opciones del navegador instalado en su ordenador:',
+                'cookie_policy_link_chrome': 'Chrome',
+                'cookie_policy_link_firefox': 'Firefox',
+                'cookie_policy_link_ie': 'Internet Explorer',
+                'cookie_policy_link_safari': 'Safari',
+                'last_update_date': '5 de abril de 2026',
+                'aviso_legal_responsable': '<strong>Responsable:</strong> [Tu Nombre Completo / Nombre del Equipo]',
+                'aviso_legal_nif': '<strong>NIF/CIF:</strong> [Tu NIF/NIE o el del proyecto]',
+                'aviso_legal_domicilio': '<strong>Domicilio:</strong> [Tu dirección o la de la universidad]',
+                'aviso_legal_email': '<strong>Correo electrónico:</strong> [Tu correo electrónico]',
+                'aviso_legal_social': '<strong>Denominación social:</strong> EventPulse',
+                'save_changes': 'Guardar cambios',
+                'cancel': 'Cancelar',
+                'choose_file': 'Elegir archivo',
+                'no_file_selected': 'No se ha seleccionado ningún archivo',
             },
             en: {
+                // Navigation
                 'nav_inicio': 'Home',
                 'nav_presenciales': 'In-Person Events',
                 'nav_virtuales': 'Virtual Events',
                 'nav_contacto': 'Contact',
-                'delete_event': 'Delete',
+                // Hero
                 'hero_title': 'Discover Amazing Experiences',
                 'hero_subtitle': 'In-person and virtual events tailored to your taste.',
                 'search_placeholder': 'Search events...',
                 'search_btn': 'Search',
+                // Categories
                 'cat_title': 'Explore by Category',
+                'all_categories': 'All',
                 'cat_Conciertos': 'Concerts',
                 'cat_Teatro': 'Theater',
                 'cat_Baile': 'Dance',
@@ -286,30 +343,27 @@
                 'cat_Eventos familiares': 'Family Events',
                 'cat_Networking': 'Networking',
                 'cat_Eventos virtuales': 'Virtual Events',
-                'event_title': 'Event title',
-                'description_label': 'Description',
-                'date_label': 'Date',
-                'virtual_type': 'Virtual',
-                'duration': 'Duration',
-                'privacy': 'Privacy',
-                'organizer': 'Organizer',
-                'reviews_section': 'Reviews',
-                'no_reviews': 'No reviews yet. Be the first to comment!',
-                'write_review': 'Write a review',
-                'eventos_organizados_title': 'Events I organize',
-                'eventos_virtuales_seguimiento': 'Virtual events I follow',
-                'eventos_presenciales_suscritos': 'Subscribed in-person events',
-                'delete_event_btn': 'Delete',
-                'back_home': 'Back to home',
-                'rec_title': 'Recommended for you',
-                'filter_popular': '⭐ Popular',
-                'filter_recent': '🕒 Recent',
+                // Events
+                'rec_title': 'Available Events',
+                'virtual': 'Virtual',
+                'presencial': 'In-person',
                 'share_btn': 'Share',
                 'subscribe_btn': 'Subscribe',
+                'login_to_subscribe': 'Log in to subscribe',
+                'view_reviews': 'View reviews',
+                'eres_organizador': 'You are the organizer',
+                // Pagination
+                'previous': 'Previous',
+                'next': 'Next',
+                'first': 'First',
+                'last': 'Last',
+                'page': 'Page',
+                'of': 'of',
+                // Map
                 'map_title': 'Events near you',
                 'map_placeholder': 'Enter an address...',
                 'map_btn': 'View map',
-                'footer_copyright': 'All rights reserved.',
+                // Profile and user
                 'edit_profile': 'Edit Profile',
                 'change_password': 'Change Password',
                 'logout': 'Logout',
@@ -335,6 +389,32 @@
                 'select_all': 'Select all',
                 'clear_all': 'Clear all',
                 'register_btn': 'Sign up',
+                'member_since': 'Member since',
+                'personal_details': 'Personal details',
+                'registered_on': 'Registered on',
+                'no_preferences': "You haven't selected any preferences yet.",
+                'avatar': 'Avatar',
+                'address': 'Address',
+                'bio': 'Biography',
+                'website': 'Website',
+                'twitter': 'Twitter',
+                'instagram': 'Instagram',
+                'linkedin': 'LinkedIn',
+                'receive_notifications': 'Receive notifications',
+                'receive_newsletter': 'Receive newsletter',
+                // Profile sections
+                'eventos_organizados_title': 'Events I organize',
+                'eventos_virtuales_seguimiento': 'Virtual events I follow',
+                'eventos_presenciales_suscritos': 'Subscribed in-person events',
+                'mis_favoritos': 'My favorite events',
+                'favoritos_count': 'favorites',
+                'ver_evento': 'View event',
+                'quitar_favorito': 'Remove favorite',
+                'gestionar': 'Manage',
+                'ver': 'View',
+                'eliminar': 'Delete',
+                'cancelar_subscripcion': 'Cancel subscription',
+                // Contact
                 'contact_title': 'How can we help you?',
                 'contact_subtitle': 'Whether you need support or want to share your experience, we are here to listen.',
                 'support_title': 'Live support',
@@ -349,77 +429,21 @@
                 'rating': 'Rating',
                 'comment': 'Comment',
                 'send_review': 'Send review',
+                'type': 'Inquiry type',
                 'subject': 'Subject',
                 'message': 'Message',
                 'send_message': 'Send message',
-                'my_events_list': 'My Events',
-                'explore_events': 'Explore Events',
-                'my_preferences': 'My Preferences',
-                'cancel_subscription': 'Cancel Subscription',
-                'admin_panel': 'Admin Panel',
-                'organizer_panel': 'Organizer Panel',
-                'exhibitor_panel': 'Exhibitor Panel',
-                'spectator_panel': 'Spectator Panel',
-                'manage_users': 'Manage users',
-                'manage_events': 'Manage events',
-                'view_stats': 'View statistics',
-                'my_stands': 'My Stands',
-                'request_stand': 'Request stand',
-                'my_talks': 'Talks',
-                'request_talk': 'Request talk',
-                'my_participations': 'My Participations',
-                'create_event': 'Create Event',
-                'manage_requests': 'Manage requests',
-                'password_actual': 'Current password',
-                'new_password': 'New password',
-                'confirm_new_password': 'Confirm new password',
-                'cancel': 'Cancel',
-                'save_changes': 'Save changes',
-                'member_since': 'Member since',
-                'personal_details': 'Personal details',
-                'registered_on': 'Registered on',
-                'coming_soon': 'Coming soon',
-                'explore_hint': 'When your classmates integrate their modules, real events will appear here.',
-                'explore_btn': 'Explore events',
-                'no_preferences': "You haven't selected any preferences yet.",
-                'avatar': 'Avatar',
-                'address': 'Address',
-                'bio': 'Biography',
-                'website': 'Website',
-                'twitter': 'Twitter',
-                'instagram': 'Instagram',
-                'linkedin': 'LinkedIn',
-                'receive_notifications': 'Receive notifications',
-                'receive_newsletter': 'Receive newsletter',
-                'forgot_password_title': 'Forgot your password?',
-                'forgot_password_subtitle': 'We will send you a link to reset it',
-                'send_instructions': 'Send instructions',
-                'back_to_login': 'Back to login',
-                'go_to_admin': 'Go to admin panel',
-                'manage_events_desc': 'Approve and manage organizer events.',
-                'manage_events_btn': 'Manage events',
-                'view_stats_desc': 'View platform metrics.',
-                'view_reports': 'View reports',
-                'my_events_desc': 'Manage events you have created.',
-                'view_my_events': 'View my events',
-                'create_event_desc': 'Add a new event to the platform.',
-                'create_event_btn': 'Create event',
-                'manage_requests_desc': 'Review exhibitor requests.',
-                'manage_requests_btn': 'Manage requests',
-                'my_stands_desc': 'Request stands at events.',
-                'my_talks_desc': 'Request talks at events.',
-                'my_participations_desc': 'View events you participate in.',
-                'view_participations': 'View participations',
-                'my_events_desc_spectator': 'Events you are subscribed to.',
-                'explore_events_desc': 'Discover new events.',
-                'my_preferences_desc': 'Personalize your event feed.',
-                'ejemplo_conferencia': 'Example: Tech Conference',
-                'edit_preferences_title': 'Edit my preferences',
-                'edit_preferences': 'Edit preferences',
-                'login_to_subscribe': 'Log in to subscribe',
-                'no_suscripciones': "You haven't subscribed to any events yet.",
-                'subscriptions_count': 'subscriptions',
-                'back_home': '← Back to home',
+                // Event detail
+                'description_label': 'Description',
+                'duration_label': 'Duration',
+                'minutes_unit': 'minutes',
+                'privacy_label': 'Privacy',
+                'organizer': 'Organizer',
+                'reviews_section': 'Reviews',
+                'no_reviews': 'No reviews yet. Be the first to comment!',
+                'write_review': 'Write a review',
+                'back_home': 'Back to home',
+                // Static pages
                 'about_title': 'About EventPulse',
                 'about_text1': 'EventPulse is an event management platform designed to connect organizers, exhibitors and attendees in one place.',
                 'about_text2': 'Our mission is to facilitate the creation, dissemination and participation in in-person and virtual events, offering a modern, responsive and accessible experience for everyone.',
@@ -452,15 +476,107 @@
                 'privacy_security_title': '6. Security',
                 'privacy_security_text': 'We implement security measures to protect your information, but remember that no system is 100% secure.',
                 'last_update': 'Last updated: April 5, 2026',
-                'event_id': 'Event ID',
-                'event_title': 'Event title',
-                'type': 'Inquiry type',
-                'reviews_section': 'Reviews',
-                'no_reviews': 'There are no reviews for this event yet. Be the first to comment!',
-                'view_reviews': 'View reviews',
+                // Legal notice and cookies
+                'aviso_legal_title': 'Legal Notice',
+                'aviso_legal_intro': 'In compliance with the duty of information contained in Article 10 of Law 34/2002, of July 11, on Information Society Services and Electronic Commerce, the following data is reflected:',
+                'cookie_policy_title': 'Cookie Policy',
+                'cookie_policy_intro': 'In compliance with the provisions of Article 22.2 of Law 34/2002...',
+                // Other
+                'footer_copyright': 'All rights reserved.',
                 'about_link': 'About',
                 'terms_link': 'Terms and Conditions',
-                'privacy_link': 'Privacy Policy'
+                'privacy_link': 'Privacy Policy',
+                'aviso_legal_link': 'Legal Notice',
+                'cookie_policy_link': 'Cookie Policy',
+                'event_title': 'Event title',
+                'date_label': 'Date',
+                'virtual_type': 'Virtual',
+                'duration': 'Duration',
+                'privacy': 'Privacy',
+                'organizer': 'Organizer',
+                'reviews_section': 'Reviews',
+                'no_reviews': 'No reviews yet. Be the first to comment!',
+                'view_reviews': 'View reviews',
+                'delete_event': 'Delete',
+                'forgot_password_title': 'Forgot your password?',
+                'forgot_password_subtitle': 'We will send you a link to reset it',
+                'send_instructions': 'Send instructions',
+                'back_to_login': 'Back to login',
+                'go_to_admin': 'Go to admin panel',
+                'manage_events_desc': 'Approve and manage organizer events.',
+                'manage_events_btn': 'Manage events',
+                'view_stats_desc': 'View platform metrics.',
+                'view_reports': 'View reports',
+                'my_events_desc': 'Manage events you have created.',
+                'view_my_events': 'View my events',
+                'create_event_desc': 'Add a new event to the platform.',
+                'create_event_btn': 'Create event',
+                'manage_requests_desc': 'Review exhibitor requests.',
+                'manage_requests_btn': 'Manage requests',
+                'my_stands_desc': 'Request stands at events.',
+                'my_talks_desc': 'Request talks at events.',
+                'my_participations_desc': 'View events you participate in.',
+                'view_participations': 'View participations',
+                'my_events_desc_spectator': 'Events you are subscribed to.',
+                'explore_events_desc': 'Discover new events.',
+                'my_preferences_desc': 'Personalize your event feed.',
+                'edit_preferences_title': 'Edit my preferences',
+                'edit_preferences': 'Edit preferences',
+                'no_suscripciones': "You haven't subscribed to any events yet.",
+                'subscriptions_count': 'subscriptions',
+                'coming_soon': 'Coming soon',
+                'explore_hint': 'When your classmates integrate their modules, real events will appear here.',
+                'explore_btn': 'Explore events',
+                'metrics_title': 'Platform Metrics',
+                'total_users': 'Registered users',
+                'total_subscriptions': 'Event subscriptions',
+                'total_approved_reviews': 'Approved reviews',
+                'total_inquiries': 'Inquiries received',
+                'back_to_admin': '← Back to admin panel',
+                'edit_profile_subtitle': 'Update your personal data and preferences',
+                'select_event': 'Select an event',
+                'select_event_optional': 'Select an event (optional)',
+                'not_registered': 'Not registered',
+                'aviso_legal_link': 'Legal Notice',
+                'cookie_policy_link': 'Cookie Policy',
+                // Legal notice
+                'aviso_legal_section1_title': '1. IDENTIFICATION DATA',
+                'aviso_legal_section1_text': 'In compliance with the duty of information contained in Article 10 of Law 34/2002, of July 11, on Information Society Services and Electronic Commerce, the following data is reflected:',
+                'aviso_legal_section2_title': '2. INTELLECTUAL AND INDUSTRIAL PROPERTY',
+                'aviso_legal_section2_text': 'The design of the website and its source codes, as well as the logos, trademarks and other distinctive signs appearing therein, belong to its owner and are protected by the corresponding intellectual and industrial property rights.',
+                'aviso_legal_section3_title': '3. TERMS OF USE',
+                'aviso_legal_section3_text': 'Access to this website is the sole responsibility of the user. Access does not imply acceptance of the terms and conditions described herein, which must be explicitly accepted at the time of registration. The user agrees to make appropriate and lawful use of the site.',
+
+                // Cookie policy
+                'cookie_policy_what_title': 'What are cookies?',
+                'cookie_policy_what_text': 'A cookie is a file that is downloaded to your computer when accessing certain web pages. Cookies allow a web page, among other things, to store and retrieve information about the browsing habits of a user or their computer and, depending on the information they contain and the way you use your computer, they can be used to recognize the user.',
+                'cookie_policy_types_title': 'Types of cookies used by this website',
+                'cookie_policy_types_text': 'This website uses the following types of cookies:',
+                'cookie_policy_type_essential': '<strong>Technical or necessary cookies:</strong> These are those that allow the user to navigate through a web page, platform or application and use the different options or services that exist therein. These cookies are essential and cannot be disabled in our systems.',
+                'cookie_policy_type_analytics': '<strong>Analysis or measurement cookies:</strong> These are those that allow the person responsible for them to monitor and analyze the behavior of users of the websites to which they are linked. The information collected through this type of cookie is used to measure the activity of the websites, application or platform, in order to introduce improvements based on the analysis of the usage data made by the service users. (Currently, your platform does not use this type of third-party cookies, but it is reported for transparency).',
+                'cookie_policy_disable_title': 'How can I disable cookies?',
+                'cookie_policy_disable_text': 'You can allow, block or delete the cookies installed on your computer by configuring the options of the browser installed on your computer:',
+                'cookie_policy_link_chrome': 'Chrome',
+                'cookie_policy_link_firefox': 'Firefox',
+                'cookie_policy_link_ie': 'Internet Explorer',
+                'cookie_policy_link_safari': 'Safari',
+                'last_update_date': 'April 5, 2026',
+                'aviso_legal_responsable': '<strong>Responsible:</strong> [Your Full Name / Team Name]',
+                'aviso_legal_nif': '<strong>Tax ID:</strong> [Your Tax ID]',
+                'aviso_legal_domicilio': '<strong>Address:</strong> [Your address or university address]',
+                'aviso_legal_email': '<strong>Email:</strong> [Your email]',
+                'aviso_legal_social': '<strong>Company name:</strong> EventPulse',
+                'save_changes': 'Save changes',
+                'cancel': 'Cancel',
+                'choose_file': 'Choose file',
+                'no_file_selected': 'No file selected',
+                
+                'last_update_with_date': 'Last updated: April 5, 2026',
+                'aviso_legal_responsable_label': 'Responsible:',
+                'aviso_legal_nif_label': 'Tax ID:',
+                'aviso_legal_domicilio_label': 'Address:',
+                'aviso_legal_email_label': 'Email:',
+                'aviso_legal_social_label': 'Company name:',
             }
         };
 
@@ -633,10 +749,12 @@
         </div>
     </main>
 
-    <footer class="w-full border-t py-8 mt-12" style="background-color: var(--surface-container-low); border-color: var(--border-outline-variant);">
+    <footer class="w-full border-t py-8 mt-12">
         <div class="max-w-7xl mx-auto px-4 text-center text-sm" style="color: var(--text-on-surface-variant);">
             <div class="flex flex-wrap justify-center gap-4 mb-3">
                 <a href="{% url 'core:about' %}" class="hover:underline transition-colors" data-i18n="about_link">Acerca de</a>
+                <a href="{% url 'core:aviso_legal' %}" class="hover:underline transition-colors" data-i18n="aviso_legal_link">Aviso Legal</a>
+                <a href="{% url 'core:politica_cookies' %}" class="hover:underline transition-colors" data-i18n="cookie_policy_link">Política de Cookies</a>
                 <a href="{% url 'core:terms' %}" class="hover:underline transition-colors" data-i18n="terms_link">Términos y condiciones</a>
                 <a href="{% url 'core:privacy' %}" class="hover:underline transition-colors" data-i18n="privacy_link">Política de privacidad</a>
             </div>
@@ -644,78 +762,63 @@
         </div>
     </footer>
 
-<!-- Mensajes de Django convertidos a toasts con traducción condicional -->
-{% if messages %}
-<div id="django-messages-data" style="display: none;" data-messages='[
-    {% for message in messages %}
-        {"text": "{{ message|escapejs }}", "tags": "{{ message.tags }}"}{% if not forloop.last %},{% endif %}
-    {% endfor %}
-]'></div>
-<script>
-    // Diccionario de traducción de mensajes comunes (español -> inglés)
-    const messageTranslations = {
-        // Login/registro
-        "Email o contraseña incorrectos": "Incorrect email or password",
-        "¡Bienvenido/a de nuevo": "Welcome back",
-        "¡Bienvenido/a": "Welcome",
-        "Has cerrado sesión correctamente.": "You have been logged out successfully.",
-        "Se ha enviado un enlace de recuperación a": "A recovery link has been sent to",
-        "No existe una cuenta con este email": "No account exists with this email",
-        "Este email ya está registrado": "This email is already registered",
-        "Las contraseñas no coinciden": "Passwords do not match",
-        "Debes seleccionar al menos 3 categorías.": "You must select at least 3 categories.",
-        "Perfil actualizado correctamente.": "Profile updated successfully.",
-        "Contraseña cambiada correctamente.": "Password changed successfully.",
-        "La contraseña actual es incorrecta": "Current password is incorrect",
-        "Tus preferencias se han actualizado correctamente.": "Your preferences have been updated successfully.",
-        // Suscripciones
-        " Te has suscrito a": " You have subscribed to",
-        " Ya estabas suscrito a": " You were already subscribed to",
-        " Has cancelado tu suscripción a": " You have cancelled your subscription to",
-        // Contacto
-        "¡Gracias por tu reseña! Será revisada por nuestro equipo.": "Thank you for your review! It will be reviewed by our team.",
-        "Hubo un error al enviar la reseña. Revisa los datos.": "There was an error sending the review. Check your data.",
-        "Consulta enviada correctamente. Te responderemos pronto.": "Inquiry sent successfully. We will reply soon.",
-        "Hubo un error al enviar la consulta. Revisa los datos.": "There was an error sending the inquiry. Check your data.",
-        // Otros
-        "Debes iniciar sesión para enviar una reseña o consulta.": "You must log in to send a review or inquiry.",
-    };
-
-    function translateMessage(text) {
-        // Solo traducir si el idioma actual es inglés
-        if (typeof currentLang !== 'undefined' && currentLang === 'en') {
-            // Buscar traducción exacta
-            if (messageTranslations[text]) {
-                return messageTranslations[text];
-            }
-            // Buscar traducción por prefijo (para mensajes con variables)
-            for (let key in messageTranslations) {
-                if (text.startsWith(key)) {
-                    return text.replace(key, messageTranslations[key]);
+    <!-- Mensajes de Django convertidos a toasts con traducción condicional -->
+    {% if messages %}
+    <div id="django-messages-data" style="display: none;" data-messages='[
+        {% for message in messages %}
+            {"text": "{{ message|escapejs }}", "tags": "{{ message.tags }}"}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]'></div>
+    <script>
+        const messageTranslations = {
+            "Email o contraseña incorrectos": "Incorrect email or password",
+            "¡Bienvenido/a de nuevo": "Welcome back",
+            "¡Bienvenido/a": "Welcome",
+            "Has cerrado sesión correctamente.": "You have been logged out successfully.",
+            "Se ha enviado un enlace de recuperación a": "A recovery link has been sent to",
+            "No existe una cuenta con este email": "No account exists with this email",
+            "Este email ya está registrado": "This email is already registered",
+            "Las contraseñas no coinciden": "Passwords do not match",
+            "Debes seleccionar al menos 3 categorías.": "You must select at least 3 categories.",
+            "Perfil actualizado correctamente.": "Profile updated successfully.",
+            "Contraseña cambiada correctamente.": "Password changed successfully.",
+            "La contraseña actual es incorrecta": "Current password is incorrect",
+            "Tus preferencias se han actualizado correctamente.": "Your preferences have been updated successfully.",
+            " Te has suscrito a": " You have subscribed to",
+            " Ya estabas suscrito a": " You were already subscribed to",
+            " Has cancelado tu suscripción a": " You have cancelled your subscription to",
+            "¡Gracias por tu reseña! Será revisada por nuestro equipo.": "Thank you for your review! It will be reviewed by our team.",
+            "Hubo un error al enviar la reseña. Revisa los datos.": "There was an error sending the review. Check your data.",
+            "Consulta enviada correctamente. Te responderemos pronto.": "Inquiry sent successfully. We will reply soon.",
+            "Hubo un error al enviar la consulta. Revisa los datos.": "There was an error sending the inquiry. Check your data.",
+            "Debes iniciar sesión para enviar una reseña o consulta.": "You must log in to send a review or inquiry.",
+        };
+        function translateMessage(text) {
+            if (typeof currentLang !== 'undefined' && currentLang === 'en') {
+                if (messageTranslations[text]) return messageTranslations[text];
+                for (let key in messageTranslations) {
+                    if (text.startsWith(key)) return text.replace(key, messageTranslations[key]);
                 }
             }
+            return text;
         }
-        // Si no es inglés o no hay traducción, devolver el texto original
-        return text;
-    }
+        document.addEventListener('DOMContentLoaded', function() {
+            const messagesDiv = document.getElementById('django-messages-data');
+            if (messagesDiv) {
+                const messages = JSON.parse(messagesDiv.getAttribute('data-messages'));
+                messages.forEach(function(msg) {
+                    let type = 'info';
+                    if (msg.tags === 'error') type = 'error';
+                    else if (msg.tags === 'success') type = 'success';
+                    const translatedText = translateMessage(msg.text);
+                    showToast(translatedText, type);
+                });
+            }
+        });
+    </script>
+    {% endif %}
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const messagesDiv = document.getElementById('django-messages-data');
-        if (messagesDiv) {
-            const messages = JSON.parse(messagesDiv.getAttribute('data-messages'));
-            messages.forEach(function(msg) {
-                let type = 'info';
-                if (msg.tags === 'error') type = 'error';
-                else if (msg.tags === 'success') type = 'success';
-                const translatedText = translateMessage(msg.text);
-                showToast(translatedText, type);
-            });
-        }
-    });
-</script>
-{% endif %}
-
-    <!-- Toast notifications (floating) -->
+    <!-- Toast notifications -->
     <style>
         .toast-container {
             position: fixed;
@@ -745,21 +848,11 @@
             transition: transform 0.3s ease;
             pointer-events: none;
         }
-        .toast.show {
-            transform: translateX(0);
-        }
-        .toast.success {
-            border-left-color: #10b981;
-        }
-        .toast.error {
-            border-left-color: #ef4444;
-        }
-        .toast.info {
-            border-left-color: var(--primary);
-        }
-        .toast .toast-icon {
-            font-size: 1.25rem;
-        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { border-left-color: #10b981; }
+        .toast.error { border-left-color: #ef4444; }
+        .toast.info { border-left-color: var(--primary); }
+        .toast .toast-icon { font-size: 1.25rem; }
     </style>
     <div class="toast-container" id="toast-container"></div>
     <script>
@@ -767,10 +860,7 @@
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            let icon = '';
-            if (type === 'success') icon = '✅';
-            else if (type === 'error') icon = '❌';
-            else icon = 'ℹ️';
+            let icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
             toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
             container.appendChild(toast);
             setTimeout(() => toast.classList.add('show'), 10);
@@ -781,32 +871,42 @@
         }
     </script>
 
-    <!-- Modal de confirmación para eliminar evento -->
-    <div id="deleteEventModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300">
-        <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="deleteEventModalContent">
-            <div class="p-6 text-center">
-                <div class="mx-auto w-16 h-16 mb-4 rounded-full bg-red-100 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-on-surface mb-2">¿Eliminar evento?</h3>
-                <p class="text-on-surface-variant mb-2">Esta acción no se puede deshacer.</p>
-                <p class="text-sm font-medium text-on-surface-variant bg-surface-container-high inline-block px-3 py-1 rounded-full mb-4" id="deleteEventTitle"></p>
-                <div class="flex gap-3 justify-center">
-                    <button type="button" id="cancelDeleteBtn" class="px-5 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-semibold hover:bg-surface-container-high transition-colors">
-                        Cancelar
-                    </button>
-                    <form id="deleteEventForm" method="post" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="px-5 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors shadow-sm">
-                            Sí, eliminar
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Banner de cookies -->
+    {% if cookie_consent_required %}
+    <script>
+    (function() {
+        function getCookie(name) {
+            let value = "; " + document.cookie;
+            let parts = value.split("; " + name + "=");
+            if (parts.length === 2) return parts.pop().split(";").shift();
+        }
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                let date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+        if (getCookie('cookie_consent') === 'accepted') return;
+        var banner = document.createElement('div');
+        banner.id = 'cookie-banner';
+        banner.style.cssText = 'position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: #e2e8f0; padding: 1rem; text-align: center; z-index: 9999; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; font-family: system-ui, sans-serif;';
+        banner.innerHTML = `
+            <span>Usamos cookies esenciales para el funcionamiento de la plataforma. Al continuar navegando, aceptas su uso.</span>
+            <button id="accept-cookies" style="background: #3b82f6; border: none; padding: 0.5rem 1.2rem; border-radius: 2rem; color: white; cursor: pointer; font-weight: bold;">Aceptar</button>
+            <a href="/politica-cookies/" style="color: #94a3b8; text-decoration: underline;">Más información</a>
+        `;
+        document.body.appendChild(banner);
+        document.getElementById('accept-cookies').addEventListener('click', function() {
+            setCookie('cookie_consent', 'accepted', 365);
+            banner.remove();
+        });
+    })();
+    </script>
+    {% endif %}
+    {% block extra_js %}{% endblock %}
 
     <!-- Modal de confirmación para eliminar evento -->
     <div id="deleteEventModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300">
@@ -834,7 +934,7 @@
             </div>
         </div>
     </div>
-
+    
     <script>
         // ==================== MODAL ELIMINAR EVENTO ====================
         document.addEventListener('DOMContentLoaded', function() {
@@ -910,7 +1010,7 @@
             const observer = new MutationObserver(setupDeleteButtons);
             observer.observe(document.body, { childList: true, subtree: true });
         });
-    </script>
-    
+    </script>    
+
 </body>
 </html>

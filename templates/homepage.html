@@ -1,7 +1,25 @@
 {% extends "base_stitch.html" %}
 {% load static %}
 {% block title %}EventPulse - Descubre Eventos{% endblock %}
+
+{% block extra_css %}
+<style>
+    .like-icon {
+        font-variation-settings: 'FILL' 0;
+        transition: transform 0.2s ease;
+    }
+    .like-icon.filled {
+        font-variation-settings: 'FILL' 1;
+    }
+    .like-btn:hover .like-icon {
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+
+<!-- Hero -->
 <section class="mb-12">
     <div class="rounded-2xl p-8 text-center" style="background: linear-gradient(135deg, var(--primary) 0%, var(--surface-container-low) 100%);">
         <h1 class="text-4xl md:text-5xl font-bold mb-4" style="color: var(--text-on-surface);" data-i18n="hero_title">Descubre Experiencias Increíbles</h1>
@@ -13,61 +31,64 @@
     </div>
 </section>
 
+<!-- Filtro de categorías (pills) -->
 <section class="mb-12">
     <h2 class="text-2xl font-bold mb-6" style="color: var(--text-on-surface);" data-i18n="cat_title">Explorar por Categoría</h2>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+    <div class="flex flex-wrap gap-3">
+        <a href="{% url 'core:home' %}" class="rounded-full px-5 py-2 text-sm font-medium transition-all {% if not categoria_seleccionada %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}" data-i18n="all_categories">
+            Todas
+        </a>
         {% for cat in categorias %}
-        <a href="?categoria={{ cat.nombre }}" class="rounded-xl p-4 text-center shadow-sm hover:shadow-md transition cursor-pointer" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
-            <span class="material-symbols-outlined text-3xl" style="color: var(--primary);">
-                {% if cat.icono == 'theater_comedy' %}theater_comedy
-                {% elif cat.icono == 'sports_dance' %}sports_dance
-                {% elif cat.icono == 'school' %}school
-                {% elif cat.icono == 'handyman' %}handyman
-                {% else %}{{ cat.icono|default:"event" }}
-                {% endif %}
-            </span>
-            <p class="mt-2 font-medium category-name" style="color: var(--text-on-surface);" data-cat-original="{{ cat.nombre }}">{{ cat.nombre }}</p>
+        <a href="?categoria={{ cat.nombre }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" class="rounded-full px-5 py-2 text-sm font-medium transition-all flex items-center gap-2 {% if categoria_seleccionada == cat.nombre %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
+            <span class="material-symbols-outlined text-base">{{ cat.icono|default:"category" }}</span>
+            <span class="category-name" data-cat-original="{{ cat.nombre }}">{{ cat.nombre }}</span>
         </a>
         {% endfor %}
     </div>
 </section>
 
+<!-- Lista de eventos -->
 <section class="mb-12">
     <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold" style="color: var(--text-on-surface);" data-i18n="rec_title">Recomendados para ti</h2>
-        <div class="flex gap-2">
-            {% if categoria_seleccionada or busqueda %}
-            <a href="{% url 'core:home' %}" class="p-2 rounded-full border transition-colors text-sm" style="border-color: var(--border-outline-variant); color: var(--text-on-surface-variant);">
-                ✖ Limpiar filtros
-            </a>
-            {% endif %}
-        </div>
+        <h2 class="text-2xl font-bold" style="color: var(--text-on-surface);" data-i18n="rec_title">Eventos disponibles</h2>
     </div>
+
     {% if eventos %}
-    <div class="relative overflow-x-auto pb-4 custom-scrollbar">
-        <div class="flex gap-6" style="width: max-content;">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for evento in eventos %}
-            <div class="w-[400px] rounded-xl shadow-sm overflow-hidden flex flex-col group" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
-                <div class="h-64 overflow-hidden">
+            <div class="rounded-xl shadow-sm overflow-hidden flex flex-col group" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
+                <div class="h-48 overflow-hidden">
                     <img src="{{ evento.imagen }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" alt="{{ evento.titulo }}">
                 </div>
                 <div class="p-4 flex flex-col flex-grow">
                     <h3 class="font-bold text-xl" style="color: var(--text-on-surface);">{{ evento.titulo }}</h3>
-                    
                     <div class="mt-2 mb-2">
                         <span class="text-xs px-2 py-1 rounded-full {% if evento.tipo == 'virtual' %}bg-blue-100 text-blue-800{% else %}bg-green-100 text-green-800{% endif %}">
-                            {% if evento.tipo == 'virtual' %}Virtual{% else %}Presencial{% endif %}
+                            {% if evento.tipo == 'virtual' %}<span data-i18n="virtual">Virtual</span>{% else %}<span data-i18n="presencial">Presencial</span>{% endif %}
                         </span>
                     </div>
-                    
-                    <div class="flex items-center gap-1">
-                        <span class="material-symbols-outlined text-yellow-500 text-base" style="font-variation-settings: 'FILL' 1;">star</span>
-                        <span class="text-sm font-bold" style="color: var(--text-on-surface);">4.5</span>
-                        <span class="text-xs ml-1" style="color: var(--text-on-surface-variant);">(120)</span>
+
+                    <!-- Calificación + corazón -->
+                    <div class="flex items-center justify-between mt-2">
+                        <div class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-yellow-500 text-base" style="font-variation-settings: 'FILL' 1;">star</span>
+                            <span class="text-sm font-bold" style="color: var(--text-on-surface);">{{ evento.promedio|default:"0" }}</span>
+                            <span class="text-xs ml-1" style="color: var(--text-on-surface-variant);">({{ evento.total_resenas }})</span>
+                        </div>
+                        {% if user.is_authenticated %}
+                            <button class="like-btn text-red-500 transition hover:scale-110 focus:outline-none" data-evento-id="{{ evento.id }}">
+                                <span class="material-symbols-outlined like-icon {% if evento.es_favorito %}filled{% endif %}">favorite</span>
+                            </button>
+                        {% else %}
+                            <a href="{% url 'usuarios:login' %}" class="text-red-400">
+                                <span class="material-symbols-outlined">favorite_border</span>
+                            </a>
+                        {% endif %}
                     </div>
-                    
+
+                    <!-- Botones de acción -->
                     <div class="flex flex-col gap-2 mt-4">
-                        {% if user_authenticated %}
+                        {% if user.is_authenticated %}
                             {% if evento.creado_por != user.id %}
                                 <form method="post" action="{% url 'core:suscribirse' %}" class="w-full">
                                     {% csrf_token %}
@@ -76,53 +97,53 @@
                                     <input type="hidden" name="titulo" value="{{ evento.titulo }}">
                                     <input type="hidden" name="fecha" value="{{ evento.fecha }}">
                                     <input type="hidden" name="imagen" value="{{ evento.imagen }}">
-                                    <button type="submit" class="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition">
-                                        <span data-i18n="subscribe_btn">Suscribirse</span>
+                                    <button type="submit" class="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition" data-i18n="subscribe_btn">
+                                        Suscribirse
                                     </button>
                                 </form>
                             {% else %}
-                                <div class="w-full py-2.5 bg-gray-200 text-gray-500 rounded-xl text-sm font-semibold text-center">
-                                    Eres el organizador
-                                </div>
+                                <div class="w-full py-2.5 bg-gray-200 text-gray-500 rounded-xl text-sm font-semibold text-center" data-i18n="eres_organizador">Eres el organizador</div>
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'usuarios:login' %}" class="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-semibold text-center hover:opacity-90 transition">
-                                <span data-i18n="login_to_subscribe">Iniciar sesión</span>
+                            <a href="{% url 'usuarios:login' %}" class="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-semibold text-center hover:opacity-90 transition" data-i18n="login_to_subscribe">
+                                Iniciar sesión
                             </a>
                         {% endif %}
-                        
+
                         <div class="flex gap-2">
+                            <!-- Compartir -->
                             <div class="relative share-wrapper flex-1">
                                 <button class="share-trigger w-full py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);">
                                     <i class="fas fa-share-alt"></i> <span data-i18n="share_btn">Compartir</span>
                                 </button>
                                 <div class="share-menu hidden absolute right-0 bottom-full mb-2 w-56 rounded-xl shadow-xl z-30 p-3" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
                                     <div class="grid grid-cols-2 gap-3">
-                                        <button class="share-facebook flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                        <button class="share-facebook flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ evento.id }}">
                                             <i class="fab fa-facebook-f text-xl" style="color: #1877f2;"></i>
                                             <span class="text-xs">Facebook</span>
                                         </button>
-                                        <button class="share-twitter flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                        <button class="share-twitter flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ evento.id }}">
                                             <i class="fab fa-x-twitter text-xl" style="color: #000000;"></i>
                                             <span class="text-xs">X</span>
                                         </button>
-                                        <button class="share-whatsapp flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                        <button class="share-whatsapp flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ evento.id }}">
                                             <i class="fab fa-whatsapp text-xl" style="color: #25D366;"></i>
                                             <span class="text-xs">WhatsApp</span>
                                         </button>
-                                        <button class="share-telegram flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                        <button class="share-telegram flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ evento.id }}">
                                             <i class="fab fa-telegram-plane text-xl" style="color: #26A5E4;"></i>
                                             <span class="text-xs">Telegram</span>
                                         </button>
-                                        <button class="share-copy flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition col-span-2" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ forloop.counter0 }}">
+                                        <button class="share-copy flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition col-span-2" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ evento.id }}">
                                             <i class="fas fa-link text-xl" style="color: var(--text-on-surface-variant);"></i>
                                             <span class="text-xs">Copiar enlace</span>
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                            <a href="{% url 'virtualEvent:event_detail' evento.id %}" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition text-center" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);">
-                                <span class="material-symbols-outlined text-base align-middle">rate_review</span> <span data-i18n="view_reviews">Reseñas</span>
+                            <!-- Ver reseñas -->
+                            <a href="{% url 'virtualEvent:event_detail' evento.id %}" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition text-center" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);" data-i18n="view_reviews">
+                                <span class="material-symbols-outlined text-base align-middle">rate_review</span> Reseñas
                             </a>
                         </div>
                     </div>
@@ -130,15 +151,31 @@
             </div>
             {% endfor %}
         </div>
-    </div>
+
+        <!-- Paginación -->
+        {% if paginator.num_pages > 1 %}
+        <div class="flex justify-center mt-12 gap-2">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" class="px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition" data-i18n="first">&laquo;</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" class="px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition" data-i18n="previous">Anterior</a>
+            {% endif %}
+            <span class="px-4 py-2 rounded-lg bg-primary text-white"><span data-i18n="page">Página</span> {{ page_obj.number }} <span data-i18n="of">de</span> {{ paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" class="px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition" data-i18n="next">Siguiente</a>
+                <a href="?page={{ paginator.num_pages }}{% if categoria_seleccionada %}&categoria={{ categoria_seleccionada }}{% endif %}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" class="px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition" data-i18n="last">&raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
     {% else %}
-    <div class="text-center py-8">
-        <p class="text-on-surface-variant">No se encontraron eventos con esos criterios.</p>
-        <a href="{% url 'core:home' %}" class="text-primary hover:underline">Mostrar todos los eventos</a>
-    </div>
+        <div class="text-center py-8">
+            <p class="text-on-surface-variant">No se encontraron eventos con esos criterios.</p>
+            <a href="{% url 'core:home' %}" class="text-primary hover:underline">Mostrar todos los eventos</a>
+        </div>
     {% endif %}
 </section>
 
+<!-- Mapa -->
 <section class="mb-12">
     <h2 class="text-2xl font-bold mb-4" style="color: var(--text-on-surface);" data-i18n="map_title">Eventos cerca de ti</h2>
     <div class="rounded-xl overflow-hidden shadow-sm" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
@@ -148,12 +185,13 @@
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-on-surface-variant);">location_on</span>
                 <input type="text" id="search-location" class="w-full pl-9 pr-4 py-2 rounded-lg border-none" style="background-color: var(--surface-container-low); color: var(--text-on-surface);" data-i18n-placeholder="map_placeholder" placeholder="Ingresa una dirección...">
             </div>
-            <button id="search-map" class="px-6 py-2 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition" onclick="searchLocation()" data-i18n="map_btn">Ver mapa</button>
+            <button id="search-map" class="px-6 py-2 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition" data-i18n="map_btn">Ver mapa</button>
         </div>
     </div>
 </section>
 
 <script>
+    // Mapa (ejemplo) - sin cambios
     const eventosMapa = [
         { titulo: "Concierto Rock 2025", categoria: "Conciertos", lat: -12.0464, lng: -77.0428, direccion: "Centro de Lima, Perú", fecha: "15/05/2025" },
         { titulo: "Teatro Nacional", categoria: "Teatro", lat: -12.0621, lng: -77.0365, direccion: "San Borja, Lima", fecha: "20/06/2025" },
@@ -217,6 +255,7 @@
         const searchBtn = document.getElementById('search-map');
         if (searchBtn) searchBtn.onclick = (e) => { e.preventDefault(); searchLocation(); };
 
+        // Menús de compartir
         const shareTriggers = document.querySelectorAll('.share-trigger');
         shareTriggers.forEach(trigger => {
             trigger.addEventListener('click', (e) => {
@@ -257,6 +296,40 @@
                     alert('❌ No se pudo copiar. Copia manualmente: ' + url);
                 }
             });
+        });
+    });
+
+    // Like (AJAX)
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+               document.querySelector('meta[name="csrf-token"]')?.content;
+    }
+
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const eventoId = this.dataset.eventoId;
+            const icon = this.querySelector('.like-icon');
+            
+            fetch("{% url 'core:toggle_favorito' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'evento_id': eventoId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.liked) {
+                    icon.classList.add('filled');
+                } else {
+                    icon.classList.remove('filled');
+                }
+            })
+            .catch(error => console.error('Error:', error));
         });
     });
 </script>

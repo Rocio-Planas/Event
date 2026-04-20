@@ -16,7 +16,6 @@
             <div class="space-y-1.5">
                 <div class="flex justify-between">
                     <label class="block text-[0.75rem] font-bold uppercase tracking-wider text-on-surface-variant" for="id_password" data-i18n="password">Contraseña</label>
-                    <!-- Enlace corregido: usa el nombre 'password_reset' (sin namespace) -->
                     <a href="{% url 'password_reset' %}" class="text-[0.75rem] font-bold text-primary hover:text-primary-container transition-colors" data-i18n="forgot_password">¿Olvidaste?</a>
                 </div>
                 <input type="password" name="password" id="id_password" class="w-full px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none transition-all" required>

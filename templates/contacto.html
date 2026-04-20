@@ -9,7 +9,6 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <!-- Sidebar informativo -->
         <div class="lg:col-span-4 flex flex-col gap-6">
             <div class="p-6 rounded-xl shadow-sm border" style="background-color: var(--surface-container-lowest); border-color: var(--border-outline-variant);">
                 <span class="material-symbols-outlined mb-4" style="color: var(--primary); font-size: 32px;">support_agent</span>
@@ -28,7 +27,6 @@
             </div>
         </div>
 
-        <!-- Formulario con pestañas -->
         <div class="lg:col-span-8 rounded-xl shadow-sm border overflow-hidden" style="background-color: var(--surface-container-lowest); border-color: var(--border-outline-variant);">
             <div class="flex border-b" style="border-color: var(--border-outline-variant);">
                 <button class="flex-1 py-4 text-sm font-bold tracking-wider uppercase border-b-2 border-primary text-primary transition-colors" id="tab-review" data-i18n="tab_review">Enviar reseña</button>
@@ -49,10 +47,14 @@
                             {{ review_form.email }}
                         </div>
                     </div>
-                    <!-- Selector de evento (nuevo) -->
                     <div>
                         <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event">Evento</label>
-                        {{ review_form.evento }}
+                        <select name="evento" id="id_evento" class="w-full px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none transition-all">
+                            <option value="" selected data-i18n="select_event">Seleccione un evento</option>
+                            {% for evento in review_form.evento.field.queryset %}
+                                <option value="{{ evento.id }}">{{ evento.title }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div>
                         <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="rating">Calificación</label>
@@ -83,10 +85,14 @@
                         <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="type">Tipo de consulta</label>
                         {{ inquiry_form.tipo }}
                     </div>
-                    <!-- Selector de evento (opcional) -->
                     <div>
                         <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event">Evento (opcional)</label>
-                        {{ inquiry_form.evento }}
+                        <select name="evento" id="id_evento_inquiry" class="w-full px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none transition-all">
+                            <option value="" selected data-i18n="select_event_optional">Seleccione un evento (opcional)</option>
+                            {% for evento in inquiry_form.evento.field.queryset %}
+                                <option value="{{ evento.id }}">{{ evento.title }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div>
                         <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="subject">Asunto</label>
@@ -103,7 +109,7 @@
     </div>
 </div>
 
-<!-- Modal del chat (flotante) -->
+<!-- Modal del chat -->
 <div id="chat-modal" class="fixed bottom-5 right-5 w-96 bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant hidden z-50 flex flex-col">
     <div class="p-4 border-b border-outline-variant flex justify-between items-center">
         <h3 class="font-bold text-on-surface">Chat de soporte</h3>
@@ -116,11 +122,9 @@
     </div>
 </div>
 
-<!-- Datos del chat (evita errores de sintaxis) -->
 {{ chat_config|json_script:"chat-config" }}
 
 <script>
-    // Leer configuración del chat
     const chatConfig = JSON.parse(document.getElementById('chat-config').textContent);
     const chatAvailable = chatConfig.available;
     const userId = chatConfig.user_id;
@@ -207,7 +211,6 @@
         if (pollingInterval) clearInterval(pollingInterval);
     });
 
-    // Manejo de pestañas (reseña/consulta)
     const tabReview = document.getElementById('tab-review');
     const tabInquiry = document.getElementById('tab-inquiry');
     const formReview = document.getElementById('form-review');

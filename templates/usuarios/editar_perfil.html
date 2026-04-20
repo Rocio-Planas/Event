@@ -10,10 +10,9 @@
                 <p class="text-on-surface-variant" data-i18n="edit_profile_subtitle">Actualiza tus datos personales y preferencias</p>
             </header>
             
-            <form method="post" enctype="multipart/form-data" class="space-y-8">
+            <form method="post" enctype="multipart/form-data" class="space-y-8" id="perfilForm">
                 {% csrf_token %}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                    <!-- Primera columna -->
                     <div class="space-y-6">
                         <div>
                             <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="first_name">Nombre</label>
@@ -37,7 +36,14 @@
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="avatar">Avatar</label>
-                            {{ form.avatar }}
+                            <!-- Input file personalizado -->
+                            <div class="flex items-center gap-4 flex-wrap">
+                                <div class="relative">
+                                    <input type="file" name="avatar" id="id_avatar" class="hidden" accept="image/*">
+                                    <button type="button" id="custom-avatar-btn" class="px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg hover:bg-surface-container-higher transition" data-i18n="choose_file">Elegir archivo</button>
+                                </div>
+                                <span id="file-name" class="text-sm text-on-surface-variant" data-i18n="no_file_selected">No se ha seleccionado ningún archivo</span>
+                            </div>
                             {% if user.avatar %}
                                 <div class="mt-3">
                                     <img src="{{ user.avatar.url }}" class="w-20 h-20 rounded-full object-cover border-2 border-primary shadow-sm">
@@ -46,7 +52,6 @@
                         </div>
                     </div>
                     
-                    <!-- Segunda columna -->
                     <div class="space-y-6">
                         <div>
                             <label class="block text-sm font-semibold text-on-surface-variant mb-1.5" data-i18n="address">Dirección</label>
@@ -75,7 +80,6 @@
                     </div>
                 </div>
                 
-                <!-- Notificaciones -->
                 <div class="pt-6 border-t border-outline-variant/30">
                     <div class="flex flex-wrap gap-8">
                         <label class="flex items-center gap-3 cursor-pointer">
@@ -89,9 +93,7 @@
                     </div>
                 </div>
                 
-                <!-- Botones -->
                 <div class="flex flex-wrap justify-end gap-4 pt-4">
-                    <!-- CORREGIDO: añadido namespace 'usuarios:' -->
                     <a href="{% url 'usuarios:perfil' %}" class="px-6 py-2.5 border border-outline-variant rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 font-medium" data-i18n="cancel">Cancelar</a>
                     <button type="submit" class="px-8 py-2.5 btn-gradient-primary text-white rounded-xl font-semibold hover:shadow-lg hover:scale-[1.02] transition-all duration-200" data-i18n="save_changes">Guardar cambios</button>
                 </div>
@@ -99,4 +101,34 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Personalizar input file para traducción
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('id_avatar');
+        const customBtn = document.getElementById('custom-avatar-btn');
+        const fileNameSpan = document.getElementById('file-name');
+
+        if (customBtn && fileInput) {
+            customBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    fileNameSpan.textContent = fileInput.files[0].name;
+                    fileNameSpan.removeAttribute('data-i18n');
+                } else {
+                    fileNameSpan.setAttribute('data-i18n', 'no_file_selected');
+                    // Forzar la traducción del texto según el idioma actual
+                    if (typeof currentLang !== 'undefined' && translations[currentLang]) {
+                        fileNameSpan.textContent = translations[currentLang]['no_file_selected'] || 'No se ha seleccionado ningún archivo';
+                    } else {
+                        fileNameSpan.textContent = 'No se ha seleccionado ningún archivo';
+                    }
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

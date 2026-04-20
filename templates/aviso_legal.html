@@ -1,0 +1,33 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}Aviso Legal - EventPulse{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8">
+        <h1 class="text-3xl font-bold text-on-surface mb-6" data-i18n="aviso_legal_title">Aviso Legal</h1>
+        <p class="text-on-surface-variant mb-4" data-i18n="last_update_with_date">Última actualización: 5 de abril de 2026</p>
+
+        <h2 class="text-xl font-bold text-on-surface mt-6 mb-2" data-i18n="aviso_legal_section1_title">1. DATOS IDENTIFICATIVOS</h2>
+        <p class="text-on-surface-variant mb-4" data-i18n="aviso_legal_section1_text">En cumplimiento con el deber de información recogido en el artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico, a continuación se reflejan los siguientes datos:</p>
+        <ul class="list-disc list-inside text-on-surface-variant mb-4">
+            <li><span data-i18n="aviso_legal_responsable_label">Responsable:</span> [Tu Nombre Completo / Nombre del Equipo]</li>
+            <li><span data-i18n="aviso_legal_nif_label">NIF/CIF:</span> [Tu NIF/NIE o el del proyecto]</li>
+            <li><span data-i18n="aviso_legal_domicilio_label">Domicilio:</span> [Tu dirección o la de la universidad]</li>
+            <li><span data-i18n="aviso_legal_email_label">Correo electrónico:</span> [Tu correo electrónico]</li>
+            <li><span data-i18n="aviso_legal_social_label">Denominación social:</span> EventPulse</li>
+        </ul>
+
+        <h2 class="text-xl font-bold text-on-surface mt-6 mb-2" data-i18n="aviso_legal_section2_title">2. PROPIEDAD INTELECTUAL E INDUSTRIAL</h2>
+        <p class="text-on-surface-variant mb-4" data-i18n="aviso_legal_section2_text">El diseño de la página web y sus códigos fuente, así como los logotipos, marcas y demás signos distintivos que aparecen en el mismo, pertenecen a su responsable y están protegidos por los correspondientes derechos de propiedad intelectual e industrial.</p>
+
+        <h2 class="text-xl font-bold text-on-surface mt-6 mb-2" data-i18n="aviso_legal_section3_title">3. CONDICIONES DE USO</h2>
+        <p class="text-on-surface-variant mb-4" data-i18n="aviso_legal_section3_text">El acceso a este sitio web es responsabilidad exclusiva del usuario. El acceso no implica la aceptación de los términos y condiciones aquí descritos, que sí deben ser aceptados explícitamente en el momento del registro. El usuario se compromete a hacer un uso adecuado y lícito del sitio.</p>
+
+        <div class="mt-8 text-center">
+            <a href="{% url 'core:home' %}" class="text-primary hover:underline flex items-center justify-center gap-1" data-i18n="back_home">
+                <span class="material-symbols-outlined text-sm">arrow_back</span> Volver al inicio
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
