@@ -510,3 +510,26 @@ body {
   color: var(--primary) !important;
   border-color: var(--primary) !important;
 }
+
+/* ===== CORRECCIÓN PARA MATERIAL COMPARTIDO EN MODO OSCURO ===== */
+
+.dark .material-shared .material-item a,
+.dark .material-shared .material-item span,
+.dark .material-shared .material-item {
+  color: var(--text-on-surface) !important;
+}
+
+.dark .material-shared .material-item .text-muted,
+.dark .material-shared .material-item small {
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dark .material-shared,
+.dark .material-shared * {
+  color: var(--text-on-surface) !important;
+}
+
+.dark .material-shared h5,
+.dark .material-shared .h5 {
+  color: var(--text-on-surface-variant) !important;
+}

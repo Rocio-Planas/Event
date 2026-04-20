@@ -64,7 +64,12 @@
                     <div class="flex gap-2 mt-4">
                         <a href="{% url 'virtualEvent:organizer_dashboard' evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold bg-primary text-white rounded-lg hover:opacity-90">Gestionar</a>
                         <a href="{% url 'virtualEvent:event_detail' evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high">Ver</a>
-                        <a href="#" onclick="alert('Eliminar evento (pendiente)')" class="flex-1 text-center py-2 text-sm font-semibold border border-error/20 text-error rounded-lg hover:bg-error-container/20">Eliminar</a>
+                        <button type="button" 
+                            class="open-delete-modal flex-1 text-center py-2 text-sm font-semibold border border-error/20 text-error rounded-lg hover:bg-error-container/20"
+                            data-event-id="{{ evento.id }}"
+                            data-event-title="{{ evento.title }}">
+                            Eliminar
+                        </button>
                     </div>
                 </div>
             </div>
@@ -179,4 +184,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
