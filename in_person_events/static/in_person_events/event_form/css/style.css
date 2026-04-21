@@ -1,0 +1,257 @@
+/* Stratos Event Suite - Custom Styles */
+:root {
+    --primary-color: #0058be;
+    --primary-hover: #004395;
+    --bg-surface: #f8f9ff;
+    --input-bg: #f0f7ff;
+    --text-main: #0b1c30;
+    --text-variant: #424754;
+    --border-color: #d3e4fe;
+    --error-color: #ba1a1a;
+}
+
+body {
+    font-family: "Inter", sans-serif;
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+}
+
+.glass-nav {
+    background: rgba(248, 249, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.nav-link-active {
+    color: var(--primary-color) !important;
+    font-weight: 600;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.card-custom {
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid rgba(211, 228, 254, 0.5);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.form-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-variant);
+    margin-bottom: 0.5rem;
+}
+
+.form-control-custom {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s;
+}
+
+.form-control-custom:focus {
+    background-color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(0, 88, 190, 0.1);
+    outline: none;
+}
+
+.map-placeholder {
+    height: 250px;
+    background-color: var(--input-bg);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border: 1px solid var(--border-color);
+}
+
+.visibility-card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.visibility-card:hover {
+    border-color: rgba(0, 88, 190, 0.3);
+}
+
+.visibility-card.active {
+    background-color: rgba(0, 88, 190, 0.05);
+    border-color: var(--primary-color);
+}
+
+.visibility-card input {
+    position: absolute;
+    opacity: 0;
+}
+
+.ticket-item {
+    background-color: var(--input-bg);
+    border: 1px solid rgba(211, 228, 254, 0.5);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.ticket-item.vip {
+    border-left: 4px solid var(--primary-color);
+}
+
+.upload-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 1rem;
+    padding: 3rem;
+    text-align: center;
+    transition: all 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-zone input[type="file"] {
+    display: none;
+    pointer-events: none;
+}
+
+.upload-zone:hover {
+    border-color: var(--primary-color);
+    background-color: var(--input-bg);
+}
+
+.image-preview-container {
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.image-preview-empty {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.image-preview-empty img {
+    max-height: 150px;
+    width: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.btn-primary-custom {
+    background: linear-gradient(135deg, #0058be 0%, #2170e4 100%);
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 0.75rem 2.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-primary-custom:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.btn-outline-custom {
+    color: var(--primary-color);
+    font-weight: 700;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+}
+
+.btn-outline-custom:hover {
+    background-color: rgba(0, 88, 190, 0.05);
+}
+
+/* Event Form Styles */
+.ev-field-group {
+    margin-bottom: 1.5rem;
+}
+
+.ev-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-variant);
+    margin-bottom: 0.5rem;
+}
+
+.ev-drop-zone {
+    border: 2px dashed var(--border-color) !important;
+    background-color: #f8fafc;
+    border-radius: 1.25rem !important;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.ev-drop-zone:hover {
+    border-color: var(--primary-color) !important;
+    background-color: #eff6ff;
+}
+
+.ev-drop-zone input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.ev-upload-icon {
+    margin-bottom: 1rem;
+}
+
+.ev-preview-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 1.25rem !important;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f5f9;
+}
+
+.ev-preview-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ev-preview-container .btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0.5rem;
+}

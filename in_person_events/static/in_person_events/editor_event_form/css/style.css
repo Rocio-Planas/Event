@@ -1,0 +1,228 @@
+/* Stratos Event Suite - Custom Styles */
+:root {
+    --primary-color: #0058be;
+    --primary-gradient: linear-gradient(135deg, #0058be 0%, #2170e4 100%);
+    --surface-bg: #f8f9ff;
+    --card-bg: #ffffff;
+    --text-main: #0b1c30;
+    --text-muted: #424754;
+    --border-color: rgba(114, 119, 133, 0.1);
+    --input-bg: #eff4ff;
+}
+
+body {
+    background-color: var(--surface-bg);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+.app-header {
+    background: rgba(248, 249, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.btn-save {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-save:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 88, 190, 0.2);
+    color: white;
+}
+
+/* Cards */
+.event-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 32px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    margin-bottom: 24px;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-title i {
+    color: var(--primary-color);
+}
+
+/* Inputs */
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+    background-color: var(--input-bg);
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--text-main);
+    transition: all 0.2s;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--input-bg);
+    box-shadow: 0 0 0 2px var(--primary-color);
+    outline: none;
+}
+
+.form-control-custom {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s;
+}
+
+.form-control-custom:focus {
+    background-color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(0, 88, 190, 0.1);
+    outline: none;
+}
+
+/* Ticket Items */
+.ticket-item {
+    background: var(--input-bg);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.ticket-item:hover {
+    border-color: rgba(0, 88, 190, 0.2);
+}
+
+.ticket-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 88, 190, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+}
+
+/* Upload Zone */
+.upload-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    background: var(--input-bg);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.upload-zone:hover {
+    background: #e5eeff;
+    border-color: var(--primary-color);
+}
+
+.upload-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(0, 88, 190, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    color: var(--primary-color);
+}
+
+/* Privacy Options */
+.privacy-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.privacy-option:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.privacy-option.active {
+    background: rgba(0, 88, 190, 0.05);
+}
+
+/* Status Badge */
+.status-badge {
+    background: rgba(0, 108, 73, 0.05);
+    border: 1px solid rgba(0, 108, 73, 0.1);
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #006c49;
+    display: inline-block;
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Material Symbols */
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+}

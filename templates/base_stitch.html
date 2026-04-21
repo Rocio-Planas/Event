@@ -1,5 +1,5 @@
 {% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html class="light" lang="es">
 <head>
     <meta charset="UTF-8">
@@ -464,174 +464,304 @@
             }
         };
 
-        let currentLang = localStorage.getItem('lang') || 'es';
+            let currentLang = localStorage.getItem("lang") || "es";
 
-        function applyTranslations() {
-            const t = translations[currentLang];
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key]) {
-                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                        if (el.hasAttribute('placeholder')) el.placeholder = t[key];
-                        else el.value = t[key];
+            function applyTranslations() {
+                const t = translations[currentLang];
+                document.querySelectorAll("[data-i18n]").forEach((el) => {
+                    const key = el.getAttribute("data-i18n");
+                    if (t[key]) {
+                        if (
+                            el.tagName === "INPUT" ||
+                            el.tagName === "TEXTAREA"
+                        ) {
+                            if (el.hasAttribute("placeholder"))
+                                el.placeholder = t[key];
+                            else el.value = t[key];
+                        } else {
+                            el.innerText = t[key];
+                        }
+                    }
+                });
+                document
+                    .querySelectorAll("[data-i18n-placeholder]")
+                    .forEach((el) => {
+                        const key = el.getAttribute("data-i18n-placeholder");
+                        if (t[key]) el.placeholder = t[key];
+                    });
+                document.querySelectorAll(".category-name").forEach((el) => {
+                    const catOriginal = el.getAttribute("data-cat-original");
+                    if (catOriginal && t[`cat_${catOriginal}`]) {
+                        el.innerText = t[`cat_${catOriginal}`];
+                    }
+                });
+                const langEs = document.getElementById("lang-es");
+                const langEn = document.getElementById("lang-en");
+                if (langEs && langEn) {
+                    if (currentLang === "es") {
+                        langEs.classList.add(
+                            "bg-white",
+                            "shadow-sm",
+                            "text-primary",
+                        );
+                        langEs.classList.remove("text-slate-500");
+                        langEn.classList.remove(
+                            "bg-white",
+                            "shadow-sm",
+                            "text-primary",
+                        );
+                        langEn.classList.add("text-slate-500");
                     } else {
-                        el.innerText = t[key];
+                        langEn.classList.add(
+                            "bg-white",
+                            "shadow-sm",
+                            "text-primary",
+                        );
+                        langEn.classList.remove("text-slate-500");
+                        langEs.classList.remove(
+                            "bg-white",
+                            "shadow-sm",
+                            "text-primary",
+                        );
+                        langEs.classList.add("text-slate-500");
                     }
                 }
-            });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                if (t[key]) el.placeholder = t[key];
-            });
-            document.querySelectorAll('.category-name').forEach(el => {
-                const catOriginal = el.getAttribute('data-cat-original');
-                if (catOriginal && t[`cat_${catOriginal}`]) {
-                    el.innerText = t[`cat_${catOriginal}`];
-                }
-            });
-            const langEs = document.getElementById('lang-es');
-            const langEn = document.getElementById('lang-en');
-            if (langEs && langEn) {
-                if (currentLang === 'es') {
-                    langEs.classList.add('bg-white', 'shadow-sm', 'text-primary');
-                    langEs.classList.remove('text-slate-500');
-                    langEn.classList.remove('bg-white', 'shadow-sm', 'text-primary');
-                    langEn.classList.add('text-slate-500');
+            }
+
+            function setLanguage(lang) {
+                currentLang = lang;
+                localStorage.setItem("lang", lang);
+                document.documentElement.lang = lang === "es" ? "es" : "en";
+                applyTranslations();
+                window.dispatchEvent(
+                    new CustomEvent("languageChanged", {
+                        detail: { lang: lang },
+                    }),
+                );
+            }
+
+            function initTheme() {
+                const storedTheme = localStorage.getItem("theme");
+                const html = document.documentElement;
+                if (storedTheme === "dark") {
+                    html.classList.add("dark");
+                    html.classList.remove("light");
+                } else if (storedTheme === "light") {
+                    html.classList.add("light");
+                    html.classList.remove("dark");
                 } else {
-                    langEn.classList.add('bg-white', 'shadow-sm', 'text-primary');
-                    langEn.classList.remove('text-slate-500');
-                    langEs.classList.remove('bg-white', 'shadow-sm', 'text-primary');
-                    langEs.classList.add('text-slate-500');
-                }
-            }
-        }
-
-        function setLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('lang', lang);
-            document.documentElement.lang = lang === 'es' ? 'es' : 'en';
-            applyTranslations();
-            window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: lang } }));
-        }
-
-        function initTheme() {
-            const storedTheme = localStorage.getItem('theme');
-            const html = document.documentElement;
-            if (storedTheme === 'dark') {
-                html.classList.add('dark');
-                html.classList.remove('light');
-            } else if (storedTheme === 'light') {
-                html.classList.add('light');
-                html.classList.remove('dark');
-            } else {
-                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    html.classList.add('dark');
-                    html.classList.remove('light');
-                } else {
-                    html.classList.add('light');
-                    html.classList.remove('dark');
-                }
-            }
-            updateThemeIcon();
-        }
-
-        function toggleTheme() {
-            const html = document.documentElement;
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                html.classList.add('light');
-                localStorage.setItem('theme', 'light');
-            } else {
-                html.classList.remove('light');
-                html.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-            }
-            updateThemeIcon();
-        }
-
-        function updateThemeIcon() {
-            const icon = document.getElementById('theme-icon');
-            if (!icon) return;
-            if (document.documentElement.classList.contains('dark')) {
-                icon.textContent = 'dark_mode';
-            } else {
-                icon.textContent = 'light_mode';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            initTheme();
-            const themeToggle = document.getElementById('theme-toggle');
-            if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
-            setLanguage(currentLang);
-            const langEs = document.getElementById('lang-es');
-            const langEn = document.getElementById('lang-en');
-            if (langEs) langEs.addEventListener('click', () => setLanguage('es'));
-            if (langEn) langEn.addEventListener('click', () => setLanguage('en'));
-
-            const userMenuBtn = document.getElementById('user-menu-btn');
-            const userMenu = document.getElementById('user-menu');
-            if (userMenuBtn) {
-                userMenuBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    userMenu.classList.toggle('hidden');
-                });
-                document.addEventListener('click', (e) => {
-                    if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
-                        userMenu.classList.add('hidden');
+                    if (
+                        window.matchMedia("(prefers-color-scheme: dark)")
+                            .matches
+                    ) {
+                        html.classList.add("dark");
+                        html.classList.remove("light");
+                    } else {
+                        html.classList.add("light");
+                        html.classList.remove("dark");
                     }
-                });
+                }
+                updateThemeIcon();
             }
-        });
-    </script>
-</head>
-<body class="min-h-screen flex flex-col">
-    <nav class="fixed top-0 w-full z-50 backdrop-blur-md shadow-sm" style="background-color: var(--surface-container-low); border-bottom: 1px solid var(--border-outline-variant);">
-        <div class="flex justify-between items-center px-6 py-3 max-w-7xl mx-auto w-full">
-            <div class="flex items-center gap-8">
-                <span class="text-xl font-bold tracking-tight text-on-surface">EventPulse</span>
-                <div class="hidden md:flex items-center gap-6">
-                    <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="{% url 'core:home' %}" data-i18n="nav_inicio">Inicio</a>
-                    <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="#" onclick="alert('Próximamente: Eventos Presenciales')" data-i18n="nav_presenciales">Eventos Presenciales</a>
-                    <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="{% url 'virtualEvent:event_create' %}" data-i18n="nav_virtuales">Eventos Virtuales</a>
-                    <a class="font-sans text-sm font-medium transition-colors duration-200" style="color: var(--text-on-surface-variant);" href="{% url 'core:contacto' %}" data-i18n="nav_contacto">Contacto</a>
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <div class="flex items-center rounded-full px-3 py-1 gap-2" style="background-color: var(--surface-container-high);">
-                    <button class="text-xs font-bold px-2 py-1 rounded-full bg-white shadow-sm text-primary" id="lang-es">ES</button>
-                    <button class="text-xs font-bold px-2 py-1 text-slate-500" id="lang-en">EN</button>
-                </div>
-                <button class="p-2 rounded-full hover:bg-surface-container-high transition-colors active:scale-95" id="theme-toggle">
-                    <span class="material-symbols-outlined" id="theme-icon" style="color: var(--text-on-surface);">light_mode</span>
-                </button>
-                {% if user.is_authenticated %}
-                <div class="relative">
-                    <button class="flex items-center gap-2" id="user-menu-btn">
-                        {% if user.avatar %}
-                            <img src="{{ user.avatar.url }}" class="w-8 h-8 rounded-full object-cover">
-                        {% else %}
-                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold">{{ user.first_name|first|default:"U" }}</div>
-                        {% endif %}
-                    </button>
-                    <div class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-2 z-50" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);" id="user-menu">
-                        <a href="{% url 'usuarios:dashboard' %}" class="block px-4 py-2 text-sm hover:bg-surface-container-high" data-i18n="my_dashboard">Mi Panel</a>
-                        <a href="{% url 'usuarios:perfil' %}" class="block px-4 py-2 text-sm hover:bg-surface-container-high" data-i18n="my_profile">Mi Perfil</a>
+
+            function toggleTheme() {
+                const html = document.documentElement;
+                if (html.classList.contains("dark")) {
+                    html.classList.remove("dark");
+                    html.classList.add("light");
+                    localStorage.setItem("theme", "light");
+                } else {
+                    html.classList.remove("light");
+                    html.classList.add("dark");
+                    localStorage.setItem("theme", "dark");
+                }
+                updateThemeIcon();
+            }
+
+            function updateThemeIcon() {
+                const icon = document.getElementById("theme-icon");
+                if (!icon) return;
+                if (document.documentElement.classList.contains("dark")) {
+                    icon.textContent = "dark_mode";
+                } else {
+                    icon.textContent = "light_mode";
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                initTheme();
+                const themeToggle = document.getElementById("theme-toggle");
+                if (themeToggle)
+                    themeToggle.addEventListener("click", toggleTheme);
+                setLanguage(currentLang);
+                const langEs = document.getElementById("lang-es");
+                const langEn = document.getElementById("lang-en");
+                if (langEs)
+                    langEs.addEventListener("click", () => setLanguage("es"));
+                if (langEn)
+                    langEn.addEventListener("click", () => setLanguage("en"));
+
+                const userMenuBtn = document.getElementById("user-menu-btn");
+                const userMenu = document.getElementById("user-menu");
+                if (userMenuBtn) {
+                    userMenuBtn.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        userMenu.classList.toggle("hidden");
+                    });
+                    document.addEventListener("click", (e) => {
+                        if (
+                            !userMenuBtn.contains(e.target) &&
+                            !userMenu.contains(e.target)
+                        ) {
+                            userMenu.classList.add("hidden");
+                        }
+                    });
+                }
+            });
+        </script>
+    </head>
+    <body class="min-h-screen flex flex-col">
+        <nav
+            class="fixed top-0 w-full z-50 backdrop-blur-md shadow-sm"
+            style="
+                background-color: var(--surface-container-low);
+                border-bottom: 1px solid var(--border-outline-variant);
+            "
+        >
+            <div
+                class="flex justify-between items-center px-6 py-3 max-w-7xl mx-auto w-full"
+            >
+                <div class="flex items-center gap-8">
+                    <span
+                        class="text-xl font-bold tracking-tight text-on-surface"
+                        >EventPulse</span
+                    >
+                    <div class="hidden md:flex items-center gap-6">
+                        <a
+                            class="font-sans text-sm font-medium transition-colors duration-200"
+                            style="color: var(--text-on-surface-variant)"
+                            href="{% url 'core:home' %}"
+                            data-i18n="nav_inicio"
+                            >Inicio</a
+                        >
+                        <a
+                            class="font-sans text-sm font-medium transition-colors duration-200"
+                            style="color: var(--text-on-surface-variant)"
+                            href="{% url 'in_person_events:create_event_form' %}"
+                            data-i18n="nav_presenciales"
+                            >Eventos Presenciales</a
+                        >
+                        <a
+                            class="font-sans text-sm font-medium transition-colors duration-200"
+                            style="color: var(--text-on-surface-variant)"
+                            href="{% url 'virtualEvent:event_create' %}"
+                            data-i18n="nav_virtuales"
+                            >Eventos Virtuales</a
+                        >
+                        <a
+                            class="font-sans text-sm font-medium transition-colors duration-200"
+                            style="color: var(--text-on-surface-variant)"
+                            href="{% url 'core:contacto' %}"
+                            data-i18n="nav_contacto"
+                            >Contacto</a
+                        >
                     </div>
                 </div>
-                {% else %}
-                <a href="{% url 'usuarios:login' %}" class="text-sm font-semibold px-4 py-2 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white transition" data-i18n="login">Login</a>
-                <a href="{% url 'usuarios:registro' %}" class="text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-white shadow-sm" data-i18n="register">Registro</a>
-                {% endif %}
+                <div class="flex items-center gap-4">
+                    <div
+                        class="flex items-center rounded-full px-3 py-1 gap-2"
+                        style="background-color: var(--surface-container-high)"
+                    >
+                        <button
+                            class="text-xs font-bold px-2 py-1 rounded-full bg-white shadow-sm text-primary"
+                            id="lang-es"
+                        >
+                            ES
+                        </button>
+                        <button
+                            class="text-xs font-bold px-2 py-1 text-slate-500"
+                            id="lang-en"
+                        >
+                            EN
+                        </button>
+                    </div>
+                    <button
+                        class="p-2 rounded-full hover:bg-surface-container-high transition-colors active:scale-95"
+                        id="theme-toggle"
+                    >
+                        <span
+                            class="material-symbols-outlined"
+                            id="theme-icon"
+                            style="color: var(--text-on-surface)"
+                            >light_mode</span
+                        >
+                    </button>
+                    {% if user.is_authenticated %}
+                    <div class="relative">
+                        <button
+                            class="flex items-center gap-2"
+                            id="user-menu-btn"
+                        >
+                            {% if user.avatar %}
+                            <img
+                                src="{{ user.avatar.url }}"
+                                class="w-8 h-8 rounded-full object-cover"
+                            />
+                            {% else %}
+                            <div
+                                class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold"
+                            >
+                                {{ user.first_name|first|default:"U" }}
+                            </div>
+                            {% endif %}
+                        </button>
+                        <div
+                            class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-2 z-50"
+                            style="
+                                background-color: var(
+                                    --surface-container-lowest
+                                );
+                                border: 1px solid var(--border-outline-variant);
+                            "
+                            id="user-menu"
+                        >
+                            <a
+                                href="{% url 'usuarios:dashboard' %}"
+                                class="block px-4 py-2 text-sm hover:bg-surface-container-high"
+                                data-i18n="my_dashboard"
+                                >Mi Panel</a
+                            >
+                            <a
+                                href="{% url 'usuarios:perfil' %}"
+                                class="block px-4 py-2 text-sm hover:bg-surface-container-high"
+                                data-i18n="my_profile"
+                                >Mi Perfil</a
+                            >
+                        </div>
+                    </div>
+                    {% else %}
+                    <a
+                        href="{% url 'usuarios:login' %}"
+                        class="text-sm font-semibold px-4 py-2 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white transition"
+                        data-i18n="login"
+                        >Login</a
+                    >
+                    <a
+                        href="{% url 'usuarios:registro' %}"
+                        class="text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-white shadow-sm"
+                        data-i18n="register"
+                        >Registro</a
+                    >
+                    {% endif %}
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <main class="flex-grow pt-24">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {% block content %}{% endblock %}
-        </div>
-    </main>
+        <main class="flex-grow pt-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
 
     <footer class="w-full border-t py-8 mt-12" style="background-color: var(--surface-container-low); border-color: var(--border-outline-variant);">
         <div class="max-w-7xl mx-auto px-4 text-center text-sm" style="color: var(--text-on-surface-variant);">
@@ -640,9 +770,7 @@
                 <a href="{% url 'core:terms' %}" class="hover:underline transition-colors" data-i18n="terms_link">Términos y condiciones</a>
                 <a href="{% url 'core:privacy' %}" class="hover:underline transition-colors" data-i18n="privacy_link">Política de privacidad</a>
             </div>
-            <div>&copy; {% now "Y" %} EventPulse. <span data-i18n="footer_copyright">Todos los derechos reservados.</span></div>
-        </div>
-    </footer>
+        </footer>
 
 <!-- Mensajes de Django convertidos a toasts con traducción condicional -->
 {% if messages %}
@@ -693,6 +821,8 @@
                 if (text.startsWith(key)) {
                     return text.replace(key, messageTranslations[key]);
                 }
+                // Si no es inglés o no hay traducción, devolver el texto original
+                return text;
             }
         }
         // Si no es inglés o no hay traducción, devolver el texto original

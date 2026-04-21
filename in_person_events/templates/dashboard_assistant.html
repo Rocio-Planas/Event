@@ -1,0 +1,397 @@
+<!doctype html>
+{% load static %}
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Asistente de Evento - Concierge 360</title>
+
+        <!-- Common Fonts and Styles -->
+        <link
+            rel="stylesheet"
+            href="{% static 'in_person_events/common/css/fonts.css' %}"
+        />
+        <link
+            rel="stylesheet"
+            href="{% static 'in_person_events/common/css/utils.css' %}"
+        />
+
+        <!-- Dashboard Assistant CSS -->
+        <link
+            rel="stylesheet"
+            href="{% static 'in_person_events/dashboard_assistant/css/style.css' %}"
+        />
+    </head>
+    <body>
+        <!-- Top Navigation Bar -->
+        <header class="glass-header">
+            <div class="max-w-7xl px-6 py-4 header-content">
+                <div class="header-flex">
+                    <span class="concierge-title">Concierge 360</span>
+                    <nav class="nav-links">
+                        <a href="#" class="active">Agenda</a>
+                        <a href="#">Networking</a>
+                        <a href="#">Recursos</a>
+                    </nav>
+                </div>
+                <div class="header-actions">
+                    <button class="notifications-btn material-symbols-outlined">
+                        notifications
+                    </button>
+                    <div class="user-avatar-container">
+                        <img
+                            src="https://picsum.photos/seed/user/100/100"
+                            alt="User profile"
+                            class="user-avatar"
+                        />
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl px-6 py-10">
+            <!-- Event Header -->
+            <section class="grid event-header-section">
+                <div class="event-header-content">
+                    <a href="#" class="back-link">
+                        <span class="material-symbols-outlined back-icon"
+                            >arrow_back</span
+                        >
+                        Volver
+                    </a>
+                    <div>
+                        <div class="status-container">
+                            <span
+                                class="badge"
+                                style="
+                                    background-color: var(
+                                        --secondary-container
+                                    );
+                                    color: var(--secondary);
+                                "
+                                >Inscrito</span
+                            >
+                            <span class="time-remaining"
+                                >Faltan 2 días, 4 horas</span
+                            >
+                        </div>
+                        <h1>Global Tech Summit 2024</h1>
+                        <div class="event-info">
+                            <div class="event-info-item">
+                                <span
+                                    class="material-symbols-outlined event-info-icon"
+                                    >calendar_today</span
+                                >
+                                24 Octubre
+                            </div>
+                            <div class="event-info-item">
+                                <span
+                                    class="material-symbols-outlined event-info-icon"
+                                    >location_on</span
+                                >
+                                SF Convention Center
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="qr-btn-container">
+                    <button class="btn-primary">
+                        <span class="material-symbols-outlined">qr_code_2</span>
+                        Ver mi Ticket QR
+                    </button>
+                </div>
+            </section>
+
+            <!-- Notification Banner -->
+            <div class="notification-banner">
+                <div class="notification-icon-container">
+                    <span class="material-symbols-outlined">campaign</span>
+                </div>
+                <p class="notification-text">
+                    <span class="notification-highlight"
+                        >Aviso importante:</span
+                    >
+                    Cambio de sala para la Charla AI, ahora en el Salón B.
+                </p>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="grid grid-cols-12">
+                <!-- Left Column: Agenda -->
+                <div class="col-span-8 agenda-left-column">
+                    <div class="card">
+                        <div class="agenda-header">
+                            <div>
+                                <h2>Cronograma del Evento</h2>
+                                <p class="agenda-subtitle">
+                                    Actividades destacadas para hoy
+                                </p>
+                            </div>
+                            <a href="#" class="agenda-view-all">
+                                Ver completo
+                                <span
+                                    class="material-symbols-outlined agenda-view-all-icon"
+                                    >arrow_forward</span
+                                >
+                            </a>
+                        </div>
+
+                        <div class="agenda-container">
+                            <!-- Session 1 -->
+                            <div class="agenda-item">
+                                <div class="time-col">
+                                    <span class="time-main">09:00</span>
+                                    <span class="time-period">AM</span>
+                                </div>
+                                <div class="agenda-content">
+                                    <div class="session-meta">
+                                        <span class="badge badge-ai">AI</span>
+                                        <span class="room-info">
+                                            <span
+                                                class="material-symbols-outlined room-icon"
+                                                >meeting_room</span
+                                            >
+                                            Salón Principal
+                                        </span>
+                                    </div>
+                                    <h3 class="session-title">
+                                        The Future of Generative AI
+                                    </h3>
+                                    <p class="session-description">
+                                        Keynote by Sarah Jenkins, Lead AI
+                                        Scientist at Quantum Mind.
+                                    </p>
+                                </div>
+                                <button
+                                    class="bookmark-btn material-symbols-outlined"
+                                >
+                                    bookmark_add
+                                </button>
+                            </div>
+
+                            <!-- Session 2 -->
+                            <div class="agenda-item">
+                                <div class="time-col">
+                                    <span class="time-main">11:30</span>
+                                    <span class="time-period">AM</span>
+                                </div>
+                                <div class="agenda-content">
+                                    <div class="session-meta">
+                                        <span class="badge badge-ux">UX</span>
+                                        <span class="room-info">
+                                            <span
+                                                class="material-symbols-outlined room-icon"
+                                                >meeting_room</span
+                                            >
+                                            Salón B
+                                        </span>
+                                    </div>
+                                    <h3 class="session-title">
+                                        Neuro-design: UX for the Human Brain
+                                    </h3>
+                                    <p class="session-description">
+                                        Interactive workshop on cognitive
+                                        patterns in modern interfaces.
+                                    </p>
+                                </div>
+                                <button
+                                    class="bookmark-btn material-symbols-outlined active"
+                                >
+                                    bookmark
+                                </button>
+                            </div>
+
+                            <!-- Session 3 -->
+                            <div class="agenda-item">
+                                <div class="time-col">
+                                    <span class="time-main">02:00</span>
+                                    <span class="time-period">PM</span>
+                                </div>
+                                <div class="agenda-content">
+                                    <div class="session-meta">
+                                        <span class="badge badge-devops"
+                                            >DEVOPS</span
+                                        >
+                                        <span class="room-info">
+                                            <span
+                                                class="material-symbols-outlined room-icon"
+                                                >meeting_room</span
+                                            >
+                                            Studio 4
+                                        </span>
+                                    </div>
+                                    <h3 class="session-title">
+                                        Scaling to 10M: Lessons Learned
+                                    </h3>
+                                    <p class="session-description">
+                                        Real-world case study on cloud
+                                        infrastructure and high availability.
+                                    </p>
+                                </div>
+                                <button
+                                    class="bookmark-btn material-symbols-outlined"
+                                >
+                                    bookmark_add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resources -->
+                    <div class="resources-section">
+                        <div class="resources-header">
+                            <h2 class="resources-title">
+                                <span
+                                    class="material-symbols-outlined resources-title-icon"
+                                    >folder_open</span
+                                >
+                                Recursos Digitales
+                            </h2>
+                            <a href="#" class="resources-view-all">
+                                Ver todos
+                                <span
+                                    class="material-symbols-outlined resources-view-all-icon"
+                                    >arrow_forward</span
+                                >
+                            </a>
+                        </div>
+                        <div class="resource-grid">
+                            <div class="resource-item">
+                                <div class="resource-content">
+                                    <div
+                                        class="resource-icon-container resource-icon-pdf"
+                                    >
+                                        <span class="material-symbols-outlined"
+                                            >picture_as_pdf</span
+                                        >
+                                    </div>
+                                    <div>
+                                        <span class="resource-text"
+                                            >Presentación.pdf</span
+                                        >
+                                        <span class="resource-meta"
+                                            >2.4 MB</span
+                                        >
+                                    </div>
+                                </div>
+                                <span
+                                    class="material-symbols-outlined resource-action"
+                                    >download</span
+                                >
+                            </div>
+                            <div class="resource-item">
+                                <div class="resource-content">
+                                    <div
+                                        class="resource-icon-container resource-icon-link"
+                                    >
+                                        <span class="material-symbols-outlined"
+                                            >link</span
+                                        >
+                                    </div>
+                                    <div>
+                                        <span class="resource-text"
+                                            >Guía de Enlaces</span
+                                        >
+                                        <span class="resource-meta"
+                                            >Recurso externo</span
+                                        >
+                                    </div>
+                                </div>
+                                <span
+                                    class="material-symbols-outlined resource-action"
+                                    >open_in_new</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Sidebar -->
+                <div class="col-span-4 sidebar-right-column">
+                    <div class="card organizer-card">
+                        <h2 class="organizer-title">Quién lo organiza</h2>
+                        <div class="profile-img-container">
+                            <img
+                                src="https://picsum.photos/seed/organizer/300/300"
+                                alt="Organizador"
+                                class="profile-img"
+                            />
+                            <div class="verified-badge">
+                                <span
+                                    class="material-symbols-outlined verified-icon"
+                                    >verified</span
+                                >
+                            </div>
+                        </div>
+                        <div class="organizer-info">
+                            <h3 class="organizer-name">Juan Pérez</h3>
+                            <p class="organizer-role">CEO, TechEvents Global</p>
+                            <p class="organizer-bio">
+                                Apasionado por conectar mentes brillantes a
+                                través de la tecnología y la innovación con más
+                                de una década de experiencia liderando eventos
+                                de clase mundial.
+                            </p>
+                        </div>
+                        <div class="social-icons">
+                            <!-- Social Icons (Simulated) -->
+                            <div class="social-icon">
+                                <img
+                                    src="https://cdn-icons-png.flaticon.com/512/174/174857.png"
+                                    alt="LinkedIn"
+                                />
+                            </div>
+                            <div class="social-icon">
+                                <img
+                                    src="https://cdn-icons-png.flaticon.com/512/733/733579.png"
+                                    alt="Twitter"
+                                />
+                            </div>
+                            <div class="social-icon">
+                                <span
+                                    class="material-symbols-outlined language-icon"
+                                    >language</span
+                                >
+                            </div>
+                        </div>
+                        <button class="send-message-btn">
+                            <span
+                                class="material-symbols-outlined send-message-icon"
+                                >mail</span
+                            >
+                            Enviar Mensaje
+                        </button>
+                    </div>
+
+                    <div class="card tickets-card">
+                        <div class="tickets-header">
+                            <span
+                                class="material-symbols-outlined confirmation-icon"
+                                >confirmation_number</span
+                            >
+                            <h2 class="tickets-title">Entradas Disponibles</h2>
+                        </div>
+                        <div class="tickets-list">
+                            <div class="ticket-item">
+                                <span class="ticket-name">Entrada General</span>
+                                <span class="ticket-price">25 €</span>
+                            </div>
+                            <div class="ticket-item">
+                                <span class="ticket-name"
+                                    >Pase VIP Early Bird</span
+                                >
+                                <span
+                                    class="ticket-price ticket-price-secondary"
+                                    >75 €</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Custom JS -->
+        <script src="{% static 'in_person_events/dashboard_assistant/js/main.js' %}"></script>
+    </body>
+</html>

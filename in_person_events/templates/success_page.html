@@ -1,0 +1,76 @@
+<!doctype html>
+{% extends "base_bootstrap.html" %} {% load static %} {% block title %}Evento
+Enviado - EventPulse{% endblock %} {% block extra_css %}
+<!-- Common Fonts and Styles -->
+<link
+    rel="stylesheet"
+    href="{% static 'in_person_events/common/css/fonts.css' %}"
+/>
+<link
+    rel="stylesheet"
+    href="{% static 'in_person_events/common/css/utils.css' %}"
+/>
+
+<!-- Custom CSS for Success Page -->
+<link
+    rel="stylesheet"
+    href="{% static 'in_person_events/success_page/css/style.css' %}"
+/>
+{% endblock %} {% block content %}
+<!-- Main Content -->
+<main class="success-container">
+    <!-- Success Header -->
+    <div class="check-icon-wrapper">
+        <div class="check-icon-bg"></div>
+        <div class="check-icon-circle">
+            <span
+                class="material-symbols-outlined"
+                style="font-variation-settings: &quot;FILL&quot; 1"
+                >check_circle</span
+            >
+        </div>
+    </div>
+
+    <h1 class="success-title">¡Enviado a revisión!</h1>
+    <p class="success-subtitle">
+        Tu evento ha sido enviado correctamente y está esperando aprobación.
+    </p>
+
+    <!-- Event Card -->
+    <div class="event-card">
+        <img
+            src="{% if event.image %}{{ event.image.url }}{% else %}https://picsum.photos/seed/tech/1200/600{% endif %}"
+            alt="{{ event.title }}"
+            class="event-card-img"
+            referrerpolicy="no-referrer"
+        />
+        <div class="event-card-overlay">
+            <div class="event-info-panel">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="status-badge">
+                        <span
+                            class="material-symbols-outlined"
+                            style="font-size: 14px"
+                            >hourglass_empty</span
+                        >
+                        En Revisión
+                    </span>
+                    <span class="event-id"
+                        >ID: EV-{{ event.id|stringformat:"04d" }}</span
+                    >
+                </div>
+                <h2 class="event-title">{{ event.title }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Button -->
+    <a href="{% url 'usuarios:dashboard' %}" class="btn btn-primary-custom">
+        <span class="material-symbols-outlined">dashboard</span>
+        Ir a Mi Panel
+    </a>
+</main>
+{% endblock %} {% block extra_js %}
+<!-- Custom JS -->
+<script src="{% static 'in_person_events/success_page/js/main.js' %}"></script>
+{% endblock %}

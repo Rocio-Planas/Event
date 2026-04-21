@@ -36,6 +36,10 @@ urlpatterns = [
     path('streaming/', include('ve_streaming.urls')),
     path('chat/', include('ve_chat.urls')),
     path('invitacion/', include('ve_invitations.urls')),
+    
+    #Eventos presenciales
+    path('eventos-presenciales/', include('in_person_events.urls', namespace='in_person_events')),
+    path('tickets/', include('pe_registration.urls', namespace='pe_registration')),
 ]
 
 if settings.DEBUG:
