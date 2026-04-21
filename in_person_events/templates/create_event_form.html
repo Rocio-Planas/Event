@@ -1,6 +1,16 @@
 {% extends "base_bootstrap.html" %} {% load static %} {% block title %}Crear
 Evento Presencial{% endblock %} {% block extra_css %}
-<!-- Custom CSS -->
+<!-- Common Fonts and Styles -->
+<link
+    rel="stylesheet"
+    href="{% static 'in_person_events/common/css/fonts.css' %}"
+/>
+<link
+    rel="stylesheet"
+    href="{% static 'in_person_events/common/css/utils.css' %}"
+/>
+
+<!-- Custom CSS for Event Form -->
 <link
     rel="stylesheet"
     href="{% static 'in_person_events/event_form/css/style.css' %}"

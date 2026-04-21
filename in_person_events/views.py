@@ -11,13 +11,6 @@ from .models import Event
 from pe_registration.models import TicketType
 from .forms import EventForm
 
-def home(request):
-    """
-    Vista para la página de inicio (home.html).
-    Muestra el botón concierge para crear eventos.
-    """
-    return render(request, 'home.html')
-
 @login_required
 def create_event_form(request):
     """
@@ -134,3 +127,43 @@ def edit_event(request, event_id):
         'ticket_types': ticket_types
     })
 
+
+def configure_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id, organizer=request.user)
+    return render(request, 'configure_event.html', {
+        'event': event,
+        'active_page': 'configuracion'
+    })
+    
+@login_required
+@require_POST
+def delete_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id, organizer=request.user)
+    
+    deleted_event = {
+        'title': event.title,
+        'id': event.id,
+        'image': event.image.url if event.image else None,
+        'category': event.category,
+        'start_date': event.start_date.isoformat() if event.start_date else None,
+    }
+    
+    event.delete()
+    
+    # Guardar en sesión para mostrar en la página de eliminación
+    request.session['deleted_event'] = deleted_event
+    
+    return redirect('in_person_events:delete_page')
+
+
+@login_required
+def delete_page(request):
+    """Página de confirmación después de eliminar un evento."""
+    deleted_event = request.session.pop('deleted_event', None)
+    
+    if not deleted_event:
+        return redirect('in_person_events:create_event_form')
+    
+    return render(request, 'delete_page.html', {
+        'deleted_event': deleted_event
+    })

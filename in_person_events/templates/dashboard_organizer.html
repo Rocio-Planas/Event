@@ -1,99 +1,39 @@
-<!doctype html>
+{% extends "base_sidebar.html" %}
 {% load static %}
-<html lang="es">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Dashboard</title>
 
-        <!-- Bootstrap 5.3 CSS -->
-        <link
-            href="{% static 'in_person_events/common/css/bootstrap.min.css' %}"
-            rel="stylesheet"
-        />
+{% block title %}Dashboard - {{ event.title }}{% endblock %}
 
-        <!-- Google Fonts: Inter -->
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-            rel="stylesheet"
-        />
+{% block extra_head %}
+<!-- Custom CSS -->
+<link
+    rel="stylesheet"
+    href="{% static 'in_person_events/dashboard/css/style.css' %}"
+/>
+{% endblock %}
+{% block content %}
+{% with active_page='resumen' %}
+<!-- Top Bar -->
+<header class="top-bar">
+    <div class="d-flex align-items-center gap-4">
+        <h1>EventHorizon</h1>
+        <nav class="top-nav d-none d-md-flex">
+            <a href="#" class="active">Estado en Vivo</a>
+            <a href="#">Acciones Rápidas</a>
+        </nav>
+    </div>
 
-        <!-- Material Symbols -->
-        <link
-            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-            rel="stylesheet"
-        />
-
-        <!-- Custom CSS -->
-        <link
-            rel="stylesheet"
-            href="{% static 'in_person_events/dashboard/css/style.css' %}"
-        />
-    </head>
-    <body>
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-brand mb-5">
-                <h2>Cumbre Global 2024</h2>
-                <p>Gestor de Eventos</p>
-            </div>
-
-            <nav class="nav flex-column">
-                <a href="#" class="nav-link active">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    Resumen
-                </a>
-                <a href="#" class="nav-link">
-                    <span class="material-symbols-outlined">groups</span>
-                    Asistentes
-                </a>
-                <a href="#" class="nav-link">
-                    <span class="material-symbols-outlined">leaderboard</span>
-                    Analíticas
-                </a>
-                <a href="#" class="nav-link">
-                    <span class="material-symbols-outlined">event_note</span>
-                    Actividades
-                </a>
-                <a href="#" class="nav-link">
-                    <span class="material-symbols-outlined">badge</span>
-                    Equipo
-                </a>
-                <a href="#" class="nav-link">
-                    <span class="material-symbols-outlined">settings</span>
-                    Configuración
-                </a>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Top Bar -->
-            <header class="top-bar">
-                <div class="d-flex align-items-center gap-4">
-                    <h1>EventHorizon</h1>
-                    <nav class="top-nav d-none d-md-flex">
-                        <a href="#" class="active">Estado en Vivo</a>
-                        <a href="#">Acciones Rápidas</a>
-                    </nav>
-                </div>
-
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn p-1 text-secondary">
-                        <span class="material-symbols-outlined"
-                            >notifications</span
-                        >
-                    </button>
-                    <button class="btn p-1 text-secondary">
-                        <span class="material-symbols-outlined"
-                            >help_outline</span
-                        >
-                    </button>
-                    <div class="ms-2">
-                        <img
-                            src="https://picsum.photos/seed/user/32/32"
-                            alt="Profile"
-                            class="rounded-circle border"
+    <div class="d-flex align-items-center gap-3">
+        <button class="btn p-1 text-secondary">
+            <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <button class="btn p-1 text-secondary">
+            <span class="material-symbols-outlined">help_outline</span>
+        </button>
+        <div class="ms-2">
+            <img
+                src="https://picsum.photos/seed/user/32/32"
+                alt="Profile"
+                class="rounded-circle border"
                             referrerpolicy="no-referrer"
                         />
                     </div>
@@ -115,7 +55,10 @@
                             {{ event.title }}
                         </h2>
                     </div>
-                    <a href="{% url 'in_person_events:edit_event' event.id %}" class="btn btn-primary-custom">
+                    <a
+                        href="{% url 'in_person_events:edit_event' event.id %}"
+                        class="btn btn-primary-custom"
+                    >
                         <span class="d-flex align-items-center gap-2">
                             <span class="material-symbols-outlined fs-5"
                                 >edit</span
@@ -209,10 +152,14 @@
                                                         Inicio del Evento
                                                     </p>
                                                     <p class="h5 fw-bold mb-0">
-                                                        {{ event.start_date|date:"d M, Y" }}
+                                                        {{
+                                                        event.start_date|date:"d
+                                                        M, Y" }}
                                                     </p>
                                                     <p class="small text-muted">
-                                                        {{ event.start_date|date:"g:i A" }}
+                                                        {{
+                                                        event.start_date|date:"g:i
+                                                        A" }}
                                                     </p>
                                                 </div>
                                                 <div class="col-6 ps-4">
@@ -222,10 +169,14 @@
                                                         Fin del Evento
                                                     </p>
                                                     <p class="h5 fw-bold mb-0">
-                                                        {{ event.end_date|date:"d M, Y" }}
+                                                        {{
+                                                        event.end_date|date:"d
+                                                        M, Y" }}
                                                     </p>
                                                     <p class="small text-muted">
-                                                        {{ event.end_date|date:"g:i A" }}
+                                                        {{
+                                                        event.end_date|date:"g:i
+                                                        A" }}
                                                     </p>
                                                 </div>
                                             </div>
@@ -359,11 +310,11 @@
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
+{% endwith %}
+{% endblock %}
 
-        <!-- Bootstrap JS Bundle -->
-        <script src="{% static 'in_person_events/common/js/bootstrap.bundle.min.js' %}"></script>
-        <!-- Custom JS -->
-        <script src="{% static 'in_person_events/dashboard/js/script.js' %}"></script>
-    </body>
-</html>
+{% block extra_scripts %}
+<!-- Custom JS -->
+<script src="{% static 'in_person_events/dashboard/js/script.js' %}"></script>
+{% endblock %}

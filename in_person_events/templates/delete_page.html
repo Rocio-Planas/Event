@@ -1,0 +1,82 @@
+{% extends "base_bootstrap.html" %}
+{% load static %}
+
+{% block title %}Evento Eliminado - EventPulse{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'in_person_events/delete_page/css/style.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 text-center mb-5">
+            <!-- Icono de Estado -->
+            <div class="status-icon-wrapper">
+                <div class="status-icon-glow"></div>
+                <div class="status-icon-card">
+                    <span
+                        class="material-symbols-outlined text-danger fs-1"
+                        >delete_sweep</span
+                    >
+                </div>
+            </div>
+
+            <h1 class="display-4 fw-bolder mb-3 text-dark">
+                ¡Evento eliminado con éxito!
+            </h1>
+            <p
+                class="lead text-secondary mx-auto mb-5"
+                style="max-width: 600px"
+            >
+                El evento ha sido removido de la plataforma
+                correctamente y ya no será visible para los
+                asistentes.
+            </p>
+
+            <!-- Tarjeta de Evento (Visualización de lo eliminado) -->
+            {% if deleted_event %}
+            <div class="event-hero-card mx-auto">
+                {% if deleted_event.image %}
+                <img
+                    src="{{ deleted_event.image }}"
+                    alt="Imagen del evento"
+                    class="event-hero-bg"
+                />
+                {% else %}
+                <div class="event-hero-bg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                {% endif %}
+                <div class="event-hero-overlay">
+                    <div class="glass-pill text-start">
+                        <div
+                            class="d-flex align-items-center gap-2 mb-3"
+                        >
+                            <span class="badge-deleted"
+                                >Eliminado</span
+                            >
+                            <span
+                                class="text-secondary small fw-bold tracking-widest opacity-75"
+                                >ID: EP-{{ deleted_event.id }}</span
+                            >
+                        </div>
+                        <h2 class="h3 fw-bolder text-dark mb-0">
+                            {{ deleted_event.title }}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Botón de acción -->
+            <div class="mt-4">
+                <a href="{% url 'usuarios:dashboard' %}" class="btn-primary-custom">
+                    <span class="material-symbols-outlined"
+                        >format_list_bulleted</span
+                    >
+                    Ir a Mi Panel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

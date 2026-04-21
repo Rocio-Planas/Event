@@ -1,0 +1,181 @@
+/* Stratos Event Suite - Custom Styles */
+:root {
+    --surface: #f8f9ff;
+    --on-surface: #0b1c30;
+    --on-surface-variant: #424754;
+    --primary: #0058be;
+    --primary-container: #2170e4;
+    --on-primary: #ffffff;
+    --error: #ba1a1a;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #eff4ff;
+    --outline-variant: #c2c6d6;
+}
+
+body {
+    background-color: var(--surface);
+    color: var(--on-surface);
+    font-family: 'Inter', sans-serif;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    padding: 1.5rem 1rem;
+    z-index: 1000;
+}
+
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    color: #475569;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.sidebar .nav-link:hover {
+    background-color: rgba(226, 232, 240, 0.5);
+    transform: translateX(4px);
+}
+
+.sidebar .nav-link.active {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+}
+
+/* Main Content Wrapper */
+.main-content {
+    margin-left: 260px;
+    min-height: 100vh;
+}
+
+/* Header Styling */
+.top-app-bar {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #f1f5f9;
+    padding: 0.75rem 2rem;
+}
+
+/* Custom Card Styling */
+.custom-card {
+    background-color: var(--surface-container-lowest);
+    border-radius: 1rem;
+    border: 1px solid rgba(194, 198, 214, 0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+}
+
+/* Input Styles */
+.input-group-custom {
+    display: flex;
+    background-color: var(--surface-container-low);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 1px solid rgba(194, 198, 214, 0.2);
+}
+
+.input-prefix {
+    padding: 0.75rem 1rem;
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    border-right: 1px solid rgba(194, 198, 214, 0.1);
+}
+
+.custom-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 0.75rem;
+    color: var(--on-surface);
+}
+
+.custom-input:focus {
+    outline: none;
+}
+
+/* Logo Upload Zone */
+.logo-upload-zone {
+    border: 2px dashed rgba(194, 198, 214, 0.2);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    background-color: rgba(239, 244, 255, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: background-color 0.2s;
+}
+
+.logo-upload-zone:hover {
+    background-color: var(--surface-container-low);
+}
+
+/* Switches */
+.custom-switch {
+    width: 2.75rem;
+    height: 1.5rem;
+    background-color: #cbd5e1;
+    border-radius: 9999px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.custom-switch::after {
+    content: "";
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    background-color: white;
+    border-radius: 50%;
+    top: 0.25rem;
+    left: 0.25rem;
+    transition: transform 0.2s;
+}
+
+.custom-switch.active {
+    background-color: var(--primary);
+}
+
+.custom-switch.active::after {
+    transform: translateX(1.5rem);
+}
+
+/* Danger Zone */
+.danger-card {
+    border: 2px dashed #fecaca;
+    background-color: #fef2f2;
+}
+
+/* Buttons */
+.btn-primary-custom {
+    background: linear-gradient(135deg, #0058be 0%, #2170e4 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    transition: transform 0.2s, filter 0.2s;
+}
+
+.btn-primary-custom:active {
+    transform: scale(0.95);
+}
+
+.btn-primary-custom:hover {
+    filter: brightness(1.1);
+}

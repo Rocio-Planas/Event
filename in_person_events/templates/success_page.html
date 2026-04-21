@@ -1,7 +1,17 @@
 <!doctype html>
 {% extends "base_bootstrap.html" %} {% load static %} {% block title %}Evento
 Enviado - EventPulse{% endblock %} {% block extra_css %}
-<!-- Custom CSS -->
+<!-- Common Fonts and Styles -->
+<link
+    rel="stylesheet"
+    href="{% static 'in_person_events/common/css/fonts.css' %}"
+/>
+<link
+    rel="stylesheet"
+    href="{% static 'in_person_events/common/css/utils.css' %}"
+/>
+
+<!-- Custom CSS for Success Page -->
 <link
     rel="stylesheet"
     href="{% static 'in_person_events/success_page/css/style.css' %}"
@@ -55,10 +65,7 @@ Enviado - EventPulse{% endblock %} {% block extra_css %}
     </div>
 
     <!-- Action Button -->
-    <a
-        href="{% url 'usuarios:dashboard' %}"
-        class="btn btn-primary-custom"
-    >
+    <a href="{% url 'usuarios:dashboard' %}" class="btn btn-primary-custom">
         <span class="material-symbols-outlined">dashboard</span>
         Ir a Mi Panel
     </a>
