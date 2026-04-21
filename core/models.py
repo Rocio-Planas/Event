@@ -1,7 +1,11 @@
+from typing import Any
+
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from virtualEvent.models import VirtualEvent
+
+
 
 class CategoriaEvento(models.Model):
     nombre = models.CharField(_('nombre'), max_length=100, unique=True)
@@ -51,6 +55,7 @@ class Resena(models.Model):
     comentario = models.TextField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     aprobada = models.BooleanField(default=False)
+    
 
     class Meta:
         verbose_name = 'Reseña'
@@ -87,3 +92,18 @@ class Consulta(models.Model):
 
     def __str__(self):
         return f"{self.asunto} - {self.nombre}"
+    
+   
+class Favorito(models.Model):
+    usuario: models.ForeignKey[Any] = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favoritos')
+    evento = models.ForeignKey('virtualEvent.VirtualEvent', on_delete=models.CASCADE, related_name='favoritos')
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('usuario', 'evento')  # Un usuario solo puede dar like una vez
+        verbose_name = 'Favorito'
+        verbose_name_plural = 'Favoritos'
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f"{self.usuario.email} -> {self.evento.title}"

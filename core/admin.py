@@ -1,5 +1,7 @@
 from django.contrib import admin
 from .models import CategoriaEvento, Suscripcion, Resena, Consulta
+from .models import Favorito
+admin.site.register(Favorito)
 
 @admin.register(CategoriaEvento)
 class CategoriaEventoAdmin(admin.ModelAdmin):

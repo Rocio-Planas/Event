@@ -29,6 +29,8 @@ urlpatterns = [
     path('password-reset/', include('django.contrib.auth.urls')),
     path('chat/', include('chat.urls')),
 
+    path("cookies/", include("cookie_consent.urls")),
+
     # Eventos virtuales
     path('eventos/', include('virtualEvent.urls', namespace='virtualEvent')),
     path('streaming/', include('ve_streaming.urls')),
