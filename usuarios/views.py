@@ -4,9 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.csrf import ensure_csrf_cookie
 import os
+from itertools import chain
 
 from ve_invitations.models import EventFollower
 from virtualEvent.models import VirtualEvent
+from in_person_events.models import Event
 from .forms import RegistroForm, LoginForm, RecuperacionPasswordForm, PerfilForm, CambiarPasswordForm, PreferenciasForm
 from .models import Usuario
 from core.models import CategoriaEvento, Suscripcion, Consulta, Resena
@@ -219,7 +221,19 @@ def editar_preferencias(request):
 @login_required
 def dashboard_unificado(request):
     user = request.user
-    eventos_organizados = VirtualEvent.objects.filter(created_by=user).order_by('-start_datetime')
+    
+    # Eventos virtuales que el usuario organiza
+    eventos_virtuales_organizados = VirtualEvent.objects.filter(created_by=user).order_by('-start_datetime')
+    # Eventos presenciales que el usuario organiza
+    eventos_presenciales_organizados = Event.objects.filter(organizer=user).order_by('-start_date')
+    
+    # Combinar ambos tipos de eventos para la sección "Eventos que organizo"
+    eventos_organizados = sorted(
+        chain(eventos_virtuales_organizados, eventos_presenciales_organizados),
+        key=lambda x: getattr(x, 'start_datetime', None) or getattr(x, 'start_date', None) or x.created_at,
+        reverse=True
+    )
+    
     suscripciones_virtuales = EventFollower.objects.filter(user=user).select_related('event')
     suscripciones_presenciales = Suscripcion.objects.filter(usuario=user).order_by('-fecha_suscripcion')
     
