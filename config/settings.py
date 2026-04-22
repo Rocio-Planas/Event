@@ -43,14 +43,14 @@ INSTALLED_APPS = [
     'usuarios',
     'chat',
     'cookie_consent',
-    
+
 
     # Eventos virtuales
     'virtualEvent.apps.VirtualEventConfig',
     've_streaming',
     've_chat',
     've_invitations',
-    
+
     # Eventos presenciales
     'in_person_events.apps.InPersonEventsConfig',
     'pe_registration.apps.PeRegistrationConfig',
@@ -197,7 +197,7 @@ USE_TZ = True
 
 
 # Email para desarrollo (ver emails en consola)
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 BASE_URL = 'http://127.0.0.1:8000'  # Cambia en producción
 DEFAULT_FROM_EMAIL = 'noreply@tuplataforma.com'
 
@@ -207,3 +207,9 @@ SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 OFFENSIVE_WORDS = ['palabra1', 'palabra2', 'insulto', 'ofensa']  # Personalizar luego
 
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+CSRF_COOKIE_SECURE = False  # Solo en desarrollo
+CSRF_COOKIE_HTTPONLY = False

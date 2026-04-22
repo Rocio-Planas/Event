@@ -71,13 +71,32 @@
   border: none;
 }
 
+/* Estilo base del botón (cuando está habilitado/activo) */
 .wr-btn-access:not(:disabled) {
   background: linear-gradient(135deg, #0057cd 0%, #0d6efd 100%);
+  color: white;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .wr-btn-access:not(:disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2) !important;
+  box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
+}
+
+.wr-btn-access:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.wr-btn-access:disabled {
+  background-color: #e9ecef !important;
+  background-image: none !important;
+  color: #6c757d !important;
+  border: 1px solid #dee2e6 !important;
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .wr-btn-access:active {
@@ -251,13 +270,25 @@
 }
 
 .dark .wr-btn-access:not(:disabled) {
-  background: linear-gradient(
-    135deg,
-    var(--primary) 0%,
-    color-mix(in srgb, var(--primary) 80%, white) 100%
-  ) !important;
+  background: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 80%, white) 100%) !important;
   color: white !important;
   border: none !important;
+}
+
+.dark .wr-btn-access:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--primary) 20%, transparent) !important;
+}
+
+.dark .wr-btn-access:disabled {
+  background-color: var(--surface-container-high) !important;
+  background-image: none !important;
+  color: var(--text-on-surface-variant) !important;
+  border: 1px solid var(--border-outline-variant) !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .dark .bg-white,
