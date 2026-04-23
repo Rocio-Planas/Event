@@ -1,0 +1,367 @@
+{% extends "base_sidebar.html" %}
+{% load static %}
+
+{% block title %}Gestión de Actividades - EventConcierge{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'agenda/activities/css/style.css' %}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Top Bar -->
+    <header class="top-bar">
+        <div class="d-flex align-items-center gap-4">
+            <h1>EventHorizon</h1>
+            <nav class="top-nav d-none d-md-flex">
+                <a href="{% url 'in_person_events:dashboard_organizer' event.id %}">Resumen</a>
+                <a href="#">Acciones Rápidas</a>
+            </nav>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn p-1 text-secondary">
+                <span class="material-symbols-outlined">notifications</span>
+            </button>
+            <button class="btn p-1 text-secondary">
+                <span class="material-symbols-outlined">help_outline</span>
+            </button>
+            <div class="ms-2">
+                <img src="https://picsum.photos/seed/user/32/32" alt="Profile" class="rounded-circle border" referrerpolicy="no-referrer">
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-800 display-6">Gestión de Actividades</h2>
+            <p class="text-muted mb-0">Supervisa la agenda del {{ event.title }} y gestiona horarios en tiempo real.</p>
+        </div>
+        <div>
+            <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" data-bs-toggle="modal" data-bs-target="#createActivityModal">
+                <span class="material-symbols-outlined" style="font-size: 18px;">add</span> Crear Actividad
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="content-card mb-4 bg-light p-4">
+        <div class="row g-3 items-center">
+            <div class="col-md-3">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Actividad</label>
+                <div class="search-container shadow-sm rounded-2 w-100 bg-white">
+                    <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: var(--text-muted);">search</span>
+                    <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Nombre o descripción..." id="activitySearch">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Zona</label>
+                <select class="form-select border-0 shadow-sm" id="filterZone">
+                    <option value="all">Todas las Zonas</option>
+                    {% for activity in activities %}
+                        <option value="{{ activity.location }}">{{ activity.location }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Día</label>
+                <select class="form-select border-0 shadow-sm" id="filterDay">
+                    <option value="all">Todos los Días</option>
+                    {% for activity in activities %}
+                        <option value="{{ activity.start_time|date:"Y-m-d" }}">{{ activity.start_time|date:"d M" }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Ponente</label>
+                <select class="form-select border-0 shadow-sm" id="filterSpeaker">
+                    <option value="all">Todos los Ponentes</option>
+                    {% for activity in activities %}
+                        {% if activity.speaker_name %}
+                            <option value="{{ activity.speaker_name }}">{{ activity.speaker_name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="content-card p-0 overflow-hidden shadow-sm mb-4">
+        <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+            <table class="table mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th class="col-horario">Horario</th>
+                        <th class="col-actividad">Actividad</th>
+                        <th class="col-zona">Zona</th>
+                        <th class="col-ponente">Ponente</th>
+                        <th class="col-estado">Estado</th>
+                        <th class="col-acciones text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="activitiesTableBody">
+                    {% for activity in activities %}
+                    <tr data-activity-id="{{ activity.id }}">
+                        <td class="col-horario">
+                            <div class="fw-bold">{{ activity.start_time|date:"H:i" }}</div>
+                            <small class="text-muted">{{ activity.end_time|date:"H:i" }}</small>
+                        </td>
+                        <td class="col-actividad">
+                            <div class="fw-medium">{{ activity.title }}</div>
+                            {% if activity.description %}
+                            <small class="text-muted text-truncate d-block" style="max-width: 200px;">{{ activity.description|truncatechars:50 }}</small>
+                            {% endif %}
+                        </td>
+                        <td class="col-zona">{{ activity.location }}</td>
+                        <td class="col-ponente">
+                            {% if activity.speaker_name %}
+                            <div>{{ activity.speaker_name }}</div>
+                            <small class="text-muted">{{ activity.speaker_email }}</small>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="col-estado">
+                            {% if activity.status == 'programada' %}
+                            <span class="badge bg-primary">Programada</span>
+                            {% elif activity.status == 'en_curso' %}
+                            <span class="badge bg-warning text-dark">En Curso</span>
+                            {% elif activity.status == 'completada' %}
+                            <span class="badge bg-success">Completada</span>
+                            {% elif activity.status == 'cancelada' %}
+                            <span class="badge bg-danger">Cancelada</span>
+                            {% endif %}
+                        </td>
+                        <td class="col-acciones text-center">
+                            <div class="btn-group">
+                                <a href="{% url 'pe_agenda:info_activity' event.id activity.id %}" class="btn btn-sm btn-outline-secondary" title="Ver información">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
+                                </a>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editActivityModal" data-activity-id="{{ activity.id }}" title="Editar">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteActivityModal" data-activity-id="{{ activity.id }}" data-bs-id="{{ activity.id }}" title="Eliminar">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <div class="text-muted">
+                                <span class="material-symbols-outlined" style="font-size: 48px;" class="mb-2">calendar_month</span>
+                                <p>No hay actividades programadas</p>
+                                <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#createActivityModal">Crear primera actividad</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination -->
+        <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
+            <div class="small text-muted" id="paginationInfo">Mostrando {{ activities.count }} actividad{% if activities.count != 1 %}es{% endif %}</div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0" id="paginationControls"></ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="createActivityModal" tabindex="-1" aria-labelledby="createActivityModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold" id="createActivityModalLabel">Crear Nueva Actividad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <form method="post" id="createActivityForm" action="{% url 'pe_agenda:create_activity' event.id %}">
+                        {% csrf_token %}
+
+                        <!-- Messages -->
+                        {% if messages %}
+                            <div class="mb-3">
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Título -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-primary">Nombre de la Actividad</label>
+                            <input type="text" name="title" class="form-control" placeholder="Ej. Masterclass de Arquitectura Cloud" required>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-primary">Descripción</label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="Describe brevemente los objetivos y el contenido..."></textarea>
+                        </div>
+
+                        <!-- Horario - Fila -->
+                        <div class="row mb-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold text-primary">Hora de Inicio</label>
+                                <input type="datetime-local" name="start_time" class="form-control" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold text-primary">Hora de Finalización</label>
+                                <input type="datetime-local" name="end_time" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <!-- Ubicación -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-primary">Zona/Ubicación</label>
+                            <input type="text" name="location" class="form-control" placeholder="Ej. Auditorio Principal" required>
+                        </div>
+
+                        <!-- Ponente - Nombre y Email -->
+                        <div class="row mb-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold text-primary">Nombre del Ponente</label>
+                                <input type="text" name="speaker_name" class="form-control" placeholder="Nombre del ponente">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-bold text-primary">Email del Ponente</label>
+                                <input type="email" name="speaker_email" class="form-control" placeholder="email@ejemplo.com">
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex gap-3 justify-content-end mt-4">
+                            <button type="button" class="btn btn-outline-secondary px-5 py-2 fw-bold rounded-2" data-bs-dismiss="modal">
+                                <span class="material-symbols-outlined me-2">close</span>
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-gradient px-5 py-2 fw-bold rounded-2">
+                                <span class="material-symbols-outlined me-2">save</span>
+                                Crear Actividad
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Actividad -->
+    <div class="modal fade" id="editActivityModal" tabindex="-1" aria-labelledby="editActivityModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold" id="editActivityModalLabel">Editar Actividad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <form method="post" id="editActivityForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="activity_id" id="editActivityId">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-primary">Nombre de la Actividad</label>
+                            <input type="text" name="title" id="editTitle" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-primary">Descripción</label>
+                            <textarea name="description" id="editDescription" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-primary">Hora de Inicio</label>
+                                <input type="datetime-local" name="start_time" id="editStartTime" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-primary">Hora de Finalización</label>
+                                <input type="datetime-local" name="end_time" id="editEndTime" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-primary">Zona/Ubicación</label>
+                            <input type="text" name="location" id="editLocation" class="form-control" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-primary">Nombre del Ponente</label>
+                                <input type="text" name="speaker_name" id="editSpeakerName" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-primary">Email del Ponente</label>
+                                <input type="email" name="speaker_email" id="editSpeakerEmail" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-primary">Estado</label>
+                            <select name="status" id="editStatus" class="form-select" required>
+                                <option value="programada">Programada</option>
+                                <option value="en_curso">En Curso</option>
+                                <option value="completada">Completada</option>
+                                <option value="cancelada">Cancelada</option>
+                            </select>
+                        </div>
+                        <div class="d-flex gap-2 justify-content-end mt-4">
+                            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-gradient px-4 fw-bold">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación para Eliminar -->
+    <div class="modal fade" id="deleteActivityModal" tabindex="-1" aria-labelledby="deleteActivityModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold text-danger" id="deleteActivityModalLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <p class="mb-2">¿Estás seguro de que deseas eliminar la actividad <strong id="deleteActivityTitle"></strong>?</p>
+                    <p class="text-muted small mb-0">Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer border-top-0 px-4 pb-4">
+                    <form method="post" id="deleteActivityForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="activity_id" id="deleteActivityId">
+                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger px-4">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Variables globales para el JavaScript
+    window.eventId = {{ event.id }};
+    window.activitiesBaseUrl = "{% url 'pe_agenda:activities' event.id %}";
+    window.activitiesData = [
+        {% for activity in activities %}
+        {
+            id: {{ activity.id }},
+            title: "{{ activity.title|escapejs }}",
+            description: "{{ activity.description|escapejs }}",
+            start_time: "{{ activity.start_time|date:"Y-m-d\\TH:i:s" }}",
+            end_time: "{{ activity.end_time|date:"Y-m-d\\TH:i:s" }}",
+            location: "{{ activity.location|escapejs }}",
+            speaker_name: "{{ activity.speaker_name|default:""|escapejs }}",
+            speaker_email: "{{ activity.speaker_email|default:""|escapejs }}",
+            status: "{{ activity.status }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
+<script src="{% static 'agenda/activities/js/main.js' %}?v=3"></script>
+{% endblock %}

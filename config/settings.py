@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     # Eventos presenciales
     'in_person_events.apps.InPersonEventsConfig',
     'pe_registration.apps.PeRegistrationConfig',
+    'pe_agenda.apps.AgendaConfig',
 ]
 
 MIDDLEWARE = [

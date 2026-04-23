@@ -40,6 +40,7 @@ urlpatterns = [
     #Eventos presenciales
     path('eventos-presenciales/', include('in_person_events.urls', namespace='in_person_events')),
     path('tickets/', include('pe_registration.urls', namespace='pe_registration')),
+    path('agenda/', include('pe_agenda.urls', namespace='pe_agenda')),
 ]
 
 if settings.DEBUG:
