@@ -71,7 +71,6 @@ class VirtualEvent(models.Model):
         self.estado = 'rechazado'
         self.save()
 
-
     # Enlace único para acceso (para RF-04)
     unique_link = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 

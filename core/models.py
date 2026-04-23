@@ -95,7 +95,7 @@ class Consulta(models.Model):
     
    
 class Favorito(models.Model):
-    usuario: models.ForeignKey[Any] = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favoritos')
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favoritos')
     evento = models.ForeignKey('virtualEvent.VirtualEvent', on_delete=models.CASCADE, related_name='favoritos')
     fecha = models.DateTimeField(auto_now_add=True)
 

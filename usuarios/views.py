@@ -14,6 +14,7 @@ from .models import Usuario
 from core.models import CategoriaEvento, Suscripcion, Consulta, Resena
 from .decorators import role_required
 from core.models import Favorito
+from in_person_events.models import Event as EventoPresencial
 
 
 @login_required
@@ -89,18 +90,26 @@ def recuperar_password_view(request):
 @login_required
 def perfil_view(request):
     user = request.user
-    # Eventos que el usuario organiza (crea)
-    eventos_organizados = VirtualEvent.objects.filter(created_by=user).order_by('-start_datetime')
-    # Eventos virtuales a los que sigue
+
+    # Eventos virtuales que el usuario organiza
+    eventos_organizados_virtuales = VirtualEvent.objects.filter(created_by=user).order_by('-start_datetime')
+
+    # Eventos presenciales que el usuario organiza (aprobados o no? se muestran todos)
+    eventos_organizados_presenciales = EventoPresencial.objects.filter(organizer=user).order_by('-start_date')
+
+    # Suscripciones a eventos virtuales (EventFollower)
     suscripciones_virtuales = EventFollower.objects.filter(user=user).select_related('event')
-    # Eventos presenciales (tu modelo)
-    suscripciones_presenciales = Suscripcion.objects.filter(usuario=user).order_by('-fecha_suscripcion')
-    
+
+    # Suscripciones a eventos presenciales (usando tu modelo Suscripcion con tipo_evento='presencial')
+    suscripciones_presenciales = Suscripcion.objects.filter(usuario=user, tipo_evento='presencial').order_by('-fecha_suscripcion')
+
+    # Favoritos (asumiendo que solo son virtuales, pero puedes adaptar)
     favoritos = Favorito.objects.filter(usuario=user).select_related('evento')
 
     context = {
         'user': user,
-        'eventos_organizados': eventos_organizados,
+        'eventos_organizados_virtuales': eventos_organizados_virtuales,
+        'eventos_organizados_presenciales': eventos_organizados_presenciales,
         'suscripciones_virtuales': suscripciones_virtuales,
         'suscripciones_presenciales': suscripciones_presenciales,
         'favoritos': favoritos,

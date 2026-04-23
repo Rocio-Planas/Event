@@ -412,28 +412,61 @@ button:focus-visible {
 }
 
 /* Star Rating */
+/* Star Rating - Versión equilibrada */
 .sr-star-rating {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: center;
-  gap: 0.25rem;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 0.85rem;
 }
 
 .sr-star-rating input {
-  display: none;
+    display: none;
 }
 
 .sr-star-rating label {
-  font-size: 2rem;
-  color: #e2e8f0;
-  cursor: pointer;
-  transition: color 0.2s ease;
+    font-size: 2.2rem;
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
 }
 
 .sr-star-rating input:checked ~ label,
 .sr-star-rating label:hover,
 .sr-star-rating label:hover ~ label {
-  color: #fbbf24;
+    color: #fbbf24;
+}
+
+
+/* Estilo para la etiqueta superior */
+.sr-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--sr-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Feedback text */
+#satisfaction-feedback {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.sr-star-rating label:hover ~ #satisfaction-feedback {
+    opacity: 1;
+}
+
+.sr-star-rating input:checked ~ label,
+.sr-star-rating input:checked + label,
+.sr-star-rating label.selected {
+    color: #fbbf24 !important;
+}
+
+.sr-star-rating label.active-rating {
+    color: #fbbf24 !important;
 }
 
 /* Utilities */
@@ -518,6 +551,40 @@ button:focus-visible {
   .pin-btn i {
     font-size: 12px;
   }
+}
+
+/* Igualar altura de ambas columnas en la sala de streaming */
+.row.g-4 {
+    display: flex;
+    align-items: stretch;
+}
+
+.row.g-4 > [class*="col-"] {
+    display: flex;
+    flex-direction: column;
+}
+
+/* La columna derecha (chat) debe estirarse para igualar altura */
+.row.g-4 > .col-lg-4 {
+    display: flex;
+    flex-direction: column;
+}
+
+.sr-chat-container {
+    flex: 1;
+    height: auto;
+    min-height: 500px;
+}
+
+/* Ajuste para la columna izquierda */
+.row.g-4 > .col-lg-8 {
+    display: flex;
+    flex-direction: column;
+}
+
+/* El contenedor de encuestas se estira para llenar espacio */
+.row.g-4 > .col-lg-8 .row.g-4:last-child {
+    flex: 1;
 }
 
 /* ========== MODO OSCURO COMPLETO para streaming-room ========== */
@@ -644,6 +711,23 @@ button:focus-visible {
   color: var(--sr-border) !important;
 }
 
+
+.dark .sr-star-rating label {
+    color: #5a5f6e;
+}
+
+.dark .sr-star-rating input:checked ~ label,
+.dark .sr-star-rating label:hover,
+.dark .sr-star-rating label:hover ~ label {
+    color: #fbbf24;
+}
+
+.dark .sr-star-rating input:checked ~ label,
+.dark .sr-star-rating input:checked + label {
+    color: #fbbf24 !important;
+}
+
+
 .dark .sr-live-indicator,
 .dark .live-badge,
 .dark .event-date,
@@ -685,9 +769,9 @@ button:focus-visible {
   color: var(--text-on-surface-variant) !important;
 }
 
-/* Forzar el indicador EN VIVO */
+/* Indicador EN VIVO */
 .dark .sr-live-indicator {
-  background-color: #dc3545 !important; /* rojo estándar */
+  background-color: #dc3545 !important;
   color: white !important;
 }
 
@@ -696,35 +780,44 @@ button:focus-visible {
 }
 
 
-.dark .sr-poll-card .card-header.bg-white {
-  background-color: var(--surface-container-high);
-  border-bottom: 1px solid var(--border-outline-variant);
+
+/* Target directo a cualquier header dentro de sr-poll-card */
+/* Selector directo que funcionó en el DEBUG (cambió a rojo) */
+.dark .card-header {
+  background-color: var(--surface-container-high) !important;
+  border-bottom: 1px solid var(--border-outline-variant) !important;
 }
 
+/* Pero luego restauras el color del header del chat que no quieres afectar */
+.dark .sr-chat-header {
+  background-color: var(--surface-container-low) !important;
+}
+
+/* Y restauras el header azul de "Nueva Encuesta" */
+.dark .bg-primary.card-header {
+  background-color: var(--primary) !important;
+}
+
+.dark .sr-poll-card > .card-header,
+.dark .sr-poll-card > div:first-child,
+.dark .sr-poll-card .card-header:first-child {
+  background-color: var(--surface-container-high) !important;
+  background-image: none !important;
+  border-bottom: 1px solid var(--border-outline-variant) !important;
+}
+
+/* Forzar cualquier elemento con clase bg-white dentro de sr-poll-card */
+.dark .sr-poll-card .bg-white,
+.dark .sr-poll-card [class*="bg-white"] {
+  background-color: var(--surface-container-high) !important;
+  background-image: none !important;
+}
+
+/* Forzar el texto del header */
+.dark .sr-poll-card .card-header *,
+.dark .sr-poll-card .card-header span,
 .dark .sr-poll-card .card-header .sr-label {
-  color: var(--text-on-surface);
-}
-
-.dark .sr-poll-card .card-header {
-  padding: 1rem 1.25rem;
-}
-
-.dark .sr-poll-card .card-body {
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-  background-color: var(--surface-container-lowest);
-  color: var(--text-on-surface);
-}
-
-.dark .sr-poll-card .form-check-label,
-.dark .sr-poll-card .fw-bold {
-  color: var(--text-on-surface-variant);
-}
-
-.dark .sr-poll-card .btn-primary {
-  background-color: var(--primary);
-  border-color: var(--primary);
-  color: white;
+  color: var(--text-on-surface) !important;
 }
 
 /* ===== CORRECCIÓN DEL ÁREA BLANCA DEBAJO DEL REPRODUCTOR ===== */

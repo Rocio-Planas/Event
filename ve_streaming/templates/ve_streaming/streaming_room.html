@@ -28,13 +28,13 @@
                 </div>
                 <div class="bg-white py-3 px-4 d-flex justify-content-between align-items-center border-top">
                     <div class="d-flex align-items-center gap-3">
-                        <span class="badge bg-danger sr-live-indicator" data-i18n="live_indicator">
+                        <span class="badge bg-danger sr-live-indicator">
                             <span class="sr-dot"></span> EN VIVO
                         </span>
-                        <span class="text-muted small fw-bold"><i class="bi bi-people me-1"></i> <span id="metric-online-badge">0</span> <span data-i18n="viewers">espectadores</span></span>
+                        <span class="text-muted small fw-bold"><i class="bi bi-people me-1"></i> <span id="metric-online-badge">0</span> espectadores</span>
                     </div>
                     <button id="sr-record-btn" class="btn btn-light btn-sm sr-btn-pill px-3 fw-bold border">
-                        <i class="bi bi-camera-video me-1"></i> <span data-i18n="record_screen">Grabar pantalla</span>
+                        <i class="bi bi-camera-video me-1"></i> <span>Grabar pantalla</span>
                     </button>
                 </div>
             </div>
@@ -45,7 +45,7 @@
                 <div class="d-flex flex-wrap gap-4 text-muted small fw-bold mb-4">
                     <span><i class="bi bi-calendar-event me-2 text-primary"></i> {{ event.start_datetime|date:"d M Y, H:i" }}</span>
                     <span><i class="bi bi-clock me-2 text-primary"></i> {{ event.duration_minutes }} min</span>
-                    <span><i class="bi bi-geo-alt me-2 text-primary"></i> <span data-i18n="online_event">Online</span></span>
+                    <span><i class="bi bi-geo-alt me-2 text-primary"></i> Online</span>
                 </div>
                 <hr class="opacity-10">
                 <p class="text-secondary mb-0 leading-relaxed">{{ event.description }}</p>
@@ -53,51 +53,80 @@
 
             <!-- Sección de Encuestas -->
             <div class="row g-4">
-                <!-- Encuesta Activa -->
+                <!-- Encuesta Activa (siempre visible para todos) -->
                 <div class="col-md-6">
                     <div class="sr-card-main h-100">
-                        <div class="card-header bg-transparent border-0 py-3 px-4">
-                            <span class="sr-label mb-0" data-i18n="live_poll"><i class="bi bi-bar-chart-line me-2"></i> Encuesta en Vivo</span>
+                        <div class="card-header bg-white border-0 py-3 px-4">
+                            <span class="sr-label mb-0"><i class="bi bi-bar-chart-line me-2"></i> Encuesta en Vivo</span>
                         </div>
                         <div class="card-body px-4 pb-4" id="sr-poll-section">
                             <div class="text-center py-5 text-muted">
                                 <i class="bi bi-inbox display-6 opacity-25"></i>
-                                <p class="mt-2 small fw-bold" data-i18n="no_active_poll">No hay encuestas activas</p>
+                                <p class="mt-2 small fw-bold">No hay encuestas activas</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Crear Encuesta (Organizador) -->
+                <!-- Segunda columna: según el rol -->
                 {% if is_organizer %}
-                <div class="col-md-6">
-                    <div class="sr-card-main h-100">
-                        <div class="card-header bg-primary text-white border-0 py-3 px-4">
-                            <span class="sr-label text-white mb-0" data-i18n="new_poll"><i class="bi bi-plus-circle me-2"></i> Nueva Encuesta</span>
-                        </div>
-                        <div class="card-body p-4">
-                            <form id="sr-create-poll-form">
-                                <div class="mb-3">
-                                    <label class="sr-label" data-i18n="question_label">Pregunta</label>
-                                    <input type="text" id="sr-poll-question" class="form-control bg-light border-0 rounded-3" data-i18n-placeholder="question_placeholder" placeholder="¿Qué te parece el evento?" required>
-                                </div>
-                                <div id="sr-poll-options-container" class="mb-3">
-                                    <label class="sr-label" data-i18n="options_label">Opciones</label>
-                                    <div class="input-group mb-2">
-                                        <input type="text" class="form-control bg-light border-0 rounded-3 sr-poll-option-input" placeholder="Opción 1" required>
+                    <!-- ORGANIZADOR: Crear Encuesta -->
+                    <div class="col-md-6">
+                        <div class="sr-card-main h-100">
+                            <div class="card-header bg-primary text-white border-0 py-3 px-4">
+                                <span class="sr-label text-white mb-0"><i class="bi bi-plus-circle me-2"></i> Nueva Encuesta</span>
+                            </div>
+                            <div class="card-body p-4">
+                                <form id="sr-create-poll-form">
+                                    <div class="mb-3">
+                                        <label class="sr-label">Pregunta</label>
+                                        <input type="text" id="sr-poll-question" class="form-control bg-light border-0 rounded-3" placeholder="¿Qué te parece el evento?" required>
                                     </div>
-                                    <div class="input-group mb-2">
-                                        <input type="text" class="form-control bg-light border-0 rounded-3 sr-poll-option-input" placeholder="Opción 2" required>
+                                    <div id="sr-poll-options-container" class="mb-3">
+                                        <label class="sr-label">Opciones</label>
+                                        <div class="input-group mb-2">
+                                            <input type="text" class="form-control bg-light border-0 rounded-3 sr-poll-option-input" placeholder="Opción 1" required>
+                                        </div>
+                                        <div class="input-group mb-2">
+                                            <input type="text" class="form-control bg-light border-0 rounded-3 sr-poll-option-input" placeholder="Opción 2" required>
+                                        </div>
                                     </div>
-                                </div>
-                                <button type="button" id="sr-add-option-btn" class="btn btn-link text-decoration-none p-0 mb-3 small fw-bold" data-i18n="add_option">
-                                    <i class="bi bi-plus-circle"></i> Añadir opción
-                                </button>
-                                <button type="submit" class="btn btn-primary w-100 fw-bold" data-i18n="publish_poll" data-i18n="publish_poll">Publicar Encuesta</button>
-                            </form>
+                                    <button type="button" id="sr-add-option-btn" class="btn btn-link text-decoration-none p-0 mb-3 small fw-bold">
+                                        <i class="bi bi-plus-circle"></i> Añadir opción
+                                    </button>
+                                    <button type="submit" class="btn btn-primary w-100 fw-bold">Publicar Encuesta</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
+                {% else %}
+                    <!-- ESPECTADOR: Calificación de Satisfacción -->
+                    <div class="col-md-6">
+                        <div class="sr-card-main h-100">
+                            <div class="card-body text-center p-4" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 280px;">
+                                <div>
+                                    <span class="sr-label mb-3 d-inline-block">
+                                        <i class="bi bi-emoji-smile me-1"></i> CALIFICA ESTA SESIÓN
+                                    </span>
+                                    <p class="h5 fw-bold mt-2 mb-4" style="font-size: 1.2rem; margin-top: 0.5rem !important; margin-bottom: 1.75rem !important;">
+                                        ¿Qué te está pareciendo la sesión?
+                                    </p>
+                                </div>
+                                <div class="sr-star-rating" style="margin-bottom: 1.25rem;">
+                                    <input type="radio" id="star5" name="rating" value="5"><label for="star5" title="Excelente">★</label>
+                                    <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="Muy buena">★</label>
+                                    <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="Buena">★</label>
+                                    <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="Regular">★</label>
+                                    <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="Mala">★</label>
+                                </div>
+                                <div>
+                                    <small class="text-muted">
+                                        <i class="bi bi-chat-heart me-1"></i> Tu opinión nos ayuda a mejorar
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 {% endif %}
             </div>
         </div>
@@ -110,42 +139,42 @@
                     <div class="sr-metric-card">
                         <div class="sr-metric-icon-container"><i class="bi bi-people-fill"></i></div>
                         <span class="sr-metric-value" id="metric-online">0</span>
-                        <span class="sr-metric-label" data-i18n="online">En línea</span>
+                        <span class="sr-metric-label">En línea</span>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="sr-metric-card">
                         <div class="sr-metric-icon-container"><i class="bi bi-chat-dots-fill"></i></div>
                         <span class="sr-metric-value" id="metric-messages">0</span>
-                        <span class="sr-metric-label" data-i18n="messages">Mensajes</span>
+                        <span class="sr-metric-label">Mensajes</span>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="sr-metric-card">
                         <div class="sr-metric-icon-container"><i class="bi bi-hand-index-thumb-fill"></i></div>
                         <span class="sr-metric-value" id="metric-hands">0</span>
-                        <span class="sr-metric-label" data-i18n="hands">Manos</span>
+                        <span class="sr-metric-label">Manos</span>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="sr-metric-card">
                         <div class="sr-metric-icon-container"><i class="bi bi-graph-up-arrow"></i></div>
                         <span class="sr-metric-value" id="metric-participation">0%</span>
-                        <span class="sr-metric-label" data-i18n="participation">Votos</span>
+                        <span class="sr-metric-label">Votos</span>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="sr-metric-card">
                         <div class="sr-metric-icon-container"><i class="bi bi-stopwatch-fill"></i></div>
                         <span class="sr-metric-value" id="metric-time">00:00:00</span>
-                        <span class="sr-metric-label" data-i18n="time">Tiempo</span>
+                        <span class="sr-metric-label">Tiempo</span>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="sr-metric-card">
                         <div class="sr-metric-icon-container"><i class="bi bi-emoji-smile-fill"></i></div>
                         <span class="sr-metric-value" id="metric-satisfaction">0.0</span>
-                        <span class="sr-metric-label" data-i18n="satisfaction">Satisf.</span>
+                        <span class="sr-metric-label">Satisf.</span>
                     </div>
                 </div>
             </div>
@@ -153,10 +182,10 @@
             <!-- Chat en Vivo -->
             <div class="sr-chat-container">
                 <div class="sr-chat-header">
-                    <span class="sr-label mb-0" data-i18n="chat_title"><i class="bi bi-chat-dots me-2"></i> Chat en Vivo</span>
+                    <span class="sr-label mb-0"><i class="bi bi-chat-dots me-2"></i> Chat en Vivo</span>
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-success rounded-circle p-1 animate-pulse" style="width: 8px; height: 8px;"></span>
-                        <span class="text-uppercase fw-bold text-muted" style="font-size: 10px;" data-i18n="live">Live</span>
+                        <span class="text-uppercase fw-bold text-muted" style="font-size: 10px;">Live</span>
                     </div>
                 </div>
                 
@@ -175,16 +204,16 @@
                             <button type="button" class="btn btn-link text-decoration-none p-0 me-2" id="sr-satisfaction-btn">
                                 <span class="fs-5">😊</span>
                             </button>
-                            <input type="text" id="sr-chat-input" class="sr-chat-input" data-i18n-placeholder="chat_placeholder" placeholder="Escribe un mensaje..." autocomplete="off">
+                            <input type="text" id="sr-chat-input" class="sr-chat-input" placeholder="Escribe un mensaje..." autocomplete="off">
                             <button type="submit" class="btn btn-primary sr-btn-pill ms-2">
                                 <i class="bi bi-send"></i>
                             </button>
                         </div>
                         <div class="d-flex justify-content-between align-items-center px-2">
-                            <button type="button" class="btn btn-link text-decoration-none text-muted p-0 small fw-bold" data-bs-toggle="modal" data-bs-target="#anonymousQuestionModal" data-i18n="anon_question">
+                            <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small fw-bold" data-bs-toggle="modal" data-bs-target="#anonymousQuestionModal">
                                 <i class="bi bi-question-circle me-1"></i> Pregunta anónima
                             </button>
-                            <button type="button" id="sr-raise-hand-btn" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small fw-bold" data-i18n="raise_hand">
+                            <button type="button" id="sr-raise-hand-btn" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small fw-bold">
                                 <i class="bi bi-hand-index-thumb me-1"></i> Levantar mano
                             </button>
                         </div>
@@ -192,19 +221,8 @@
                 </div>
             </div>
 
-            <!-- Calificación de Satisfacción -->
-            <div class="sr-card-main mt-4">
-                <div class="card-body text-center p-4">
-                    <p class="small fw-bold mb-3" data-i18n="rate_session">¿Qué te está pareciendo la sesión?</p>
-                    <div class="sr-star-rating">
-                        <input type="radio" id="star5" name="rating" value="5"><label for="star5" title="Excelente">★</label>
-                        <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="Muy buena">★</label>
-                        <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="Buena">★</label>
-                        <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="Regular">★</label>
-                        <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="Mala">★</label>
-                    </div>
-                </div>
-            </div>
+            <!-- NOTA: La tarjeta de satisfacción se ELIMINÓ de aquí para los organizadores -->
+            <!-- Y para los espectadores ya está arriba junto a la encuesta -->
         </div>
     </div>
 </div>
@@ -214,15 +232,15 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" data-i18n="send_anon_question">Enviar Pregunta Anónima</h5>
+                <h5 class="modal-title fw-bold">Enviar Pregunta Anónima</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                <textarea id="sr-anon-question-text" class="form-control bg-light border-0 rounded-3" rows="3" data-i18n-placeholder="question_placeholder" placeholder="Escribe tu pregunta aquí..."></textarea>
+                <textarea id="sr-anon-question-text" class="form-control bg-light border-0 rounded-3" rows="3" placeholder="Escribe tu pregunta aquí..."></textarea>
             </div>
             <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
-                <button type="button" class="btn btn-primary fw-bold px-4" onclick="room.sendAnonQuestion()" data-i18n="send">Enviar</button>
+                <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary fw-bold px-4" onclick="room.sendAnonQuestion()">Enviar Pregunta</button>
             </div>
         </div>
     </div>
@@ -245,5 +263,3 @@
 <script src="{% static 'js/streaming-room.js' %}"></script>
 <script src="{% static 'js/streaming-heartbeat.js' %}"></script>
 {% endblock %}
-
-

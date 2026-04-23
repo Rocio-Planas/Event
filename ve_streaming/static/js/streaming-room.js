@@ -1,4 +1,4 @@
-// streaming-room.js (versión solo para grabación y satisfacción)
+// streaming-room.js - Versión definitiva que NO rompe nada
 class StreamingRoomExtras {
     constructor(eventSlug) {
         this.eventSlug = eventSlug;
@@ -15,12 +15,17 @@ class StreamingRoomExtras {
     bindRecording() {
         const recordBtn = document.getElementById('sr-record-btn');
         if (recordBtn) {
-            recordBtn.addEventListener('click', () => this.toggleRecording());
+            // Eliminar listeners existentes para evitar duplicados
+            const newBtn = recordBtn.cloneNode(true);
+            recordBtn.parentNode.replaceChild(newBtn, recordBtn);
+            newBtn.addEventListener('click', () => this.toggleRecording());
         }
     }
 
     async toggleRecording() {
         const btn = document.getElementById('sr-record-btn');
+        if (!btn) return;
+        
         const icon = btn.querySelector('i');
         const textSpan = btn.querySelector('span');
 
@@ -41,16 +46,17 @@ class StreamingRoomExtras {
                     a.href = url;
                     a.download = `grabacion-${this.eventSlug}.webm`;
                     a.click();
+                    URL.revokeObjectURL(url);
 
-                    icon.className = 'bi bi-camera-video';
-                    textSpan.textContent = 'Grabar pantalla';
+                    if (icon) icon.className = 'bi bi-camera-video';
+                    if (textSpan) textSpan.textContent = 'Grabar pantalla';
                     btn.classList.remove('btn-danger');
                     btn.classList.add('btn-outline-secondary');
                 };
 
                 this.mediaRecorder.start();
-                icon.className = 'bi bi-stop-circle sr-recording-active';
-                textSpan.textContent = 'Detener grabación';
+                if (icon) icon.className = 'bi bi-stop-circle sr-recording-active';
+                if (textSpan) textSpan.textContent = 'Detener grabación';
                 btn.classList.remove('btn-outline-secondary');
                 btn.classList.add('btn-danger');
 
@@ -65,42 +71,78 @@ class StreamingRoomExtras {
     }
 
     bindSatisfaction() {
-        // Satisfacción (emoji)
+        // SATISFACCIÓN EMOJI
         const satisfactionBtn = document.getElementById('sr-satisfaction-btn');
         if (satisfactionBtn) {
-            satisfactionBtn.addEventListener('click', () => {
-                if (window.room && window.room.sendSatisfaction) {
+            // Eliminar listeners existentes
+            const newBtn = satisfactionBtn.cloneNode(true);
+            satisfactionBtn.parentNode.replaceChild(newBtn, satisfactionBtn);
+            newBtn.addEventListener('click', () => {
+                console.log("Emoji satisfaction clicked");
+                if (window.room && typeof window.room.sendSatisfaction === 'function') {
                     window.room.sendSatisfaction(5);
                 } else {
-                    console.warn("Polling room no disponible para satisfacción");
+                    console.warn("sendSatisfaction no disponible");
                 }
             });
         }
 
-        // Satisfacción (estrellas)
-        const stars = document.querySelectorAll('.sr-star-rating input');
-        stars.forEach(star => {
-            star.addEventListener('change', (e) => {
-                if (window.room && window.room.sendSatisfaction) {
-                    window.room.sendSatisfaction(parseInt(e.target.value));
-                }
+        // SATISFACCIÓN ESTRELLAS - CRÍTICO
+        const starsContainer = document.querySelector('.sr-star-rating');
+        if (starsContainer) {
+            // Eliminar todos los inputs existentes y recrearlos para asegurar listeners frescos
+            const inputs = starsContainer.querySelectorAll('input');
+            inputs.forEach(input => {
+                const newInput = input.cloneNode(true);
+                input.parentNode.replaceChild(newInput, input);
+                
+                newInput.addEventListener('change', (e) => {
+                    const rating = parseInt(e.target.value);
+                    console.log(`Estrella seleccionada: ${rating}`);
+                    if (window.room && typeof window.room.sendSatisfaction === 'function') {
+                        window.room.sendSatisfaction(rating);
+                        // Feedback visual opcional
+                        const labels = starsContainer.querySelectorAll('label');
+                        labels.forEach((label, idx) => {
+                            if (idx < rating) {
+                                label.style.color = '#fbbf24';
+                            }
+                        });
+                    } else {
+                        console.error("sendSatisfaction NO está disponible en window.room");
+                    }
+                });
             });
-        });
+        }
     }
 }
 
-// Esperar a que el otro script (streaming-polling) haya definido window.room
-// y luego agregar las funcionalidades extra
+// Inicialización - NO interferir con window.room existente
 document.addEventListener('DOMContentLoaded', () => {
-    // Esperar un poco para asegurar que StreamingPolling se haya inicializado
-    setTimeout(() => {
-        if (window.room) {
-            // Añadir métodos de grabación y satisfacción al objeto existente
-            const extras = new StreamingRoomExtras(window.room.eventSlug);
-            window.room.toggleRecording = extras.toggleRecording.bind(extras);
-            // Si quieres mantener la referencia al botón de grabación, ya se bindeó internamente
-        } else {
-            console.warn("StreamingPolling no se ha inicializado aún, reintentando...");
-        }
-    }, 100);
+    console.log("Inicializando StreamingRoomExtras...");
+    
+    // Verificar que window.room ya existe
+    if (window.room && typeof window.room.sendSatisfaction === 'function') {
+        console.log("window.room detectado correctamente, sendSatisfaction disponible");
+        new StreamingRoomExtras(window.room.eventSlug || window.eventSlug);
+    } else {
+        // Esperar a que window.room esté disponible
+        const checkInterval = setInterval(() => {
+            if (window.room && typeof window.room.sendSatisfaction === 'function') {
+                console.log("window.room ahora disponible");
+                clearInterval(checkInterval);
+                new StreamingRoomExtras(window.room.eventSlug || window.eventSlug);
+            } else {
+                console.log("Esperando window.room...");
+            }
+        }, 100);
+        
+        // Timeout por si acaso
+        setTimeout(() => {
+            clearInterval(checkInterval);
+            if (!window.room || typeof window.room.sendSatisfaction !== 'function') {
+                console.error("No se pudo detectar window.room con sendSatisfaction");
+            }
+        }, 5000);
+    }
 });
