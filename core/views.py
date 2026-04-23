@@ -14,59 +14,37 @@ from ve_invitations.views import follow_event
 from django.db.models import Q, Avg, Count
 from django.core.paginator import PageNotAnInteger, Paginator, EmptyPage
 from django.views.decorators.http import require_POST
+from in_person_events.models import Event as EventoPresencial
 
 def home(request):
     # 1. Categorías predefinidas
     categorias_predefinidas = CategoriaEvento.objects.filter(activo=True).order_by('orden', 'nombre')
     nombres_predefinidos = list(categorias_predefinidas.values_list('nombre', flat=True))
 
-    # 2. Base de eventos según rol y estado
+    # 2. Obtener eventos virtuales según rol y estado
     if request.user.is_authenticated and request.user.rol == 'organizador':
-        eventos_qs = VirtualEvent.objects.filter(
+        virtuales_qs = VirtualEvent.objects.filter(
             Q(estado='aprobado') | Q(created_by=request.user)
         ).order_by('-start_datetime')
     else:
-        eventos_qs = VirtualEvent.objects.filter(estado='aprobado').order_by('-start_datetime')
+        virtuales_qs = VirtualEvent.objects.filter(estado='aprobado').order_by('-start_datetime')
 
-    # 3. Categorías únicas de eventos (para el filtro combinado)
-    categorias_eventos = eventos_qs.exclude(category__isnull=True).exclude(category='').values_list('category', flat=True).distinct()
-    categorias_combinadas = list(nombres_predefinidos)
-    for cat in categorias_eventos:
-        if cat not in categorias_combinadas:
-            categorias_combinadas.append(cat)
+    # 3. Obtener eventos presenciales aprobados (solo aprobados para todos, incluyendo organizador)
+    #    Nota: si quieres que el organizador vea sus presenciales aunque no estén aprobados, añade la condición similar.
+    presenciales_qs = EventoPresencial.objects.filter(status='aprobado').order_by('-start_date')
 
-    categorias_para_template = []
-    for nombre in categorias_combinadas:
-        predef = categorias_predefinidas.filter(nombre=nombre).first()
-        icono = predef.icono if predef else 'category'
-        categorias_para_template.append({'nombre': nombre, 'icono': icono})
-
-    # 4. Filtros
-    categoria_seleccionada = request.GET.get('categoria')
-    busqueda = request.GET.get('busqueda', '').strip()
-
-    if categoria_seleccionada:
-        eventos_qs = eventos_qs.filter(category__iexact=categoria_seleccionada)
-    if busqueda:
-        eventos_qs = eventos_qs.filter(
-            Q(title__icontains=busqueda) |
-            Q(category__icontains=busqueda) |
-            Q(description__icontains=busqueda) |
-            Q(created_by__first_name__icontains=busqueda) |
-            Q(created_by__last_name__icontains=busqueda) |
-            Q(created_by__email__icontains=busqueda)
-        )
-
-    # 5. Anotar promedio y cantidad de reseñas
-    eventos_qs = eventos_qs.annotate(
+    # 4. Anotar promedios de reseñas para virtuales (si tienes relación con Resena)
+    virtuales_qs = virtuales_qs.annotate(
         promedio_resenas=Avg('resenas__calificacion', filter=Q(resenas__aprobada=True)),
         total_resenas=Count('resenas', filter=Q(resenas__aprobada=True))
     )
 
-    # 6. Convertir a lista de diccionarios ANTES de paginar (para poder reordenar)
-    eventos_lista = []
-    for ev in eventos_qs:
-        eventos_lista.append({
+    # 5. Construir lista unificada de eventos (diccionarios)
+    eventos = []
+
+    # Virtuales
+    for ev in virtuales_qs:
+        eventos.append({
             'id': ev.id,
             'titulo': ev.title,
             'categoria': ev.category,
@@ -77,24 +55,50 @@ def home(request):
             'creado_por': ev.created_by.id,
             'promedio': round(ev.promedio_resenas or 0, 1),
             'total_resenas': ev.total_resenas or 0,
+            'ubicacion': None,
         })
 
-    # 7. Personalización por preferencias (solo si NO hay filtros activos y usuario autenticado)
-    if not categoria_seleccionada and not busqueda and request.user.is_authenticated:
+    # Presenciales
+    for ev in presenciales_qs:
+        eventos.append({
+            'id': ev.id,
+            'titulo': ev.title,
+            'categoria': ev.category,
+            'imagen': ev.image.url if ev.image else 'https://via.placeholder.com/1200x400?text=Evento',
+            'tipo': 'presencial',
+            'fecha': ev.start_date.strftime('%Y-%m-%d'),
+            'descripcion': ev.description,
+            'creado_por': ev.organizer.id,
+            'promedio': 0,   # Si más adelante tienen reseñas, puedes anotarlas
+            'total_resenas': 0,
+            'ubicacion': ev.location,
+        })
+
+    # 6. Filtros (categoría y búsqueda) sobre la lista unificada
+    categoria_filtro = request.GET.get('categoria')
+    busqueda = request.GET.get('busqueda', '').strip()
+
+    eventos_filtrados = eventos
+    if categoria_filtro:
+        eventos_filtrados = [e for e in eventos_filtrados if e['categoria'].lower() == categoria_filtro.lower()]
+    if busqueda:
+        eventos_filtrados = [e for e in eventos_filtrados if busqueda.lower() in e['titulo'].lower() or busqueda.lower() in e['categoria'].lower()]
+
+    # 7. Personalización por preferencias (solo si no hay filtros activos y usuario autenticado)
+    if not categoria_filtro and not busqueda and request.user.is_authenticated:
         preferencias = list(request.user.preferencias.values_list('nombre', flat=True))
         if preferencias:
-            categorias_preferidas_lower = [c.lower() for c in preferencias]
-            # Eventos preferidos (coincidencia insensible a mayúsculas)
-            eventos_preferidos = [e for e in eventos_lista if e['categoria'].lower() in categorias_preferidas_lower]
+            categorias_pref_lower = [c.lower() for c in preferencias]
+            eventos_preferidos = [e for e in eventos_filtrados if e['categoria'].lower() in categorias_pref_lower]
             if len(eventos_preferidos) < 3:
-                otros_eventos = [e for e in eventos_lista if e not in eventos_preferidos]
+                otros_eventos = [e for e in eventos_filtrados if e not in eventos_preferidos]
                 eventos_recomendados = eventos_preferidos + otros_eventos[:3 - len(eventos_preferidos)]
             else:
                 eventos_recomendados = eventos_preferidos[:6]
-            eventos_lista = eventos_recomendados
+            eventos_filtrados = eventos_recomendados
 
-    # 8. Paginación (6 elementos por página)
-    paginator = Paginator(eventos_lista, 6)
+    # 8. Paginación (6 por página)
+    paginator = Paginator(eventos_filtrados, 6)
     page = request.GET.get('page', 1)
     try:
         eventos_paginados = paginator.page(page)
@@ -103,19 +107,40 @@ def home(request):
     except EmptyPage:
         eventos_paginados = paginator.page(paginator.num_pages)
 
-    # 9. IDs de eventos favoritos del usuario
+    # 9. IDs de eventos favoritos del usuario (solo para virtuales? presenciales también)
     favoritos_ids = []
     if request.user.is_authenticated:
+        # Si el modelo Favorito solo guarda eventos virtuales, no afecta a presenciales.
+        # Si quieres favoritos para presenciales, necesitas un modelo genérico o duplicar.
         favoritos_ids = list(request.user.favoritos.values_list('evento_id', flat=True))
 
-    # Añadir campo 'es_favorito' a cada evento de la página actual
     for evento in eventos_paginados:
-        evento['es_favorito'] = evento['id'] in favoritos_ids
+        evento['es_favorito'] = evento['id'] in favoritos_ids and evento['tipo'] == 'virtual'
+
+    # 10. Construir categorías para el filtro (pills) a partir de las categorías únicas de ambos tipos
+    categorias_unicas = set()
+    for ev in virtuales_qs:
+        if ev.category:
+            categorias_unicas.add(ev.category)
+    for ev in presenciales_qs:
+        if ev.category:
+            categorias_unicas.add(ev.category)
+
+    categorias_combinadas = list(nombres_predefinidos)
+    for cat in categorias_unicas:
+        if cat not in categorias_combinadas:
+            categorias_combinadas.append(cat)
+
+    categorias_para_template = []
+    for nombre in categorias_combinadas:
+        predef = categorias_predefinidas.filter(nombre=nombre).first()
+        icono = predef.icono if predef else 'category'
+        categorias_para_template.append({'nombre': nombre, 'icono': icono})
 
     context = {
         'categorias': categorias_para_template,
         'eventos': eventos_paginados,
-        'categoria_seleccionada': categoria_seleccionada,
+        'categoria_seleccionada': categoria_filtro,
         'busqueda': busqueda,
         'user_authenticated': request.user.is_authenticated,
         'paginator': paginator,
