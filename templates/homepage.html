@@ -3,14 +3,13 @@
 {% block title %}EventPulse - Descubre Eventos{% endblock %}
 
 {% block extra_css %}
-
 <style>
     .like-icon {
-        font-variation-settings: 'FILL' 0;
         transition: transform 0.2s ease;
+        color: #6b7280;
     }
     .like-icon.filled {
-        font-variation-settings: 'FILL' 1;
+        color: #ef4444;
     }
     .like-btn:hover .like-icon {
         transform: scale(1.1);
@@ -36,9 +35,7 @@
 <section class="mb-12">
     <h2 class="text-2xl font-bold mb-6" style="color: var(--text-on-surface);" data-i18n="cat_title">Explorar por Categoría</h2>
     <div class="flex flex-wrap gap-3">
-        <a href="{% url 'core:home' %}" class="rounded-full px-5 py-2 text-sm font-medium transition-all {% if not categoria_seleccionada %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}" data-i18n="all_categories">
-            Todas
-        </a>
+        <a href="{% url 'core:home' %}" class="rounded-full px-5 py-2 text-sm font-medium transition-all {% if not categoria_seleccionada %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}" data-i18n="all_categories">Todas</a>
         {% for cat in categorias %}
         <a href="?categoria={{ cat.nombre }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" class="rounded-full px-5 py-2 text-sm font-medium transition-all flex items-center gap-2 {% if categoria_seleccionada == cat.nombre %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
             <span class="material-symbols-outlined text-base">{{ cat.icono|default:"category" }}</span>
@@ -57,7 +54,10 @@
     {% if eventos %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for evento in eventos %}
-            <div class="rounded-xl shadow-sm overflow-hidden flex flex-col group" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
+            <div class="rounded-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow relative" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
+                <!-- Enlace que cubre toda la tarjeta (excepto los botones) -->
+                <a href="{% url 'virtualEvent:event_detail' evento.id %}" class="absolute inset-0 z-10"></a>
+                
                 <div class="h-48 overflow-hidden">
                     <img src="{{ evento.imagen }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" alt="{{ evento.titulo }}">
                 </div>
@@ -77,44 +77,47 @@
                             <span class="text-xs ml-1" style="color: var(--text-on-surface-variant);">({{ evento.total_resenas }})</span>
                         </div>
                         {% if user.is_authenticated %}
-                            <button class="like-btn text-red-500 transition hover:scale-110 focus:outline-none" data-evento-id="{{ evento.id }}">
+                            <button class="like-btn transition hover:scale-110 focus:outline-none relative z-20" data-evento-id="{{ evento.id }}">
                                 <span class="material-symbols-outlined like-icon {% if evento.es_favorito %}filled{% endif %}">favorite</span>
                             </button>
                         {% else %}
-                            <a href="{% url 'usuarios:login' %}" class="text-red-400">
+                            <a href="{% url 'usuarios:login' %}" class="text-red-400 relative z-20">
                                 <span class="material-symbols-outlined">favorite_border</span>
                             </a>
                         {% endif %}
                     </div>
 
-                    <!-- Botones de acción -->
-                    <div class="flex flex-col gap-2 mt-4">
+                    <!-- Botones de acción con suscripción condicional -->
+                    <div class="flex flex-col gap-2 mt-4 relative z-20">
                         {% if user.is_authenticated %}
                             {% if evento.creado_por != user.id %}
-                                <form method="post" action="{% url 'core:suscribirse' %}" class="w-full">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="evento_id" value="{{ evento.id }}">
-                                    <input type="hidden" name="tipo_evento" value="{{ evento.tipo }}">
-                                    <input type="hidden" name="titulo" value="{{ evento.titulo }}">
-                                    <input type="hidden" name="fecha" value="{{ evento.fecha }}">
-                                    <input type="hidden" name="imagen" value="{{ evento.imagen }}">
-                                    <button type="submit" class="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition" data-i18n="subscribe_btn">
-                                        Suscribirse
-                                    </button>
-                                </form>
+                                {% if evento.esta_suscrito %}
+                                    <div class="w-full py-2.5 bg-green-100 text-green-700 rounded-xl text-sm font-semibold text-center flex items-center justify-center gap-2">
+                                        <span class="material-symbols-outlined text-base">check_circle</span>
+                                        <span data-i18n="already_subscribed">Ya estás suscrito</span>
+                                    </div>
+                                {% else %}
+                                    <form method="post" action="{% url 'core:suscribirse' %}" class="w-full">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="evento_id" value="{{ evento.id }}">
+                                        <input type="hidden" name="tipo_evento" value="{{ evento.tipo }}">
+                                        <input type="hidden" name="titulo" value="{{ evento.titulo }}">
+                                        <input type="hidden" name="fecha" value="{{ evento.fecha }}">
+                                        <input type="hidden" name="imagen" value="{{ evento.imagen }}">
+                                        <button type="submit" class="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition" data-i18n="subscribe_btn">Suscribirse</button>
+                                    </form>
+                                {% endif %}
                             {% else %}
                                 <div class="w-full py-2.5 bg-gray-200 text-gray-500 rounded-xl text-sm font-semibold text-center" data-i18n="eres_organizador">Eres el organizador</div>
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'usuarios:login' %}" class="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-semibold text-center hover:opacity-90 transition" data-i18n="login_to_subscribe">
-                                Iniciar sesión
-                            </a>
+                            <a href="{% url 'usuarios:login' %}" class="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-semibold text-center hover:opacity-90 transition relative z-20" data-i18n="login_to_subscribe">Iniciar sesión</a>
                         {% endif %}
 
                         <div class="flex gap-2">
                             <!-- Compartir -->
                             <div class="relative share-wrapper flex-1">
-                                <button class="share-trigger w-full py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);">
+                                <button class="share-trigger w-full py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition relative z-20" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);">
                                     <i class="fas fa-share-alt"></i> <span data-i18n="share_btn">Compartir</span>
                                 </button>
                                 <div class="share-menu hidden absolute right-0 bottom-full mb-2 w-56 rounded-xl shadow-xl z-30 p-3" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
@@ -142,8 +145,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Ver reseñas -->
-                            <a href="{% url 'virtualEvent:event_detail' evento.id %}" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition text-center" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);" data-i18n="view_reviews">
+                            <!-- Ver reseñas (opcional, la tarjeta ya es clickable) -->
+                            <a href="{% url 'virtualEvent:event_detail' evento.id %}" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition text-center relative z-20" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);" data-i18n="view_reviews">
                                 <span class="material-symbols-outlined text-base align-middle">rate_review</span> Reseñas
                             </a>
                         </div>
@@ -191,146 +194,90 @@
     </div>
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
-    // Mapa (ejemplo) - sin cambios
-    const eventosMapa = [
-        { titulo: "Concierto Rock 2025", categoria: "Conciertos", lat: -12.0464, lng: -77.0428, direccion: "Centro de Lima, Perú", fecha: "15/05/2025" },
-        { titulo: "Teatro Nacional", categoria: "Teatro", lat: -12.0621, lng: -77.0365, direccion: "San Borja, Lima", fecha: "20/06/2025" },
-        { titulo: "Webinar IA", categoria: "Conferencias", lat: -12.1194, lng: -77.0341, direccion: "Miraflores, Lima", fecha: "10/07/2025" },
-        { titulo: "Feria Gastronómica", categoria: "Gastronomía", lat: -12.1328, lng: -77.0301, direccion: "Barranco, Lima", fecha: "05/08/2025" }
-    ];
-
-    let map;
-    let markers = [];
-
+    // Mapa
     function initMap() {
-        const centerLat = -12.0464;
-        const centerLng = -77.0428;
-        map = L.map('map').setView([centerLat, centerLng], 12);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
-            subdomains: 'abcd',
-            maxZoom: 19,
-            minZoom: 3
-        }).addTo(map);
-        
-        eventosMapa.forEach(evento => {
-            const marker = L.marker([evento.lat, evento.lng]).addTo(map);
-            marker.bindPopup(`
-                <b>${evento.titulo}</b><br>
-                ${evento.categoria}<br>
-                📍 ${evento.direccion}<br>
-                📅 ${evento.fecha}<br>
-                <button onclick="alert('Suscribirse a ${evento.titulo}')" style="background:#0057cd; color:white; border:none; padding:4px 8px; border-radius:8px; margin-top:4px; cursor:pointer;">Suscribirse</button>
-            `);
-            markers.push(marker);
+        const eventosMapa = [
+            { titulo: "Concierto Rock 2025", lat: -12.0464, lng: -77.0428, direccion: "Centro de Lima, Perú" },
+            { titulo: "Teatro Nacional", lat: -12.0621, lng: -77.0365, direccion: "San Borja, Lima" },
+            { titulo: "Webinar IA", lat: -12.1194, lng: -77.0341, direccion: "Miraflores, Lima" },
+            { titulo: "Feria Gastronómica", lat: -12.1328, lng: -77.0301, direccion: "Barranco, Lima" }
+        ];
+        var map = L.map('map').setView([-12.0464, -77.0428], 12);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+        eventosMapa.forEach(e => {
+            L.marker([e.lat, e.lng]).addTo(map).bindPopup(`<b>${e.titulo}</b><br>📍 ${e.direccion}`);
         });
     }
-
-    function searchLocation() {
-        const address = document.getElementById('search-location').value;
-        if (!address.trim()) {
-            alert("Ingresa una dirección para buscar");
-            return;
-        }
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.length > 0) {
-                    const lat = parseFloat(data[0].lat);
-                    const lon = parseFloat(data[0].lon);
-                    map.setView([lat, lon], 14);
-                    L.marker([lat, lon]).addTo(map).bindPopup(`<b>${address}</b>`).openPopup();
-                } else {
-                    alert("No se encontró la ubicación");
-                }
-            })
-            .catch(error => {
-                console.error("Error en geocodificación:", error);
-                alert("Error al buscar la ubicación");
-            });
-    }
-
+    
     document.addEventListener('DOMContentLoaded', function() {
         initMap();
-        const searchBtn = document.getElementById('search-map');
-        if (searchBtn) searchBtn.onclick = (e) => { e.preventDefault(); searchLocation(); };
-
+        
         // Menús de compartir
-        const shareTriggers = document.querySelectorAll('.share-trigger');
-        shareTriggers.forEach(trigger => {
+        document.querySelectorAll('.share-trigger').forEach(trigger => {
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const menu = trigger.closest('.share-wrapper').querySelector('.share-menu');
-                document.querySelectorAll('.share-menu').forEach(m => { if (m !== menu) m.classList.add('hidden'); });
+                document.querySelectorAll('.share-menu').forEach(m => m.classList.add('hidden'));
                 menu.classList.toggle('hidden');
             });
         });
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.share-menu').forEach(m => m.classList.add('hidden'));
-        });
-
-        const shareData = (btn, platform) => {
-            const title = btn.dataset.eventTitle;
-            const url = btn.dataset.eventUrl;
-            let shareUrl = '';
-            if (platform === 'facebook') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}`;
-            if (platform === 'twitter') shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
-            if (platform === 'whatsapp') shareUrl = `https://wa.me/?text=${encodeURIComponent(title + ' - ' + url)}`;
-            if (platform === 'telegram') shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
-            if (shareUrl) window.open(shareUrl, '_blank', 'width=600,height=400');
-        };
-
-        document.querySelectorAll('.share-facebook').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); shareData(btn, 'facebook'); }));
-        document.querySelectorAll('.share-twitter').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); shareData(btn, 'twitter'); }));
-        document.querySelectorAll('.share-whatsapp').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); shareData(btn, 'whatsapp'); }));
-        document.querySelectorAll('.share-telegram').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); shareData(btn, 'telegram'); }));
+        document.addEventListener('click', () => document.querySelectorAll('.share-menu').forEach(m => m.classList.add('hidden')));
         
-        document.querySelectorAll('.share-copy').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+        // Sistema de Me gusta
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                   document.querySelector('meta[name="csrf-token"]')?.content;
+        }
+        
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
                 e.stopPropagation();
-                const url = btn.dataset.eventUrl;
-                try {
-                    await navigator.clipboard.writeText(url);
-                    alert('✅ Enlace copiado al portapapeles. Ahora puedes pegarlo en Instagram u otra red social.');
-                } catch (err) {
-                    alert('❌ No se pudo copiar. Copia manualmente: ' + url);
-                }
-            });
-        });
-    });
-
-    // Like (AJAX)
-    function getCSRFToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
-               document.querySelector('meta[name="csrf-token"]')?.content;
-    }
-
-    document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const eventoId = this.dataset.eventoId;
-            const icon = this.querySelector('.like-icon');
-            
-            fetch("{% url 'core:toggle_favorito' %}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCSRFToken(),
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    'evento_id': eventoId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.liked) {
-                    icon.classList.add('filled');
-                } else {
+                const eventoId = this.dataset.eventoId;
+                const icon = this.querySelector('.like-icon');
+                const isFilled = icon.classList.contains('filled');
+                
+                if (isFilled) {
                     icon.classList.remove('filled');
+                    icon.style.color = '#6b7280';
+                } else {
+                    icon.classList.add('filled');
+                    icon.style.color = '#ef4444';
                 }
-            })
-            .catch(error => console.error('Error:', error));
+                
+                fetch("{% url 'core:toggle_favorito' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken(),
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'evento_id=' + eventoId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.liked) {
+                        icon.classList.add('filled');
+                        icon.style.color = '#ef4444';
+                    } else {
+                        icon.classList.remove('filled');
+                        icon.style.color = '#6b7280';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (isFilled) {
+                        icon.classList.add('filled');
+                        icon.style.color = '#ef4444';
+                    } else {
+                        icon.classList.remove('filled');
+                        icon.style.color = '#6b7280';
+                    }
+                });
+            });
         });
     });
 </script>

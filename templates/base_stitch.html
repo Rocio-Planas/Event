@@ -2,6 +2,7 @@
 <!doctype html>
 <html class="light" lang="es">
 <head>
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}EventPulse{% endblock %}</title>
@@ -254,6 +255,7 @@
                 'privacy_security_title': '6. Seguridad',
                 'privacy_security_text': 'Implementamos medidas de seguridad para proteger tu información, pero recuerda que ningún sistema es 100% seguro.',
                 'last_update': 'Última actualización: 5 de abril de 2026',
+                'already_subscribed': 'Ya estás suscrito',
                 'event_id': 'ID del evento',
                 'event_title': 'Título del evento',
                 'type': 'Tipo de consulta',
@@ -306,6 +308,7 @@
                 'filter_recent': '🕒 Recent',
                 'share_btn': 'Share',
                 'subscribe_btn': 'Subscribe',
+                'already_subscribed': 'Already subscribed',
                 'map_title': 'Events near you',
                 'map_placeholder': 'Enter an address...',
                 'map_btn': 'View map',
@@ -763,15 +766,6 @@
             </div>
         </main>
 
-    <footer class="w-full border-t py-8 mt-12" style="background-color: var(--surface-container-low); border-color: var(--border-outline-variant);">
-        <div class="max-w-7xl mx-auto px-4 text-center text-sm" style="color: var(--text-on-surface-variant);">
-            <div class="flex flex-wrap justify-center gap-4 mb-3">
-                <a href="{% url 'core:about' %}" class="hover:underline transition-colors" data-i18n="about_link">Acerca de</a>
-                <a href="{% url 'core:terms' %}" class="hover:underline transition-colors" data-i18n="terms_link">Términos y condiciones</a>
-                <a href="{% url 'core:privacy' %}" class="hover:underline transition-colors" data-i18n="privacy_link">Política de privacidad</a>
-            </div>
-        </footer>
-
 <!-- Mensajes de Django convertidos a toasts con traducción condicional -->
 {% if messages %}
 <div id="django-messages-data" style="display: none;" data-messages='[
@@ -1041,6 +1035,20 @@
             observer.observe(document.body, { childList: true, subtree: true });
         });
     </script>
-    
+    {% block extra_js %}{% endblock %}
 </body>
+
+<footer class="w-full border-t py-8 mt-12">
+    <div class="max-w-7xl mx-auto px-4 text-center text-sm" style="color: var(--text-on-surface-variant);">
+        <div class="flex flex-wrap justify-center gap-4 mb-3">
+            <a href="{% url 'core:about' %}" class="hover:underline transition-colors" data-i18n="about_link">Acerca de</a>
+            <a href="{% url 'core:aviso_legal' %}" class="hover:underline transition-colors" data-i18n="aviso_legal_link">Aviso Legal</a>
+            <a href="{% url 'core:politica_cookies' %}" class="hover:underline transition-colors" data-i18n="cookie_policy_link">Política de Cookies</a>
+            <a href="{% url 'core:terms' %}" class="hover:underline transition-colors" data-i18n="terms_link">Términos y condiciones</a>
+            <a href="{% url 'core:privacy' %}" class="hover:underline transition-colors" data-i18n="privacy_link">Política de privacidad</a>
+        </div>
+        <div>&copy; {% now "Y" %} EventPulse. <span data-i18n="footer_copyright">Todos los derechos reservados.</span></div>
+    </div>
+</footer>
+
 </html>

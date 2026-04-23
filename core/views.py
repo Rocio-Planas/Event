@@ -29,17 +29,23 @@ def home(request):
     else:
         virtuales_qs = VirtualEvent.objects.filter(estado='aprobado').order_by('-start_datetime')
 
-    # 3. Obtener eventos presenciales aprobados (solo aprobados para todos, incluyendo organizador)
-    #    Nota: si quieres que el organizador vea sus presenciales aunque no estén aprobados, añade la condición similar.
+    # 3. Obtener eventos presenciales aprobados
     presenciales_qs = EventoPresencial.objects.filter(status='aprobado').order_by('-start_date')
 
-    # 4. Anotar promedios de reseñas para virtuales (si tienes relación con Resena)
+    # 4. Anotar promedios de reseñas para virtuales
     virtuales_qs = virtuales_qs.annotate(
         promedio_resenas=Avg('resenas__calificacion', filter=Q(resenas__aprobada=True)),
         total_resenas=Count('resenas', filter=Q(resenas__aprobada=True))
     )
 
-    # 5. Construir lista unificada de eventos (diccionarios)
+    # 5. Obtener suscripciones del usuario (si está autenticado)
+    suscripciones_virtuales_ids = []
+    suscripciones_presenciales_ids = []
+    if request.user.is_authenticated:
+        suscripciones_virtuales_ids = list(EventFollower.objects.filter(user=request.user).values_list('event_id', flat=True))
+        suscripciones_presenciales_ids = list(Suscripcion.objects.filter(usuario=request.user, tipo_evento='presencial').values_list('evento_id', flat=True))
+
+    # 6. Construir lista unificada de eventos
     eventos = []
 
     # Virtuales
@@ -56,6 +62,7 @@ def home(request):
             'promedio': round(ev.promedio_resenas or 0, 1),
             'total_resenas': ev.total_resenas or 0,
             'ubicacion': None,
+            'esta_suscrito': ev.id in suscripciones_virtuales_ids,
         })
 
     # Presenciales
@@ -69,12 +76,13 @@ def home(request):
             'fecha': ev.start_date.strftime('%Y-%m-%d'),
             'descripcion': ev.description,
             'creado_por': ev.organizer.id,
-            'promedio': 0,   # Si más adelante tienen reseñas, puedes anotarlas
+            'promedio': 0,
             'total_resenas': 0,
             'ubicacion': ev.location,
+            'esta_suscrito': ev.id in suscripciones_presenciales_ids,
         })
 
-    # 6. Filtros (categoría y búsqueda) sobre la lista unificada
+    # 7. Filtros
     categoria_filtro = request.GET.get('categoria')
     busqueda = request.GET.get('busqueda', '').strip()
 
@@ -84,7 +92,7 @@ def home(request):
     if busqueda:
         eventos_filtrados = [e for e in eventos_filtrados if busqueda.lower() in e['titulo'].lower() or busqueda.lower() in e['categoria'].lower()]
 
-    # 7. Personalización por preferencias (solo si no hay filtros activos y usuario autenticado)
+    # 8. Personalización por preferencias
     if not categoria_filtro and not busqueda and request.user.is_authenticated:
         preferencias = list(request.user.preferencias.values_list('nombre', flat=True))
         if preferencias:
@@ -97,7 +105,7 @@ def home(request):
                 eventos_recomendados = eventos_preferidos[:6]
             eventos_filtrados = eventos_recomendados
 
-    # 8. Paginación (6 por página)
+    # 9. Paginación
     paginator = Paginator(eventos_filtrados, 6)
     page = request.GET.get('page', 1)
     try:
@@ -107,17 +115,15 @@ def home(request):
     except EmptyPage:
         eventos_paginados = paginator.page(paginator.num_pages)
 
-    # 9. IDs de eventos favoritos del usuario (solo para virtuales? presenciales también)
+    # 10. IDs de eventos favoritos
     favoritos_ids = []
     if request.user.is_authenticated:
-        # Si el modelo Favorito solo guarda eventos virtuales, no afecta a presenciales.
-        # Si quieres favoritos para presenciales, necesitas un modelo genérico o duplicar.
         favoritos_ids = list(request.user.favoritos.values_list('evento_id', flat=True))
 
     for evento in eventos_paginados:
         evento['es_favorito'] = evento['id'] in favoritos_ids and evento['tipo'] == 'virtual'
 
-    # 10. Construir categorías para el filtro (pills) a partir de las categorías únicas de ambos tipos
+    # 11. Construir categorías para el filtro
     categorias_unicas = set()
     for ev in virtuales_qs:
         if ev.category:
@@ -328,34 +334,3 @@ def aviso_legal_view(request):
 
 def politica_cookies_view(request):
     return render(request, 'politica_cookies.html')
-
-@login_required
-@require_POST
-def toggle_favorito(request):
-    evento_id = request.POST.get('evento_id')
-    if not evento_id:
-        return JsonResponse({'error': 'ID de evento requerido'}, status=400)
-    
-    try:
-        evento = VirtualEvent.objects.get(id=evento_id)
-    except VirtualEvent.DoesNotExist:
-        return JsonResponse({'error': 'Evento no encontrado'}, status=404)
-    
-    favorito, created = Favorito.objects.get_or_create(
-        usuario=request.user,
-        evento=evento
-    )
-    if not created:
-        favorito.delete()
-        liked = False
-    else:
-        liked = True
-    
-    # Opcional: contar cuántos likes tiene el evento
-    total_likes = Favorito.objects.filter(evento=evento).count()
-    
-    return JsonResponse({
-        'liked': liked,
-        'total_likes': total_likes,
-        'evento_id': evento_id
-    })
