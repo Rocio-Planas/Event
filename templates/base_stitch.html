@@ -265,7 +265,32 @@
                 'about_link': 'Acerca de',
                 'delete_event': 'Eliminar',
                 'terms_link': 'Términos y condiciones',
-                'privacy_link': 'Política de privacidad'
+                'privacy_link': 'Política de privacidad',
+                'map_btn': 'Ver mapa',
+                
+                'aviso_legal_link': 'Aviso Legal',
+                'cookie_policy_link': 'Política de Cookies',
+
+                // Para cada categoría que aparezca en el filtro (por ejemplo):
+                'cat_Conferencias': 'Conferencias',
+                'cat_Talleres': 'Talleres',
+                'cat_Seminarios': 'Seminarios',
+                // Política de Cookies
+                'cookie_policy_title': 'Política de Cookies',
+                'cookie_policy_intro': 'En cumplimiento con lo dispuesto en el artículo 22.2 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico, esta página web le informa, en esta sección, sobre la política de recogida y tratamiento de cookies.',
+                'cookie_policy_what_title': '¿Qué son las cookies?',
+                'cookie_policy_what_text': 'Una cookie es un fichero que se descarga en su ordenador al acceder a determinadas páginas web. Las cookies permiten a una página web, entre otras cosas, almacenar y recuperar información sobre los hábitos de navegación de un usuario o de su equipo y, dependiendo de la información que contengan y de la forma en que utilice su equipo, pueden utilizarse para reconocer al usuario.',
+                'cookie_policy_types_title': 'Tipos de cookies que utiliza esta página web',
+                'cookie_policy_types_text': 'Esta página web utiliza los siguientes tipos de cookies:',
+                'cookie_policy_type_essential': '<strong>Cookies técnicas o necesarias:</strong> Son aquellas que permiten al usuario la navegación a través de una página web, plataforma o aplicación y la utilización de las diferentes opciones o servicios que en ella existan. Estas cookies son esenciales y no se pueden desactivar en nuestros sistemas.',
+                'cookie_policy_type_analytics': '<strong>Cookies de análisis o medición:</strong> Son aquellas que permiten al responsable de las mismas el seguimiento y análisis del comportamiento de los usuarios de los sitios web a los que están vinculadas. La información recogida mediante este tipo de cookies se utiliza en la medición de la actividad de los sitios web, aplicación o plataforma, con el fin de introducir mejoras en función del análisis de los datos de uso que hacen los usuarios del servicio.',
+                'cookie_policy_disable_title': '¿Cómo puedo desactivar las cookies?',
+                'cookie_policy_disable_text': 'Puede usted permitir, bloquear o eliminar las cookies instaladas en su equipo mediante la configuración de las opciones del navegador instalado en su ordenador:',
+                'cookie_policy_link_chrome': 'Chrome',
+                'cookie_policy_link_firefox': 'Firefox',
+                'cookie_policy_link_ie': 'Internet Explorer',
+                'cookie_policy_link_safari': 'Safari',
+                'back_home': '← Volver al inicio'
             },
             en: {
                 'nav_inicio': 'Home',
@@ -277,6 +302,9 @@
                 'hero_subtitle': 'In-person and virtual events tailored to your taste.',
                 'search_placeholder': 'Search events...',
                 'search_btn': 'Search',
+               
+                'aviso_legal_link': 'Legal Notice',
+                'cookie_policy_link': 'Cookie Policy',
                 'cat_title': 'Explore by Category',
                 'cat_Conciertos': 'Concerts',
                 'cat_Teatro': 'Theater',
@@ -463,7 +491,27 @@
                 'view_reviews': 'View reviews',
                 'about_link': 'About',
                 'terms_link': 'Terms and Conditions',
-                'privacy_link': 'Privacy Policy'
+                'privacy_link': 'Privacy Policy',
+                'map_btn': 'View map',
+                'cat_Conferencias': 'Conferences',
+                'cat_Talleres': 'Workshops',
+                'cat_Seminarios': 'Seminars',
+                // Cookie Policy
+                'cookie_policy_title': 'Cookie Policy',
+                'cookie_policy_intro': 'In compliance with the provisions of Article 22.2 of Law 34/2002, of July 11, on Information Society Services and Electronic Commerce, this website informs you, in this section, about the policy for the collection and processing of cookies.',
+                'cookie_policy_what_title': 'What are cookies?',
+                'cookie_policy_what_text': 'A cookie is a file that is downloaded to your computer when accessing certain web pages. Cookies allow a web page, among other things, to store and retrieve information about the browsing habits of a user or their computer and, depending on the information they contain and the way you use your computer, they can be used to recognize the user.',
+                'cookie_policy_types_title': 'Types of cookies used by this website',
+                'cookie_policy_types_text': 'This website uses the following types of cookies:',
+                'cookie_policy_type_essential': '<strong>Technical or necessary cookies:</strong> These are those that allow the user to navigate through a web page, platform or application and use the different options or services that exist therein. These cookies are essential and cannot be disabled in our systems.',
+                'cookie_policy_type_analytics': '<strong>Analysis or measurement cookies:</strong> These are those that allow the person responsible for them to monitor and analyze the behavior of users of the websites to which they are linked. The information collected through this type of cookie is used to measure the activity of the websites, application or platform, in order to introduce improvements based on the analysis of the usage data made by the service users.',
+                'cookie_policy_disable_title': 'How can I disable cookies?',
+                'cookie_policy_disable_text': 'You can allow, block or delete the cookies installed on your computer by configuring the options of the browser installed on your computer:',
+                'cookie_policy_link_chrome': 'Chrome',
+                'cookie_policy_link_firefox': 'Firefox',
+                'cookie_policy_link_ie': 'Internet Explorer',
+                'cookie_policy_link_safari': 'Safari',
+                'back_home': '← Back to home',
             }
         };
 
@@ -1035,7 +1083,28 @@
             observer.observe(document.body, { childList: true, subtree: true });
         });
     </script>
-    {% block extra_js %}{% endblock %}
+    {% block extra_js %}
+    {% if cookie_consent_required %}
+<script>
+    (function() {
+        if (document.cookie.indexOf('cookie_consent=') !== -1) return;
+        var banner = document.createElement('div');
+        banner.id = 'cookie-banner';
+        banner.style.cssText = 'position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: #e2e8f0; padding: 1rem; text-align: center; z-index: 9999; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; font-family: system-ui, sans-serif;';
+        banner.innerHTML = `
+            <span>Usamos cookies esenciales para el funcionamiento de la plataforma. Al continuar navegando, aceptas su uso.</span>
+            <button id="accept-cookies" style="background: #3b82f6; border: none; padding: 0.5rem 1.2rem; border-radius: 2rem; color: white; cursor: pointer; font-weight: bold;">Aceptar</button>
+            <a href="/politica-cookies/" style="color: #94a3b8; text-decoration: underline;">Más información</a>
+        `;
+        document.body.appendChild(banner);
+        document.getElementById('accept-cookies').addEventListener('click', function() {
+            document.cookie = "cookie_consent=accepted; path=/; max-age=" + (365 * 24 * 60 * 60);
+            banner.remove();
+        });
+    })();
+</script>
+{% endif %}
+    {% endblock %}
 </body>
 
 <footer class="w-full border-t py-8 mt-12">

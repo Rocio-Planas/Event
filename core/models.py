@@ -107,3 +107,17 @@ class Favorito(models.Model):
 
     def __str__(self):
         return f"{self.usuario.email} -> {self.evento.title}"
+    
+class FavoritoPresencial(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favoritos_presenciales')
+    evento = models.ForeignKey('in_person_events.Event', on_delete=models.CASCADE, related_name='favoritos_presenciales')
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('usuario', 'evento')
+        verbose_name = 'Favorito (Evento Presencial)'
+        verbose_name_plural = 'Favoritos (Eventos Presenciales)'
+        ordering = ['-fecha']
+
+    def __str__(self):
+        return f"{self.usuario.email} -> {self.evento.title} (presencial)"

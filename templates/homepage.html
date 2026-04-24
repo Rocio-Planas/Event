@@ -11,7 +11,8 @@
     .like-icon.filled {
         color: #ef4444;
     }
-    .like-btn:hover .like-icon {
+    .like-btn:hover .like-icon,
+    .like-btn-presencial:hover .like-icon {
         transform: scale(1.1);
     }
 </style>
@@ -55,8 +56,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for evento in eventos %}
             <div class="rounded-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow relative" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
-                <!-- Enlace que cubre toda la tarjeta (excepto los botones) -->
-                <a href="{% url 'virtualEvent:event_detail' evento.id %}" class="absolute inset-0 z-10"></a>
+                <!-- Enlace a detalle -->
+                <a href="{{ evento.url_detalle }}" class="absolute inset-0 z-10"></a>
                 
                 <div class="h-48 overflow-hidden">
                     <img src="{{ evento.imagen }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" alt="{{ evento.titulo }}">
@@ -77,9 +78,15 @@
                             <span class="text-xs ml-1" style="color: var(--text-on-surface-variant);">({{ evento.total_resenas }})</span>
                         </div>
                         {% if user.is_authenticated %}
-                            <button class="like-btn transition hover:scale-110 focus:outline-none relative z-20" data-evento-id="{{ evento.id }}">
-                                <span class="material-symbols-outlined like-icon {% if evento.es_favorito %}filled{% endif %}">favorite</span>
-                            </button>
+                            {% if evento.tipo == 'virtual' %}
+                                <button class="like-btn transition hover:scale-110 focus:outline-none relative z-20" data-evento-id="{{ evento.id }}">
+                                    <span class="material-symbols-outlined like-icon {% if evento.es_favorito %}filled{% endif %}">favorite</span>
+                                </button>
+                            {% else %}
+                                <button class="like-btn-presencial transition hover:scale-110 focus:outline-none relative z-20" data-evento-id="{{ evento.id }}">
+                                    <span class="material-symbols-outlined like-icon {% if evento.es_favorito %}filled{% endif %}">favorite</span>
+                                </button>
+                            {% endif %}
                         {% else %}
                             <a href="{% url 'usuarios:login' %}" class="text-red-400 relative z-20">
                                 <span class="material-symbols-outlined">favorite_border</span>
@@ -87,7 +94,7 @@
                         {% endif %}
                     </div>
 
-                    <!-- Botones de acción con suscripción condicional -->
+                    <!-- Botones de acción -->
                     <div class="flex flex-col gap-2 mt-4 relative z-20">
                         {% if user.is_authenticated %}
                             {% if evento.creado_por != user.id %}
@@ -121,6 +128,7 @@
                                     <i class="fas fa-share-alt"></i> <span data-i18n="share_btn">Compartir</span>
                                 </button>
                                 <div class="share-menu hidden absolute right-0 bottom-full mb-2 w-56 rounded-xl shadow-xl z-30 p-3" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
+                                    <!-- opciones de compartir -->
                                     <div class="grid grid-cols-2 gap-3">
                                         <button class="share-facebook flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ evento.id }}">
                                             <i class="fab fa-facebook-f text-xl" style="color: #1877f2;"></i>
@@ -145,9 +153,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Ver reseñas (opcional, la tarjeta ya es clickable) -->
-                            <a href="{% url 'virtualEvent:event_detail' evento.id %}" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition text-center relative z-20" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);" data-i18n="view_reviews">
-                                <span class="material-symbols-outlined text-base align-middle">rate_review</span> Reseñas
+                            <!-- Ver detalles -->
+                            <a href="{{ evento.url_detalle }}" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition text-center relative z-20" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);" data-i18n="view_reviews">
+                                <span class="material-symbols-outlined text-base align-middle">info</span> Detalles
                             </a>
                         </div>
                     </div>
@@ -179,42 +187,157 @@
     {% endif %}
 </section>
 
-<!-- Mapa -->
+<!-- Mapa interactivo -->
 <section class="mb-12">
-    <h2 class="text-2xl font-bold mb-4" style="color: var(--text-on-surface);" data-i18n="map_title">Eventos cerca de ti</h2>
+    <h2 class="text-2xl font-bold mb-4" style="color: var(--text-on-surface);" data-i18n="map_title">Encuentra eventos presenciales cerca de ti</h2>
     <div class="rounded-xl overflow-hidden shadow-sm" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
-        <div id="map" style="height: 400px; width: 100%; z-index: 1;"></div>
+        <div id="map" style="height: 450px; width: 100%; z-index: 1;"></div>
         <div class="p-4 flex gap-2 bg-surface-container-low border-t border-outline-variant">
             <div class="relative flex-grow">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-on-surface-variant);">location_on</span>
-                <input type="text" id="search-location" class="w-full pl-9 pr-4 py-2 rounded-lg border-none" style="background-color: var(--surface-container-low); color: var(--text-on-surface);" data-i18n-placeholder="map_placeholder" placeholder="Ingresa una dirección...">
+                <input type="text" id="search-location" class="w-full pl-9 pr-4 py-2 rounded-lg border-none" style="background-color: var(--surface-container-low); color: var(--text-on-surface);" data-i18n-placeholder="map_placeholder" placeholder="Ciudad, dirección o código postal (ej: Madrid, 28001, Londres)...">
             </div>
             <button id="search-map" class="px-6 py-2 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition" data-i18n="map_btn">Ver mapa</button>
         </div>
+        <div id="map-results-info" class="px-4 pb-3 text-sm text-on-surface-variant hidden"></div>
     </div>
 </section>
+
+<!-- Datos para el mapa -->
+{{ eventos_presenciales_mapa|json_script:"eventos-presenciales-data" }}
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Mapa
+    // ========== DATOS DE EVENTOS PRESENCIALES ==========
+    let eventosPresenciales = [];
+    try {
+        const dataElement = document.getElementById('eventos-presenciales-data');
+        if (dataElement && dataElement.textContent) {
+            eventosPresenciales = JSON.parse(dataElement.textContent);
+        }
+    } catch(e) {
+        console.error('Error cargando eventos presenciales:', e);
+    }
+    console.log(`📌 ${eventosPresenciales.length} eventos presenciales cargados para el mapa`);
+    
+    // ========== CONFIGURACIÓN MAPA ==========
+    let map;
+    let markersLayer;
+    const eventLocationCache = {};
+    
     function initMap() {
-        const eventosMapa = [
-            { titulo: "Concierto Rock 2025", lat: -12.0464, lng: -77.0428, direccion: "Centro de Lima, Perú" },
-            { titulo: "Teatro Nacional", lat: -12.0621, lng: -77.0365, direccion: "San Borja, Lima" },
-            { titulo: "Webinar IA", lat: -12.1194, lng: -77.0341, direccion: "Miraflores, Lima" },
-            { titulo: "Feria Gastronómica", lat: -12.1328, lng: -77.0301, direccion: "Barranco, Lima" }
-        ];
-        var map = L.map('map').setView([-12.0464, -77.0428], 12);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
-        eventosMapa.forEach(e => {
-            L.marker([e.lat, e.lng]).addTo(map).bindPopup(`<b>${e.titulo}</b><br>📍 ${e.direccion}`);
-        });
+        map = L.map('map').setView([20.0, 0.0], 2);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB'
+        }).addTo(map);
+        markersLayer = L.layerGroup().addTo(map);
     }
     
+    async function geocodeAddress(address) {
+        if (!address) return null;
+        const cacheKey = address.toLowerCase().trim();
+        if (eventLocationCache[cacheKey]) return eventLocationCache[cacheKey];
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&addressdetails=1`;
+        try {
+            const response = await fetch(url, { headers: { 'User-Agent': 'EventPulse/1.0' } });
+            const data = await response.json();
+            if (data && data.length > 0) {
+                const result = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), displayName: data[0].display_name };
+                eventLocationCache[cacheKey] = result;
+                return result;
+            }
+            return null;
+        } catch (error) {
+            console.error('Error geocodificando:', error);
+            return null;
+        }
+    }
+    
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+    
+    async function geocodeEventDirection(direccion, eventId) {
+        const cacheKey = `event_${eventId}_${direccion.toLowerCase().trim()}`;
+        if (eventLocationCache[cacheKey]) return eventLocationCache[cacheKey];
+        const location = await geocodeAddress(direccion);
+        if (location) eventLocationCache[cacheKey] = location;
+        return location;
+    }
+    
+    async function showEventsNearLocation(lat, lon, locationName) {
+        markersLayer.clearLayers();
+        const infoDiv = document.getElementById('map-results-info');
+        const eventosCercanos = [];
+        for (const evento of eventosPresenciales) {
+            const ubicacionEvento = await geocodeEventDirection(evento.direccion, evento.id);
+            if (ubicacionEvento) {
+                const distance = calculateDistance(lat, lon, ubicacionEvento.lat, ubicacionEvento.lon);
+                if (distance <= 50) eventosCercanos.push({ evento, ubicacionEvento, distance });
+            }
+        }
+        map.setView([lat, lon], 12);
+        // Marcador de búsqueda
+        const searchIcon = L.divIcon({
+            html: '<div style="background-color: #ef4444; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>',
+            iconSize: [16, 16], popupAnchor: [0, -8]
+        });
+        L.marker([lat, lon], { icon: searchIcon }).addTo(markersLayer).bindPopup(`<b>📍 ${locationName}</b>`);
+        // Marcadores de eventos
+        for (const item of eventosCercanos) {
+            const popupContent = `
+                <div class="p-2" style="min-width: 200px; max-width: 260px;">
+                    <div class="font-bold text-sm mb-1">${escapeHtml(item.evento.titulo)}</div>
+                    <div class="text-xs text-gray-600">📅 ${item.evento.fecha}</div>
+                    <div class="text-xs text-gray-600">📍 ${escapeHtml(item.evento.direccion)}</div>
+                    <div class="text-xs text-gray-500 mt-1">🎭 ${escapeHtml(item.evento.categoria)}</div>
+                    <div class="text-xs text-blue-600 mt-1">📏 a ${Math.round(item.distance)} km</div>
+                    <a href="/eventos-presenciales/${item.evento.id}/" class="inline-block mt-2 px-2 py-1 bg-primary text-white text-xs rounded hover:opacity-90">Ver evento →</a>
+                </div>
+            `;
+            const marker = L.marker([item.ubicacionEvento.lat, item.ubicacionEvento.lon]).addTo(markersLayer);
+            marker.bindPopup(popupContent);
+        }
+        if (eventosCercanos.length) {
+            infoDiv.innerHTML = `<span class="text-green-600">✅ Encontrados ${eventosCercanos.length} eventos cerca de "${locationName}"</span>`;
+            infoDiv.classList.remove('hidden');
+        } else {
+            infoDiv.innerHTML = `<span class="text-yellow-600">⚠️ No hay eventos presenciales cerca de "${locationName}". Prueba con otra ubicación.</span>`;
+            infoDiv.classList.remove('hidden');
+        }
+    }
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    async function searchAndShowEvents() {
+        const address = document.getElementById('search-location').value.trim();
+        if (!address) { alert('Por favor, ingresa una ciudad, dirección o código postal'); return; }
+        const location = await geocodeAddress(address);
+        if (location) await showEventsNearLocation(location.lat, location.lon, address);
+        else alert('No se pudo encontrar la ubicación. Intenta con una dirección más específica.');
+    }
+    
+    // ========== INICIALIZACIÓN ==========
     document.addEventListener('DOMContentLoaded', function() {
         initMap();
+        const searchBtn = document.getElementById('search-map');
+        if (searchBtn) searchBtn.addEventListener('click', (e) => { e.preventDefault(); searchAndShowEvents(); });
+        const searchInput = document.getElementById('search-location');
+        if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); searchAndShowEvents(); } });
         
         // Menús de compartir
         document.querySelectorAll('.share-trigger').forEach(trigger => {
@@ -227,20 +350,19 @@
         });
         document.addEventListener('click', () => document.querySelectorAll('.share-menu').forEach(m => m.classList.add('hidden')));
         
-        // Sistema de Me gusta
+        // ========== SISTEMA DE "ME GUSTA" (ambos tipos) ==========
         function getCSRFToken() {
             return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
                    document.querySelector('meta[name="csrf-token"]')?.content;
         }
         
+        // Virtuales
         document.querySelectorAll('.like-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
+                e.preventDefault(); e.stopPropagation();
                 const eventoId = this.dataset.eventoId;
                 const icon = this.querySelector('.like-icon');
                 const isFilled = icon.classList.contains('filled');
-                
                 if (isFilled) {
                     icon.classList.remove('filled');
                     icon.style.color = '#6b7280';
@@ -248,13 +370,51 @@
                     icon.classList.add('filled');
                     icon.style.color = '#ef4444';
                 }
-                
                 fetch("{% url 'core:toggle_favorito' %}", {
                     method: 'POST',
-                    headers: {
-                        'X-CSRFToken': getCSRFToken(),
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
+                    headers: { 'X-CSRFToken': getCSRFToken(), 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'evento_id=' + eventoId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.liked) {
+                        icon.classList.add('filled');
+                        icon.style.color = '#ef4444';
+                    } else {
+                        icon.classList.remove('filled');
+                        icon.style.color = '#6b7280';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (isFilled) {
+                        icon.classList.add('filled');
+                        icon.style.color = '#ef4444';
+                    } else {
+                        icon.classList.remove('filled');
+                        icon.style.color = '#6b7280';
+                    }
+                });
+            });
+        });
+        
+        // Presenciales
+        document.querySelectorAll('.like-btn-presencial').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault(); e.stopPropagation();
+                const eventoId = this.dataset.eventoId;
+                const icon = this.querySelector('.like-icon');
+                const isFilled = icon.classList.contains('filled');
+                if (isFilled) {
+                    icon.classList.remove('filled');
+                    icon.style.color = '#6b7280';
+                } else {
+                    icon.classList.add('filled');
+                    icon.style.color = '#ef4444';
+                }
+                fetch("{% url 'core:toggle_favorito_presencial' %}", {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCSRFToken(), 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: 'evento_id=' + eventoId
                 })
                 .then(response => response.json())

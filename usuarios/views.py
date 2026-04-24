@@ -11,7 +11,7 @@ from virtualEvent.models import VirtualEvent
 from in_person_events.models import Event
 from .forms import RegistroForm, LoginForm, RecuperacionPasswordForm, PerfilForm, CambiarPasswordForm, PreferenciasForm
 from .models import Usuario
-from core.models import CategoriaEvento, Suscripcion, Consulta, Resena
+from core.models import CategoriaEvento, FavoritoPresencial, Suscripcion, Consulta, Resena
 from .decorators import role_required
 from core.models import Favorito
 from in_person_events.models import Event as EventoPresencial
@@ -106,6 +106,8 @@ def perfil_view(request):
     # Favoritos (asumiendo que solo son virtuales, pero puedes adaptar)
     favoritos = Favorito.objects.filter(usuario=user).select_related('evento')
 
+    favoritos_presenciales = FavoritoPresencial.objects.filter(usuario=user).select_related('evento')
+
     context = {
         'user': user,
         'eventos_organizados_virtuales': eventos_organizados_virtuales,
@@ -113,6 +115,7 @@ def perfil_view(request):
         'suscripciones_virtuales': suscripciones_virtuales,
         'suscripciones_presenciales': suscripciones_presenciales,
         'favoritos': favoritos,
+        'favoritos_presenciales': favoritos_presenciales,
     }
     return render(request, 'usuarios/perfil.html', context)
 

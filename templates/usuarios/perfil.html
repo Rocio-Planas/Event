@@ -7,11 +7,14 @@
     .like-icon {
         font-variation-settings: 'FILL' 0;
         transition: transform 0.2s ease;
+        color: #6b7280;
     }
     .like-icon.filled {
         font-variation-settings: 'FILL' 1;
+        color: #ef4444;
     }
-    .like-btn:hover .like-icon {
+    .like-btn:hover .like-icon,
+    .like-btn-presencial:hover .like-icon {
         transform: scale(1.1);
     }
 </style>
@@ -19,7 +22,7 @@
 
 {% block content %}
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-    <!-- Columna izquierda: perfil -->
+    <!-- Columna izquierda: perfil (sin cambios) -->
     <aside class="lg:col-span-4 space-y-6">
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-8 flex flex-col items-center text-center">
             <div class="relative group mb-6">
@@ -104,14 +107,14 @@
     </aside>
 
     <section class="lg:col-span-8 space-y-6">
-        <!-- Eventos que organizo (Virtuales) -->
+        <!-- Eventos virtuales que organizo -->
         {% if eventos_organizados_virtuales %}
         <div>
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-2xl font-bold tracking-tight text-on-surface flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">videocam</span> Eventos virtuales que organizo
                 </h2>
-                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ eventos_organizados_virtuales.count }} <span data-i18n="subscriptions_count">eventos</span></span>
+                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ eventos_organizados_virtuales.count }} eventos</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {% for evento in eventos_organizados_virtuales %}
@@ -126,16 +129,16 @@
                     <div class="p-4">
                         <h4 class="font-bold text-on-surface">{{ evento.title }}</h4>
                         <div class="text-sm text-on-surface-variant mt-1">
-                            {{ evento.start_datetime|date:"d/m/Y H:i" }} • <span data-i18n="virtual_type">Virtual</span>
+                            {{ evento.start_datetime|date:"d/m/Y H:i" }} • Virtual
                         </div>
                         <div class="mt-3 flex gap-2">
-                            <a href="{% url 'virtualEvent:organizer_dashboard' evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold bg-primary text-white rounded-lg hover:opacity-90 transition" data-i18n="gestionar">Gestionar</a>
-                            <a href="{% url 'virtualEvent:event_detail' evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition" data-i18n="ver">Ver</a>
+                            <a href="{% url 'virtualEvent:organizer_dashboard' evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold bg-primary text-white rounded-lg hover:opacity-90 transition">Gestionar</a>
+                            <a href="{% url 'virtualEvent:event_detail' evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition">Ver</a>
                             <button type="button" 
                                 class="open-delete-modal flex-1 text-center py-2 text-sm font-semibold border border-error/20 text-error rounded-lg hover:bg-error-container/20 transition"
                                 data-event-id="{{ evento.id }}"
                                 data-event-title="{{ evento.title }}">
-                                <span data-i18n="eliminar">Eliminar</span>
+                                Eliminar
                             </button>
                         </div>
                     </div>
@@ -145,14 +148,14 @@
         </div>
         {% endif %}
 
-        <!-- Eventos que organizo (Presenciales) -->
+        <!-- Eventos presenciales que organizo -->
         {% if eventos_organizados_presenciales %}
         <div class="mt-8">
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-2xl font-bold tracking-tight text-on-surface flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">location_on</span> Eventos presenciales que organizo
                 </h2>
-                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ eventos_organizados_presenciales.count }} <span data-i18n="subscriptions_count">eventos</span></span>
+                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ eventos_organizados_presenciales.count }} eventos</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {% for evento in eventos_organizados_presenciales %}
@@ -167,12 +170,12 @@
                     <div class="p-4">
                         <h4 class="font-bold text-on-surface">{{ evento.title }}</h4>
                         <div class="text-sm text-on-surface-variant mt-1">
-                            {{ evento.start_date|date:"d/m/Y H:i" }} • <span data-i18n="presencial">Presencial</span>
+                            {{ evento.start_date|date:"d/m/Y H:i" }} • Presencial
                         </div>
                         <div class="mt-3 flex gap-2">
-                            <a href="{% url 'in_person_events:dashboard_organizer' evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold bg-primary text-white rounded-lg hover:opacity-90 transition" data-i18n="gestionar">Gestionar</a>
-                            <a href="#" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition" data-i18n="ver">Ver</a>
-                            <a href="#" class="flex-1 text-center py-2 text-sm font-semibold border border-error/20 text-error rounded-lg hover:bg-error-container/20 transition" data-i18n="eliminar">Eliminar</a>
+                            <a href="{% url 'in_person_events:dashboard_organizer' evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold bg-primary text-white rounded-lg hover:opacity-90 transition">Gestionar</a>
+                            <a href="#" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition">Ver</a>
+                            <a href="#" class="flex-1 text-center py-2 text-sm font-semibold border border-error/20 text-error rounded-lg hover:bg-error-container/20 transition">Eliminar</a>
                         </div>
                     </div>
                 </div>
@@ -186,7 +189,7 @@
         <div>
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-2xl font-bold tracking-tight text-on-surface" data-i18n="eventos_virtuales_seguimiento">Eventos virtuales en seguimiento</h2>
-                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ suscripciones_virtuales.count }} <span data-i18n="subscriptions_count">seguimientos</span></span>
+                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ suscripciones_virtuales.count }} seguimientos</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {% for follow in suscripciones_virtuales %}
@@ -201,13 +204,13 @@
                     <div class="p-4">
                         <h4 class="font-bold text-on-surface">{{ follow.event.title }}</h4>
                         <div class="text-sm text-on-surface-variant mt-1">
-                            {{ follow.event.start_datetime|date:"d/m/Y H:i" }} • <span data-i18n="virtual_type">Virtual</span>
+                            {{ follow.event.start_datetime|date:"d/m/Y H:i" }} • Virtual
                         </div>
                         <div class="mt-4 flex gap-2">
-                            <a href="{% url 'virtualEvent:event_detail' follow.event.id %}" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition" data-i18n="ver">Ver</a>
+                            <a href="{% url 'virtualEvent:event_detail' follow.event.id %}" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition">Ver</a>
                             <form method="post" action="{% url 'core:cancelar_suscripcion_virtual' follow.event.id %}" class="flex-1">
                                 {% csrf_token %}
-                                <button type="submit" class="w-full text-center py-2 text-sm font-bold text-error border border-error/20 rounded-lg hover:bg-error-container/20 transition" data-i18n="cancelar_subscripcion">Cancelar</button>
+                                <button type="submit" class="w-full text-center py-2 text-sm font-bold text-error border border-error/20 rounded-lg hover:bg-error-container/20 transition">Cancelar</button>
                             </form>
                         </div>
                     </div>
@@ -222,7 +225,7 @@
         <div>
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-2xl font-bold tracking-tight text-on-surface" data-i18n="eventos_presenciales_suscritos">Eventos presenciales suscritos</h2>
-                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ suscripciones_presenciales.count }} <span data-i18n="subscriptions_count">suscripciones</span></span>
+                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ suscripciones_presenciales.count }} suscripciones</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {% for suscripcion in suscripciones_presenciales %}
@@ -242,13 +245,13 @@
                             {% else %}
                                 <span data-i18n="coming_soon">Fecha por confirmar</span>
                             {% endif %}
-                            • <span data-i18n="presencial">Presencial</span>
+                            • Presencial
                         </div>
                         <div class="mt-4 flex gap-2">
-                            <a href="#" onclick="alert('Detalle de evento presencial (pendiente)')" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition" data-i18n="ver">Ver</a>
+                            <a href="#" onclick="alert('Detalle de evento presencial (pendiente)')" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition">Ver</a>
                             <form method="post" action="{% url 'core:cancelar_suscripcion' suscripcion.id %}" class="flex-1">
                                 {% csrf_token %}
-                                <button type="submit" class="w-full text-center py-2 text-sm font-bold text-error border border-error/20 rounded-lg hover:bg-error-container/20 transition" data-i18n="cancelar_subscripcion">Cancelar</button>
+                                <button type="submit" class="w-full text-center py-2 text-sm font-bold text-error border border-error/20 rounded-lg hover:bg-error-container/20 transition">Cancelar</button>
                             </form>
                         </div>
                     </div>
@@ -258,16 +261,17 @@
         </div>
         {% endif %}
 
-        <!-- Favoritos -->
-        {% if favoritos %}
+        <!-- ========== MIS EVENTOS FAVORITOS (UNIFICADOS) ========== -->
+        {% if favoritos or favoritos_presenciales %}
         <div>
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-2xl font-bold tracking-tight text-on-surface flex items-center gap-2">
-                    <span class="material-symbols-outlined text-red-500">favorite</span> <span data-i18n="mis_favoritos">Mis eventos favoritos</span>
+                    <span class="material-symbols-outlined text-red-500">favorite</span> Mis eventos favoritos
                 </h2>
-                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ favoritos.count }} <span data-i18n="favoritos_count">favoritos</span></span>
+                <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ favoritos.count|add:favoritos_presenciales.count }} favoritos</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Virtuales -->
                 {% for fav in favoritos %}
                 <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
                     <div class="h-40 overflow-hidden bg-surface-container-high flex items-center justify-center">
@@ -278,14 +282,40 @@
                         {% endif %}
                     </div>
                     <div class="p-4">
-                        <h4 class="font-bold text-on-surface">{{ fav.evento.title }}</h4>
-                        <div class="text-sm text-on-surface-variant mt-1">
-                            {{ fav.evento.start_datetime|date:"d/m/Y H:i" }} • <span data-i18n="virtual_type">Virtual</span>
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-on-surface">{{ fav.evento.title }}</h4>
+                            <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">Virtual</span>
                         </div>
+                        <p class="text-sm text-on-surface-variant mt-1">{{ fav.evento.start_datetime|date:"d/m/Y H:i" }}</p>
                         <div class="mt-4 flex gap-2">
-                            <a href="{% url 'virtualEvent:event_detail' fav.evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition" data-i18n="ver_evento">Ver evento</a>
+                            <a href="{% url 'virtualEvent:event_detail' fav.evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition">Ver evento</a>
                             <button class="like-btn flex-1 text-center py-2 text-sm font-semibold border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition flex items-center justify-center gap-1" data-evento-id="{{ fav.evento.id }}">
-                                <span class="material-symbols-outlined like-icon filled">favorite</span> <span data-i18n="quitar_favorito">Quitar favorito</span>
+                                <span class="material-symbols-outlined like-icon filled">favorite</span> Quitar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <!-- Presenciales -->
+                {% for fav in favoritos_presenciales %}
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+                    <div class="h-40 overflow-hidden bg-surface-container-high flex items-center justify-center">
+                        {% if fav.evento.image %}
+                            <img src="{{ fav.evento.image.url }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+                        {% else %}
+                            <span class="material-symbols-outlined text-5xl text-outline">favorite</span>
+                        {% endif %}
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-on-surface">{{ fav.evento.title }}</h4>
+                            <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">Presencial</span>
+                        </div>
+                        <p class="text-sm text-on-surface-variant mt-1">{{ fav.evento.start_date|date:"d/m/Y H:i" }}</p>
+                        <div class="mt-4 flex gap-2">
+                            <a href="{% url 'core:detalle_evento_presencial' fav.evento.id %}" class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high transition">Ver evento</a>
+                            <button class="like-btn-presencial flex-1 text-center py-2 text-sm font-semibold border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition flex items-center justify-center gap-1" data-evento-id="{{ fav.evento.id }}">
+                                <span class="material-symbols-outlined like-icon filled">favorite</span> Quitar
                             </button>
                         </div>
                     </div>
@@ -296,12 +326,12 @@
         {% endif %}
 
         <!-- Mensaje si no hay nada -->
-        {% if not eventos_organizados_virtuales and not eventos_organizados_presenciales and not suscripciones_virtuales and not suscripciones_presenciales and not favoritos %}
+        {% if not eventos_organizados_virtuales and not eventos_organizados_presenciales and not suscripciones_virtuales and not suscripciones_presenciales and not favoritos and not favoritos_presenciales %}
         <div class="bg-surface-container-low rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center p-8 text-center min-h-[300px]">
             <span class="material-symbols-outlined text-4xl text-outline-variant mb-4">add_circle</span>
-            <h4 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest" data-i18n="explore_events">Explora eventos</h4>
-            <p class="text-xs text-outline mb-6" data-i18n="explore_hint">Aún no has organizado, suscrito ni marcado como favorito ningún evento.</p>
-            <a href="{% url 'core:home' %}" class="bg-white text-primary border border-primary-fixed-dim px-6 py-2 rounded-full text-xs font-bold shadow-sm hover:bg-primary-fixed transition-all" data-i18n="explore_btn">Explorar eventos</a>
+            <h4 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest">Explora eventos</h4>
+            <p class="text-xs text-outline mb-6">Aún no has organizado, suscrito ni marcado como favorito ningún evento.</p>
+            <a href="{% url 'core:home' %}" class="bg-white text-primary border border-primary-fixed-dim px-6 py-2 rounded-full text-xs font-bold shadow-sm hover:bg-primary-fixed transition-all">Explorar eventos</a>
         </div>
         {% endif %}
 
@@ -330,13 +360,35 @@
                document.querySelector('meta[name="csrf-token"]')?.content;
     }
 
+    // Eliminar favoritos virtuales
     document.querySelectorAll('.like-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
             const eventoId = this.dataset.eventoId;
-            const icon = this.querySelector('.like-icon');
-            
             fetch("{% url 'core:toggle_favorito' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({ 'evento_id': eventoId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.liked === false) {
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+
+    // Eliminar favoritos presenciales
+    document.querySelectorAll('.like-btn-presencial').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const eventoId = this.dataset.eventoId;
+            fetch("{% url 'core:toggle_favorito_presencial' %}", {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': getCSRFToken(),
