@@ -1,0 +1,185 @@
+/* Variables de marca Stratos */
+:root {
+  --stratos-bg: #f8f9ff;
+  --stratos-sidebar: #e5eeff;
+  --stratos-text: #0b1c30;
+  --stratos-text-muted: #64748b;
+  --stratos-primary: #0058be;
+  --stratos-primary-hover: #004395;
+  --stratos-secondary: #006c49;
+  --stratos-border: rgba(9, 28, 48, 0.08);
+}
+
+body {
+  background-color: var(--stratos-bg);
+  color: var(--stratos-text);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 256px;
+  background-color: var(--stratos-sidebar);
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  border-right: 1px solid var(--stratos-border);
+  padding: 2rem 1.5rem;
+  z-index: 1000;
+}
+
+.nav-link {
+  color: var(--stratos-text-muted);
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.6);
+  color: var(--stratos-primary);
+}
+
+.nav-link.active {
+  color: var(--stratos-primary);
+  background-color: #ffffff;
+  border-right: 2px solid var(--stratos-primary);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  font-weight: 700;
+}
+
+/* Top Bar */
+.topbar {
+  margin-left: 256px;
+  padding: 1rem 2.5rem;
+  background-color: rgba(248, 249, 255, 0.8);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  border-bottom: 1px solid var(--stratos-border);
+}
+
+/* Main Content */
+.main-content {
+  margin-left: 256px;
+  padding: 2.5rem;
+}
+
+/* Custom Cards */
+.stratos-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--stratos-border);
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.metadata-pill {
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 0rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-operativo {
+  background-color: #f1f5f9 !important;
+  border: none !important;
+}
+
+/* Speaker Card */
+.speaker-card {
+  display: flex;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--stratos-border);
+  background: #ffffff;
+}
+
+.speaker-img {
+  width: 200px;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  bottom: 2.5rem;
+  right: 2.5rem;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #0058be 0%, #2170e4 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 88, 190, 0.3);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+}
+
+.fab-label {
+  position: absolute;
+  right: 100%;
+  margin-right: 1rem;
+  background: var(--stratos-text);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.fab:hover .fab-label {
+  opacity: 1;
+}
+
+/* Utility */
+.text-xs-caps {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.badge-confirmada {
+  color: var(--stratos-secondary);
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.badge-confirmada::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background-color: var(--stratos-secondary);
+  border-radius: 50%;
+}

@@ -75,7 +75,8 @@ def dashboard_organizer(request, event_id):
     ticket_types = event.ticket_types.all()
     return render(request, 'dashboard_organizer.html', {
         'event': event,
-        'ticket_types': ticket_types
+        'ticket_types': ticket_types,
+        'active_page': 'resumen'
     })
 
 
@@ -150,7 +151,6 @@ def delete_event(request, event_id):
     
     event.delete()
     
-    # Guardar en sesión para mostrar en la página de eliminación
     request.session['deleted_event'] = deleted_event
     
     return redirect('in_person_events:delete_page')
