@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'in_person_events.apps.InPersonEventsConfig',
     'pe_registration.apps.PeRegistrationConfig',
     'pe_agenda.apps.AgendaConfig',
+    'pe_inventory.apps.PeInventoryConfig',
+    'pe_stand',
 ]
 
 MIDDLEWARE = [
@@ -125,7 +127,7 @@ LANGUAGES = [
 ]
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
@@ -214,3 +216,14 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 CSRF_COOKIE_SECURE = False  # Solo en desarrollo
 CSRF_COOKIE_HTTPONLY = False
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

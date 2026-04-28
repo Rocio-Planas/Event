@@ -9,38 +9,7 @@
     href="{% static 'in_person_events/config_event/css/styles.css' %}"
 />
 {% endblock %} {% block content %}
-<!-- Top App Bar -->
-<header class="top-app-bar d-flex justify-content-between align-items-center">
-    <div class="d-flex align-items-center gap-4">
-        <h1 class="h5 fw-bold mb-0">EventHorizon</h1>
-        <nav class="d-none d-md-flex gap-3">
-            <a
-                href="#"
-                class="text-decoration-none text-primary small fw-semibold border-bottom border-primary border-2 pb-1"
-                >Estado en Vivo</a
-            >
-            <a href="#" class="text-decoration-none text-muted small fw-medium"
-                >Acciones Rápidas</a
-            >
-        </nav>
-    </div>
-    <div class="d-flex align-items-center gap-3">
-        <button class="btn btn-link p-1 text-muted">
-            <span class="material-symbols-outlined">notifications</span>
-        </button>
-        <button class="btn btn-link p-1 text-muted">
-            <span class="material-symbols-outlined">help_outline</span>
-        </button>
-        <img
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWXC08-GCtxmhA6vL2bfodl8_ojD-oqcIANeU1B6PYndt4hD64gLgYf9t5AMiHpasiEySHRojisqt6xFbiPXzuzJspJPJwsWj7aaGvhIcQJBJjy3MxsFt1oMcZY5J3QuOAOGHRCCywHuTlnDVzt2Ym3xEzal5wi3Lm_ePMiQYzQOqI2QL5s9zDwTTg3rVlKlx5lwqd_p3w9XybU6g4yY0_3600BWaYh6IVXF0YAkaf0bTW_aiJMzoU7WwE9D9q4cJIFmW7SALIHpM"
-            alt="User"
-            class="rounded-circle border"
-            width="32"
-            height="32"
-        />
-    </div>
-</header>
-
+{% with active_page='configuracion' %}
 <div class="container-fluid px-5 py-5" style="max-width: 1000px">
     <header class="mb-5">
         <h1 class="display-6 fw-extrabold mb-2">Configuración General</h1>
@@ -289,6 +258,7 @@
         </div>
     </div>
 </div>
+{% endwith %}
 {% endblock %} {% block extra_js %}
 <!-- Custom JS -->
 <script src="{% static 'in_person_events/config_event/js/main.js' %}"></script>

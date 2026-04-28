@@ -20,7 +20,7 @@ class Event(models.Model):
 
     # Campos principales
     title = models.CharField(max_length=200, verbose_name="Título del Evento")
-    slug = models.SlugField(blank=True) # Para URLs amigables
+    slug = models.SlugField(blank=True)
     description = models.TextField(verbose_name="Descripción")
     organizer = models.ForeignKey(
         settings.AUTH_USER_MODEL, 

@@ -1,0 +1,148 @@
+{% extends "base_sidebar.html" %}
+{% load static %}
+
+{% block title %}Stands - {{ event.title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'pe_stand/css/stands.css' %}">
+<script src="/static/pe_stand/js/stands.js"></script>
+{% endblock %}
+
+{% block content %}
+{% with active_page='zona' %}
+<div class="container-fluid p-4" data-event-id="{{ event_id }}">
+            
+            <!-- Título y Acciones -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-3">
+                <div>
+                    <h1 class="fw-black mb-1 h2" style="font-weight: 800;">Panel de Control de Stands</h1>
+                    <p class="text-muted mb-0">Supervisa el estado operativo y recursos en tiempo real.</p>
+                </div>
+                <div>
+                    <button class="btn-premium px-4 py-2 fw-bold d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createStandModal">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">add</span> Crear Zona/Stand
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Stats -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <p class="stat-label">Total Stands</p>
+                        <div class="d-flex justify-content-between align-items-baseline">
+                            <span class="h2 fw-black mb-0">{{ total_stands }}</span>
+                            <span class="text-success small fw-bold">+3 nuevos</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <p class="stat-label">Capacidad Total</p>
+                        <div class="d-flex justify-content-between align-items-baseline">
+                            <span class="h2 fw-black mb-0">{{ total_capacity }}</span>
+                            <span class="text-muted small">Pax</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <p class="stat-label text-warning" style="color: var(--stratos-tertiary) !important;">Alertas Recursos</p>
+                        <div class="d-flex justify-content-between align-items-baseline">
+                            <span class="h2 fw-black mb-0">12</span>
+                            <span class="text-danger small fw-bold">Crítico</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stand Management Grid -->
+            <div class="row g-4">
+                {% for stand in stands %}
+                    <div class="col-xl-4 col-md-6">
+                        <div class="stand-card">
+                            <div class="mb-3">
+                                <h3 class="h5 fw-bold mb-1">{{ stand.name }}</h3>
+                                <p class="text-primary small fw-bold mb-1">{{ stand.location }}</p>
+                                <p class="text-muted mb-0" style="font-size: 10px; font-weight: 700; text-transform: uppercase;">Líder: {{ stand.staff.count|default:"Sin Líder" }}</p>
+                            </div>
+                            <div class="d-flex gap-4 py-3 border-top border-bottom mb-4">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="material-symbols-outlined text-muted small">groups</span>
+                                    <span class="small fw-semibold">Cap: {{ stand.capacity }}</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="material-symbols-outlined text-muted small">task_alt</span>
+                                    <span class="small fw-semibold">{{ stand.activities.count }} Activ.</span>
+                                </div>
+                            </div>
+                            <p class="small fw-bold text-muted text-uppercase tracking-wider mb-2">Inventario</p>
+                            <div class="mb-4">
+                                <div class="resource-item">
+                                    <span class="small fw-medium d-flex align-items-center gap-2">
+                                        <span class="material-symbols-outlined text-muted fs-6">chair</span> Recursos asignados
+                                    </span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted fw-bold" style="font-size: 10px;">{{ stand.staff.count }} items</span>
+                                        <div style="width: 6px; height: 6px; border-radius: 50%; background: var(--stratos-secondary);"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'pe_stand:detail' event_id stand.id %}" class="btn btn-sm btn-outline-primary btn-detail fw-bold w-100 rounded-3">Ver Detalles</a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-light">
+                            <div class="mb-4">
+                                <span class="material-symbols-outlined text-primary" style="font-size: 48px;">business_center</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Aún no hay stands registrados</h3>
+                            <p class="text-muted mb-4">Agrega tu primer stand para empezar a gestionar recursos, personal y actividades desde este panel.</p>
+                            <a href="#" class="btn-premium fw-bold w-100 py-3" style="max-width: 320px; margin: 0 auto;">Crear Stand</a>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+        </div>
+</div>
+
+<!-- Modal for Creating Stand -->
+<div class="modal fade" id="createStandModal" tabindex="-1" aria-labelledby="createStandModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold" id="createStandModalLabel">Crear Nuevo Stand</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="createStandForm">
+                {% csrf_token %}
+                <div class="modal-body px-4">
+                    <p class="text-muted small mb-4">Configura los detalles básicos del stand. Podrás asignar personal, actividades y recursos después.</p>
+                    <div class="mb-3">
+                        <label for="standName" class="form-label small fw-bold text-muted">NOMBRE DEL STAND</label>
+                        <input type="text" id="standName" name="name" class="form-control rounded-3" placeholder="Ej. Auditorio Principal" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="standLocation" class="form-label small fw-bold text-muted">UBICACIÓN</label>
+                        <input type="text" id="standLocation" name="location" class="form-control rounded-3" placeholder="Ej. Pabellón 1 - A01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="standCapacity" class="form-label small fw-bold text-muted">CAPACIDAD</label>
+                        <input type="number" id="standCapacity" name="capacity" class="form-control rounded-3" placeholder="Ej. 150" min="1" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-premium rounded-3 px-4">Crear Stand</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endwith %}
+{% endblock %}
+

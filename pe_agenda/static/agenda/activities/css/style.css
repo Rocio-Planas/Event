@@ -18,7 +18,7 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     background-color: var(--bg-surface);
     color: var(--text-main);
     overflow-x: hidden;
@@ -26,7 +26,11 @@ body {
 
 /* Gradient Buttons */
 .btn-gradient {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--primary-light) 100%
+    );
     color: white !important;
     border: none !important;
     font-weight: 600;
@@ -44,52 +48,10 @@ body {
     transform: translateY(0);
 }
 
-/* Sidebar Styling */
-.sidebar {
-    width: 260px;
-    height: 100vh;
-    background: var(--sidebar-bg);
-    border-right: 1px solid var(--border-color);
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: flex;
-    flex-direction: column;
-    padding: 1.5rem;
-    z-index: 1000;
-}
-
-.sidebar .nav-link {
-    color: var(--text-muted);
-    font-weight: 500;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    margin-bottom: 0.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    transition: all 0.2s ease;
-}
-
-.sidebar .nav-link:hover {
-    background-color: #f1f5f9;
-    color: var(--primary-color);
-}
-
-.sidebar .nav-link.active {
-    background-color: #eff6ff;
-    color: var(--primary-color);
-    font-weight: 600;
-}
-
-.sidebar .btn-new-activity {
-    /* Uses gradient styles from .btn-gradient if added to HTML */
-}
-
 /* Main Content area */
 .main-content {
     margin-left: 260px;
-    padding: 2rem;
+    padding: 0;
     min-height: 100vh;
 }
 
@@ -107,27 +69,50 @@ body {
     width: 100%;
 }
 
-.search-container i {
+.search-container span.material-symbols-outlined {
     position: absolute;
-    left: 1rem;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--text-muted);
+    color: #6c757d;
+    font-size: 16px;
 }
 
 .search-container input {
     padding-left: 2.75rem;
-    border-radius: 0.75rem;
-    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    border: 1px solid #e5eeff;
     background-color: #ffffff;
+}
+
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #e5eeff;
+    background-color: #ffffff;
+}
+
+/* Pagination */
+.pagination .page-link {
+    border-radius: 6px;
+    border: 1px solid #e5eeff;
+    color: #6c757d;
+}
+
+.pagination .page-link:hover {
+    background-color: #f8f9ff;
+    color: #0058be;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0058be;
+    border-color: #0058be;
 }
 
 /* Table Card */
 .content-card {
     background: var(--card-bg);
-    border-radius: 1rem;
-    padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .table {
@@ -136,29 +121,15 @@ body {
 }
 
 .table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: #f8faff;
-    border: none;
-    color: var(--text-muted);
+    font-family: "Inter", sans-serif;
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    color: #6c757d;
+    border-bottom: 2px solid #f8f9ff;
     padding: 1.25rem 1rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
-
-/* Col widths */
-.col-horario { width: 12%; }
-.col-actividad { width: 33%; }
-.col-zona { width: 14%; }
-.col-ponente { width: 14%; }
-.col-estado { width: 15%; }
-.col-acciones { width: 12%; }
 
 .table tbody td {
     padding: 1.25rem 1rem;
@@ -166,17 +137,99 @@ body {
     border-top: 1px solid #f1f5f9;
 }
 
-/* Badge Styles */
-.badge-status {
-    padding: 0.35rem 0.75rem;
-    border-radius: 2rem;
-    font-size: 0.75rem;
-    font-weight: 600;
+.btn-group {
+    border-radius: 8px;
 }
 
-.badge-confirmada { background-color: var(--success-bg); color: var(--success-text); }
-.badge-en-curso { background-color: var(--info-bg); color: var(--info-text); }
-.badge-pendiente { background-color: #f1f5f9; color: var(--text-muted); }
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#activitiesTableBody tr {
+    animation: slideIn 0.3s ease forwards;
+}
+
+/* Badge Styles */
+.badge {
+    letter-spacing: 0.05em;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 6px 12px;
+}
+
+.badge.bg-primary {
+    background-color: #0058be !important;
+    color: white;
+}
+
+.badge.bg-warning {
+    background-color: #f59e0b !important;
+    color: white;
+}
+
+.badge.bg-success {
+    background-color: #10b981 !important;
+    color: white;
+}
+
+.badge.bg-danger {
+    background-color: #ef4444 !important;
+    color: white;
+}
+
+/* Search and Filters */
+.search-container {
+    position: relative;
+    max-width: 400px;
+    width: 100%;
+}
+
+.search-container span.material-symbols-outlined {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.search-container input {
+    padding-left: 2.75rem;
+    border-radius: 8px;
+    border: 1px solid #e5eeff;
+    background-color: #ffffff;
+}
+
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #e5eeff;
+    background-color: #ffffff;
+}
+
+/* Pagination */
+.pagination .page-link {
+    border-radius: 6px;
+    border: 1px solid #e5eeff;
+    color: #6c757d;
+}
+
+.pagination .page-link:hover {
+    background-color: #f8f9ff;
+    color: #0058be;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0058be;
+    border-color: #0058be;
+}
 
 /* Avatar Group */
 .avatar-img {
@@ -193,14 +246,30 @@ body {
     color: white;
 }
 
-.stat-card.primary { background-color: var(--primary-color); }
-.stat-card.tertiary { background-color: #924700; }
+.stat-card.primary {
+    background-color: var(--primary-color);
+}
+.stat-card.tertiary {
+    background-color: #924700;
+}
 
 /* Responsive adjustments */
 @media (max-width: 991px) {
-    .sidebar { width: 80px; padding: 1rem 0.5rem; align-items: center; }
-    .sidebar .nav-link span:not(.lucide) { display: none; }
-    .sidebar .logo-text { display: none; }
-    .main-content { margin-left: 80px; }
-    .sidebar .btn-new-activity span { display: none; }
+    .sidebar {
+        width: 80px;
+        padding: 1rem 0.5rem;
+        align-items: center;
+    }
+    .sidebar .nav-link span:not(.lucide) {
+        display: none;
+    }
+    .sidebar .logo-text {
+        display: none;
+    }
+    .main-content {
+        margin-left: 80px;
+    }
+    .sidebar .btn-new-activity span {
+        display: none;
+    }
 }
