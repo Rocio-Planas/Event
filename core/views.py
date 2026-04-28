@@ -6,7 +6,6 @@ from django.views.decorators.http import require_POST
 from django.db.models import Q, Avg, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
-
 from chat.views import is_chat_available
 from config import settings
 from usuarios.decorators import role_required
@@ -16,6 +15,8 @@ from virtualEvent.models import VirtualEvent
 from ve_invitations.models import EventFollower
 from in_person_events.models import Event as EventoPresencial
 from usuarios.models import Usuario as UsuarioModel
+from usuarios.forms import PerfilForm
+from django import forms
 
 
 # ---------- FUNCIÓN AUXILIAR DE NORMALIZACIÓN ----------
@@ -651,3 +652,55 @@ def detalle_evento_presencial(request, evento_id):
         'es_favorito': es_favorito,
     }
     return render(request, 'evento_presencial_detalle.html', context)
+class AdminUsuarioForm(forms.ModelForm):
+    password = forms.CharField(
+        widget=forms.PasswordInput, 
+        required=False, 
+        help_text="Dejar en blanco para generar una automática (12 caracteres)"
+    )
+    rol = forms.ChoiceField(choices=UsuarioModel.ROLES)
+    
+    class Meta:
+        model = UsuarioModel
+        fields = ['first_name', 'last_name', 'email', 'telefono', 'rol', 'is_active']
+
+@login_required
+@role_required(['administrador'])
+def admin_crear_usuario(request):
+    if request.method == 'POST':
+        form = AdminUsuarioForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            password = form.cleaned_data.get('password')
+            if password:
+                user.set_password(password)
+            else:
+                import secrets
+                import string
+                alphabet = string.ascii_letters + string.digits
+                password = ''.join(secrets.choice(alphabet) for _ in range(12))
+                user.set_password(password)
+            user.save()
+            messages.success(request, f'Usuario {user.email} creado. Contraseña: {password}')
+            return redirect('core:admin_usuarios')
+    else:
+        form = AdminUsuarioForm()
+    return render(request, 'core/admin_usuario_form.html', {'form': form, 'titulo': 'Crear nuevo usuario'})
+
+@login_required
+@role_required(['administrador'])
+def admin_editar_usuario(request, usuario_id):
+    usuario = get_object_or_404(UsuarioModel, id=usuario_id)
+    if request.method == 'POST':
+        form = AdminUsuarioForm(request.POST, instance=usuario)
+        if form.is_valid():
+            user = form.save(commit=False)
+            password = form.cleaned_data.get('password')
+            if password:
+                user.set_password(password)
+            user.save()
+            messages.success(request, f'Usuario {user.email} actualizado.')
+            return redirect('core:admin_usuarios')
+    else:
+        form = AdminUsuarioForm(instance=usuario, initial={'password': ''})
+    return render(request, 'core/admin_usuario_form.html', {'form': form, 'titulo': f'Editar usuario: {usuario.email}'})
