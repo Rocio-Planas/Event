@@ -1,0 +1,87 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}Eventos Pendientes - EventPulse{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-on-surface" data-i18n="admin_panel_pending_events_title">Eventos Pendientes de Aprobación</h1>
+        <a href="{% url 'core:admin_panel' %}" class="text-primary hover:underline" data-i18n="admin_panel_back">← Volver al panel</a>
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-outline-variant">
+                <thead class="bg-surface-container-low">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_event_title">Título</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_event_type">Tipo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_organizer">Organizador</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_date">Fecha</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_category">Categoría</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_actions">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant">
+                    {% for evento in eventos %}
+                    <tr class="hover:bg-surface-container-low transition">
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-on-surface">{{ evento.titulo }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if evento.tipo == 'virtual' %}
+                                <span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800" data-i18n="admin_panel_virtual">Virtual</span>
+                            {% else %}
+                                <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800" data-i18n="admin_panel_presencial">Presencial</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ evento.organizador.email }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ evento.fecha|date:"d/m/Y H:i" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ evento.categoria|default:"Sin categoría" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap space-x-2">
+                            <a href="{% url 'core:admin_aprobar_evento' evento.id evento.tipo %}" class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition" data-i18n="admin_panel_approve_event">Aprobar</a>
+                            <a href="#" class="reject-event-btn px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition" data-url="{% url 'core:admin_rechazar_evento' evento.id evento.tipo %}" data-i18n="admin_panel_reject_event">Rechazar</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-on-surface-variant" data-i18n="admin_panel_no_pending_events">No hay eventos pendientes.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    {% if eventos.has_other_pages %}
+    <div class="flex justify-center mt-6 gap-2">
+        {% if eventos.has_previous %}
+            <a href="?page=1" class="px-3 py-1 border rounded">&laquo;</a>
+            <a href="?page={{ eventos.previous_page_number }}" class="px-3 py-1 border rounded" data-i18n="previous">Anterior</a>
+        {% endif %}
+        <span class="px-3 py-1 bg-primary text-white rounded"><span data-i18n="page">Página</span> {{ eventos.number }} <span data-i18n="of">de</span> {{ eventos.paginator.num_pages }}</span>
+        {% if eventos.has_next %}
+            <a href="?page={{ eventos.next_page_number }}" class="px-3 py-1 border rounded" data-i18n="next">Siguiente</a>
+            <a href="?page={{ eventos.paginator.num_pages }}" class="px-3 py-1 border rounded">&raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Confirmación de rechazo traducible usando JavaScript (no tags de Django)
+    document.querySelectorAll('.reject-event-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            let msg = '';
+            if (typeof currentLang !== 'undefined' && currentLang === 'en') {
+                msg = 'Reject this event?';
+            } else {
+                msg = '¿Rechazar este evento?';
+            }
+            if (confirm(msg)) {
+                window.location.href = this.dataset.url;
+            }
+        });
+    });
+</script>
+{% endblock %}

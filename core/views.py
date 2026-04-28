@@ -5,13 +5,17 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.db.models import Q, Avg, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.mail import send_mail
 
 from chat.views import is_chat_available
+from config import settings
+from usuarios.decorators import role_required
 from .models import CategoriaEvento, Favorito, FavoritoPresencial, Suscripcion, Consulta, Resena
 from .forms import ConsultaForm, ResenaForm
 from virtualEvent.models import VirtualEvent
 from ve_invitations.models import EventFollower
 from in_person_events.models import Event as EventoPresencial
+from usuarios.models import Usuario as UsuarioModel
 
 
 # ---------- FUNCIÓN AUXILIAR DE NORMALIZACIÓN ----------
@@ -324,6 +328,230 @@ def cancelar_suscripcion(request, suscripcion_id):
     suscripcion.delete()
     messages.success(request, f'❌ Has cancelado tu suscripción a "{titulo}"')
     return redirect('usuarios:perfil')
+
+@login_required
+@role_required(['administrador'])
+def admin_panel(request):
+    """Panel principal con tarjetas de resumen."""
+    total_usuarios = UsuarioModel.objects.count()
+    total_eventos_pendientes = VirtualEvent.objects.filter(estado='pendiente').count() + EventoPresencial.objects.filter(status='pendiente').count()
+    total_resenas_pendientes = Resena.objects.filter(aprobada=False).count()
+    total_consultas_no_respondidas = Consulta.objects.filter(respondido=False).count()
+    
+    context = {
+        'total_usuarios': total_usuarios,
+        'total_eventos_pendientes': total_eventos_pendientes,
+        'total_resenas_pendientes': total_resenas_pendientes,
+        'total_consultas_no_respondidas': total_consultas_no_respondidas,
+    }
+    return render(request, 'core/admin_panel.html', context)
+
+
+@login_required
+@role_required(['administrador'])
+def admin_usuarios(request):
+    """Listado de usuarios con opciones de cambiar rol y eliminar."""
+    usuarios = UsuarioModel.objects.all().order_by('-date_joined')
+    paginator = Paginator(usuarios, 15)
+    page = request.GET.get('page', 1)
+    usuarios_paginados = paginator.get_page(page)
+    
+    context = {
+        'usuarios': usuarios_paginados,
+    }
+    return render(request, 'core/admin_usuarios.html', context)
+
+
+@login_required
+@role_required(['administrador'])
+def admin_eventos_pendientes(request):
+    """Lista unificada de eventos virtuales y presenciales pendientes."""
+    eventos_virtuales = VirtualEvent.objects.filter(estado='pendiente').select_related('created_by')
+    eventos_presenciales = EventoPresencial.objects.filter(status='pendiente').select_related('organizer')
+    
+    # Convertir a lista de diccionarios para unificar
+    eventos = []
+    for ev in eventos_virtuales:
+        eventos.append({
+            'id': ev.id,
+            'titulo': ev.title,
+            'tipo': 'virtual',
+            'organizador': ev.created_by,
+            'fecha': ev.start_datetime,
+            'categoria': ev.category,
+        })
+    for ev in eventos_presenciales:
+        eventos.append({
+            'id': ev.id,
+            'titulo': ev.title,
+            'tipo': 'presencial',
+            'organizador': ev.organizer,
+            'fecha': ev.start_date,
+            'categoria': ev.category,
+        })
+    
+    # Ordenar por fecha descendente
+    eventos.sort(key=lambda x: x['fecha'], reverse=True)
+    
+    paginator = Paginator(eventos, 10)
+    page = request.GET.get('page', 1)
+    eventos_paginados = paginator.get_page(page)
+    
+    context = {
+        'eventos': eventos_paginados,
+    }
+    return render(request, 'core/admin_eventos.html', context)
+
+
+@login_required
+@role_required(['administrador'])
+def admin_aprobar_evento(request, evento_id, tipo):
+    if tipo == 'virtual':
+        evento = get_object_or_404(VirtualEvent, id=evento_id)
+        evento.estado = 'aprobado'
+        evento.save()
+        # Enviar correo al organizador
+        send_mail(
+            f'Tu evento "{evento.title}" ha sido aprobado',
+            f'Hola {evento.created_by.get_full_name()},\n\nTu evento virtual "{evento.title}" ha sido aprobado y ya es visible en la plataforma.\n\nSaludos,\nEquipo EventPulse',
+            settings.DEFAULT_FROM_EMAIL,
+            [evento.created_by.email],
+            fail_silently=False,
+        )
+        messages.success(request, f'Evento virtual "{evento.title}" aprobado.')
+    else:
+        evento = get_object_or_404(EventoPresencial, id=evento_id)
+        evento.status = 'aprobado'
+        evento.save()
+        send_mail(
+            f'Tu evento "{evento.title}" ha sido aprobado',
+            f'Hola {evento.organizer.get_full_name()},\n\nTu evento presencial "{evento.title}" ha sido aprobado y ya es visible en la plataforma.\n\nSaludos,\nEquipo EventPulse',
+            settings.DEFAULT_FROM_EMAIL,
+            [evento.organizer.email],
+            fail_silently=False,
+        )
+        messages.success(request, f'Evento presencial "{evento.title}" aprobado.')
+    
+    return redirect('core:admin_eventos')
+
+
+@login_required
+@role_required(['administrador'])
+def admin_rechazar_evento(request, evento_id, tipo):
+    if tipo == 'virtual':
+        evento = get_object_or_404(VirtualEvent, id=evento_id)
+        evento.estado = 'rechazado'
+        evento.save()
+        messages.success(request, f'Evento virtual "{evento.title}" rechazado.')
+    else:
+        evento = get_object_or_404(EventoPresencial, id=evento_id)
+        evento.status = 'rechazado'
+        evento.save()
+        messages.success(request, f'Evento presencial "{evento.title}" rechazado.')
+    
+    return redirect('core:admin_eventos')
+
+
+@login_required
+@role_required(['administrador'])
+def admin_resenas(request):
+    """Listado de reseñas pendientes de aprobación."""
+    resenas = Resena.objects.filter(aprobada=False).select_related('evento', 'usuario').order_by('-fecha_creacion')
+    paginator = Paginator(resenas, 15)
+    page = request.GET.get('page', 1)
+    resenas_paginadas = paginator.get_page(page)
+    
+    context = {
+        'resenas': resenas_paginadas,
+    }
+    return render(request, 'core/admin_resenas.html', context)
+
+
+@login_required
+@role_required(['administrador'])
+def admin_aprobar_resena(request, resena_id):
+    resena = get_object_or_404(Resena, id=resena_id)
+    resena.aprobada = True
+    resena.save()
+    # Enviar correo al usuario que escribió la reseña
+    send_mail(
+        'Tu reseña ha sido aprobada',
+        f'Hola {resena.nombre},\n\nTu reseña para el evento "{resena.evento.title}" ha sido aprobada y ya está visible.\n\nGracias por tu contribución.\nEquipo EventPulse',
+        settings.DEFAULT_FROM_EMAIL,
+        [resena.email],
+        fail_silently=False,
+    )
+    messages.success(request, 'Reseña aprobada correctamente.')
+    return redirect('core:admin_resenas')
+
+
+@login_required
+@role_required(['administrador'])
+def admin_consultas(request):
+    """Listado de consultas no respondidas."""
+    consultas = Consulta.objects.filter(respondido=False).order_by('-fecha_creacion')
+    paginator = Paginator(consultas, 15)
+    page = request.GET.get('page', 1)
+    consultas_paginadas = paginator.get_page(page)
+    
+    context = {
+        'consultas': consultas_paginadas,
+    }
+    return render(request, 'core/admin_consultas.html', context)
+
+
+@login_required
+@role_required(['administrador'])
+def admin_responder_consulta(request, consulta_id):
+    consulta = get_object_or_404(Consulta, id=consulta_id)
+    if request.method == 'POST':
+        respuesta = request.POST.get('respuesta')
+        if respuesta:
+            consulta.respuesta = respuesta
+            consulta.respondido = True
+            consulta.save()
+            # Enviar correo al usuario
+            send_mail(
+                f'Respuesta a tu consulta: {consulta.asunto}',
+                f'Hola {consulta.nombre},\n\nTu consulta:\n"{consulta.mensaje}"\n\nRespuesta:\n{respuesta}\n\nSaludos,\nEquipo EventPulse',
+                settings.DEFAULT_FROM_EMAIL,
+                [consulta.email],
+                fail_silently=False,
+            )
+            messages.success(request, 'Respuesta enviada correctamente.')
+        else:
+            messages.error(request, 'Debes escribir una respuesta.')
+        return redirect('core:admin_consultas')
+    
+    return render(request, 'core/admin_responder_consulta.html', {'consulta': consulta})
+
+
+@login_required
+@role_required(['administrador'])
+def admin_cambiar_rol(request, usuario_id):
+    usuario = get_object_or_404(UsuarioModel, id=usuario_id)
+    if request.method == 'POST':
+        nuevo_rol = request.POST.get('rol')
+        if nuevo_rol in ['espectador', 'organizador', 'expositor', 'administrador']:
+            usuario.rol = nuevo_rol
+            usuario.save()
+            messages.success(request, f'Rol de {usuario.email} cambiado a {nuevo_rol}.')
+        else:
+            messages.error(request, 'Rol inválido.')
+    return redirect('core:admin_usuarios')
+
+
+@login_required
+@role_required(['administrador'])
+def admin_eliminar_usuario(request, usuario_id):
+    usuario = get_object_or_404(UsuarioModel, id=usuario_id)
+    if request.user == usuario:
+        messages.error(request, 'No puedes eliminar tu propia cuenta desde aquí.')
+        return redirect('core:admin_usuarios')
+    
+    usuario.delete()
+    messages.success(request, f'Usuario {usuario.email} eliminado correctamente.')
+    return redirect('core:admin_usuarios')
 
 
 def contacto_view(request):

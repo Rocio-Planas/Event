@@ -1,0 +1,101 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}Gestionar Usuarios - EventPulse{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-on-surface" data-i18n="admin_panel_manage_users">Gestionar Usuarios</h1>
+        <a href="{% url 'core:admin_panel' %}" class="text-primary hover:underline" data-i18n="admin_panel_back">← Volver al panel</a>
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-outline-variant">
+                <thead class="bg-surface-container-low">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_user">Usuario</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_email">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_role">Rol</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_registered">Registro</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_actions">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant">
+                    {% for usuario in usuarios %}
+                    <tr class="hover:bg-surface-container-low transition">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                {% if usuario.avatar %}
+                                    <img src="{{ usuario.avatar.url }}" class="w-8 h-8 rounded-full mr-3">
+                                {% else %}
+                                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm mr-3">{{ usuario.first_name|first|default:"U" }}</div>
+                                {% endif %}
+                                <div>
+                                    <div class="font-medium text-on-surface">{{ usuario.get_full_name|default:"Sin nombre" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ usuario.email }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <form method="post" action="{% url 'core:admin_cambiar_rol' usuario.id %}" class="flex items-center gap-2">
+                                {% csrf_token %}
+                                <select name="rol" class="px-2 py-1 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface text-sm">
+                                    <option value="espectador" {% if usuario.rol == 'espectador' %}selected{% endif %} data-i18n="spectator">Espectador</option>
+                                    <option value="organizador" {% if usuario.rol == 'organizador' %}selected{% endif %} data-i18n="organizer">Organizador</option>
+                                    <option value="expositor" {% if usuario.rol == 'expositor' %}selected{% endif %} data-i18n="exhibitor">Expositor</option>
+                                    <option value="administrador" {% if usuario.rol == 'administrador' %}selected{% endif %} data-i18n="admin">Administrador</option>
+                                </select>
+                                <button type="submit" class="text-primary hover:underline text-sm" data-i18n="admin_panel_save">Guardar</button>
+                            </form>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ usuario.date_joined|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <form method="post" action="{% url 'core:admin_eliminar_usuario' usuario.id %}" class="delete-user-form">
+                                {% csrf_token %}
+                                <button type="submit" class="text-red-600 hover:text-red-800 delete-user-btn">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    {% if usuarios.has_other_pages %}
+    <div class="flex justify-center mt-6 gap-2">
+        {% if usuarios.has_previous %}
+            <a href="?page=1" class="px-3 py-1 border rounded">&laquo;</a>
+            <a href="?page={{ usuarios.previous_page_number }}" class="px-3 py-1 border rounded" data-i18n="previous">Anterior</a>
+        {% endif %}
+        <span class="px-3 py-1 bg-primary text-white rounded"><span data-i18n="page">Página</span> {{ usuarios.number }} <span data-i18n="of">de</span> {{ usuarios.paginator.num_pages }}</span>
+        {% if usuarios.has_next %}
+            <a href="?page={{ usuarios.next_page_number }}" class="px-3 py-1 border rounded" data-i18n="next">Siguiente</a>
+            <a href="?page={{ usuarios.paginator.num_pages }}" class="px-3 py-1 border rounded">&raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Confirmación de eliminación traducible
+    document.querySelectorAll('.delete-user-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            let msg = '';
+            if (typeof currentLang !== 'undefined' && currentLang === 'en') {
+                msg = 'Delete this user? This action cannot be undone.';
+            } else {
+                msg = '¿Eliminar este usuario? Esta acción no se puede deshacer.';
+            }
+            if (confirm(msg)) {
+                this.closest('form').submit();
+            }
+        });
+    });
+</script>
+{% endblock %}
