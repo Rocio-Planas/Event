@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     'pe_agenda.apps.AgendaConfig',
     'pe_inventory.apps.PeInventoryConfig',
     'pe_stand',
+    'pe_staff',
+    'pe_communication',
 ]
 
 MIDDLEWARE = [
@@ -151,8 +153,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'tucorreo@gmail.com'  # <-- REEMPLAZA
-EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicacion'  # <-- REEMPLAZA
 
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')

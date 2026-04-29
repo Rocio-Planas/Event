@@ -214,21 +214,30 @@ def suscribirse(request):
             except VirtualEvent.DoesNotExist:
                 messages.error(request, 'Evento virtual no encontrado')
         else:
-            # Lógica para eventos presenciales (cuando Diana integre sus eventos)
-            suscripcion, created = Suscripcion.objects.get_or_create(
-                usuario=request.user,
-                evento_id=evento_id,
-                tipo_evento=tipo_evento,
-                defaults={
-                    'titulo_evento': titulo,
-                    'fecha_evento': fecha,
-                    'imagen_evento': imagen,
-                }
-            )
-            if created:
-                messages.success(request, f'✅ Te has suscrito a "{titulo}"')
-            else:
-                messages.info(request, f'ℹ️ Ya estabas suscrito a "{titulo}"')
+            # Lógica para eventos presenciales
+            try:
+                from in_person_events.models import Event
+                # Verificar que el evento presencial exista
+                event = Event.objects.get(id=evento_id)
+                
+                suscripcion, created = Suscripcion.objects.get_or_create(
+                    usuario=request.user,
+                    evento_id=evento_id,
+                    tipo_evento=tipo_evento,
+                    defaults={
+                        'titulo_evento': titulo,
+                        'fecha_evento': fecha,
+                        'imagen_evento': imagen,
+                    }
+                )
+                if created:
+                    messages.success(request, f'✅ Te has suscrito a "{titulo}"')
+                else:
+                    messages.info(request, f'ℹ️ Ya estabas suscrito a "{titulo}"')
+            except Event.DoesNotExist:
+                messages.error(request, 'Evento presencial no encontrado')
+            except Exception as e:
+                messages.error(request, f'Error al suscribirse: {str(e)}')
     
     return redirect('core:home')
 

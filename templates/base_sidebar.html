@@ -52,7 +52,7 @@
                     Resumen
                 </a>
                 <a
-                    href="#"
+                    href="{% url 'pe_registration:attendees' event.id %}"
                     class="nav-link {% if active_page == 'asistentes' %}active{% endif %}"
                 >
                     <span class="material-symbols-outlined">groups</span>
@@ -66,6 +66,13 @@
                     Zona
                 </a>
                 <a
+                    href="{% url 'pe_inventory:dashboard' event.id %}"
+                    class="nav-link {% if active_page == 'inventario' %}active{% endif %}"
+                >
+                    <span class="material-symbols-outlined">inventory_2</span>
+                    Inventario
+                </a>
+                <a
                     href="{% url 'pe_agenda:activities' event.id %}"
                     class="nav-link {% if active_page == 'actividades' %}active{% endif %}"
                 >
@@ -73,11 +80,11 @@
                     Actividades
                 </a>
                 <a
-                    href="{% url 'pe_inventory:stands' event.id %}"
-                    class="nav-link {% if active_page == 'inventario' %}active{% endif %}"
+                    href="{% url 'pe_staff:dashboard' event.id %}"
+                    class="nav-link {% if active_page == 'equipo' %}active{% endif %}"
                 >
-                    <span class="material-symbols-outlined">inventory_2</span>
-                    Inventario
+                    <span class="material-symbols-outlined">badge</span>
+                    Equipo
                 </a>
                 <a
                     href="#"

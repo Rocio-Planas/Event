@@ -1,0 +1,282 @@
+{% extends "base_sidebar.html" %}
+{% load static %}
+
+{% block title %}Gestión de Equipo - EventConcierge{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'pe_staff/css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-800 display-6">Gestión de Equipo</h2>
+            <p class="text-muted mb-0">Administra tu equipo de evento y asigna zonas de trabajo.</p>
+        </div>
+        <div>
+            <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" data-bs-toggle="modal" data-bs-target="#inviteStaffModal">
+                <span class="material-symbols-outlined" style="font-size: 18px;">person_add</span> Invitar al Equipo
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
+                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 d-flex align-items-center justify-content-center">
+                    <span class="material-symbols-outlined">groups</span>
+                </div>
+                <div>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Total Miembros</small>
+                    <h3 class="fw-black mb-0" id="totalMembers">{{ total_members }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
+                <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 d-flex align-items-center justify-content-center">
+                    <span class="material-symbols-outlined">check_circle</span>
+                </div>
+                <div>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Con Zona Asignada</small>
+                    <h3 class="fw-black mb-0" id="activeMembers">{{ active_members }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
+                <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 d-flex align-items-center justify-content-center">
+                    <span class="material-symbols-outlined">mail</span>
+                </div>
+                <div>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Invitaciones Pendientes</small>
+                    <h3 class="fw-black mb-0" id="pendingInvitations">{{ pending_invitations }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="content-card mb-4 bg-light p-4 rounded-3 border">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Miembro</label>
+                <div class="search-container shadow-sm rounded-2 w-100 bg-white position-relative">
+                    <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: #6c757d;">search</span>
+                    <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Nombre o email..." id="searchMember">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Rol</label>
+                <select class="form-select border-0 shadow-sm" id="filterRole">
+                    <option value="">Todos los Roles</option>
+                    <option value="LIDER_ZONA">Líder de Zona</option>
+                    <option value="SOPORTE">Soporte Técnico</option>
+                    <option value="RECEPCION">Recepción</option>
+                    <option value="SEGURIDAD">Seguridad</option>
+                    <option value="MONTAJE">Montaje</option>
+                    <option value="CATERING">Catering</option>
+                    <option value="ATENCION">Atención al Público</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Zona</label>
+                <select class="form-select border-0 shadow-sm" id="filterZone">
+                    <option value="">Todas las Zonas</option>
+                    {% for zone, members_list in members_by_zone.items %}
+                    <option value="{{ zone }}">{{ zone }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Members and Pending Invitations Table -->
+    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white mb-4">
+        <div class="table-responsive">
+            <table class="table mb-0 align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="px-4 py-3">Persona</th>
+                        <th class="py-3">Rol</th>
+                        <th class="py-3">Zona Asignada</th>
+                        <th class="py-3">Estado</th>
+                        <th class="px-4 py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="membersTableBody">
+                    <!-- Miembros confirmados -->
+                    {% for member in members %}
+                    <tr data-member-id="{{ member.id }}" data-type="member">
+                        <td class="px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    <span class="material-symbols-outlined">person</span>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ member.user.get_full_name|default:member.user.email }}</div>
+                                    <small class="text-muted">{{ member.user.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-primary">{{ member.get_role_display }}</span></td>
+                        <td>
+                            {% if member.zone %}
+                            <span class="badge bg-success">{{ member.zone }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Sin asignar</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if member.zone %}
+                            <span class="badge bg-success">Activo</span>
+                            {% else %}
+                            <span class="badge bg-warning">Pendiente Zona</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 text-center">
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignZoneModal" data-member-id="{{ member.id }}" title="Asignar Zona">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">place</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger remove-member-btn" title="Eliminar" data-member-id="{{ member.id }}">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    <!-- Invitaciones pendientes -->
+                    {% for invitation in pending_invitations_list %}
+                    <tr data-invitation-id="{{ invitation.id }}" data-type="invitation">
+                        <td class="px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    <span class="material-symbols-outlined">mail</span>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ invitation.email }}</div>
+                                    <small class="text-muted">{{ invitation.sent_at|date:'d/m/Y H:i' }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3">
+                            {% if invitation.role %}
+                                <span class="badge bg-primary">{{ invitation.get_role_display }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No aplica</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3">
+                            <span class="text-muted small">—</span>
+                        </td>
+                        <td class="py-3">
+                            <span class="badge bg-warning">Invitación Pendiente</span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <button class="btn btn-sm btn-outline-danger cancel-invitation-btn" data-invitation-id="{{ invitation.id }}" title="Cancelar Invitación">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <div class="text-muted">
+                                <span class="material-symbols-outlined" style="width: 48px; height: 48px;">group_remove</span>
+                                <p>No hay miembros ni invitaciones pendientes</p>
+                                <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#inviteStaffModal">Invitar primer miembro</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
+            <div class="small text-muted fw-bold" id="paginationInfo">Total: {{ members.count }} miembros + {{ pending_invitations }} invitaciones pendientes</div>
+        </div>
+    </div>
+
+    <!-- Modal Invitar Staff -->
+    <div class="modal fade" id="inviteStaffModal" tabindex="-1" aria-labelledby="inviteStaffModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title fw-800" id="inviteStaffModalLabel">Invitar al Equipo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="inviteForm">
+                        <div class="mb-3">
+                            <label for="inviteEmail" class="form-label small fw-bold text-uppercase text-primary">Correo Electrónico</label>
+                            <input type="email" class="form-control border-0 bg-light py-2" id="inviteEmail" required placeholder="correo@ejemplo.com">
+                            <small class="text-muted">Debe estar registrado en la plataforma</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userType" class="form-label small fw-bold text-uppercase text-primary">Tipo de Invitado</label>
+                            <select class="form-select border-0 bg-light py-2" id="userType" required>
+                                <option value="ponente">Ponente</option>
+                                <option value="staff">Staff</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="roleSelectDiv" style="display: none;">
+                            <label for="inviteRole" class="form-label small fw-bold text-uppercase text-primary">Rol de Staff</label>
+                            <select class="form-select border-0 bg-light py-2" id="inviteRole">
+                                <option value="">Seleccionar rol</option>
+                                <option value="LIDER_ZONA">Líder de Zona</option>
+                                <option value="SOPORTE">Soporte Técnico</option>
+                                <option value="RECEPCION">Recepción</option>
+                                <option value="SEGURIDAD">Seguridad</option>
+                                <option value="MONTAJE">Montaje</option>
+                                <option value="CATERING">Catering</option>
+                                <option value="ATENCION">Atención al Público</option>
+                            </select>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-gradient w-100 py-3 fw-bold rounded-2">Confirmar Invitación</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Asignar Zona -->
+    <div class="modal fade" id="assignZoneModal" tabindex="-1" aria-labelledby="assignZoneModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title fw-800" id="assignZoneModalLabel">Asignar Zona</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="assignZoneForm">
+                        <input type="hidden" id="memberId">
+                        <div class="mb-3">
+                            <label for="zoneName" class="form-label small fw-bold text-uppercase text-primary">Nombre de Zona</label>
+                            <input type="text" class="form-control border-0 bg-light py-2" id="zoneName" required placeholder="Ej. Zona A - Entrada Principal">
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-gradient w-100 py-3 fw-bold rounded-2">Asignar Zona</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    window.eventId = {{ event_id }};
+    window.membersData = {{ members_json|safe }};
+    window.invitationsData = {{ invitations_json|safe }};
+</script>
+<script src="{% static 'pe_staff/js/main.js' %}"></script>
+{% endblock %}

@@ -5,7 +5,7 @@ app_name = 'pe_inventory'
 
 urlpatterns = [
     # Vista principal del dashboard (ruta: /inventario/<event_id>/)
-    path('<int:event_id>/', views.InventoryDashboardView.as_view(), name='stands'),
+    path('<int:event_id>/', views.InventoryDashboardView.as_view(), name='dashboard'),
     
     # Endpoints para CRUD
     path('<int:event_id>/create/', views.create_item, name='create_item'),

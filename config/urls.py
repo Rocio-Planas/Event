@@ -43,6 +43,7 @@ urlpatterns = [
     path('agenda/', include('pe_agenda.urls', namespace='pe_agenda')),
     path('inventario/', include('pe_inventory.urls', namespace='pe_inventory')),
     path('stands/', include('pe_stand.urls', namespace='pe_stand')),
+    path('equipo/', include('pe_staff.urls', namespace='pe_staff')),
 ]
 
 if settings.DEBUG:
