@@ -6,33 +6,46 @@
 <div class="max-w-6xl mx-auto">
     <h1 class="text-3xl font-bold text-on-surface mb-8" data-i18n="admin_panel_title">Panel de Administración</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+        <!-- Usuarios -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/20 text-center">
             <span class="material-symbols-outlined text-4xl text-primary">people</span>
             <h3 class="text-2xl font-bold text-on-surface mt-2">{{ total_usuarios }}</h3>
             <p class="text-on-surface-variant" data-i18n="admin_panel_users">Usuarios registrados</p>
             <a href="{% url 'core:admin_usuarios' %}" class="mt-4 inline-block text-primary text-sm font-medium hover:underline" data-i18n="admin_panel_manage">Gestionar →</a>
         </div>
+        <!-- Eventos pendientes -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/20 text-center">
             <span class="material-symbols-outlined text-4xl text-primary">event</span>
             <h3 class="text-2xl font-bold text-on-surface mt-2">{{ total_eventos_pendientes }}</h3>
             <p class="text-on-surface-variant" data-i18n="admin_panel_pending_events">Eventos pendientes</p>
             <a href="{% url 'core:admin_eventos' %}" class="mt-4 inline-block text-primary text-sm font-medium hover:underline" data-i18n="admin_panel_review">Revisar →</a>
         </div>
+        <!-- Reseñas pendientes -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/20 text-center">
             <span class="material-symbols-outlined text-4xl text-primary">star</span>
             <h3 class="text-2xl font-bold text-on-surface mt-2">{{ total_resenas_pendientes }}</h3>
             <p class="text-on-surface-variant" data-i18n="admin_panel_pending_reviews">Reseñas pendientes</p>
             <a href="{% url 'core:admin_resenas' %}" class="mt-4 inline-block text-primary text-sm font-medium hover:underline" data-i18n="admin_panel_approve">Aprobar →</a>
         </div>
+        <!-- Consultas sin responder -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/20 text-center">
             <span class="material-symbols-outlined text-4xl text-primary">chat</span>
             <h3 class="text-2xl font-bold text-on-surface mt-2">{{ total_consultas_no_respondidas }}</h3>
             <p class="text-on-surface-variant" data-i18n="admin_panel_pending_inquiries">Consultas sin responder</p>
             <a href="{% url 'core:admin_consultas' %}" class="mt-4 inline-block text-primary text-sm font-medium hover:underline" data-i18n="admin_panel_respond">Responder →</a>
         </div>
+
+        <!-- Métricas (nueva tarjeta) -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/20 text-center">
+            <span class="material-symbols-outlined text-4xl text-primary">monitoring</span>
+            <h3 class="text-2xl font-bold text-on-surface mt-2">{{ total_suscripciones }}</h3>
+            <p class="text-on-surface-variant" data-i18n="admin_panel_metrics">Métricas globales</p>
+            <a href="{% url 'core:admin_metrics' %}" class="mt-4 inline-block text-primary text-sm font-medium hover:underline" data-i18n="admin_panel_view_metrics">Ver métricas</a>
+        </div>
     </div>
 
+    <!-- Acciones rápidas -->
     <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
         <h2 class="text-xl font-bold text-on-surface mb-4" data-i18n="admin_panel_quick_actions">Acciones rápidas</h2>
         <div class="flex flex-wrap gap-4">
@@ -40,6 +53,7 @@
             <a href="{% url 'core:admin_eventos' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90" data-i18n="admin_panel_review">Revisar eventos pendientes</a>
             <a href="{% url 'core:admin_resenas' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90" data-i18n="admin_panel_approve">Aprobar reseñas</a>
             <a href="{% url 'core:admin_consultas' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90" data-i18n="admin_panel_respond">Responder consultas</a>
+            <a href="{% url 'core:admin_metrics' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90" data-i18n="admin_panel_view_metrics">Ver métricas</a>
         </div>
     </div>
 </div>

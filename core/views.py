@@ -335,15 +335,24 @@ def cancelar_suscripcion(request, suscripcion_id):
 def admin_panel(request):
     """Panel principal con tarjetas de resumen."""
     total_usuarios = UsuarioModel.objects.count()
-    total_eventos_pendientes = VirtualEvent.objects.filter(estado='pendiente').count() + EventoPresencial.objects.filter(status='pendiente').count()
+    total_eventos_pendientes = (
+        VirtualEvent.objects.filter(estado='pendiente').count() +
+        EventoPresencial.objects.filter(status='pendiente').count()
+    )
     total_resenas_pendientes = Resena.objects.filter(aprobada=False).count()
     total_consultas_no_respondidas = Consulta.objects.filter(respondido=False).count()
+    
+    # NUEVO: total de suscripciones (virtuales + presenciales)
+    total_suscripciones = (
+        EventFollower.objects.count() + Suscripcion.objects.count()
+    )
     
     context = {
         'total_usuarios': total_usuarios,
         'total_eventos_pendientes': total_eventos_pendientes,
         'total_resenas_pendientes': total_resenas_pendientes,
         'total_consultas_no_respondidas': total_consultas_no_respondidas,
+        'total_suscripciones': total_suscripciones,   # <-- añadido
     }
     return render(request, 'core/admin_panel.html', context)
 
@@ -703,4 +712,24 @@ def admin_editar_usuario(request, usuario_id):
             return redirect('core:admin_usuarios')
     else:
         form = AdminUsuarioForm(instance=usuario, initial={'password': ''})
-    return render(request, 'core/admin_usuario_form.html', {'form': form, 'titulo': f'Editar usuario: {usuario.email}'})
+    return render(request, 'core/admin_usuario_form.html', {'form': form, 'titulo': f'Editar usuario: {usuario.email}'})@login_required
+
+@login_required
+@role_required(['administrador'])
+def admin_metrics(request):
+    """Vista de métricas globales para el administrador."""
+    total_usuarios = UsuarioModel.objects.count()
+    total_suscripciones = (
+        EventFollower.objects.count() + Suscripcion.objects.count()
+    )
+    total_resenas_aprobadas = Resena.objects.filter(aprobada=True).count()
+    total_consultas = Consulta.objects.count()
+
+    context = {
+        'total_usuarios': total_usuarios,
+        'total_suscripciones': total_suscripciones,
+        'total_resenas_aprobadas': total_resenas_aprobadas,
+        'total_consultas': total_consultas,
+    }
+    return render(request, 'core/admin_metrics.html', context)
+
