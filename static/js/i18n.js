@@ -154,6 +154,16 @@ const translations = {
     view_recording: "Ver grabación",
     download_presentation: "Descargar presentación",
     view_event: "Ver evento",
+
+    // Rating section
+    rate_this_session: "CALIFICA ESTA SESIÓN",
+    what_do_you_think_session: "¿Qué te está pareciendo la sesión?",
+    excellent_rating: "Excelente",
+    very_good_rating: "Muy buena",
+    good_rating: "Buena",
+    fair_rating: "Regular",
+    poor_rating: "Mala",
+    your_opinion_helps_improve: "Tu opinión nos ayuda a mejorar"
   },
   en: {
     nav_inicio: "Home",
@@ -302,6 +312,16 @@ const translations = {
     view_recording: "View recording",
     download_presentation: "Download presentation",
     view_event: "View event",
+
+    // Rating section
+    rate_this_session: "RATE THIS SESSION",
+    what_do_you_think_session: "What do you think of the session?",
+    excellent_rating: "Excellent",
+    very_good_rating: "Very good",
+    good_rating: "Good",
+    fair_rating: "Fair",
+    poor_rating: "Poor",
+    your_opinion_helps_improve: "Your opinion helps us improve"
   },
 };
 
@@ -379,6 +399,12 @@ function applyTranslations() {
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
     const key = el.getAttribute("data-i18n-placeholder");
     if (t[key]) el.placeholder = t[key];
+  });
+
+  // Elementos con data-i18n-title (solo title)
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-title");
+    if (t[key]) el.title = t[key];
   });
 
   // Actualizar clases activas de los botones de idioma
