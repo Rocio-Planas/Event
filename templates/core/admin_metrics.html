@@ -1,10 +1,17 @@
 {% extends "base_stitch.html" %}
 {% load static %}
 {% block title %}Métricas - EventPulse{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="max-w-7xl mx-auto">
     <h1 class="text-3xl font-bold text-on-surface mb-8" data-i18n="metrics_title">Métricas de la plataforma</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+    <!-- Tarjetas resumen -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 text-center">
             <span class="material-symbols-outlined text-5xl text-primary">people</span>
             <h3 class="text-2xl font-bold text-on-surface mt-2">{{ total_usuarios }}</h3>
@@ -26,8 +33,168 @@
             <p class="text-on-surface-variant" data-i18n="total_inquiries">Consultas recibidas</p>
         </div>
     </div>
+
+    <!-- Gráficos -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-on-surface mb-4" data-i18n="chart_events_by_category">Eventos por categoría</h2>
+            <canvas id="chartCategorias" height="200"></canvas>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-on-surface mb-4" data-i18n="chart_subscriptions_by_month">Suscripciones por mes</h2>
+            <canvas id="chartSuscripciones" height="200"></canvas>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 lg:col-span-2">
+            <h2 class="text-lg font-semibold text-on-surface mb-4" data-i18n="chart_users_by_month">Registro de usuarios por mes</h2>
+            <canvas id="chartUsuarios" height="150"></canvas>
+        </div>
+    </div>
+
     <div class="mt-8 text-center">
         <a href="{% url 'core:admin_panel' %}" class="text-primary hover:underline" data-i18n="back_to_admin">← Volver al panel de administrador</a>
     </div>
 </div>
+
+<!-- Datos para gráficos -->
+{{ categorias_labels|json_script:"categorias-labels" }}
+{{ categorias_data|json_script:"categorias-data" }}
+{{ suscripciones_labels_es|json_script:"suscripciones-labels-es" }}
+{{ suscripciones_labels_en|json_script:"suscripciones-labels-en" }}
+{{ suscripciones_data|json_script:"suscripciones-data" }}
+{{ usuarios_labels_es|json_script:"usuarios-labels-es" }}
+{{ usuarios_labels_en|json_script:"usuarios-labels-en" }}
+{{ usuarios_data|json_script:"usuarios-data" }}
+
+<script>
+    // Traduce las etiquetas de categorías usando el diccionario de traducciones
+    function translateCategories(labels, lang) {
+        if (typeof translations !== 'undefined' && translations[lang]) {
+            return labels.map(function(label) {
+                const key = 'cat_' + label.replace(/\s+/g, '_');  // las claves en translations usan _ y no espacios
+                // Pero si tu diccionario usa espacios, usa directamente 'cat_' + label
+                const translated = translations[lang][key] || translations[lang]['cat_' + label] || label;
+                return translated;
+            });
+        }
+        return labels;
+    }
+
+    function initCharts() {
+        const lang = (typeof currentLang !== 'undefined') ? currentLang : 'es';
+
+        const catLabels = JSON.parse(document.getElementById('categorias-labels').textContent);
+        const catData = JSON.parse(document.getElementById('categorias-data').textContent);
+        const subsLabelsEs = JSON.parse(document.getElementById('suscripciones-labels-es').textContent);
+        const subsLabelsEn = JSON.parse(document.getElementById('suscripciones-labels-en').textContent);
+        const subsData = JSON.parse(document.getElementById('suscripciones-data').textContent);
+        const userLabelsEs = JSON.parse(document.getElementById('usuarios-labels-es').textContent);
+        const userLabelsEn = JSON.parse(document.getElementById('usuarios-labels-en').textContent);
+        const userData = JSON.parse(document.getElementById('usuarios-data').textContent);
+
+        // Elegir etiquetas para meses y usuarios
+        const subsLabels = lang === 'en' ? subsLabelsEn : subsLabelsEs;
+        const userLabels = lang === 'en' ? userLabelsEn : userLabelsEs;
+
+        // Traducir categorías
+        const catLabelsTranslated = translateCategories(catLabels, lang);
+
+        const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-on-surface').trim() || '#181c20';
+        const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#0057cd';
+
+        // Gráfico de categorías (barras)
+        new Chart(document.getElementById('chartCategorias'), {
+            type: 'bar',
+            data: {
+                labels: catLabelsTranslated,
+                datasets: [{
+                    label: 'Eventos',
+                    data: catData,
+                    backgroundColor: primaryColor + 'CC',
+                    borderColor: primaryColor,
+                    borderWidth: 1,
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: textColor } },
+                    x: { ticks: { color: textColor } }
+                }
+            }
+        });
+
+        // Suscripciones (línea)
+        new Chart(document.getElementById('chartSuscripciones'), {
+            type: 'line',
+            data: {
+                labels: subsLabels,
+                datasets: [{
+                    label: 'Suscripciones',
+                    data: subsData,
+                    fill: true,
+                    backgroundColor: primaryColor + '20',
+                    borderColor: primaryColor,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointBackgroundColor: primaryColor,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: textColor } },
+                    x: { ticks: { color: textColor } }
+                }
+            }
+        });
+
+        // Usuarios (línea)
+        new Chart(document.getElementById('chartUsuarios'), {
+            type: 'line',
+            data: {
+                labels: userLabels,
+                datasets: [{
+                    label: 'Nuevos usuarios',
+                    data: userData,
+                    fill: true,
+                    backgroundColor: primaryColor + '20',
+                    borderColor: primaryColor,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointBackgroundColor: primaryColor,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: textColor } },
+                    x: { ticks: { color: textColor } }
+                }
+            }
+        });
+    }
+
+    // Reinicializar gráficos cuando se cambie el idioma
+    window.addEventListener('languageChanged', function() {
+        ['chartCategorias', 'chartSuscripciones', 'chartUsuarios'].forEach(function(id) {
+            const canvas = document.getElementById(id);
+            if (canvas) {
+                const chart = Chart.getChart(canvas);
+                if (chart) chart.destroy();
+            }
+        });
+        initCharts();
+    });
+
+    // Cargar gráficos iniciales
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCharts);
+    } else {
+        initCharts();
+    }
+</script>
 {% endblock %}

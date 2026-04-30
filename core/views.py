@@ -1,7 +1,9 @@
 from django.http import JsonResponse
+from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.db.models import Q, Avg, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -17,7 +19,7 @@ from in_person_events.models import Event as EventoPresencial
 from usuarios.models import Usuario as UsuarioModel
 from usuarios.forms import PerfilForm
 from django import forms
-
+import datetime   # <-- Añadida esta importación para timedelta
 
 # ---------- FUNCIÓN AUXILIAR DE NORMALIZACIÓN ----------
 def normalizar_categoria(categoria):
@@ -120,7 +122,7 @@ def home(request):
             'ubicacion': None,
             'esta_suscrito': ev.id in suscripciones_virtuales_ids,
             'es_favorito': ev.id in favoritos_virtuales_ids,
-            'url_detalle': f"/eventos-virtuales/{ev.id}/",
+            'url_detalle': reverse('virtualEvent:event_detail', args=[ev.id]),
         })
 
     # Presenciales
@@ -208,9 +210,7 @@ def home(request):
     for nombre in categorias_combinadas:
         # Buscar el icono de la categoría predefinida original (sin normalizar)
         predef_original = CategoriaEvento.objects.filter(activo=True).filter(nombre__iexact=nombre).first()
-        # Si no se encuentra, buscar por el nombre original antes de normalizar (puede que no coincida exactamente)
         if not predef_original:
-            # Intentar buscar por el nombre normalizado (pero puede no estar en la tabla)
             predef_original = categorias_predefinidas.filter(nombre=nombre).first()
         icono = predef_original.icono if predef_original else 'category'
         categorias_para_template.append({'nombre': nombre, 'icono': icono})
@@ -268,8 +268,7 @@ def toggle_favorito_presencial(request):
     return JsonResponse({'liked': liked, 'evento_id': evento_id})
 
 
-# ========== OTRAS VISTAS (suscribirse, contacto, etc.) ==========
-# (Mantén el resto de tus vistas igual, solo se incluyen las necesarias)
+# ========== OTRAS VISTAS ==========
 @login_required
 def suscribirse(request):
     if request.method == 'POST':
@@ -330,6 +329,8 @@ def cancelar_suscripcion(request, suscripcion_id):
     messages.success(request, f'❌ Has cancelado tu suscripción a "{titulo}"')
     return redirect('usuarios:perfil')
 
+
+# ========== PANEL DE ADMINISTRACIÓN ==========
 @login_required
 @role_required(['administrador'])
 def admin_panel(request):
@@ -341,8 +342,6 @@ def admin_panel(request):
     )
     total_resenas_pendientes = Resena.objects.filter(aprobada=False).count()
     total_consultas_no_respondidas = Consulta.objects.filter(respondido=False).count()
-    
-    # NUEVO: total de suscripciones (virtuales + presenciales)
     total_suscripciones = (
         EventFollower.objects.count() + Suscripcion.objects.count()
     )
@@ -352,7 +351,7 @@ def admin_panel(request):
         'total_eventos_pendientes': total_eventos_pendientes,
         'total_resenas_pendientes': total_resenas_pendientes,
         'total_consultas_no_respondidas': total_consultas_no_respondidas,
-        'total_suscripciones': total_suscripciones,   # <-- añadido
+        'total_suscripciones': total_suscripciones,
     }
     return render(request, 'core/admin_panel.html', context)
 
@@ -379,7 +378,6 @@ def admin_eventos_pendientes(request):
     eventos_virtuales = VirtualEvent.objects.filter(estado='pendiente').select_related('created_by')
     eventos_presenciales = EventoPresencial.objects.filter(status='pendiente').select_related('organizer')
     
-    # Convertir a lista de diccionarios para unificar
     eventos = []
     for ev in eventos_virtuales:
         eventos.append({
@@ -400,7 +398,6 @@ def admin_eventos_pendientes(request):
             'categoria': ev.category,
         })
     
-    # Ordenar por fecha descendente
     eventos.sort(key=lambda x: x['fecha'], reverse=True)
     
     paginator = Paginator(eventos, 10)
@@ -420,7 +417,6 @@ def admin_aprobar_evento(request, evento_id, tipo):
         evento = get_object_or_404(VirtualEvent, id=evento_id)
         evento.estado = 'aprobado'
         evento.save()
-        # Enviar correo al organizador
         send_mail(
             f'Tu evento "{evento.title}" ha sido aprobado',
             f'Hola {evento.created_by.get_full_name()},\n\nTu evento virtual "{evento.title}" ha sido aprobado y ya es visible en la plataforma.\n\nSaludos,\nEquipo EventPulse',
@@ -483,7 +479,6 @@ def admin_aprobar_resena(request, resena_id):
     resena = get_object_or_404(Resena, id=resena_id)
     resena.aprobada = True
     resena.save()
-    # Enviar correo al usuario que escribió la reseña
     send_mail(
         'Tu reseña ha sido aprobada',
         f'Hola {resena.nombre},\n\nTu reseña para el evento "{resena.evento.title}" ha sido aprobada y ya está visible.\n\nGracias por tu contribución.\nEquipo EventPulse',
@@ -520,7 +515,6 @@ def admin_responder_consulta(request, consulta_id):
             consulta.respuesta = respuesta
             consulta.respondido = True
             consulta.save()
-            # Enviar correo al usuario
             send_mail(
                 f'Respuesta a tu consulta: {consulta.asunto}',
                 f'Hola {consulta.nombre},\n\nTu consulta:\n"{consulta.mensaje}"\n\nRespuesta:\n{respuesta}\n\nSaludos,\nEquipo EventPulse',
@@ -661,6 +655,8 @@ def detalle_evento_presencial(request, evento_id):
         'es_favorito': es_favorito,
     }
     return render(request, 'evento_presencial_detalle.html', context)
+
+
 class AdminUsuarioForm(forms.ModelForm):
     password = forms.CharField(
         widget=forms.PasswordInput, 
@@ -672,6 +668,7 @@ class AdminUsuarioForm(forms.ModelForm):
     class Meta:
         model = UsuarioModel
         fields = ['first_name', 'last_name', 'email', 'telefono', 'rol', 'is_active']
+
 
 @login_required
 @role_required(['administrador'])
@@ -696,6 +693,7 @@ def admin_crear_usuario(request):
         form = AdminUsuarioForm()
     return render(request, 'core/admin_usuario_form.html', {'form': form, 'titulo': 'Crear nuevo usuario'})
 
+
 @login_required
 @role_required(['administrador'])
 def admin_editar_usuario(request, usuario_id):
@@ -712,12 +710,15 @@ def admin_editar_usuario(request, usuario_id):
             return redirect('core:admin_usuarios')
     else:
         form = AdminUsuarioForm(instance=usuario, initial={'password': ''})
-    return render(request, 'core/admin_usuario_form.html', {'form': form, 'titulo': f'Editar usuario: {usuario.email}'})@login_required
+    return render(request, 'core/admin_usuario_form.html', {'form': form, 'titulo': f'Editar usuario: {usuario.email}'})
+
+
+# ========== NUEVA VISTA DE MÉTRICAS CON GRÁFICOS ==========
 
 @login_required
 @role_required(['administrador'])
 def admin_metrics(request):
-    """Vista de métricas globales para el administrador."""
+    """Vista de métricas globales con gráficos y etiquetas traducibles."""
     total_usuarios = UsuarioModel.objects.count()
     total_suscripciones = (
         EventFollower.objects.count() + Suscripcion.objects.count()
@@ -725,11 +726,77 @@ def admin_metrics(request):
     total_resenas_aprobadas = Resena.objects.filter(aprobada=True).count()
     total_consultas = Consulta.objects.count()
 
+    # 1. Eventos por categoría
+    categorias = {}
+    for ev in VirtualEvent.objects.filter(estado='aprobado'):
+        cat = normalizar_categoria(ev.category) if ev.category else 'Sin categoría'
+        categorias[cat] = categorias.get(cat, 0) + 1
+    for ev in EventoPresencial.objects.filter(status='aprobado'):
+        cat = normalizar_categoria(ev.category) if ev.category else 'Sin categoría'
+        categorias[cat] = categorias.get(cat, 0) + 1
+    categorias_labels = list(categorias.keys())
+    categorias_data = list(categorias.values())
+
+    # 2. Generar los últimos 12 meses en orden cronológico
+    #    dos listas de etiquetas: español e inglés
+    meses_es = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+    meses_en = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+    hoy = timezone.now().date()
+    inicio_periodo = hoy.replace(day=1) - datetime.timedelta(days=1)
+    inicio_periodo = inicio_periodo.replace(day=1)  # primer día del mes anterior
+    for _ in range(10):
+        inicio_periodo = (inicio_periodo - datetime.timedelta(days=1)).replace(day=1)
+
+    suscripciones_data = []
+    suscripciones_labels_es = []
+    suscripciones_labels_en = []
+    usuarios_data = []
+
+    cursor = inicio_periodo
+    for _ in range(12):
+        if cursor.month == 12:
+            fin_mes = cursor.replace(year=cursor.year + 1, month=1, day=1)
+        else:
+            fin_mes = cursor.replace(month=cursor.month + 1, day=1)
+
+        # Etiquetas en cada idioma
+        suscripciones_labels_es.append(f"{meses_es[cursor.month - 1]} {cursor.year}")
+        suscripciones_labels_en.append(f"{meses_en[cursor.month - 1]} {cursor.year}")
+
+        virtuales_mes = EventFollower.objects.filter(
+            followed_at__gte=cursor,
+            followed_at__lt=fin_mes
+        ).count()
+        presenciales_mes = Suscripcion.objects.filter(
+            fecha_suscripcion__gte=cursor,
+            fecha_suscripcion__lt=fin_mes
+        ).count()
+        suscripciones_data.append(virtuales_mes + presenciales_mes)
+
+        usuarios_mes = UsuarioModel.objects.filter(
+            date_joined__gte=cursor,
+            date_joined__lt=fin_mes
+        ).count()
+        usuarios_data.append(usuarios_mes)
+
+        cursor = fin_mes
+
     context = {
         'total_usuarios': total_usuarios,
         'total_suscripciones': total_suscripciones,
         'total_resenas_aprobadas': total_resenas_aprobadas,
         'total_consultas': total_consultas,
+        'categorias_labels': categorias_labels,
+        'categorias_data': categorias_data,
+        # Listas bilingües para las gráficas de tiempo
+        'suscripciones_labels_es': suscripciones_labels_es,
+        'suscripciones_labels_en': suscripciones_labels_en,
+        'suscripciones_data': suscripciones_data,
+        'usuarios_labels_es': suscripciones_labels_es,  # mismas etiquetas
+        'usuarios_labels_en': suscripciones_labels_en,
+        'usuarios_data': usuarios_data,
     }
     return render(request, 'core/admin_metrics.html', context)
-

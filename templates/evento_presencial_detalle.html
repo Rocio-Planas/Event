@@ -33,13 +33,13 @@
         </div>
         <div class="p-6">
             <h1 class="text-3xl font-bold text-on-surface">{{ evento.titulo }}</h1>
-            <div class="flex items-center gap-4 mt-2 text-on-surface-variant">
+            <div class="flex items-center gap-4 mt-2 text-on-surface-variant flex-wrap">
                 <span class="material-symbols-outlined text-sm">calendar_today</span>
                 <span>{{ evento.fecha }}</span>
                 <span class="material-symbols-outlined text-sm">location_on</span>
-                <span>Presencial</span>
+                <span data-i18n="presencial">Presencial</span>
                 <span class="material-symbols-outlined text-sm">category</span>
-                <span>{{ evento.categoria }}</span>
+                <span class="category-name" data-cat-original="{{ evento.categoria }}">{{ evento.categoria }}</span>
             </div>
 
             <!-- Ubicación destacada -->
@@ -65,11 +65,15 @@
                                 <span class="material-symbols-outlined text-base">
                                     {% if esta_suscrito %}cancel{% else %}event_available{% endif %}
                                 </span>
-                                {% if esta_suscrito %}Cancelar suscripción{% else %}Suscribirse{% endif %}
+                                {% if esta_suscrito %}
+                                    <span data-i18n="cancel_subscription">Cancelar suscripción</span>
+                                {% else %}
+                                    <span data-i18n="subscribe_btn">Suscribirse</span>
+                                {% endif %}
                             </button>
                         </form>
                     {% else %}
-                        <div class="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg">Eres el organizador</div>
+                        <div class="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg" data-i18n="you_are_organizer">Eres el organizador</div>
                     {% endif %}
 
                     <!-- Botón de Me gusta (favorito) -->
@@ -77,10 +81,14 @@
                         {% if es_favorito %}bg-red-100 text-red-700 border border-red-300{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}"
                         data-evento-id="{{ evento.id }}">
                         <span class="material-symbols-outlined like-icon {% if es_favorito %}filled{% endif %}">favorite</span>
-                        {% if es_favorito %}Favorito{% else %}Marcar favorito{% endif %}
+                        {% if es_favorito %}
+                            <span data-i18n="favorite">Favorito</span>
+                        {% else %}
+                            <span data-i18n="mark_favorite">Marcar favorito</span>
+                        {% endif %}
                     </button>
                 {% else %}
-                    <a href="{% url 'usuarios:login' %}" class="inline-flex items-center gap-2 text-primary hover:underline">Inicia sesión para interactuar</a>
+                    <a href="{% url 'usuarios:login' %}" class="inline-flex items-center gap-2 text-primary hover:underline" data-i18n="login_to_interact">Inicia sesión para interactuar</a>
                 {% endif %}
             </div>
 
@@ -88,7 +96,7 @@
             <div class="mt-6 flex flex-wrap gap-3">
                 <a href="https://www.google.com/calendar/render?action=TEMPLATE&text={{ evento.titulo|urlencode }}&dates={{ evento.fecha|date:"Ymd" }}T{{ evento.fecha|date:"Hi" }}00/{{ evento.fecha|date:"Ymd" }}T{{ evento.fecha|date:"Hi" }}00&details={{ evento.descripcion|urlencode }}&location={{ evento.ubicacion|urlencode }}&trp=false"
                    target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
-                    <span class="material-symbols-outlined">calendar_month</span> Agregar a Google Calendar
+                    <span class="material-symbols-outlined">calendar_month</span> <span data-i18n="add_to_google_calendar">Agregar a Google Calendar</span>
                 </a>
             </div>
         </div>
@@ -96,34 +104,34 @@
 
     <!-- Descripción -->
     <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 mb-8">
-        <h2 class="text-xl font-bold text-on-surface mb-3">Descripción</h2>
+        <h2 class="text-xl font-bold text-on-surface mb-3" data-i18n="description_label">Descripción</h2>
         <p class="text-on-surface-variant">{{ evento.descripcion }}</p>
         <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
-            <div><span class="font-semibold">Capacidad:</span> {{ evento.capacidad }} personas</div>
-            <div><span class="font-semibold">Organizador:</span> {{ evento.organizador }}</div>
+            <div><span class="font-semibold" data-i18n="capacity">Capacidad:</span> {{ evento.capacidad }} <span data-i18n="people">personas</span></div>
+            <div><span class="font-semibold" data-i18n="organizer">Organizador:</span> {{ evento.organizador }}</div>
         </div>
     </div>
 
     <!-- Mapa de ubicación -->
     <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 mb-8">
-        <h2 class="text-xl font-bold text-on-surface mb-3">Ubicación del evento</h2>
+        <h2 class="text-xl font-bold text-on-surface mb-3" data-i18n="event_location">Ubicación del evento</h2>
         <div id="event-map"></div>
         <p class="text-sm text-on-surface-variant mt-2">{{ evento.ubicacion }}</p>
     </div>
 
     <!-- Sección de reseñas (placeholder) -->
     <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
-        <h2 class="text-2xl font-bold text-on-surface mb-6">Reseñas</h2>
+        <h2 class="text-2xl font-bold text-on-surface mb-6" data-i18n="reviews_section">Reseñas</h2>
         <div class="text-center py-8">
             <span class="material-symbols-outlined text-5xl text-outline-variant">rate_review</span>
-            <p class="text-on-surface-variant mt-2">Próximamente: podrás dejar reseñas de este evento después de asistir.</p>
-            <a href="{% url 'core:contacto' %}" class="mt-4 inline-block text-primary hover:underline">Contactar con el organizador</a>
+            <p class="text-on-surface-variant mt-2" data-i18n="reviews_coming_soon">Próximamente: podrás dejar reseñas de este evento después de asistir.</p>
+            <a href="{% url 'core:contacto' %}" class="mt-4 inline-block text-primary hover:underline" data-i18n="contact_organizer">Contactar con el organizador</a>
         </div>
     </div>
 
     <div class="mt-6 text-center">
-        <a href="{% url 'core:home' %}" class="text-primary hover:underline flex items-center justify-center gap-1">
-            <span class="material-symbols-outlined text-sm">arrow_back</span> Volver al inicio
+        <a href="{% url 'core:home' %}" class="text-primary hover:underline flex items-center justify-center gap-1" data-i18n="back_home">
+            <span class="material-symbols-outlined text-sm">arrow_back</span> <span data-i18n="back_home">Volver al inicio</span>
         </a>
     </div>
 </div>
@@ -172,12 +180,10 @@
                 icon.classList.remove('filled');
                 this.classList.remove('bg-red-100', 'text-red-700', 'border-red-300');
                 this.classList.add('bg-gray-100', 'text-gray-700');
-                this.querySelector('span:not(.material-symbols-outlined)').innerText = 'Marcar favorito';
             } else {
                 icon.classList.add('filled');
                 this.classList.remove('bg-gray-100', 'text-gray-700');
                 this.classList.add('bg-red-100', 'text-red-700', 'border-red-300');
-                this.querySelector('span:not(.material-symbols-outlined)').innerText = 'Favorito';
             }
             fetch("{% url 'core:toggle_favorito_presencial' %}", {
                 method: 'POST',
@@ -186,12 +192,15 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (!data.liked && wasFilled) {
-                    // revertir si el servidor dice que no se pudo
-                    icon.classList.remove('filled');
-                    // etc.
-                } else if (data.liked && !wasFilled) {
+                // Actualizar según respuesta del servidor
+                if (data.liked) {
                     icon.classList.add('filled');
+                    this.classList.add('bg-red-100', 'text-red-700', 'border-red-300');
+                    this.classList.remove('bg-gray-100', 'text-gray-700');
+                } else {
+                    icon.classList.remove('filled');
+                    this.classList.remove('bg-red-100', 'text-red-700', 'border-red-300');
+                    this.classList.add('bg-gray-100', 'text-gray-700');
                 }
             })
             .catch(error => console.error('Error:', error));
