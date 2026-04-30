@@ -1,11 +1,14 @@
-// streaming-polling.js - Versión CORREGIDA (encuestas funcionales, sin recarga)
+// streaming-polling.js - Versión FINAL (encuestas funcionales)
 class StreamingPolling {
   constructor(eventSlug, isOrganizer) {
     this.eventSlug = eventSlug;
     this.isOrganizer = isOrganizer;
     this.pollingInterval = null;
+    this.pollRefreshInterval = null;
     this.chatContainer = document.getElementById("sr-chat-messages");
     this.pollSection = document.getElementById("sr-poll-section");
+    this.currentPollId = null;
+    this.hasVoted = false;
 
     this.init();
   }
@@ -14,10 +17,66 @@ class StreamingPolling {
     this.startPolling();
     this.bindEvents();
     this.loadActivePoll();
+    this.startPollRefresh();
   }
 
   startPolling() {
     this.pollingInterval = setInterval(() => this.fetchMessages(), 2000);
+  }
+
+  startPollRefresh() {
+    if (this.pollRefreshInterval) clearInterval(this.pollRefreshInterval);
+    this.pollRefreshInterval = setInterval(() => this.fetchActivePoll(), 5000);
+  }
+
+  async fetchActivePoll() {
+    try {
+      const res = await fetch(`/chat/api/${this.eventSlug}/poll/active/`);
+      if (!res.ok) return;
+      const data = await res.json();
+
+      // Si hay encuesta activa
+      if (data.active_poll && data.poll_id) {
+        const pollId = data.poll_id;
+        const votedKey = `poll_voted_${this.eventSlug}_${pollId}`;
+        const alreadyVoted = localStorage.getItem(votedKey) === "true";
+
+        if (pollId !== this.currentPollId) {
+          this.currentPollId = pollId;
+          this.hasVoted = alreadyVoted;
+
+          if (this.isOrganizer) {
+            this.fetchPollResults(pollId);
+          } else {
+            if (alreadyVoted) {
+              this.fetchPollResults(pollId);
+            } else {
+              this.showPoll(data);
+            }
+          }
+        } else {
+          // misma encuesta: refrescar resultados si corresponde
+          if (this.isOrganizer || this.hasVoted) {
+            this.fetchPollResults(pollId);
+          }
+        }
+      }
+      // No hay encuesta activa
+      else if (this.currentPollId !== null) {
+        this.clearPollSection();
+        this.currentPollId = null;
+        this.hasVoted = false;
+      }
+    } catch (err) {
+      console.error("Error refrescando encuesta:", err);
+    }
+  }
+
+  clearPollSection() {
+    this.pollSection.innerHTML = `<div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox display-6 opacity-25"></i>
+        <p class="mt-2 small fw-bold">No hay encuestas activas</p>
+    </div>`;
   }
 
   async fetchMessages() {
@@ -95,7 +154,7 @@ class StreamingPolling {
         },
       );
       if (response.ok) {
-        console.log("Pin toggled. Esperando siguiente actualización...");
+        console.log("Pin toggled.");
       } else {
         console.error("Error al fijar/desfijar:", response.status);
       }
@@ -161,8 +220,19 @@ class StreamingPolling {
       const res = await fetch(`/chat/api/${this.eventSlug}/poll/active/`);
       if (!res.ok) return;
       const data = await res.json();
-      if (data.active_poll !== null) {
-        this.showPoll(data);
+      if (data.active_poll && data.poll_id) {
+        this.currentPollId = data.poll_id;
+        const votedKey = `poll_voted_${this.eventSlug}_${this.currentPollId}`;
+        this.hasVoted = localStorage.getItem(votedKey) === "true";
+        if (this.isOrganizer) {
+          this.fetchPollResults(this.currentPollId);
+        } else {
+          if (this.hasVoted) {
+            this.fetchPollResults(this.currentPollId);
+          } else {
+            this.showPoll(data);
+          }
+        }
       }
     } catch (err) {
       console.error("Error al cargar encuesta activa:", err);
@@ -180,14 +250,15 @@ class StreamingPolling {
     });
     if (res.ok) {
       const poll = await res.json();
-      this.showPoll(poll); // Solo muestra la encuesta para votar, no resultados
+      this.currentPollId = poll.poll_id;
+      this.hasVoted = false;
+      this.fetchPollResults(this.currentPollId);
     } else {
       const error = await res.json();
       alert("Error al crear encuesta: " + (error.error || "desconocido"));
     }
   }
 
-  // ✅ MÉTODO DE VOTACIÓN (antes faltaba)
   async votePoll(pollId) {
     const selectedRadio = document.querySelector(
       'input[name="pollOption"]:checked',
@@ -223,7 +294,9 @@ class StreamingPolling {
       }
 
       if (response.ok) {
-        // Voto exitoso: mostrar resultados actualizados
+        const votedKey = `poll_voted_${this.eventSlug}_${pollId}`;
+        localStorage.setItem(votedKey, "true");
+        this.hasVoted = true;
         await this.fetchPollResults(pollId);
       } else {
         const errorData = await response.json();
@@ -364,11 +437,10 @@ class StreamingPolling {
     if (this.isOrganizer) {
       const pollForm = document.getElementById("sr-create-poll-form");
       if (pollForm) {
-        // Eliminar event listeners previos para evitar duplicados
         pollForm.removeEventListener("submit", this._pollSubmitHandler);
         this._pollSubmitHandler = (e) => {
           e.preventDefault();
-          e.stopPropagation(); // Asegurar que no se propaga
+          e.stopPropagation();
           const question = document.getElementById("sr-poll-question").value;
           const optionInputs = document.querySelectorAll(
             ".sr-poll-option-input",
@@ -392,7 +464,7 @@ class StreamingPolling {
             "sr-poll-options-container",
           );
           const div = document.createElement("div");
-          div.className = "input-group mb-2";
+          div.className = "input-group mb-2 sr-poll-option-input-group";
           div.innerHTML = `<input type="text" class="form-control bg-light border-0 rounded-3 sr-poll-option-input" placeholder="Opción"><button class="btn btn-outline-danger" type="button" onclick="this.parentElement.remove()">-</button>`;
           container.appendChild(div);
         });
@@ -401,7 +473,6 @@ class StreamingPolling {
   }
 }
 
-// Inicialización
 document.addEventListener("DOMContentLoaded", () => {
   const eventSlug = document.body.dataset.eventSlug || window.eventSlug;
   const isOrganizer = window.isOrganizer || false;

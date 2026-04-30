@@ -8,6 +8,7 @@ const translations = {
     nav_contacto: "Contacto",
     my_dashboard: "Mi Panel",
     my_profile: "Mi Perfil",
+    admin_panel: "Panel de Administración",
     login: "Iniciar Sesión",
     register: "Registrarse",
     footer_copyright: "Todos los derechos reservados.",
@@ -134,7 +135,8 @@ const translations = {
 
     // Emails
     invitation_title: "Has sido invitado a un evento privado",
-    accept_invitation: "Aceptar invitación",
+    accept_invitation: "Unirme al evento - Sala de espera",
+    what_is_this: "📌 ¿Qué es esto? El enlace te llevará a la sala de espera del evento. Cuando llegue la hora, podrás acceder a la transmisión en vivo.",
     reminder_title: "Recordatorio:",
     event_starts_soon: "El evento virtual",
     starts_in_1_hour: "comienza en 1 hora.",
@@ -172,6 +174,7 @@ const translations = {
     nav_contacto: "Contact",
     my_dashboard: "My Dashboard",
     my_profile: "My Profile",
+    admin_panel: "Admin Panel",
     login: "Login",
     register: "Sign up",
     footer_copyright: "All rights reserved.",
@@ -294,7 +297,8 @@ const translations = {
 
     // Emails
     invitation_title: "You have been invited to a private event",
-    accept_invitation: "Accept invitation",
+    accept_invitation: "Join the event - Waiting room",
+    what_is_this: "📌 What is this? The link will take you to the event's waiting room. When the time comes, you'll be able to access the live stream.",
     ignore_invitation: "If you did not expect this invitation, ignore this message.",
     reminder_title: "Reminder",
     join_event: "Join the event",

@@ -46,6 +46,20 @@ class VirtualEvent(models.Model):
     settings = models.JSONField(default=dict, blank=True)
     materials = models.JSONField(default=dict, blank=True, verbose_name="Material post-evento")
 
+    STATUS_CHOICES = (
+        ('active', 'Activo'),
+        ('finished', 'Finalizado'),
+    )
+    
+    final_elapsed_seconds = models.PositiveIntegerField(default=0, help_text="Tiempo total en segundos al finalizar el evento")
+    
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='active',
+        verbose_name="Estado del evento"
+    )
+
     ESTADO_CHOICES = (
         ('pendiente', 'Pendiente de aprobación'),
         ('aprobado', 'Aprobado'),

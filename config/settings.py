@@ -144,13 +144,6 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'perfil'
 LOGOUT_REDIRECT_URL = 'login'
 
-# Configuración para enviar correos con Gmail SMTP
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'tucorreo@gmail.com'  # <-- REEMPLAZA
-EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicacion'  # <-- REEMPLAZA
 
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
@@ -164,8 +157,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'rocioplanash@gmail.com'   # <-- TU correo
-EMAIL_HOST_PASSWORD = 'xzeoetmpuvyuayen'     # <-- La contraseña de 16 dígitos que copiaste (sin espacios)
+EMAIL_HOST_USER = 'rocioplanash@gmail.com'
+EMAIL_HOST_PASSWORD = 'xzeoetmpuvyuayen'
 EMAIL_TIMEOUT = 30
 
 
@@ -205,7 +198,12 @@ DEFAULT_FROM_EMAIL = 'noreply@tuplataforma.com'
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # Palabras ofensivas para moderación automática
-OFFENSIVE_WORDS = ['palabra1', 'palabra2', 'insulto', 'ofensa']  # Personalizar luego
+OFFENSIVE_WORDS = [
+    'mierda', 'puta', 'cabron', 'cojones', 'hostia', 'joder', 'pendejo',
+    'imbecil', 'estupido', 'gilipollas', 'capullo', 'zorra', 'maricon',
+    'culo', 'tonto', 'idiota', 'maldito', 'malparido', 'hijueputa',
+    'carajo', 'verga', 'chucha', 'concha', 'pija', 'bobo'
+]
 
 
 CSRF_TRUSTED_ORIGINS = [

@@ -16,27 +16,39 @@
             <div class="sr-video-wrapper mb-4">
                 <div class="ratio ratio-16x9">
                     {% if youtube_embed %}
-                        <iframe src="{{ youtube_embed }}" title="YouTube Live Stream" allowfullscreen></iframe>
+                        <iframe src="{{ youtube_embed }}" title="YouTube Live Stream" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
                     {% else %}
                         <div class="d-flex align-items-center justify-content-center text-white bg-dark h-100">
                             <div class="text-center">
                                 <i class="bi bi-play-circle display-1 opacity-25"></i>
-                                <p class="mt-3">La transmisión comenzará pronto</p>
+                                <p class="mt-3" data-i18n="transmission_starts_soon">La transmisión comenzará pronto</p>
                             </div>
                         </div>
                     {% endif %}
                 </div>
+                
                 <div class="bg-white py-3 px-4 d-flex justify-content-between align-items-center border-top">
                     <div class="d-flex align-items-center gap-3">
                         <span class="badge bg-danger sr-live-indicator">
-                            <span class="sr-dot"></span> EN VIVO
+                            <span class="sr-dot"></span> <span data-i18n="live_indicator">EN VIVO</span>
                         </span>
-                        <span class="text-muted small fw-bold"><i class="bi bi-people me-1"></i> <span id="metric-online-badge">0</span> espectadores</span>
+                        <span class="text-muted small fw-bold"><i class="bi bi-people me-1"></i> <span id="metric-online-badge">0</span> <span data-i18n="viewers">espectadores</span></span>
                     </div>
-                    <button id="sr-record-btn" class="btn btn-light btn-sm sr-btn-pill px-3 fw-bold border">
-                        <i class="bi bi-camera-video me-1"></i> <span>Grabar pantalla</span>
-                    </button>
+                    <div class="d-flex gap-2">
+                        {% if is_organizer and event.status == 'active' %}
+                        <form method="post" action="{% url 'virtualEvent:finalize_event' event.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-light btn-sm sr-btn-pill px-3 fw-bold border" onclick="return confirm('¿Finalizar el evento? Esto detendrá el contador.')">
+                                <i class="bi bi-flag-fill me-1"></i> Finalizar
+                            </button>
+                        </form>
+                        {% endif %}
+                        <button id="sr-record-btn" class="btn btn-light btn-sm sr-btn-pill px-3 fw-bold border">
+                            <i class="bi bi-camera-video me-1"></i> <span data-i18n="record_screen">Grabar pantalla</span>
+                        </button>
+                    </div>
                 </div>
+
             </div>
 
             <!-- Información del Evento -->
@@ -44,8 +56,8 @@
                 <h2 class="h3 fw-bold mb-3">{{ event.title }}</h2>
                 <div class="d-flex flex-wrap gap-4 text-muted small fw-bold mb-4">
                     <span><i class="bi bi-calendar-event me-2 text-primary"></i> {{ event.start_datetime|date:"d M Y, H:i" }}</span>
-                    <span><i class="bi bi-clock me-2 text-primary"></i> {{ event.duration_minutes }} min</span>
-                    <span><i class="bi bi-geo-alt me-2 text-primary"></i> Online</span>
+                    <span><i class="bi bi-clock me-2 text-primary"></i> {{ event.duration_minutes }} <span data-i18n="minutes">min</span></span>
+                    <span><i class="bi bi-geo-alt me-2 text-primary"></i> <span data-i18n="online_event">Online</span></span>
                 </div>
                 <hr class="opacity-10">
                 <p class="text-secondary mb-0 leading-relaxed">{{ event.description }}</p>
@@ -57,12 +69,12 @@
                 <div class="col-md-6">
                     <div class="sr-card-main h-100">
                         <div class="card-header bg-white border-0 py-3 px-4">
-                            <span class="sr-label mb-0"><i class="bi bi-bar-chart-line me-2"></i> Encuesta en Vivo</span>
+                            <span class="sr-label mb-0" data-i18n="live_poll"><i class="bi bi-bar-chart-line me-2"></i> Encuesta en Vivo</span>
                         </div>
                         <div class="card-body px-4 pb-4" id="sr-poll-section">
                             <div class="text-center py-5 text-muted">
                                 <i class="bi bi-inbox display-6 opacity-25"></i>
-                                <p class="mt-2 small fw-bold">No hay encuestas activas</p>
+                                <p class="mt-2 small fw-bold" data-i18n="no_active_poll">No hay encuestas activas</p>
                             </div>
                         </div>
                     </div>
@@ -74,16 +86,16 @@
                     <div class="col-md-6">
                         <div class="sr-card-main h-100">
                             <div class="card-header bg-primary text-white border-0 py-3 px-4">
-                                <span class="sr-label text-white mb-0"><i class="bi bi-plus-circle me-2"></i> Nueva Encuesta</span>
+                                <span class="sr-label text-white mb-0" data-i18n="new_poll"><i class="bi bi-plus-circle me-2"></i> Nueva Encuesta</span>
                             </div>
                             <div class="card-body p-4">
                                 <form id="sr-create-poll-form">
                                     <div class="mb-3">
-                                        <label class="sr-label">Pregunta</label>
-                                        <input type="text" id="sr-poll-question" class="form-control bg-light border-0 rounded-3" placeholder="¿Qué te parece el evento?" required>
+                                        <label class="sr-label" data-i18n="question_label">Pregunta</label>
+                                        <input type="text" id="sr-poll-question" class="form-control bg-light border-0 rounded-3" placeholder="¿Qué te parece el evento?" data-i18n-placeholder="question_placeholder" required>
                                     </div>
                                     <div id="sr-poll-options-container" class="mb-3">
-                                        <label class="sr-label">Opciones</label>
+                                        <label class="sr-label" data-i18n="options_label">Opciones</label>
                                         <div class="input-group mb-2">
                                             <input type="text" class="form-control bg-light border-0 rounded-3 sr-poll-option-input" placeholder="Opción 1" required>
                                         </div>
@@ -91,10 +103,10 @@
                                             <input type="text" class="form-control bg-light border-0 rounded-3 sr-poll-option-input" placeholder="Opción 2" required>
                                         </div>
                                     </div>
-                                    <button type="button" id="sr-add-option-btn" class="btn btn-link text-decoration-none p-0 mb-3 small fw-bold">
+                                    <button type="button" id="sr-add-option-btn" class="btn btn-link text-decoration-none p-0 mb-3 small fw-bold" data-i18n="add_option">
                                         <i class="bi bi-plus-circle"></i> Añadir opción
                                     </button>
-                                    <button type="submit" class="btn btn-primary w-100 fw-bold">Publicar Encuesta</button>
+                                    <button type="submit" class="btn btn-primary w-100 fw-bold" data-i18n="publish_poll">Publicar Encuesta</button>
                                 </form>
                             </div>
                         </div>
@@ -103,7 +115,7 @@
                     <!-- ESPECTADOR: Calificación de Satisfacción -->
                     <div class="col-md-6">
                         <div class="sr-card-main h-100">
-                            <div class="card-body text-center p-4" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 280px;">
+                            <div class="card-body text-center p-4" id="satisfaction-card" >
                                 <div>
                                     <span class="sr-label mb-3 d-inline-block" data-i18n="rate_this_session">
                                         <i class="bi bi-emoji-smile me-1"></i> CALIFICA ESTA SESIÓN
@@ -139,42 +151,42 @@
                     <div class="sr-metric-card">
                         <div class="sr-metric-icon-container"><i class="bi bi-people-fill"></i></div>
                         <span class="sr-metric-value" id="metric-online">0</span>
-                        <span class="sr-metric-label">En línea</span>
+                        <span class="sr-metric-label" data-i18n="online">En línea</span>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="sr-metric-card">
                         <div class="sr-metric-icon-container"><i class="bi bi-chat-dots-fill"></i></div>
                         <span class="sr-metric-value" id="metric-messages">0</span>
-                        <span class="sr-metric-label">Mensajes</span>
+                        <span class="sr-metric-label" data-i18n="messages">Mensajes</span>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="sr-metric-card">
                         <div class="sr-metric-icon-container"><i class="bi bi-hand-index-thumb-fill"></i></div>
                         <span class="sr-metric-value" id="metric-hands">0</span>
-                        <span class="sr-metric-label">Manos</span>
+                        <span class="sr-metric-label" data-i18n="hands">Manos</span>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="sr-metric-card">
                         <div class="sr-metric-icon-container"><i class="bi bi-graph-up-arrow"></i></div>
                         <span class="sr-metric-value" id="metric-participation">0%</span>
-                        <span class="sr-metric-label">Votos</span>
+                        <span class="sr-metric-label" data-i18n="participation">Votos</span>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="sr-metric-card">
                         <div class="sr-metric-icon-container"><i class="bi bi-stopwatch-fill"></i></div>
                         <span class="sr-metric-value" id="metric-time">00:00:00</span>
-                        <span class="sr-metric-label">Tiempo</span>
+                        <span class="sr-metric-label" data-i18n="time">Tiempo</span>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="sr-metric-card">
                         <div class="sr-metric-icon-container"><i class="bi bi-emoji-smile-fill"></i></div>
                         <span class="sr-metric-value" id="metric-satisfaction">0.0</span>
-                        <span class="sr-metric-label">Satisf.</span>
+                        <span class="sr-metric-label" data-i18n="satisfaction">Satisf.</span>
                     </div>
                 </div>
             </div>
@@ -182,10 +194,10 @@
             <!-- Chat en Vivo -->
             <div class="sr-chat-container">
                 <div class="sr-chat-header">
-                    <span class="sr-label mb-0"><i class="bi bi-chat-dots me-2"></i> Chat en Vivo</span>
+                    <span class="sr-label mb-0" data-i18n="chat_title"><i class="bi bi-chat-dots me-2"></i> Chat en Vivo</span>
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-success rounded-circle p-1 animate-pulse" style="width: 8px; height: 8px;"></span>
-                        <span class="text-uppercase fw-bold text-muted" style="font-size: 10px;">Live</span>
+                        <span class="text-uppercase fw-bold text-muted" style="font-size: 10px;" data-i18n="live">Live</span>
                     </div>
                 </div>
                 
@@ -204,16 +216,16 @@
                             <button type="button" class="btn btn-link text-decoration-none p-0 me-2" id="sr-satisfaction-btn">
                                 <span class="fs-5">😊</span>
                             </button>
-                            <input type="text" id="sr-chat-input" class="sr-chat-input" placeholder="Escribe un mensaje..." autocomplete="off">
+                            <input type="text" id="sr-chat-input" class="sr-chat-input" placeholder="Escribe un mensaje..." data-i18n-placeholder="chat_placeholder" autocomplete="off">
                             <button type="submit" class="btn btn-primary sr-btn-pill ms-2">
                                 <i class="bi bi-send"></i>
                             </button>
                         </div>
                         <div class="d-flex justify-content-between align-items-center px-2">
-                            <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small fw-bold" data-bs-toggle="modal" data-bs-target="#anonymousQuestionModal">
+                            <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small fw-bold" data-bs-toggle="modal" data-bs-target="#anonymousQuestionModal" data-i18n="anon_question">
                                 <i class="bi bi-question-circle me-1"></i> Pregunta anónima
                             </button>
-                            <button type="button" id="sr-raise-hand-btn" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small fw-bold">
+                            <button type="button" id="sr-raise-hand-btn" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small fw-bold" data-i18n="raise_hand">
                                 <i class="bi bi-hand-index-thumb me-1"></i> Levantar mano
                             </button>
                         </div>
@@ -232,15 +244,15 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold">Enviar Pregunta Anónima</h5>
+                <h5 class="modal-title fw-bold" data-i18n="send_anon_question">Enviar Pregunta Anónima</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
                 <textarea id="sr-anon-question-text" class="form-control bg-light border-0 rounded-3" rows="3" placeholder="Escribe tu pregunta aquí..."></textarea>
             </div>
             <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary fw-bold px-4" onclick="room.sendAnonQuestion()">Enviar Pregunta</button>
+                <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                <button type="button" class="btn btn-primary fw-bold px-4" onclick="room.sendAnonQuestion()" data-i18n="send">Enviar Pregunta</button>
             </div>
         </div>
     </div>

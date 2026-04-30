@@ -17,6 +17,7 @@ from in_person_events.models import Event as EventoPresencial
 from usuarios.models import Usuario as UsuarioModel
 from usuarios.forms import PerfilForm
 from django import forms
+from django.urls import reverse
 
 
 # ---------- FUNCIÓN AUXILIAR DE NORMALIZACIÓN ----------
@@ -120,7 +121,7 @@ def home(request):
             'ubicacion': None,
             'esta_suscrito': ev.id in suscripciones_virtuales_ids,
             'es_favorito': ev.id in favoritos_virtuales_ids,
-            'url_detalle': f"/eventos-virtuales/{ev.id}/",
+            'url_detalle': reverse('virtualEvent:event_detail', args=[ev.id]),
         })
 
     # Presenciales

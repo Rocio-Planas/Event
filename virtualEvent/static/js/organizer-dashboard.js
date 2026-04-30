@@ -67,24 +67,18 @@ document.addEventListener("DOMContentLoaded", function () {
   // Métricas en tiempo real usando la API real
   function loadMetrics() {
     if (!eventId) return;
-    fetch(`/virtualEvent/${eventId}/metrics/`)
+    fetch(METRICS_URL)   // <--- CAMBIA ESTA LÍNEA: usa la variable en lugar de la ruta fija
       .then((res) => res.json())
       .then((data) => {
-        document.getElementById("metric-online").innerText =
-          data.active_viewers || 0;
-        document.getElementById("metric-messages").innerText =
-          data.total_messages || 0;
-        document.getElementById("metric-hands").innerText =
-          data.total_hands || 0;
-        document.getElementById("metric-participation").innerText =
-          (data.participation_percent || 0) + "%";
-        document.getElementById("metric-time").innerText =
-          data.elapsed_time || "00:00:00";
-        document.getElementById("metric-satisfaction").innerText =
-          data.average_satisfaction || 0;
+        document.getElementById("metric-online").innerText = data.active_viewers || 0;
+        document.getElementById("metric-messages").innerText = data.total_messages || 0;
+        document.getElementById("metric-hands").innerText = data.total_hands || 0;
+        document.getElementById("metric-participation").innerText = (data.participation_percent || 0) + "%";
+        document.getElementById("metric-time").innerText = data.elapsed_time || "00:00:00";
+        document.getElementById("metric-satisfaction").innerText = data.average_satisfaction || 0;
       })
       .catch((err) => console.error("Error cargando métricas:", err));
-  }
+}
 
   // Llamar cada 5 segundos
   if (eventId) {
@@ -157,6 +151,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const videoId = clean.split("youtu.be/")[1].split("?")[0];
       return `https://www.youtube.com/embed/${videoId}`;
     }
+
+    else if (clean.includes("youtube.com/live/") || clean.includes("youtu.be/live/")) {
+    const videoId = clean.split("/live/")[1].split("?")[0];
+    return `https://www.youtube.com/embed/${videoId}`;
+    }
+
     // Caso 3: ya es embed (youtube.com/embed/...)
     else if (clean.includes("youtube.com/embed/")) {
       // Asegurar dominio correcto (www.)

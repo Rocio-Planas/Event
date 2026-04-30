@@ -417,6 +417,84 @@ body {
   gap: 5px;
 }
 
+/* ===== ESTILO PARA MATERIAL POST EVENTO EN MODAL ===== */
+.modal .od-input[type="file"] {
+  background-color: var(--surface-container-high) !important;
+  border: 1px solid var(--border-outline-variant) !important;
+  border-radius: 0.75rem !important;
+  padding: 0.5rem !important;
+  padding-right: 0.5rem;
+  margin: 0.5rem 0 !important;
+  color: var(--text-on-surface) !important;
+}
+
+/* Botón para navegadores estándar (Firefox, Edge, Chrome) */
+.modal .od-input[type="file"]::file-selector-button,
+.modal .od-input[type="file"]::-webkit-file-upload-button {
+  background-color: #d1d5db !important; /* gris claro neutro */
+  color: #1f2937 !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  padding: 0.5rem 1rem !important;
+  margin: 0 0.8rem 0 0 !important;
+  font-weight: 600 !important;
+  transition:
+    transform 0.1s ease,
+    background-color 0.1s ease !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Efecto hover: cambio muy sutil (opcional, puedes borrar) */
+.modal .od-input[type="file"]::file-selector-button:hover,
+.modal .od-input[type="file"]::-webkit-file-upload-button:hover {
+  background-color: #e5e7eb !important;
+  transform: scale(1.01) !important;
+}
+
+/* EFECTO AL PRESIONAR (clic) - MOVIMIENTO MÍNIMO */
+.modal .od-input[type="file"]::file-selector-button:active,
+.modal .od-input[type="file"]::-webkit-file-upload-button:active {
+  transform: scale(0.98) !important;
+  background-color: #cbd5e1 !important;
+}
+
+/* Modo oscuro: gris más claro que antes pero visible */
+.dark .modal .od-input[type="file"]::file-selector-button,
+.dark .modal .od-input[type="file"]::-webkit-file-upload-button {
+  background-color: #4b5563 !important; /* gris medio oscuro */
+  color: #f3f4f6 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+.dark .modal .od-input[type="file"]::file-selector-button:hover,
+.dark .modal .od-input[type="file"]::-webkit-file-upload-button:hover {
+  background-color: #6b7280 !important;
+  transform: scale(1.01) !important;
+}
+.dark .modal .od-input[type="file"]::file-selector-button:active,
+.dark .modal .od-input[type="file"]::-webkit-file-upload-button:active {
+  transform: scale(0.98) !important;
+  background-color: #374151 !important;
+}
+
+/* Botones del modal: horizontales */
+.modal-footer {
+  display: flex;
+  flex-direction: row !important;
+  justify-content: flex-end !important;
+  gap: 1rem !important;
+  flex-wrap: nowrap !important;
+}
+
+.modal-footer .btn {
+  min-width: 180px !important;
+  width: auto !important;
+  padding: 0.6rem 1rem !important;
+  font-weight: 600 !important;
+  border-radius: 0.75rem !important;
+  flex: 0 0 auto !important;
+}
+
 /* ========== MODO OSCURO para organizer-dashboard ========== */
 .dark .od-card-main,
 .dark .od-metric-card,

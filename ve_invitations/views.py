@@ -44,6 +44,7 @@ def follow_event_ajax(request, event_id):
     return JsonResponse({"following": following, "count": event.followers.count()})
 
 
+@login_required
 def accept_invitation(request, token):
     invitation = get_object_or_404(Invitation, token=token)
     # Opcional: invitation.accepted = True; invitation.save()
