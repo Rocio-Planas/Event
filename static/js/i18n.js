@@ -165,7 +165,14 @@ const translations = {
     good_rating: "Buena",
     fair_rating: "Regular",
     poor_rating: "Mala",
-    your_opinion_helps_improve: "Tu opinión nos ayuda a mejorar"
+    your_opinion_helps_improve: "Tu opinión nos ayuda a mejorar",
+
+    // Finalize Event
+    finalize_event: "Finalizar",
+    confirm_finalize_event: "Finalizar evento",
+    finalize_confirm_message: "¿Estás seguro de que quieres finalizar este evento?",
+    finalize_confirm_warning: "El contador de tiempo se detendrá y el evento se marcará como terminado.",
+    confirm_finalize: "Sí, finalizar"
   },
   en: {
     nav_inicio: "Home",
@@ -325,7 +332,14 @@ const translations = {
     good_rating: "Good",
     fair_rating: "Fair",
     poor_rating: "Poor",
-    your_opinion_helps_improve: "Your opinion helps us improve"
+    your_opinion_helps_improve: "Your opinion helps us improve",
+
+    // Finalize Event
+    finalize_event: "Finalize",
+    confirm_finalize_event: "Finalize event",
+    finalize_confirm_message: "Are you sure you want to finalize this event?",
+    finalize_confirm_warning: "The time counter will stop and the event will be marked as finished.",
+    confirm_finalize: "Yes, finalize"
   },
 };
 

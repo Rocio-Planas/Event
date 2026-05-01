@@ -36,12 +36,9 @@
                     </div>
                     <div class="d-flex gap-2">
                         {% if is_organizer and event.status == 'active' %}
-                        <form method="post" action="{% url 'virtualEvent:finalize_event' event.id %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-light btn-sm sr-btn-pill px-3 fw-bold border" onclick="return confirm('¿Finalizar el evento? Esto detendrá el contador.')">
-                                <i class="bi bi-flag-fill me-1"></i> Finalizar
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-light btn-sm sr-btn-pill px-3 fw-bold border" data-bs-toggle="modal" data-bs-target="#finalizeEventModal" data-i18n="finalize_event">
+                            <i class="bi bi-flag-fill me-1"></i> <span id="finalize-btn-text">Finalizar</span>
+                        </button>
                         {% endif %}
                         <button id="sr-record-btn" class="btn btn-light btn-sm sr-btn-pill px-3 fw-bold border">
                             <i class="bi bi-camera-video me-1"></i> <span data-i18n="record_screen">Grabar pantalla</span>
@@ -253,6 +250,26 @@
             <div class="modal-footer border-0 pt-0">
                 <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
                 <button type="button" class="btn btn-primary fw-bold px-4" onclick="room.sendAnonQuestion()" data-i18n="send">Enviar Pregunta</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para finalizar evento -->
+<div class="modal fade" id="finalizeEventModal" tabindex="-1" aria-labelledby="confirmFinalizeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="confirmFinalizeModalLabel" data-i18n="confirm_finalize_event">Finalizar evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p data-i18n="finalize_confirm_message">¿Estás seguro de que quieres finalizar este evento?</p>
+                <p class="text-muted small" data-i18n="finalize_confirm_warning">El contador de tiempo se detendrá y el evento se marcará como terminado.</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                <button type="button" class="btn btn-danger fw-bold px-4" id="confirmFinalizeBtn" data-i18n="confirm_finalize">Sí, finalizar</button>
             </div>
         </div>
     </div>

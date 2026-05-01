@@ -6,6 +6,13 @@
 {% endblock %}
 
 {% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
 <div class="container py-4 od-dashboard">
 
     <div class="row g-4">
@@ -46,7 +53,10 @@
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <label for="od-start-time" class="od-label" data-i18n="start_datetime">Fecha y Hora de Inicio</label>
-                                <input type="datetime-local" class="form-control od-input" id="od-start-time" name="start_time" value="{{ event.start_datetime|date:'Y-m-d\TH:i' }}">
+                                <input type="datetime-local" class="form-control od-input" id="od-start-time" name="start_time" value="{{ start_time_str }}" min="{{ now|date:'Y-m-d\TH:i' }}">
+                                {% if errors.start_time %}
+                                    <div class="text-danger small mt-1">{{ errors.start_time }}</div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
                                 <label for="od-duration" class="od-label" data-i18n="duration_minutes">Duración (minutos)</label>

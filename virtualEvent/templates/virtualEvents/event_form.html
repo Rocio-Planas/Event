@@ -6,6 +6,13 @@
 {% endblock %}
 
 {% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
 <div class="container  pt-1 pb-5">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10">
@@ -69,7 +76,7 @@
                             </div>
                             <div class="col-md-6 d-none" id="evCustomCategoryGroup">
                                 <label for="id_custom_category" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="custom_category_label">Custom Category Name</label>
-                                <input type="text" name="custom_category" id="id_custom_category" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="custom_category_placeholder" placeholder="Enter category name... value="{{ custom_category|default:'' }}" ">
+                                <input type="text" name="custom_category" id="id_custom_category" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="custom_category_placeholder" placeholder="Enter category name..." value="{{ custom_category|default:'' }}" >
                             </div>
                         </div>
 
@@ -77,7 +84,7 @@
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
                                 <label for="id_start_time" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="schedule_label">Schedule</label>
-                                <input type="datetime-local" name="start_time" id="id_start_time" class="form-control ev-input py-3 px-4 rounded-3 value="{{ start_time|default:'' }}" " required>
+                                <input type="datetime-local" name="start_time" id="id_start_time" class="form-control ev-input py-3 px-4 rounded-3" value="{{ start_time|default:'' }}" min="{{ now|date:'Y-m-d\TH:i' }}" required>
                                 {% if errors.start_time %}
                                     <div class="text-danger small mt-1">{{ errors.start_time }}</div>
                                 {% endif %}

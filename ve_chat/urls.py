@@ -13,6 +13,7 @@ urlpatterns = [
     path('api/<slug:room_slug>/raise/', views.raise_hand, name='raise_hand'),
     path('api/<slug:room_slug>/hands/', views.get_hands, name='get_hands'),
     path('api/<slug:room_slug>/attend/<int:user_id>/', views.attend_hand, name='attend_hand'),
+    path('api/<slug:room_slug>/hands/unattended/', views.get_unattended_hands_count, name='unattended_hands'),
 
     # Encuestas
     path('api/<slug:room_slug>/poll/create/', views.create_poll, name='create_poll'),

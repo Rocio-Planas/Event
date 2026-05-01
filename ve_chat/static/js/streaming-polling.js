@@ -9,8 +9,14 @@ class StreamingPolling {
     this.pollSection = document.getElementById("sr-poll-section");
     this.currentPollId = null;
     this.hasVoted = false;
+    this.handsInterval = null;
+    this.lastHandsCount = 0;
 
     this.init();
+    if (this.isOrganizer) {
+      this.startHandsMonitoring();
+    }
+    this.lastRaiseHandTime = 0;
   }
 
   init() {
@@ -165,7 +171,7 @@ class StreamingPolling {
 
   async sendMessage(content, anonymous) {
     try {
-      await fetch(`/chat/api/${this.eventSlug}/send/`, {
+      const response = await fetch(`/chat/api/${this.eventSlug}/send/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -173,12 +179,40 @@ class StreamingPolling {
         },
         body: JSON.stringify({ content, anonymous }),
       });
+      if (!response.ok) {
+        const error = await response.json();
+        console.error("Error al enviar mensaje:", error);
+        return false;
+      }
+      return true;
     } catch (err) {
-      console.error(err);
+      console.error("Error de red en sendMessage:", err);
+      return false;
     }
   }
 
   async raiseHand() {
+    // --- Throttle: evitar spam ---
+    const now = Date.now();
+    const minInterval = 20000;
+    const timeSinceLast = now - this.lastRaiseHandTime;
+    if (timeSinceLast < minInterval) {
+      const secondsLeft = Math.ceil((minInterval - timeSinceLast) / 1000);
+      if (typeof window.showToast === "function") {
+        window.showToast(
+          `Espera ${secondsLeft} segundos antes de volver a levantar la mano.`,
+          "warning",
+        );
+      } else {
+        console.log(`Espera ${secondsLeft} segundos.`);
+      }
+      return;
+    }
+    this.lastRaiseHandTime = now;
+
+    const raiseBtn = document.getElementById("sr-raise-hand-btn");
+    if (raiseBtn) raiseBtn.disabled = true;
+
     try {
       const response = await fetch(`/chat/api/${this.eventSlug}/raise/`, {
         method: "POST",
@@ -188,30 +222,45 @@ class StreamingPolling {
         },
       });
 
-      if (
-        response.status === 302 ||
-        response.status === 401 ||
-        response.status === 403
-      ) {
-        alert("Debes iniciar sesión para levantar la mano.");
-        window.location.href =
-          "/usuarios/login/?next=" + encodeURIComponent(window.location.href);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error del backend:", errorData);
+        if (
+          errorData.error ===
+          "Debes esperar unos segundos antes de volver a levantar la mano."
+        ) {
+          alert(errorData.error);
+        } else {
+          alert(
+            "No se pudo levantar la mano: " +
+              (errorData.error || "Error desconocido"),
+          );
+        }
         return;
       }
 
-      if (response.ok) {
-        await this.sendMessage("✋ He levantado la mano", false);
-        console.log("Mano levantada correctamente");
-      } else {
-        const errorData = await response.json();
-        if (errorData.error === "Ya tienes la mano levantada") {
-          console.warn("Ya tienes la mano levantada");
-        } else {
-          console.error("Error al levantar mano:", errorData.error);
-        }
+      const sendResult = await this.sendMessage(
+        "✋ He levantado la mano",
+        false,
+      );
+      console.log("Mensaje enviado:", sendResult);
+      console.log("Mano levantada correctamente");
+
+      if (typeof window.showToast === "function") {
+        window.showToast(
+          "¡Has levantado la mano! El organizador te atenderá en breve.",
+          "success",
+        );
       }
     } catch (err) {
       console.error("Error de red:", err);
+      alert("Error de conexión al levantar la mano. Revisa tu red.");
+    } finally {
+      if (raiseBtn) {
+        setTimeout(() => {
+          raiseBtn.disabled = false;
+        }, minInterval);
+      }
     }
   }
 
@@ -469,6 +518,78 @@ class StreamingPolling {
           container.appendChild(div);
         });
       }
+    }
+  }
+
+  async startHandsMonitoring() {
+    if (this.handsInterval) clearInterval(this.handsInterval);
+    // Obtener el valor actual inicial antes de empezar el intervalo
+    try {
+      const response = await fetch(
+        `/chat/api/${this.eventSlug}/hands/unattended/`,
+      );
+      if (response.ok) {
+        const data = await response.json();
+        this.lastHandsCount = data.unattended_hands;
+        // Si hay manos sin atender al cargar, mostrar badge pero sin notificación de sonido/toast
+        if (this.lastHandsCount > 0) {
+          const badgeContainer = document.getElementById(
+            "hands-notification-badge",
+          );
+          const counterSpan = document.getElementById("hands-count");
+          if (badgeContainer && counterSpan) {
+            badgeContainer.classList.remove("d-none");
+            counterSpan.textContent = this.lastHandsCount;
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error initializing hands count:", err);
+    }
+    this.handsInterval = setInterval(() => this.checkHands(), 3000);
+  }
+
+  async checkHands() {
+    try {
+      const response = await fetch(
+        `/chat/api/${this.eventSlug}/hands/unattended/`,
+      );
+      if (!response.ok) return;
+      const data = await response.json();
+      const currentCount = data.unattended_hands;
+
+      if (currentCount > this.lastHandsCount) {
+        this.playNotificationSound();
+        this.showHandNotification(currentCount - this.lastHandsCount);
+      }
+      this.lastHandsCount = currentCount;
+    } catch (err) {
+      console.error("Error checking hands:", err);
+    }
+  }
+
+  playNotificationSound() {
+    try {
+      const audio = new Audio("/static/sounds/bright-bell.mp3");
+      audio.volume = 0.5;
+      audio.play().catch((e) => console.log("Audio no pudo reproducirse", e));
+    } catch (err) {
+      console.log("Error con sonido:", err);
+    }
+  }
+
+  showHandNotification(newCount) {
+    const message = `🙋‍♂️ ${newCount} persona(s) ha(n) levantado la mano. Revisa el chat.`;
+    if (typeof window.showToast === "function") {
+      window.showToast(message, "warning");
+    } else {
+      console.warn("showToast no disponible:", message);
+    }
+    const badgeContainer = document.getElementById("hands-notification-badge");
+    const counterSpan = document.getElementById("hands-count");
+    if (badgeContainer && counterSpan) {
+      badgeContainer.classList.remove("d-none");
+      counterSpan.textContent = this.lastHandsCount;
     }
   }
 }

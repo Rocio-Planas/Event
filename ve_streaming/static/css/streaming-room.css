@@ -355,26 +355,23 @@ button:focus-visible {
 /* ===== CONTENEDOR DE CADA OPCIÓN (INPUT + BOTÓN) ===== */
 .sr-poll-option-input-group {
   display: flex;
-  align-items: stretch; /* para que input y botón tengan la misma altura */
+  align-items: stretch;
 }
 
-/* El campo de entrada: sin borde derecho redondeado */
 .sr-poll-option-input-group .form-control {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
   background-color: #f8fafc !important;
   border-color: #cbd5e1 !important;
-  z-index: 1; /* evita que el botón se superponga */
+  z-index: 1;
 }
 
-/* El botón de eliminar: gris claro, icono oscuro (no rojo) */
 .sr-poll-option-input-group .btn-outline-danger {
-  background-color: #e2e8f0 !important; /* gris claro similar al borde */
+  background-color: #e2e8f0 !important;
   border: 1px solid #cbd5e1 !important;
-  border-left: none !important; /* sin borde izquierdo para pegar al input */
   border-radius: 0 0.375rem 0.375rem 0 !important;
   padding: 0.375rem 0.75rem !important;
-  color: #1f2937 !important; /* icono oscuro (gris casi negro) */
+  color: #1f2937 !important;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
@@ -382,7 +379,6 @@ button:focus-visible {
   font-weight: 600;
 }
 
-/* Hover: se oscurece ligeramente (sin rojo) */
 .sr-poll-option-input-group .btn-outline-danger:hover {
   background-color: #cbd5e1 !important;
   color: #0f172a !important;
@@ -390,7 +386,6 @@ button:focus-visible {
   border-left: none !important;
 }
 
-/* MODO OSCURO: grises adaptados, icono claro */
 .dark .sr-poll-option-input-group .form-control {
   background-color: var(--surface-container-high) !important;
   border-color: var(--border-outline-variant) !important;
@@ -400,12 +395,21 @@ button:focus-visible {
   background-color: #334155 !important;
   border-color: var(--border-outline-variant) !important;
   border-left: none !important;
-  color: #f1f5f9 !important; /* icono blanco/gris claro */
+  color: #f1f5f9 !important;
 }
 
 .dark .sr-poll-option-input-group .btn-outline-danger:hover {
   background-color: #475569 !important;
   color: #ffffff !important;
+}
+
+/* Cabecera de encuesta en vivo */
+:root .sr-card-main .card-header.bg-white {
+  background-color: #0d6efd  !important;
+  border-bottom: none !important;
+}
+:root .sr-card-main .card-header.bg-white .sr-label {
+  color: white !important;
 }
 
 /* Botones */
@@ -531,28 +535,28 @@ button:focus-visible {
 }
 
 #satisfaction-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    justify-content: center;
-    height: 100%;
-    padding: 0.8rem 1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+  height: 100%;
+  padding: 0.8rem 1rem 1rem 1rem;
 }
 
 /* La pregunta (p.h5) con margen inferior más suelto */
 #satisfaction-card p.h5 {
-    margin-bottom: 0.5rem !important;   /* separa un poco de las estrellas */
+  margin-bottom: 0.5rem !important; /* separa un poco de las estrellas */
 }
 
 /* Las estrellas: espacio vertical nulo, pero respetan el gap de la card */
 .sr-star-rating {
-    margin-bottom: 1.4rem !important;
+  margin-bottom: 1.4rem !important;
 }
 
 /* El texto de ayuda se separa ligeramente de las estrellas (además del gap) */
 #satisfaction-card .text-muted {
-    margin-top: 0.25rem;
+  margin-top: 0.25rem;
 }
 
 /* Utilities */
@@ -876,6 +880,16 @@ button:focus-visible {
 .dark .sr-poll-card .card-header span,
 .dark .sr-poll-card .card-header .sr-label {
   color: var(--text-on-surface) !important;
+}
+
+/* ===== MODO OSCURO: CABECERA "ENCUESTA EN VIVO"  ===== */
+.dark .sr-card-main .card-header.bg-white {
+    background-color: var(--primary) !important;
+    border-bottom: none !important;
+}
+.dark .sr-card-main .card-header.bg-white .sr-label,
+.dark .sr-card-main .card-header.bg-white i {
+    color: white !important;
 }
 
 /* ===== CORRECCIÓN DEL ÁREA BLANCA DEBAJO DEL REPRODUCTOR ===== */

@@ -17,6 +17,8 @@ from .models import (
     PollVote,
     SatisfactionRating,
 )
+from django.utils import timezone
+from datetime import timedelta
 
 
 # ------------------------------------------------------------
@@ -160,21 +162,16 @@ def get_messages(request, room_slug):
 # ------------------------------------------------------------
 # MANOS
 # ------------------------------------------------------------
+
+
 @login_required
 @require_http_methods(["POST"])
 def raise_hand(request, room_slug):
     room, error_response = get_room_or_error(room_slug)
     if error_response:
         return error_response
-
-    hand, created = HandRaise.objects.get_or_create(
-        room=room, user=request.user, defaults={"attended": False}
-    )
-    if not created and not hand.attended:
-        return JsonResponse({"error": "Ya tienes la mano levantada"}, status=400)
-    if not created:
-        hand.attended = False
-        hand.save()
+    # Crear siempre un nuevo registro, sin verificar existencia previa
+    hand = HandRaise.objects.create(room=room, user=request.user, attended=False)
     return JsonResponse({"status": "hand_raised"})
 
 
@@ -387,3 +384,19 @@ def satisfaction_rating(request, room_slug):
         or 0
     )
     return JsonResponse({"status": "ok", "average": round(avg, 1)})
+
+
+@login_required
+@require_http_methods(["GET"])
+def get_unattended_hands_count(request, room_slug):
+    """Devuelve el número de manos levantadas sin atender para el organizador."""
+    room, error_response = get_room_or_error(room_slug)
+    if error_response:
+        return error_response
+
+    # Solo el organizador puede ver esto
+    if request.user != room.event.created_by:
+        return JsonResponse({"error": "No autorizado"}, status=403)
+
+    count = HandRaise.objects.filter(room=room, attended=False).count()
+    return JsonResponse({"unattended_hands": count})

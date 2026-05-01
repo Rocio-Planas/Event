@@ -21,6 +21,9 @@ from .report_generator import generate_event_pdf  # type: ignore
 from django.db.models import Q
 from django.http import Http404
 from datetime import timedelta
+from django.utils.timezone import now
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import make_aware
 
 
 # Lista de eventos (pública)
@@ -92,6 +95,7 @@ def event_create(request):
                 "access_type": access_type,
                 "invitations_text": invitations_text,
                 "predefined_categories": VirtualEvent.PREDEFINED_CATEGORIES,
+                "now": now().isoformat(),
             }
             return render(request, "virtualEvents/event_form.html", context)
 
@@ -128,11 +132,12 @@ def event_create(request):
                 Invitation.objects.create(event=event, email=email, token=token)
                 send_invitation_email(email, event, token)
 
-        messages.success(
-            request,
-            f'Evento "{event.title}" creado exitosamente. Queda pendiente de aprobación por el administrador.',
-        )
         return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
+
+    context = {
+        "predefined_categories": VirtualEvent.PREDEFINED_CATEGORIES,
+        "now": now().isoformat(),
+    }
 
     return render(
         request,
@@ -165,12 +170,17 @@ def event_edit(request, pk):
 
         start_time_str = request.POST.get("start_time")
         if start_time_str:
-            from django.utils.dateparse import parse_datetime
-            from django.utils.timezone import make_aware
 
             start_datetime = parse_datetime(start_time_str)
             if start_datetime:
-                event.start_datetime = make_aware(start_datetime)
+                start_datetime_aware = make_aware(start_datetime)
+                if start_datetime_aware < now():
+                    messages.error(
+                        request, "No puedes cambiar la fecha a un momento pasado."
+                    )
+                    return redirect("virtualEvent:event_edit", pk=event.pk)
+                else:
+                    event.start_datetime = start_datetime_aware
         event.duration_minutes = request.POST.get("duration")
         event.privacy = request.POST.get("access_type")
         event.save()
@@ -189,7 +199,6 @@ def event_edit(request, pk):
                         Invitation.objects.create(event=event, email=email, token=token)
                         send_invitation_email(email, event, token)
 
-        messages.success(request, "Evento actualizado correctamente.")
         return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
 
     context = {
@@ -217,30 +226,75 @@ def event_delete(request, pk):
 def organizer_dashboard(request, event_id):
     event = get_object_or_404(VirtualEvent, pk=event_id, created_by=request.user)
     invitations = Invitation.objects.filter(event=event)
-
     youtube_embed = event.settings.get("youtube_embed", "")
     if youtube_embed and 'src="' in youtube_embed:
         match = re.search(r'src="([^"]+)"', youtube_embed)
         if match:
             youtube_embed = match.group(1)
 
+    errors = {}  # Diccionario para errores de campo
+
     if request.method == "POST":
-        event.title = request.POST.get("title", event.title)
-        event.description = request.POST.get("description", event.description)
-        start_time_str = request.POST.get("start_time")
-        if start_time_str:
-            from django.utils.dateparse import parse_datetime
-            from django.utils.timezone import make_aware
+        # Recoger datos del formulario (igual que antes)
+        title = request.POST.get("title", event.title)
+        description = request.POST.get("description", event.description)
+        start_time_str = request.POST.get("start_time", "")
+        duration = request.POST.get("duration", "")
+        access_type = request.POST.get("access_type", event.privacy)
 
+        # --- Validación de fecha (igual que en event_create) ---
+        if not start_time_str:
+            errors["start_time"] = "La fecha y hora son obligatorias"
+        else:
             start_datetime = parse_datetime(start_time_str)
-            if start_datetime:
-                event.start_datetime = make_aware(start_datetime)
-        duration = request.POST.get("duration")
-        if duration:
-            event.duration_minutes = int(duration)
-        event.privacy = request.POST.get("access_type", event.privacy)
-        event.save()
+            if not start_datetime:
+                errors["start_time"] = "Formato inválido"
+            else:
+                start_datetime_aware = make_aware(start_datetime)
+                if start_datetime_aware < now():
+                    errors["start_time"] = "La fecha no puede ser pasada"
+                else:
+                    event.start_datetime = start_datetime_aware  # solo si es válida
 
+        # Validar duración (opcional, pero por consistencia)
+        if not duration:
+            errors["duration"] = "La duración es obligatoria"
+        else:
+            try:
+                duration_minutes = int(duration)
+                if duration_minutes < 1:
+                    errors["duration"] = "Mínimo 1 minuto"
+                else:
+                    event.duration_minutes = duration_minutes
+            except ValueError:
+                errors["duration"] = "Número inválido"
+
+        # Si hay errores, volvemos a mostrar el formulario con los datos actuales (sin guardar)
+        if errors:
+            # Preparamos el contexto con los valores actuales del evento (sin cambios) y los errores
+            invite_link = request.build_absolute_uri(
+                reverse("ve_streaming:waiting_room", args=[event.unique_link])
+            )
+            invited_emails = ", ".join([inv.email for inv in invitations])
+            context = {
+                "event": event,
+                "invitations": invitations,
+                "invited_emails": invited_emails,
+                "youtube_embed": youtube_embed,
+                "invite_link": invite_link,
+                "start_time_str": start_time_str,  # mostramos lo que el usuario intentó poner
+                "errors": errors,
+                "now": now().isoformat(),  # para el atributo min
+            }
+            return render(request, "virtualEvents/organizer_dashboard.html", context)
+
+        # --- Si no hay errores, actualizamos el resto de campos y guardamos ---
+        event.title = title
+        event.description = description
+        event.privacy = access_type
+        event.save()  # ya se actualizó la fecha y duración en las validaciones
+
+        # Procesar imagen de portada (igual que antes)
         if request.FILES.get("event_image"):
             if event.image:
                 default_storage.delete(event.image.name)
@@ -252,6 +306,7 @@ def organizer_dashboard(request, event_id):
             )
             event.save()
 
+        # Procesar YouTube embed
         youtube_url = request.POST.get("youtube_url", "")
         if youtube_url:
             if "?" in youtube_url:
@@ -269,6 +324,7 @@ def organizer_dashboard(request, event_id):
             event.settings["youtube_embed"] = youtube_url
             event.save()
 
+        # Procesar invitaciones si es evento privado
         if event.privacy == "private":
             emails_text = request.POST.get("emails", "")
             if emails_text:
@@ -282,6 +338,7 @@ def organizer_dashboard(request, event_id):
         messages.success(request, "Evento actualizado correctamente.")
         return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
 
+    # ----- GET (mostrar formulario) -----
     invite_link = request.build_absolute_uri(
         reverse("ve_streaming:waiting_room", args=[event.unique_link])
     )
@@ -297,6 +354,8 @@ def organizer_dashboard(request, event_id):
         "youtube_embed": youtube_embed,
         "invite_link": invite_link,
         "start_time_str": start_time_str,
+        "errors": {},
+        "now": now().isoformat(),  # para el atributo min en el input
     }
     return render(request, "virtualEvents/organizer_dashboard.html", context)
 
@@ -327,16 +386,16 @@ def event_metrics(request, event_id):
     ).count()
 
     #  Calcular tiempo transcurrido (congelado si finalizado)
-    if event.status == 'finished':
+    if event.status == "finished":
         elapsed_seconds = event.final_elapsed_seconds
-        current_viewers = 0 
+        current_viewers = 0
     else:
         elapsed_seconds = 0
         if event.start_datetime <= timezone.now():
             elapsed = timezone.now() - event.start_datetime
             elapsed_seconds = int(elapsed.total_seconds())
     elapsed_str = f"{elapsed_seconds // 3600:02d}:{(elapsed_seconds % 3600) // 60:02d}:{elapsed_seconds % 60:02d}"
-    
+
     participation = 0
     if analytics.unique_viewers > 0:
         participation = int(
@@ -524,11 +583,10 @@ def upload_material(request, event_id):
 
 
 @login_required
-@login_required
 def finalize_event(request, event_id):
     event = get_object_or_404(VirtualEvent, pk=event_id, created_by=request.user)
     if event.status != "finished":
-        
+
         if event.start_datetime <= timezone.now():
             elapsed = timezone.now() - event.start_datetime
             elapsed_seconds = int(elapsed.total_seconds())

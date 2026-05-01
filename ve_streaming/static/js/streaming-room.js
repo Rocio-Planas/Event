@@ -212,4 +212,30 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }, 5000);
   }
+  
+  const confirmFinalizeBtn = document.getElementById("confirmFinalizeBtn");
+  if (confirmFinalizeBtn) {
+    // Construir la URL de finalización usando window.EVENT_ID (que existe)
+    const finalizeUrl = `/eventos/finalizar/${window.EVENT_ID}/`; // Ajusta si tu URL es diferente
+    confirmFinalizeBtn.addEventListener("click", function () {
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = finalizeUrl;
+      // Obtener token CSRF
+      let csrfToken = "";
+      const csrfCookie = document.cookie
+        .split(";")
+        .find((c) => c.trim().startsWith("csrftoken="));
+      if (csrfCookie) {
+        csrfToken = csrfCookie.split("=")[1];
+      }
+      const csrfInput = document.createElement("input");
+      csrfInput.type = "hidden";
+      csrfInput.name = "csrfmiddlewaretoken";
+      csrfInput.value = csrfToken;
+      form.appendChild(csrfInput);
+      document.body.appendChild(form);
+      form.submit();
+    });
+  }
 });

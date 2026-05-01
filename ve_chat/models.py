@@ -31,9 +31,7 @@ class HandRaise(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     attended = models.BooleanField(default=False)
-
-    class Meta:
-        unique_together = ["room", "user"]
+    raised_at = models.DateTimeField(auto_now_add=True) 
 
 
 class Poll(models.Model):
