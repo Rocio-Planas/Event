@@ -335,7 +335,6 @@ def organizer_dashboard(request, event_id):
                         Invitation.objects.create(event=event, email=email, token=token)
                         send_invitation_email(email, event, token)
 
-        messages.success(request, "Evento actualizado correctamente.")
         return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
 
     # ----- GET (mostrar formulario) -----
@@ -577,7 +576,6 @@ def upload_material(request, event_id):
         from ve_invitations.utils import send_material_notification
 
         send_material_notification(event, request)
-        messages.success(request, "Material subido y notificaciones enviadas.")
         return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
     return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
 
