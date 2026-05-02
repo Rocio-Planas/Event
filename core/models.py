@@ -50,12 +50,12 @@ class Resena(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='resenas')
     nombre = models.CharField(max_length=100)
     email = models.EmailField()
-    evento = models.ForeignKey('virtualEvent.VirtualEvent', on_delete=models.CASCADE, related_name='resenas')
+    evento_virtual = models.ForeignKey('virtualEvent.VirtualEvent', on_delete=models.CASCADE, null=True, blank=True, related_name='resenas')
+    evento_presencial = models.ForeignKey('in_person_events.Event', on_delete=models.CASCADE, null=True, blank=True, related_name='resenas')
     calificacion = models.IntegerField(choices=CALIFICACION_CHOICES)
     comentario = models.TextField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     aprobada = models.BooleanField(default=False)
-    
 
     class Meta:
         verbose_name = 'Reseña'
@@ -63,7 +63,12 @@ class Resena(models.Model):
         ordering = ['-fecha_creacion']
 
     def __str__(self):
-        return f"{self.nombre} - {self.evento.title} ({self.calificacion}★)"
+        evento = self.evento_virtual or self.evento_presencial
+        return f"{self.nombre} - {evento.title if evento else 'Evento eliminado'} ({self.calificacion}★)"
+
+    @property
+    def evento(self):
+        return self.evento_virtual or self.evento_presencial
 
 
 class Consulta(models.Model):
@@ -77,7 +82,8 @@ class Consulta(models.Model):
     nombre = models.CharField(max_length=100)
     email = models.EmailField()
     tipo = models.CharField(max_length=20, choices=TIPO_CONSULTA, default='consulta')
-    evento = models.ForeignKey(VirtualEvent, on_delete=models.SET_NULL, null=True, blank=True, related_name='consultas')
+    evento_virtual = models.ForeignKey('virtualEvent.VirtualEvent', on_delete=models.SET_NULL, null=True, blank=True, related_name='consultas')
+    evento_presencial = models.ForeignKey('in_person_events.Event', on_delete=models.SET_NULL, null=True, blank=True, related_name='consultas')
     asunto = models.CharField(max_length=200)
     mensaje = models.TextField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)
@@ -91,7 +97,12 @@ class Consulta(models.Model):
         ordering = ['-fecha_creacion']
 
     def __str__(self):
+        evento = self.evento_virtual or self.evento_presencial
         return f"{self.asunto} - {self.nombre}"
+
+    @property
+    def evento(self):
+        return self.evento_virtual or self.evento_presencial
     
    
 class Favorito(models.Model):

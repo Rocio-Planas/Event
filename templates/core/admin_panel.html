@@ -26,7 +26,7 @@
             <span class="material-symbols-outlined text-4xl text-primary">star</span>
             <h3 class="text-2xl font-bold text-on-surface mt-2">{{ total_resenas_pendientes }}</h3>
             <p class="text-on-surface-variant" data-i18n="admin_panel_pending_reviews">Reseñas pendientes</p>
-            <a href="{% url 'core:admin_resenas' %}" class="mt-4 inline-block text-primary text-sm font-medium hover:underline" data-i18n="admin_panel_approve">Aprobar →</a>
+            <a href="{% url 'core:admin_resenas' %}" class="mt-4 inline-block text-primary text-sm font-medium hover:underline" data-i18n="admin_panel_manage_reviews">Gestionar →</a>
         </div>
         <!-- Consultas sin responder -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/20 text-center">
@@ -35,8 +35,7 @@
             <p class="text-on-surface-variant" data-i18n="admin_panel_pending_inquiries">Consultas sin responder</p>
             <a href="{% url 'core:admin_consultas' %}" class="mt-4 inline-block text-primary text-sm font-medium hover:underline" data-i18n="admin_panel_respond">Responder →</a>
         </div>
-
-        <!-- Métricas (nueva tarjeta) -->
+        <!-- Métricas -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/20 text-center">
             <span class="material-symbols-outlined text-4xl text-primary">monitoring</span>
             <h3 class="text-2xl font-bold text-on-surface mt-2">{{ total_suscripciones }}</h3>
@@ -50,9 +49,9 @@
         <h2 class="text-xl font-bold text-on-surface mb-4" data-i18n="admin_panel_quick_actions">Acciones rápidas</h2>
         <div class="flex flex-wrap gap-4">
             <a href="{% url 'core:admin_usuarios' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90" data-i18n="admin_panel_manage_users">Gestionar usuarios</a>
-            <a href="{% url 'core:admin_eventos' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90" data-i18n="admin_panel_review">Revisar eventos pendientes</a>
-            <a href="{% url 'core:admin_resenas' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90" data-i18n="admin_panel_approve">Aprobar reseñas</a>
-            <a href="{% url 'core:admin_consultas' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90" data-i18n="admin_panel_respond">Responder consultas</a>
+            <a href="{% url 'core:admin_eventos' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90" data-i18n="admin_panel_review_events">Revisar eventos pendientes</a>
+            <a href="{% url 'core:admin_resenas' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90" data-i18n="admin_panel_approve_reject_reviews">Aprobar o Rechazar reseñas</a>
+            <a href="{% url 'core:admin_consultas' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90" data-i18n="admin_panel_respond_inquiries">Responder consultas</a>
             <a href="{% url 'core:admin_metrics' %}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90" data-i18n="admin_panel_view_metrics">Ver métricas</a>
         </div>
     </div>

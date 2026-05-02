@@ -32,5 +32,6 @@ urlpatterns = [
     path('admin-panel/usuarios/crear/', views.admin_crear_usuario, name='admin_crear_usuario'),
     path('admin-panel/usuarios/editar/<int:usuario_id>/', views.admin_editar_usuario, name='admin_editar_usuario'),
     path('admin-panel/metrics/', views.admin_metrics, name='admin_metrics'),
-
+    path('admin-panel/resenas/rechazar/<int:resena_id>/', views.admin_rechazar_resena, name='admin_rechazar_resena'),
+  
 ]
