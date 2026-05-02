@@ -1,0 +1,118 @@
+{% extends "base_bootstrap.html" %}
+{% load static %}
+
+{% block title %}Cronograma Completo - {{ event.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'in_person_events/common/css/fonts.css' %}" />
+<link rel="stylesheet" href="{% static 'in_person_events/common/css/utils.css' %}" />
+<link rel="stylesheet" href="{% static 'pe_agenda/css/chronogram_assistant.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+    <main class="container py-5 mt-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+                
+                <!-- Back Link -->
+                <div class="mb-4">
+                    <a href="{% url 'in_person_events:dashboard_assistant' event.id %}" class="back-link d-inline-flex align-items-center gap-2 text-secondary text-decoration-none fw-medium small">
+                        <span class="material-symbols-outlined fs-6">arrow_back</span>
+                        Volver
+                    </a>
+                </div>
+
+                <!-- Header Section -->
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-4 mb-5">
+                    <div>
+                        <h1 class="display-5 fw-extrabold tracking-tight mb-1">Cronograma Completo</h1>
+                        <p class="text-secondary fw-medium mb-0">{{ event.start_date|date:"l, j \d\e F \d\e Y" }}</p>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <div class="search-container" style="width: 280px;">
+                            <span class="material-symbols-outlined search-icon fs-5">search</span>
+                            <input type="text" class="form-control search-input py-2" placeholder="Buscar sesiones..." id="search-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-4 shadow-sm overflow-hidden mb-5">
+                    <div class="filter-panel p-4 border-bottom">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-secondary fw-semibold" for="filter-day">Filtrar por día</label>
+                                <select id="filter-day" class="form-select">
+                                    <option value="all" selected>Todos los días</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-secondary fw-semibold" for="filter-zone">Filtrar por zona</label>
+                                <select id="filter-zone" class="form-select">
+                                    <option value="all" selected>Todas las zonas</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-secondary fw-semibold" for="filter-speaker">Filtrar por ponente</label>
+                                <select id="filter-speaker" class="form-select">
+                                    <option value="all" selected>Todos los ponentes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% for activity in activities %}
+                    <!-- Session -->
+                    <div class="agenda-item" data-inscribed="{% if activity.user_inscribed %}true{% else %}false{% endif %}" data-category="{{ activity.status }}" data-day="{{ activity.start_time|date:'Y-m-d' }}" data-zone="{{ activity.location|default:'Sin zona' }}" data-speaker="{{ activity.speaker_name|default:'Sin ponente' }}">
+                        <div class="time-col">
+                            <span class="date-main small text-muted">{{ activity.start_time|date:"j M" }}</span>
+                            <span class="time-main">{{ activity.start_time|date:"H:i" }}</span>
+                            <span class="time-period">{{ activity.start_time|date:"A" }}</span>
+                        </div>
+                        <div class="agenda-content">
+                            <div class="session-meta">
+                                <span class="badge badge-ai">{{ activity.status|title }}</span>
+                                <span class="room-info">
+                                    <span class="material-symbols-outlined room-icon">meeting_room</span>
+                                    {{ activity.location }}
+                                </span>
+                            </div>
+                            <h3 class="session-title">{{ activity.title }}</h3>
+                            <p class="session-description">{{ activity.description|default:'Sin descripción disponible.' }}</p>
+                            {% if activity.speaker_name %}
+                            <p class="session-speaker">
+                                <strong>Ponente:</strong>
+                                {{ activity.speaker_name }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'pe_agenda:info_activity' event.id activity.id %}" class="btn btn-compact d-flex align-items-center gap-2 text-decoration-none">
+                            <span class="material-symbols-outlined fs-6">visibility</span>
+                            Ver detalles
+                        </a>
+                    </div>
+                    {% empty %}
+                    <div class="p-5 text-center">
+                        <span class="material-symbols-outlined display-1 text-light mb-3">event_busy</span>
+                        <h4 class="fw-bold">No hay actividades programadas</h4>
+                        <p class="text-secondary">Este evento aún no tiene actividades definidas.</p>
+                    </div>
+                    {% endfor %}
+
+                    <div id="empty-state" class="p-5 text-center d-none">
+                        <span class="material-symbols-outlined display-1 text-light mb-3">search_off</span>
+                        <h4 class="fw-bold">No hay actividades que coincidan</h4>
+                        <p class="text-secondary">Ajusta los filtros o borra la búsqueda para ver más actividades.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'pe_agenda/js/chronogram_assistant.js' %}"></script>
+{% endblock %}

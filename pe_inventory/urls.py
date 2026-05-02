@@ -12,4 +12,8 @@ urlpatterns = [
     path('<int:event_id>/update/<int:item_id>/', views.update_item, name='update_item'),
     path('<int:event_id>/delete/<int:item_id>/', views.delete_item, name='delete_item'),
     path('<int:event_id>/items/', views.get_items, name='get_items'),
+    
+    # Endpoints para Excel
+    path('<int:event_id>/export-excel/', views.export_excel, name='export_excel'),
+    path('<int:event_id>/import-excel/', views.import_excel, name='import_excel'),
 ]

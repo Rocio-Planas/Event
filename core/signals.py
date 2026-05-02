@@ -83,7 +83,11 @@ def notificar_consulta_respondida(sender, instance, created, **kwargs):
 def sincronizar_suscripcion_presencial(sender, instance, created, **kwargs):
     """
     Cuando se crea una suscripción a un evento presencial,
-    crea automáticamente un registro en pe_registration.Registration
+    crea automáticamente un registro en pe_registration.Registration.
+
+    Nota de negocio:
+    - Suscripciones desde la homepage deben ser confirmadas automáticamente.
+    - Invitaciones privadas se manejan como pendientes en in_person_events.views.create_event_form.
     """
     if created and instance.tipo_evento == 'presencial':
         try:

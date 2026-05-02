@@ -10,23 +10,25 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-end mb-4">
-        <div>
-            <h2 class="fw-800 display-6">Gestión de Equipo</h2>
-            <p class="text-muted mb-0">Administra tu equipo de evento y asigna zonas de trabajo.</p>
+{% with active_page='equipo' %}
+    <div class="p-4" data-event-id="{{ event_id }}">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="fw-black display-6">Gestión de Equipo</h2>
+                <p class="text-muted mb-0">Administra tu equipo de evento y asigna zonas de trabajo.</p>
+            </div>
+            <div>
+                <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" data-bs-toggle="modal" data-bs-target="#inviteStaffModal">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">person_add</span> Invitar al Equipo
+                </button>
+            </div>
         </div>
-        <div>
-            <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" data-bs-toggle="modal" data-bs-target="#inviteStaffModal">
-                <span class="material-symbols-outlined" style="font-size: 18px;">person_add</span> Invitar al Equipo
-            </button>
-        </div>
-    </div>
 
     <!-- Stats -->
     <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
+            <div class="content-card rounded-4 border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
                 <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 d-flex align-items-center justify-content-center">
                     <span class="material-symbols-outlined">groups</span>
                 </div>
@@ -37,18 +39,18 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
+            <div class="content-card rounded-4 border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
                 <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 d-flex align-items-center justify-content-center">
                     <span class="material-symbols-outlined">check_circle</span>
                 </div>
                 <div>
-                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Con Zona Asignada</small>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Miembros Activos</small>
                     <h3 class="fw-black mb-0" id="activeMembers">{{ active_members }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
+            <div class="content-card rounded-4 border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
                 <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 d-flex align-items-center justify-content-center">
                     <span class="material-symbols-outlined">mail</span>
                 </div>
@@ -71,24 +73,19 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Rol</label>
-                <select class="form-select border-0 shadow-sm" id="filterRole">
-                    <option value="">Todos los Roles</option>
-                    <option value="LIDER_ZONA">Líder de Zona</option>
-                    <option value="SOPORTE">Soporte Técnico</option>
-                    <option value="RECEPCION">Recepción</option>
-                    <option value="SEGURIDAD">Seguridad</option>
-                    <option value="MONTAJE">Montaje</option>
-                    <option value="CATERING">Catering</option>
-                    <option value="ATENCION">Atención al Público</option>
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Tipo</label>
+                <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterRole">
+                    <option value="">Todos los Tipos</option>
+                    <option value="ponente">Ponente</option>
+                    <option value="staff">Staff</option>
                 </select>
             </div>
             <div class="col-md-4">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Zona</label>
-                <select class="form-select border-0 shadow-sm" id="filterZone">
-                    <option value="">Todas las Zonas</option>
-                    {% for zone, members_list in members_by_zone.items %}
-                    <option value="{{ zone }}">{{ zone }}</option>
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Estado</label>
+                <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterStatus">
+                    <option value="">Todos los Estados</option>
+                    {% for status in statuses %}
+                    <option value="{{ status }}">{{ status|title }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -101,9 +98,9 @@
             <table class="table mb-0 align-middle">
                 <thead class="bg-light">
                     <tr>
-                        <th class="px-4 py-3">Persona</th>
+                        <th class="px-4 py-3">Miembro</th>
                         <th class="py-3">Rol</th>
-                        <th class="py-3">Zona Asignada</th>
+                        <th class="py-3">Zona/Actividad Asignada</th>
                         <th class="py-3">Estado</th>
                         <th class="px-4 py-3 text-center">Acciones</th>
                     </tr>
@@ -111,7 +108,7 @@
                 <tbody id="membersTableBody">
                     <!-- Miembros confirmados -->
                     {% for member in members %}
-                    <tr data-member-id="{{ member.id }}" data-type="member">
+                    <tr data-member-id="{{ member.id }}" data-type="member" data-status="confirmado" data-role="{% if member.user_type == 'ponente' %}ponente{% else %}staff{% endif %}">
                         <td class="px-4 py-3">
                             <div class="d-flex align-items-center">
                                 <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -123,7 +120,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td><span class="badge bg-primary">{{ member.get_role_display }}</span></td>
+                        <td><span class="badge bg-primary">{% if member.user_type == 'ponente' %}Ponente{% else %}Staff({{ member.get_role_display }}){% endif %}</span></td>
                         <td>
                             {% if member.zone %}
                             <span class="badge bg-success">{{ member.zone }}</span>
@@ -133,13 +130,23 @@
                         </td>
                         <td>
                             {% if member.zone %}
-                            <span class="badge bg-success">Activo</span>
+                            <span class="badge bg-success">Confirmado</span>
                             {% else %}
-                            <span class="badge bg-warning">Pendiente Zona</span>
+                            <span class="badge bg-success">Confirmado</span>
                             {% endif %}
                         </td>
                         <td class="px-4 text-center">
                             <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewMemberModal" 
+                                    data-member-id="{{ member.id }}" 
+                                    data-member-name="{{ member.user.get_full_name|default:member.user.email }}"
+                                    data-member-email="{{ member.user.email }}"
+                                    data-member-type="{% if member.user_type == 'ponente' %}Ponente{% else %}Staff{% endif %}"
+                                    data-member-role="{{ member.get_role_display }}"
+                                    data-member-zone="{{ member.zone|default:'Sin asignar' }}"
+                                    title="Ver">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
+                                </button>
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignZoneModal" data-member-id="{{ member.id }}" title="Asignar Zona">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">place</span>
                                 </button>
@@ -151,9 +158,91 @@
                     </tr>
                     {% endfor %}
 
+                    <!-- Invitaciones aceptadas -->
+                    {% for invitation in accepted_invitations_with_name %}
+                    <tr data-invitation-id="{{ invitation.id }}" data-type="invitation" data-status="confirmado" data-role="{% if invitation.user_type == 'ponente' %}ponente{% else %}staff{% endif %}">
+                        <td class="px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    <span class="material-symbols-outlined">check_circle</span>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ invitation.full_name }}</div>
+                                    <small class="text-muted">{{ invitation.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3">
+                            {% if invitation.user_type == 'ponente' %}
+                                <span class="badge bg-success">Ponente</span>
+                            {% elif invitation.role %}
+                                <span class="badge bg-success">Staff({{ invitation.get_role_display }})</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No aplica</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3">
+                            <span class="text-muted small">—</span>
+                        </td>
+                        <td class="py-3">
+                            <span class="badge bg-success">Confirmado</span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#attendeeInfoModal"
+                                    data-attendee-name="{{ invitation.email }}"
+                                    data-attendee-email="{{ invitation.email }}"
+                                    data-attendee-phone="{{ invitation.phone|default:'No disponible' }}"
+                                    data-attendee-type="{% if invitation.user_type == 'ponente' %}Ponente{% else %}Staff{% endif %}"
+                                    title="Ver">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger cancel-invitation-btn" title="Eliminar" data-invitation-id="{{ invitation.id }}">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    <!-- Invitaciones rechazadas -->
+                    {% for invitation in rejected_invitations_list %}
+                    <tr data-invitation-id="{{ invitation.id }}" data-type="invitation" data-status="rechazado" data-role="{% if invitation.user_type == 'ponente' %}ponente{% else %}staff{% endif %}">
+                        <td class="px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    <span class="material-symbols-outlined">cancel</span>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ invitation.email }}</div>
+                                    <small class="text-muted">{{ invitation.sent_at|date:'d/m/Y H:i' }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3">
+                            {% if invitation.user_type == 'ponente' %}
+                                <span class="badge bg-secondary">Ponente</span>
+                            {% elif invitation.role %}
+                                <span class="badge bg-secondary">Staff({{ invitation.get_role_display }})</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No aplica</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3">
+                            <span class="text-muted small">—</span>
+                        </td>
+                        <td class="py-3">
+                            <span class="badge bg-danger">Rechazado</span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="material-symbols-outlined text-muted">close</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
                     <!-- Invitaciones pendientes -->
                     {% for invitation in pending_invitations_list %}
-                    <tr data-invitation-id="{{ invitation.id }}" data-type="invitation">
+                    <tr data-invitation-id="{{ invitation.id }}" data-type="invitation" data-status="pendiente" data-role="{% if invitation.user_type == 'ponente' %}ponente{% else %}staff{% endif %}">
                         <td class="px-4 py-3">
                             <div class="d-flex align-items-center">
                                 <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -166,8 +255,10 @@
                             </div>
                         </td>
                         <td class="py-3">
-                            {% if invitation.role %}
-                                <span class="badge bg-primary">{{ invitation.get_role_display }}</span>
+                            {% if invitation.user_type == 'ponente' %}
+                                <span class="badge bg-primary">Ponente</span>
+                            {% elif invitation.role %}
+                                <span class="badge bg-primary">Staff({{ invitation.get_role_display }})</span>
                             {% else %}
                                 <span class="badge bg-secondary">No aplica</span>
                             {% endif %}
@@ -176,7 +267,7 @@
                             <span class="text-muted small">—</span>
                         </td>
                         <td class="py-3">
-                            <span class="badge bg-warning">Invitación Pendiente</span>
+                            <span class="badge bg-warning">Pendiente</span>
                         </td>
                         <td class="px-4 py-3 text-center">
                             <button class="btn btn-sm btn-outline-danger cancel-invitation-btn" data-invitation-id="{{ invitation.id }}" title="Cancelar Invitación">
@@ -185,22 +276,26 @@
                         </td>
                     </tr>
                     {% empty %}
+                    {% if members or pending_invitations_list or accepted_invitations_list or rejected_invitations_list %}
+                    {% else %}
                     <tr>
                         <td colspan="5" class="text-center py-4">
                             <div class="text-muted">
                                 <span class="material-symbols-outlined" style="width: 48px; height: 48px;">group_remove</span>
-                                <p>No hay miembros ni invitaciones pendientes</p>
+                                <p>No hay miembros ni invitaciones</p>
                                 <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#inviteStaffModal">Invitar primer miembro</button>
                             </div>
                         </td>
                     </tr>
+                    {% endif %}
                     {% endfor %}
                 </tbody>
             </table>
         </div>
         <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
-            <div class="small text-muted fw-bold" id="paginationInfo">Total: {{ members.count }} miembros + {{ pending_invitations }} invitaciones pendientes</div>
+            <div class="small text-muted fw-bold" id="paginationInfo">Total: {{ members.count }} miembros | {{ pending_invitations }} pendientes | {{ accepted_invitations_list.count }} aceptadas | {{ rejected_invitations_list.count }} rechazadas</div>
         </div>
+    </div>
     </div>
 
     <!-- Modal Invitar Staff -->
@@ -270,6 +365,119 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Ver Miembro -->
+    <div class="modal fade" id="viewMemberModal" tabindex="-1" aria-labelledby="viewMemberModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0">
+                <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title fw-800" id="viewMemberModalLabel">Información del Miembro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row gy-3">
+                        <div class="col-md-4 text-center border-end">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px;">
+                                <span class="material-symbols-outlined" style="font-size: 48px;">person</span>
+                            </div>
+                            <h5 id="viewMemberName" class="fw-bold mb-1"></h5>
+                            <p class="text-muted mb-0" id="viewMemberEmail"></p>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <small class="text-muted">Tipo de Usuario</small>
+                                    <p id="viewMemberType" class="mb-2 fw-bold"></p>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <small class="text-muted">Rol</small>
+                                    <p id="viewMemberRole" class="mb-2"></p>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <small class="text-muted">Zona Asignada</small>
+                                    <p id="viewMemberZone" class="mb-2"></p>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <small class="text-muted">Fecha de Asignación</small>
+                                    <p id="viewMemberAssignedAt" class="mb-2"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ver Invitación -->
+    <div class="modal fade" id="attendeeInfoModal" tabindex="-1" aria-labelledby="attendeeInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0">
+                <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title fw-800" id="attendeeInfoModalLabel">Información de la Invitación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row gy-3">
+                        <div class="col-md-4 text-center border-end">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px;">
+                                <span class="material-symbols-outlined" style="font-size: 48px;">mail</span>
+                            </div>
+                            <h5 id="modalName" class="fw-bold mb-1"></h5>
+                            <p class="text-muted mb-0" id="modalEmail"></p>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <small class="text-muted">Tipo de Usuario</small>
+                                    <p id="modalType" class="mb-2 fw-bold"></p>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <small class="text-muted">Teléfono</small>
+                                    <p id="modalPhone" class="mb-2"></p>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <small class="text-muted">Estado</small>
+                                    <p id="modalStatus" class="mb-2"></p>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <small class="text-muted">Fecha de Aceptación</small>
+                                    <p id="modalAcceptedAt" class="mb-2"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Eliminar Miembro -->
+    <div class="modal fade" id="deleteMemberModal" tabindex="-1" aria-labelledby="deleteMemberModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold text-danger" id="deleteMemberModalLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <p class="mb-2">¿Estás seguro de que deseas eliminar a <strong id="deleteMemberName"></strong> del equipo?</p>
+                    <p class="text-muted small mb-0">Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer border-top-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteMemberBtn">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endwith %}
 {% endblock %}
 
 {% block extra_scripts %}

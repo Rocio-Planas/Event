@@ -9,17 +9,23 @@
 
 {% block content %}
 {% with active_page='inventario' %}
-    {% csrf_token %}
     <div class="p-4">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
                 <h2 class="fw-800 display-6">Gestión de Inventario</h2>
                 <p class="text-muted mb-0">Supervisa el catálogo de recursos y activos logísticos en tiempo real.</p>
             </div>
-            <div>
+            <div class="d-flex gap-2">
                 <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" data-bs-toggle="modal" data-bs-target="#inventoryModal" id="addItemBtn">
                     <span class="material-symbols-outlined" style="font-size: 18px;">add</span> Añadir Artículo
                 </button>
+                <button class="btn btn-outline-primary px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" id="exportExcelBtn" title="Descargar inventario en Excel">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">download</span> Exportar
+                </button>
+                <button class="btn btn-outline-primary px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" id="importExcelBtn" title="Cargar inventario desde Excel">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">upload</span> Importar
+                </button>
+                <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display: none;">
             </div>
         </div>
 
@@ -73,9 +79,15 @@
                     <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterCategory">
                         <option value="all">Todas las Categorías</option>
                         <option value="mobiliario">Mobiliario</option>
-                        <option value="tech">Tech & AV</option>
+                        <option value="tecnología e informática">Tecnología e Informática</option>
                         <option value="catering">Catering</option>
-                        <option value="logistica">Logística</option>
+                        <option value="logística">Logística</option>
+                        <option value="audiovisual (av)">Audiovisual (AV)</option>
+                        <option value="señalética y decoración">Señalética y Decoración</option>
+                        <option value="material de acreditación">Material de Acreditación</option>
+                        <option value="logística y herramientas">Logística y Herramientas</option>
+                        <option value="seguridad y salud">Seguridad y Salud</option>
+                        <option value="catering y suministros">Catering y Suministros</option>
                     </select>
                 </div>
                 <div class="col-md-4">
@@ -129,22 +141,23 @@
                 </div>
                 <div class="modal-body p-4">
                     <form id="inventoryForm">
+                        {% csrf_token %}
                         <input type="hidden" id="itemId">
                         <div class="mb-3">
                             <label for="itemName" class="form-label small fw-bold text-uppercase text-primary">Nombre del Artículo</label>
                             <input type="text" class="form-control border-0 bg-light py-2" id="itemName" required placeholder="Ej. Silla Tolix">
                         </div>
                         <div class="mb-3">
-                            <label for="itemSku" class="form-label small fw-bold text-uppercase text-primary">SKU</label>
-                            <input type="text" class="form-control border-0 bg-light py-2" id="itemSku" required placeholder="Ej. MOB-001">
-                        </div>
-                        <div class="mb-3">
                             <label for="itemCategory" class="form-label small fw-bold text-uppercase text-primary">Categoría</label>
                             <select class="form-select border-0 bg-light py-2" id="itemCategory" required>
                                 <option value="Mobiliario">Mobiliario</option>
-                                <option value="Tech & AV">Tech & AV</option>
-                                <option value="Catering">Catering</option>
-                                <option value="Logística">Logística</option>
+                                <option value="Tecnología e Informática">Tecnología e Informática</option>
+                                <option value="Audiovisual (AV)">Audiovisual (AV)</option>
+                                <option value="Señalética y Decoración">Señalética y Decoración</option>
+                                <option value="Material de Acreditación">Material de Acreditación</option>
+                                <option value="Logística y Herramientas">Logística y Herramientas</option>
+                                <option value="Seguridad y Salud">Seguridad y Salud</option>
+                                <option value="Catering y Suministros">Catering y Suministros</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -161,9 +174,29 @@
                             <textarea class="form-control border-0 bg-light" id="itemNotes" rows="3" placeholder="Detalles adicionales..."></textarea>
                         </div>
                         <div class="mt-4">
-                            <button type="submit" class="btn btn-gradient w-100 py-3 fw-bold rounded-2">Guardar Artículo</button>
+                            <button type="submit" id="saveItemButton" class="btn btn-gradient w-100 py-3 fw-bold rounded-2">Guardar Artículo</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación para Eliminar -->
+    <div class="modal fade" id="deleteItemModal" tabindex="-1" aria-labelledby="deleteItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold text-danger" id="deleteItemModalLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <p class="mb-2">¿Estás seguro de que deseas eliminar el artículo <strong id="deleteItemName"></strong>?</p>
+                    <p class="text-muted small mb-0">Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer border-top-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteBtn">Eliminar</button>
                 </div>
             </div>
         </div>

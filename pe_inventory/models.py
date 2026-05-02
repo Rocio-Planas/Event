@@ -28,9 +28,15 @@ class Item(models.Model):
 
     class Category(models.TextChoices):
         MOBILIARIO = 'Mobiliario', 'Mobiliario'
-        TECH_AV = 'Tech & AV', 'Tech & AV'
+        TECH = 'Tecnología e Informática', 'Tecnología e Informática'
         CATERING = 'Catering', 'Catering'
         LOGISTICA = 'Logística', 'Logística'
+        AUDIOVISUAL = 'Audiovisual (AV)', 'Audiovisual (AV)'
+        SEÑALÉTICA = 'Señalética y Decoración', 'Señalética y Decoración'
+        MATERIALES = 'Material de Acreditación', 'Material de Acreditación'
+        HERRAMIENTAS = 'Logística y Herramientas', 'Logística y Herramientas'
+        SEGURIDAD = 'Seguridad y Salud', 'Seguridad y Salud'
+        SUMINISTROS = 'Catering y Suministros', 'Catering y Suministros'
 
     class Status(models.TextChoices):
         EN_STOCK = 'En Stock', 'En Stock'
@@ -40,12 +46,6 @@ class Item(models.Model):
     name = models.CharField(
         max_length=200,
         verbose_name='Nombre del Recurso'
-    )
-    sku = models.CharField(
-        max_length=50,
-        unique=True,
-        db_index=True,
-        verbose_name='SKU'
     )
     category = models.CharField(
         max_length=50,
@@ -82,11 +82,10 @@ class Item(models.Model):
         ordering = ['name']
         indexes = [
             models.Index(fields=['category', 'name']),
-            models.Index(fields=['sku']),
         ]
 
     def __str__(self):
-        return f"{self.name} ({self.sku})"
+        return self.name
 
     @property
     def used_stock(self):

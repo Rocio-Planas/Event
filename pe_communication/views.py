@@ -21,14 +21,24 @@ logger = logging.getLogger(__name__)
 
 def get_or_create_template(template_type):
     """Obtiene o crea una plantilla por defecto."""
+    defaults = {
+        'name': f'{template_type}_default',
+        'subject': 'Invitación a Equipo de Evento',
+        'body_html': '<h1>Estás invitado a unirte a nuestro equipo</h1><p>Haz clic en el botón para aceptar.</p>',
+        'body_text': 'Estás invitado a unirte a nuestro equipo. Ingresa para aceptar.',
+    }
+
+    if template_type == EmailTemplate.TemplateType.EVENT_INVITATION:
+        defaults = {
+            'name': 'event_invitation_default',
+            'subject': 'Invitación al evento',
+            'body_html': '<h1>Has sido invitado a un evento</h1><p>Visita el enlace para ver los detalles del evento.</p>',
+            'body_text': 'Has sido invitado a un evento. Visita el enlace para ver los detalles.',
+        }
+
     template, created = EmailTemplate.objects.get_or_create(
         template_type=template_type,
-        defaults={
-            'name': f'{template_type}_default',
-            'subject': 'Invitación a Equipo de Evento',
-            'body_html': '<h1>Estás invitar a unirte a nuestro equipo</h1><p>Haz clic en el botón para aceptar.</p>',
-            'body_text': 'Estás invitado a unirte a nuestro equipo. Ingresa para aceptar.',
-        }
+        defaults=defaults
     )
     return template
 
@@ -103,6 +113,38 @@ def send_staff_invitation_email(invitation):
         body_html=body_html,
         body_text=body_text,
         template_type=EmailTemplate.TemplateType.STAFF_INVITATION,
+    )
+
+
+def send_event_invitation_email(recipient_email, event, organizer_name, custom_message=None):
+    """
+    Envía un email de invitación a un evento presencial.
+    """
+    from django.urls import reverse
+
+    site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+    event_url = f"{site_url}{reverse('core:detalle_evento', args=[event.id])}"
+
+    template = get_or_create_template(EmailTemplate.TemplateType.EVENT_INVITATION)
+
+    context = {
+        'event': event,
+        'organizer_name': organizer_name,
+        'event_url': event_url,
+        'custom_message': custom_message,
+    }
+
+    body_html = render_to_string('pe_communication/emails/event_invitation.html', context)
+    body_text = f"Te invitamos al evento {event.title} organizado por {organizer_name}. Ver detalles: {event_url}"
+    if custom_message:
+        body_text += f"\n\nMensaje: {custom_message}"
+
+    return send_email_notification(
+        recipient_email=recipient_email,
+        subject=f"Invitación al evento: {event.title}",
+        body_html=body_html,
+        body_text=body_text,
+        template_type=EmailTemplate.TemplateType.EVENT_INVITATION,
     )
 
 

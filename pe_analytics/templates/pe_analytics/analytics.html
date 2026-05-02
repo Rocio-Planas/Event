@@ -1,0 +1,339 @@
+{% extends "base_sidebar.html" %}
+{% load static %}
+
+{% block title %}Analíticas - EventConcierge{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'pe_analytics/css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-800 display-6">Analíticas del Evento</h2>
+            <p class="text-muted mb-0">Resumen de rendimiento y estadísticas</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-white border shadow-sm fw-semibold d-flex align-items-center gap-2" onclick="loadStats()">
+                <span class="material-symbols-outlined" style="font-size: 18px;">refresh</span>
+                Actualizar
+            </button>
+            <button class="btn btn-primary fw-semibold d-flex align-items-center gap-2" onclick="exportReport()">
+                <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
+                Exportar PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="content-card border-0 shadow-sm p-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3">
+                        <span class="material-symbols-outlined">payments</span>
+                    </div>
+                </div>
+                <p class="text-muted small fw-medium mb-1">Ingresos Totales</p>
+                <h3 class="fw-black mb-0">${{ total_revenue|floatformat:2 }}</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-card border-0 shadow-sm p-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="bg-success bg-opacity-10 text-success p-3 rounded-3">
+                        <span class="material-symbols-outlined">groups</span>
+                    </div>
+                </div>
+                <p class="text-muted small fw-medium mb-1">Total de Asistentes</p>
+                <h3 class="fw-black mb-0">{{ total_attendance }}</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-card border-0 shadow-sm p-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3">
+                        <span class="material-symbols-outlined">confirmation_number</span>
+                    </div>
+                </div>
+                <p class="text-muted small fw-medium mb-1">Precio Promedio de Entrada</p>
+                <h3 class="fw-black mb-0">${{ avg_ticket_price|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Charts -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="content-card border-0 shadow-sm p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1">Distribución de Entradas</h5>
+                        <p class="text-muted small mb-0">Ventas por categoría</p>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="content-card border-0 shadow-sm p-4 h-100">
+                <h5 class="fw-bold text-dark mb-1">Distribución por Tipo</h5>
+                <p class="text-muted small mb-4">Desglose de tickets</p>
+                <div class="chart-container mx-auto mb-4" style="height: 180px; width: 180px;">
+                    <canvas id="pieChart"></canvas>
+                </div>
+                <div id="ticketLegend"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demographics -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="content-card border-0 shadow-sm p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1">Demografía por Edad</h5>
+                        <p class="text-muted small mb-0">Distribución de asistentes por grupo de edad</p>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 250px;">
+                    <canvas id="ageChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="content-card border-0 shadow-sm p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1">Distribución por Género</h5>
+                        <p class="text-muted small mb-0">Datos demográficos autodeclarados</p>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 250px;">
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="content-card border-0 shadow-sm overflow-hidden bg-white">
+        <div class="row g-0 align-items-center">
+            <div class="col-md-8 p-4">
+                <h4 class="fw-bold text-dark mb-2">Análisis Profundo Listo</h4>
+                <p class="text-muted mb-4">Descarga el conjunto de datos completo para modelado personalizado o integra mediante nuestra API REST para sincronización en tiempo real.</p>
+                <div class="d-flex flex-wrap gap-3">
+                    <button class="btn btn-dark px-4 py-2 fw-bold" onclick="loadRawData()">
+                        <span class="material-symbols-outlined me-2" style="font-size: 18px;">download</span>
+                        Obtener Datos
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-4 d-none d-md-block p-0 overflow-hidden" style="max-height: 200px;">
+                <img src="https://images.unsplash.com/photo-1551288049-bbbda536339a?q=80&w=2070&auto=format&fit=crop" class="img-fluid object-fit-cover w-100 h-100" style="filter: grayscale(1); opacity: 0.5;">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    const eventId = {{ event_id }};
+    let ageChart, genderChart, distributionChart, pieChart;
+
+    const ageData = {{ age_distribution|safe }};
+    const genderData = {{ gender_distribution|safe }};
+    const ticketData = {{ ticket_distribution|safe }};
+
+    function initCharts() {
+        const ageLabels = Object.keys(ageData);
+        const ageValues = Object.values(ageData);
+        
+        const genderLabels = Object.keys(genderData);
+        const genderValues = Object.values(genderData);
+        
+        const ticketLabels = Object.keys(ticketData);
+        const ticketValues = Object.values(ticketData);
+
+        const colors = {
+            primary: '#0d6efd',
+            success: '#198754',
+            warning: '#ffc107',
+            danger: '#dc3545',
+            info: '#0dcaf0',
+            purples: ['#6610f2', '#6f42c1', '#d63384', '#a2d9ff', '#ce907d']
+        };
+
+        document.getElementById('ageChart').getContext('2d');
+        ageChart = new Chart(document.getElementById('ageChart'), {
+            type: 'bar',
+            data: {
+                labels: ageLabels,
+                datasets: [{
+                    label: 'Asistentes',
+                    data: ageValues,
+                    backgroundColor: colors.primary,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        genderChart = new Chart(document.getElementById('genderChart'), {
+            type: 'bar',
+            data: {
+                labels: genderLabels,
+                datasets: [{
+                    label: 'Asistentes',
+                    data: genderValues,
+                    backgroundColor: [colors.primary, colors.success, colors.warning, colors.info],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        distributionChart = new Chart(document.getElementById('distributionChart'), {
+            type: 'bar',
+            data: {
+                labels: ticketLabels,
+                datasets: [{
+                    label: 'Entradas Vendidas',
+                    data: ticketValues,
+                    backgroundColor: colors.primary,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        pieChart = new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: {
+                labels: ticketLabels,
+                datasets: [{
+                    data: ticketValues,
+                    backgroundColor: [colors.primary, colors.success, colors.warning, colors.info, colors.purples[0], colors.purples[1]]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        renderLegend(ticketLabels, ticketValues);
+    }
+
+    function renderLegend(labels, values) {
+        const legend = document.getElementById('ticketLegend');
+        const total = values.reduce((a, b) => a + b, 0);
+        const colors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-danger'];
+        
+        legend.innerHTML = labels.map((label, i) => {
+            const count = values[i];
+            const percent = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
+            return `
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge ${colors[i % colors.length]} rounded-circle" style="width: 10px; height: 10px; padding: 0;"></span>
+                        <span class="small fw-medium">${label}</span>
+                    </div>
+                    <span class="small fw-bold">${percent}%</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function loadStats() {
+        try {
+            const response = await fetch(`/pe_analytics/api/stats/${eventId}/`);
+            const result = await response.json();
+            if (result.success) {
+                const data = result.data;
+                document.querySelector('.content-card:nth-child(4) h3').textContent = '$' + data.total_revenue.toFixed(2);
+                document.querySelector('.content-card:nth-child(5) h3').textContent = data.total_attendance;
+                document.querySelector('.content-card:nth-child(6) h3').textContent = '$' + data.avg_ticket_price.toFixed(2);
+            }
+        } catch (error) {
+            console.error('Error cargando estadísticas:', error);
+        }
+    }
+
+    async function exportReport() {
+        try {
+            const response = await fetch(`/pe_analytics/export/${eventId}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') }
+            });
+            const result = await response.json();
+            if (result.success && result.pdf_url) {
+                window.open(result.pdf_url, '_blank');
+            } else {
+                alert('Reporte generado exitosamente');
+            }
+        } catch (error) {
+            console.error('Error exportando reporte:', error);
+            alert('Error al generar el reporte');
+        }
+    }
+
+    function loadRawData() {
+        window.location.href = `/pe_analytics/api/stats/${eventId}/`;
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    document.addEventListener('DOMContentLoaded', initCharts);
+</script>
+{% endblock %}

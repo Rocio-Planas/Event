@@ -364,13 +364,8 @@ EventPulse{% endblock %} {% block content %}
                     </p>
                     <div class="flex gap-2 mt-4">
                         <a
-                            href="#"
+                            href="{% url 'in_person_events:dashboard_assistant' suscripcion.evento_id %}"
                             class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high"
-                            onclick="
-                                alert(
-                                    'Detalle de evento presencial (pendiente)',
-                                )
-                            "
                             data-i18n="ver"
                             >Ver</a
                         >

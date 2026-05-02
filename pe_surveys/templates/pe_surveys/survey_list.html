@@ -1,0 +1,252 @@
+{% extends 'pe_surveys/base_survey.html' %}
+{% load static %}
+
+{% block title %}
+  Encuestas - EventConcierge
+{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'pe_surveys/css/survey_list.css' %}" />
+{% endblock %} {% block content %}
+  <div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+      <h2 class="fw-800 display-6">Encuestas</h2>
+      <p class="text-muted mb-0">Gestiona las encuestas de tus eventos</p>
+    </div>
+    <button type="button" class="btn btn-primary fw-semibold d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createSurveyModal">
+      <span class="material-symbols-outlined" style="font-size: 18px">add</span>
+      Nueva Encuesta
+    </button>
+  </div>
+
+  <div class="content-card border-0 shadow-sm overflow-hidden bg-white">
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle">
+        <thead class="bg-light">
+          <tr>
+            <th class="px-4 py-3">Título</th>
+            <th class="py-3">Descripción</th>
+            <th class="py-3">Estado</th>
+            <th class="py-3">Tipo de Entrega</th>
+            <th class="py-3">Fecha Programada</th>
+            <th class="px-4 py-3 text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for survey in surveys %}
+            <tr>
+              <td class="px-4 py-3">
+                <div class="fw-bold">{{ survey.title }}</div>
+              </td>
+              <td class="py-3">{{ survey.description|truncatechars:50 }}</td>
+              <td class="py-3">
+                {% if survey.is_active %}
+                  <span class="badge bg-success">Activa</span>
+                {% else %}
+                  <span class="badge bg-secondary">Inactiva</span>
+                {% endif %}
+              </td>
+              <td class="py-3">
+                {% if survey.delivery_type == 'inmediato' %}
+                  <span class="text-success">Inmediato</span>
+                {% else %}
+                  <span class="text-warning">Programada</span>
+                {% endif %}
+              </td>
+              <td class="py-3">
+                {% if survey.scheduled_date %}
+                  {{ survey.scheduled_date|date:'d/m/Y H:i' }}
+                {% else %}
+                  <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+              <td class="px-4 text-center">
+                <div class="btn-group">
+                  <a href="{% url 'pe_surveys:survey_edit' survey.pk %}" class="btn btn-sm btn-outline-primary" title="Editar"><span class="material-symbols-outlined" style="font-size: 16px">edit</span></a>
+                  <button class="btn btn-sm btn-outline-{% if survey.is_active %}
+                      
+                      
+                      
+                      danger
+
+
+
+                    {% else %}
+                      
+                      
+                      
+                      success
+
+
+
+                    {% endif %}"
+                    onclick="toggleSurvey({{ survey.pk }})"
+                    title="{% if survey.is_active %}
+                      
+                      
+                      
+                      Desactivar
+
+
+
+                    {% else %}
+                      
+                      
+                      
+                      Activar
+
+
+
+                    {% endif %}">
+                    <span class="material-symbols-outlined" style="font-size: 16px">
+                      {% if survey.is_active %}
+                        block
+                      {% else %}
+                        check_circle
+                      {% endif %}
+                    </span>
+                  </button>
+                  <button class="btn btn-sm btn-outline-info" onclick="sendSurvey({{ survey.pk }})" title="Enviar"><span class="material-symbols-outlined" style="font-size: 16px">send</span></button>
+                  <a href="{% url 'pe_surveys:survey_results' survey.pk %}" class="btn btn-sm btn-outline-secondary" title="Ver Resultados"><span class="material-symbols-outlined" style="font-size: 16px">analytics</span></a>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4">
+                <div class="text-muted">
+                  <span class="material-symbols-outlined" style="width: 48px; height: 48px">poll</span>
+                  <p>No hay encuestas creadas</p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="createSurveyModal" tabindex="-1" aria-labelledby="createSurveyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createSurveyModalLabel">
+            {% if survey %}
+              Editar
+            {% else %}
+              Nueva
+            {% endif %}Encuesta
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post"
+            action="{% if survey %}
+              {% url 'pe_surveys:survey_edit' survey.pk %}
+            {% else %}
+              {% url 'pe_surveys:survey_create' %}
+            {% endif %}">
+            {% csrf_token %}
+            <div class="row g-4 mb-4">
+              <div class="col-md-8">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Título de la Encuesta</label>
+                {{ form.title }}
+              </div>
+              <div class="col-md-4">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Estado</label>
+                <div class="form-check form-switch mt-2">
+                  {{ form.is_active }}
+                  <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Encuesta Activa</label>
+                </div>
+              </div>
+            </div>
+            <div class="row g-4 mb-4">
+              <div class="col-12">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Descripción</label>
+                {{ form.description }}
+              </div>
+            </div>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Tipo de Entrega</label>
+                {{ form.delivery_type }}
+              </div>
+              <div class="col-md-6"
+                id="scheduled_date_field"
+                style="display: {% if form.delivery_type.value == 'fecha_especifica' %}
+                  
+                  
+                  
+                  block
+
+
+
+                {% else %}
+                  
+                  
+                  
+                  none
+
+
+
+                {% endif %};">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Fecha Programada</label>
+                {{ form.scheduled_date }}
+              </div>
+            </div>
+            <hr class="my-4" />
+            <h4 class="fw-bold mb-3">Preguntas</h4>
+            {{ formset.management_form }}
+            <div id="questions_container">
+              {% for question_form in formset %}
+                <div class="question-block border rounded-3 p-3 mb-3">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="small text-muted">Pregunta</label>
+                      {{ question_form.text }}
+                    </div>
+                    <div class="col-md-3">
+                      <label class="small text-muted">Tipo</label>
+                      {{ question_form.question_type }}
+                    </div>
+                    <div class="col-md-2">
+                      <label class="small text-muted">Orden</label>
+                      {{ question_form.order }}
+                    </div>
+                    <div class="col-md-1">
+                      <label class="small text-muted">Req.</label>
+                      {{ question_form.is_required }}
+                    </div>
+                    <div class="col-md-12 options-field" style="display: none">
+                      <label class="small text-muted">Opciones (separadas por coma)</label>
+                      {{ question_form.options }}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <button type="button" class="btn btn-outline-secondary mb-4" onclick="addQuestion()">
+              <span class="material-symbols-outlined me-1" style="font-size: 18px">add</span>
+              Agregar Pregunta
+            </button>
+            <hr class="my-4" />
+            <div class="d-flex gap-2 justify-content-end">
+              <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'pe_surveys:survey_list' %}'">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Guardar Encuesta</button> 
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="{% static 'pe_surveys/js/survey_list.js' %}"></script>
+  
+  <script>
+    window.hasFormErrors = {{ form.errors|length }} > 0;
+    window.isEditing = {{ survey|yesno:"true,false" }};
+  </script>
+{% endblock %}

@@ -44,6 +44,8 @@ urlpatterns = [
     path('inventario/', include('pe_inventory.urls', namespace='pe_inventory')),
     path('stands/', include('pe_stand.urls', namespace='pe_stand')),
     path('equipo/', include('pe_staff.urls', namespace='pe_staff')),
+    path('analytics/', include('pe_analytics.urls', namespace='pe_analytics')),
+    path('encuestas/', include('pe_surveys.urls', namespace='pe_surveys')),
 ]
 
 if settings.DEBUG:

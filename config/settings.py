@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     'pe_stand',
     'pe_staff',
     'pe_communication',
+    'pe_analytics',
+    'pe_surveys',
 ]
 
 MIDDLEWARE = [

@@ -133,7 +133,7 @@ class StandDetailView(TemplateView):
                     'item_name': item.name,
                     'assigned_val': assignment.quantity,
                     'required_val': item.total_stock,  # stock total como requerido
-                    'target_label': f"{item.category} - {item.sku}",
+                    'target_label': f"{item.category} - {item.name}",
                     'status': item.status,
                 })
             

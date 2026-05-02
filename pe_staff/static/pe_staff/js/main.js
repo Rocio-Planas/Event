@@ -177,44 +177,168 @@ document.addEventListener("click", async function (event) {
     }
 });
 
+// Ver miembros
+document.addEventListener("click", function (event) {
+    const viewBtn = event.target.closest("[data-bs-target='#viewMemberModal']");
+    if (!viewBtn) return;
+
+    document.getElementById('viewMemberName').textContent = viewBtn.dataset.memberName || '';
+    document.getElementById('viewMemberEmail').textContent = viewBtn.dataset.memberEmail || '';
+    document.getElementById('viewMemberType').textContent = viewBtn.dataset.memberType || '';
+    document.getElementById('viewMemberRole').textContent = viewBtn.dataset.memberRole || '';
+    document.getElementById('viewMemberZone').textContent = viewBtn.dataset.memberZone || '';
+});
+
+// Ver invitaciones aceptadas
+document.addEventListener("click", function (event) {
+    const viewBtn = event.target.closest("[data-bs-target='#attendeeInfoModal']");
+    if (!viewBtn) return;
+
+    document.getElementById('modalName').textContent = viewBtn.dataset.attendeeName || '';
+    document.getElementById('modalEmail').textContent = viewBtn.dataset.attendeeEmail || '';
+    document.getElementById('modalType').textContent = viewBtn.dataset.attendeeType || '';
+    document.getElementById('modalPhone').textContent = viewBtn.dataset.attendeePhone || 'No disponible';
+    document.getElementById('modalStatus').textContent = 'Aceptada';
+    document.getElementById('modalAcceptedAt').textContent = new Date().toLocaleDateString();
+});
+
 // Eliminar miembro del equipo
 document.addEventListener("click", async function (event) {
-    const button = event.target.closest(".remove-member-btn");
-    if (!button) return;
+    const deleteBtn = event.target.closest(".remove-member-btn");
+    if (!deleteBtn) return;
 
-    const memberId = button.getAttribute("data-member-id");
+    const memberId = deleteBtn.getAttribute("data-member-id");
     if (!memberId) return;
 
-    if (!confirm("¿Deseas eliminar este miembro del equipo?")) {
-        return;
-    }
+    const memberRow = deleteBtn.closest('tr');
+    const memberName = memberRow ? memberRow.querySelector('.fw-bold')?.textContent : 'este miembro';
+    
+    const deleteModalEl = document.getElementById('deleteMemberModal');
+    const deleteModal = new bootstrap.Modal(deleteModalEl);
+    document.getElementById('deleteMemberName').textContent = memberName;
+    document.getElementById('confirmDeleteMemberBtn').dataset.memberId = memberId;
+    deleteModal.show();
 
-    try {
-        const response = await fetch(
-            `/equipo/staff/${eventId}/remove-member/${memberId}/`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCSRFToken(),
+    document.getElementById('confirmDeleteMemberBtn').onclick = async function() {
+        try {
+            const response = await fetch(
+                `/equipo/staff/${eventId}/remove-member/${memberId}/`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken(),
+                    },
                 },
-            },
-        );
+            );
 
-        const data = await response.json();
-        if (data.success) {
-            alert("Miembro eliminado");
-            window.location.reload();
-        } else {
-            alert(data.error || "Error al eliminar el miembro");
+            const data = await response.json();
+            if (data.success) {
+                deleteModal.hide();
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error:', error);
         }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("Error al eliminar el miembro");
-    }
+    };
 });
 
 // Inicializar
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Staff management initialized");
+
+    // Filtros
+    const searchInput = document.getElementById('searchMember');
+    const roleSelect = document.getElementById('filterRole');
+    const statusSelect = document.getElementById('filterStatus');
+    const tableBody = document.getElementById('membersTableBody');
+
+    if (!searchInput || !roleSelect || !statusSelect || !tableBody) {
+        console.error('Algunos elementos del filtro no fueron encontrados');
+        return;
+    }
+
+    function filterTable() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedRole = roleSelect.value.toLowerCase().trim();
+        const selectedStatus = statusSelect.value.toLowerCase().trim();
+
+        const rows = tableBody.querySelectorAll('tr[data-member-id], tr[data-invitation-id]');
+        
+        console.log('Filtrando:', { searchTerm, selectedRole, selectedStatus, rowCount: rows.length });
+
+        let totalMembers = 0;
+        let activeMembers = 0;
+        let pendingInvitations = 0;
+        let rejectedInvitations = 0;
+        let acceptedInvitations = 0;
+
+        rows.forEach(row => {
+            const nameEl = row.querySelector('.fw-bold');
+            const emailEls = row.querySelectorAll('.text-muted');
+            const emailEl = emailEls.length > 0 ? emailEls[0] : null;
+            const roleBadgeEl = row.querySelector('td:nth-child(2) .badge');
+            const statusBadgeEl = row.querySelector('td:nth-child(4) .badge');
+
+            const name = nameEl?.textContent.toLowerCase().trim() || '';
+            const email = emailEl?.textContent.toLowerCase().trim() || '';
+            const roleBadge = row.dataset.role || roleBadgeEl?.textContent.toLowerCase().trim() || '';
+            const statusBadge = row.dataset.status || statusBadgeEl?.textContent.toLowerCase().trim() || '';
+
+            const normalizedRole = roleBadge.toLowerCase().trim();
+            const normalizedStatus = statusBadge.toLowerCase().trim();
+
+            // Búsqueda por nombre o email
+            const matchesSearch = !searchTerm || name.includes(searchTerm) || email.includes(searchTerm);
+
+            // Filtro por tipo (Ponente o Staff)
+            let matchesRole = !selectedRole;
+            if (selectedRole === 'ponente') {
+                matchesRole = normalizedRole === 'ponente';
+            } else if (selectedRole === 'staff') {
+                matchesRole = normalizedRole === 'staff';
+            }
+
+            // Filtro por estado (Pendiente, Rechazado, Confirmado)
+            let matchesStatus = !selectedStatus;
+            if (selectedStatus === 'pendiente') {
+                matchesStatus = normalizedStatus === 'pendiente';
+            } else if (selectedStatus === 'rechazado') {
+                matchesStatus = normalizedStatus === 'rechazado';
+            } else if (selectedStatus === 'confirmado') {
+                matchesStatus = normalizedStatus === 'confirmado';
+            }
+
+            // Mostrar u ocultar fila
+            const shouldShow = matchesSearch && matchesRole && matchesStatus;
+            row.style.display = shouldShow ? '' : 'none';
+
+            if (shouldShow) {
+                totalMembers++;
+                if (normalizedStatus === 'confirmado') {
+                    activeMembers++;
+                    if (row.dataset.type === 'invitation') {
+                        acceptedInvitations++;
+                    }
+                } else if (normalizedStatus === 'pendiente') {
+                    pendingInvitations++;
+                } else if (normalizedStatus === 'rechazado') {
+                    rejectedInvitations++;
+                }
+            }
+        });
+
+        const paginationInfo = document.getElementById('paginationInfo');
+
+        if (paginationInfo) {
+            paginationInfo.textContent = `Mostrando ${totalMembers} de ${rows.length} miembros filtrados | ${pendingInvitations} pendientes | ${acceptedInvitations} aceptadas | ${rejectedInvitations} rechazadas`;
+        }
+    }
+
+    searchInput.addEventListener('input', filterTable);
+    roleSelect.addEventListener('change', filterTable);
+    statusSelect.addEventListener('change', filterTable);
+
+    filterTable();
+    console.log('Filtros inicializados correctamente');
 });

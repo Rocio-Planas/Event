@@ -15,6 +15,7 @@
     
     <!-- Custom Styles -->
     <link rel="stylesheet" href="{% static 'in_person_events/editor_event_form/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/event-form.css' %}">
 </head>
 <body>
     <!-- Header -->
@@ -45,7 +46,7 @@
 
     <form id="eventForm" action="{% url 'in_person_events:edit_event' event.id %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <input type="hidden" name="tickets_data" id="ticketsData" value="[]">
+        <input type="hidden" name="tickets_data" id="ticketsData" value='{{ tickets_json|default:"[]"|safe }}'>
 
         <main class="container py-5 mt-5">
         <div class="row g-4">
@@ -87,81 +88,6 @@
                     </div>
 
                     <div id="ticketContainer">
-                        {% for ticket in ticket_types %}
-                        <!-- Ticket Item -->
-                        <div
-                            class="ticket-item d-flex flex-column flex-md-row align-items-center gap-3"
-                        >
-                            <div class="flex-grow-1 w-100">
-                                <label class="form-label mb-1"
-                                    >Nombre del Ticket</label
-                                >
-                                <input
-                                    type="text"
-                                    class="form-control border-0 bg-transparent p-0 fw-medium shadow-none"
-                                    value="{{ ticket.name }}"
-                                />
-                            </div>
-                            <div class="w-100 w-md-25">
-                                <label class="form-label mb-1"
-                                    >Precio</label
-                                >
-                                <div class="d-flex align-items-center">
-                                    <span class="fw-bold me-1">€</span>
-                                    <input
-                                        type="number"
-                                        class="form-control border-0 bg-transparent p-0 fw-bold shadow-none"
-                                        value="{{ ticket.price }}"
-                                    />
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                class="btn text-danger p-2 remove-ticket"
-                            >
-                                <span class="material-symbols-outlined"
-                                    >delete</span
-                                >
-                            </button>
-                        </div>
-                        {% empty %}
-                        <!-- Ticket Item por defecto -->
-                        <div
-                            class="ticket-item d-flex flex-column flex-md-row align-items-center gap-3"
-                        >
-                            <div class="flex-grow-1 w-100">
-                                <label class="form-label mb-1"
-                                    >Nombre del Ticket</label
-                                >
-                                <input
-                                    type="text"
-                                    class="form-control border-0 bg-transparent p-0 fw-medium shadow-none"
-                                    value="Entrada General"
-                                />
-                            </div>
-                            <div class="w-100 w-md-25">
-                                <label class="form-label mb-1"
-                                    >Precio</label
-                                >
-                                <div class="d-flex align-items-center">
-                                    <span class="fw-bold me-1">€</span>
-                                    <input
-                                        type="number"
-                                        class="form-control border-0 bg-transparent p-0 fw-bold shadow-none"
-                                        value="25"
-                                    />
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                class="btn text-danger p-2 remove-ticket"
-                            >
-                                <span class="material-symbols-outlined"
-                                    >delete</span
-                                >
-                            </button>
-                        </div>
-                        {% endfor %}
                     </div>
                 </section>
 
@@ -169,20 +95,29 @@
                 <section class="event-card">
                     <h2 class="h5 fw-bold mb-4">Multimedia</h2>
 
-                    <label class="form-label">Imagen de Portada</label>
-                    <div class="upload-zone" id="uploadZone">
-                        {{ form.image }}
-                        <div class="image-preview-container mt-4" id="imagePreview">
-                            {% if form.image.value %}
-                                <div class="image-preview-existing">
-                                    <img src="{{ form.image.value.url }}" alt="Imagen actual" class="img-fluid rounded">
-                                    <p class="text-muted small mt-2">Imagen actual del evento</p>
+                    <div class="ev-field-group mb-4">
+                        <label class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Imagen de Portada</label>
+                        <div class="ev-drop-zone position-relative rounded-4 border-2 border-dashed d-flex flex-column align-items-center justify-content-center">
+                            {{ form.image }}
+                            {% for error in form.image.errors %}
+                            <div class="invalid-feedback d-block position-relative mt-2">{{ error }}</div>
+                            {% endfor %}
+                            <div class="ev-drop-zone-content text-center {% if form.instance.image %}d-none{% endif %}" id="evDropZoneContent">
+                                <div class="ev-upload-icon mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-cloud-upload text-primary" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-3.441 1.57.5.5 0 1 1-.757-.653z"/>
+                                        <path fill-rule="evenodd" d="M7.646 5.354a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 7.207V13.5a.5.5 0 0 1-1 0V7.207L5.354 9.062a.5.5 0 1 1-.708-.708l3-3z"/>
+                                    </svg>
                                 </div>
-                            {% else %}
-                                <div class="image-preview-empty">
-                                    <span class="material-symbols-outlined text-muted" style="font-size: 3rem;">image</span>
-                                </div>
-                            {% endif %}
+                                <p class="mb-1 fw-bold">Arrastra tu imagen aquí o <span class="text-primary">explora</span></p>
+                                <p class="text-muted small text-uppercase tracking-widest">PNG o JPG de alta resolución (Máx 10MB)</p>
+                            </div>
+                            <div class="ev-preview-container {% if not form.instance.image %}d-none{% endif %} position-absolute top-0 start-0 w-100 h-100 rounded-4 overflow-hidden" id="evPreviewContainer">
+                                <img src="{{ form.instance.image.url|default:'' }}" alt="Vista previa" id="evImagePreview" class="w-100 h-100 object-fit-cover" />
+                                <button type="button" class="btn btn-sm btn-dark position-absolute top-0 end-0 m-2" id="evRemoveImage">
+                                    <i class="bi bi-x-lg"></i> Remover
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </section>

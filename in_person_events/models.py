@@ -79,3 +79,19 @@ class EventStateHistory(models.Model):
     class Meta:
         verbose_name = "Historial de Estado"
         verbose_name_plural = "Historiales de Estados"
+
+
+class EventResource(models.Model):
+    """Archivos digitales asociados a un evento para asistentes."""
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='resources')
+    title = models.CharField(max_length=255, blank=True, verbose_name="Título del Recurso")
+    file = models.FileField(upload_to='event_resources/', verbose_name="Archivo")
+    uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de subida")
+
+    class Meta:
+        verbose_name = "Recurso de Evento"
+        verbose_name_plural = "Recursos de Evento"
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return self.title or self.file.name.split('/')[-1]

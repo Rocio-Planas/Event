@@ -26,10 +26,9 @@ class AttendeesView(TemplateView):
         # Verificar que el usuario sea el organizador del evento
         event = get_object_or_404(Event, id=event_id, organizer=self.request.user)
         
-        # Obtener inscripciones confirmadas
+        # Obtener todas las inscripciones del evento, incluyendo pendientes por invitación
         registrations = Registration.objects.filter(
-            event_id=event_id,
-            status=Registration.Status.CONFIRMADA
+            event_id=event_id
         ).select_related('user', 'ticket_type')
         
         # Obtener ticket types del evento
@@ -37,8 +36,8 @@ class AttendeesView(TemplateView):
         
         # Calcular estadísticas
         total_registered = registrations.count()
-        total_confirmed = registrations.filter(payment_status='completado').count()
-        total_pending = registrations.filter(payment_status='pendiente').count()
+        total_confirmed = registrations.filter(status=Registration.Status.CONFIRMADA).count()
+        total_pending = registrations.filter(status=Registration.Status.PENDIENTE).count()
         
         # Preparar datos para JSON
         attendees_data = []
@@ -48,8 +47,24 @@ class AttendeesView(TemplateView):
                 'name': reg.user.get_full_name() or reg.user.email,
                 'email': reg.user.email,
                 'ticket_type': reg.ticket_type.name if reg.ticket_type else 'General',
-                'status': reg.payment_status,
+                'status': reg.status,
+                'payment_status': reg.payment_status,
                 'registration_date': reg.registration_date.isoformat(),
+                'avatar_url': self.request.build_absolute_uri(reg.user.avatar.url) if reg.user.avatar else None,
+                'phone': reg.user.telefono or '',
+                'birth_date': reg.user.fecha_nacimiento.isoformat() if reg.user.fecha_nacimiento else '',
+                'sex': reg.user.sexo or '',
+                'sex_display': reg.user.get_sexo_display() if reg.user.sexo else '',
+                'address': reg.user.direccion or '',
+                'bio': reg.user.biografia or '',
+                'website': reg.user.website or '',
+                'twitter': reg.user.twitter or '',
+                'instagram': reg.user.instagram or '',
+                'linkedin': reg.user.linkedin or '',
+                'role': reg.user.rol or '',
+                'events_attended': reg.user.eventos_asistidos,
+                'events_organized': reg.user.eventos_organizados,
+                'last_activity': reg.user.ultima_actividad.isoformat() if reg.user.ultima_actividad else '',
             })
         
         context['event'] = event
@@ -76,8 +91,7 @@ def get_attendees(request, event_id):
     ticket_filter = request.GET.get('ticket', 'all')
     
     registrations = Registration.objects.filter(
-        event_id=event_id,
-        status=Registration.Status.CONFIRMADA
+        event_id=event_id
     ).select_related('user', 'ticket_type')
     
     # Aplicar filtros
@@ -89,7 +103,7 @@ def get_attendees(request, event_id):
         )
     
     if status_filter != 'all':
-        registrations = registrations.filter(payment_status=status_filter)
+        registrations = registrations.filter(status=status_filter)
     
     if ticket_filter != 'all':
         registrations = registrations.filter(ticket_type_id=ticket_filter)
@@ -101,8 +115,24 @@ def get_attendees(request, event_id):
             'name': reg.user.get_full_name() or reg.user.email,
             'email': reg.user.email,
             'ticket_type': reg.ticket_type.name if reg.ticket_type else 'General',
-            'status': reg.payment_status,
+            'status': reg.status,
+            'payment_status': reg.payment_status,
             'registration_date': reg.registration_date.isoformat(),
+            'avatar_url': request.build_absolute_uri(reg.user.avatar.url) if reg.user.avatar else None,
+            'phone': reg.user.telefono or '',
+            'birth_date': reg.user.fecha_nacimiento.isoformat() if reg.user.fecha_nacimiento else '',
+            'sex': reg.user.sexo or '',
+            'sex_display': reg.user.get_sexo_display() if reg.user.sexo else '',
+            'address': reg.user.direccion or '',
+            'bio': reg.user.biografia or '',
+            'website': reg.user.website or '',
+            'twitter': reg.user.twitter or '',
+            'instagram': reg.user.instagram or '',
+            'linkedin': reg.user.linkedin or '',
+            'role': reg.user.rol or '',
+            'events_attended': reg.user.eventos_asistidos,
+            'events_organized': reg.user.eventos_organizados,
+            'last_activity': reg.user.ultima_actividad.isoformat() if reg.user.ultima_actividad else '',
         })
     
     return JsonResponse({
@@ -130,8 +160,10 @@ def update_registration(request, event_id, registration_id):
         new_status = data.get('status')
         
         if new_status:
-            registration.payment_status = new_status
-            registration.save()
+            if new_status not in Registration.Status.values:
+                return JsonResponse({'error': 'Estado inválido'}, status=400)
+            registration.status = new_status
+            registration.save(update_fields=['status'])
             
             return JsonResponse({
                 'success': True,
@@ -142,3 +174,37 @@ def update_registration(request, event_id, registration_id):
             
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Datos inválidos'}, status=400)
+
+
+@login_required
+def delete_registration(request, event_id, registration_id):
+    """API para eliminar una inscripción y desuscribir al usuario del evento."""
+    if request.method != 'DELETE':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+    registration = get_object_or_404(
+        Registration,
+        id=registration_id,
+        event_id=event_id,
+    )
+
+    event = get_object_or_404(Event, id=event_id, organizer=request.user)
+
+    try:
+        from core.models import Suscripcion
+
+        # Borrar la suscripción presencial si existe
+        Suscripcion.objects.filter(
+            usuario=registration.user,
+            evento_id=event_id,
+            tipo_evento='presencial',
+        ).delete()
+    except Exception:
+        pass
+
+    registration.delete()
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Inscripción eliminada y usuario desuscrito del evento',
+    })

@@ -1,5 +1,6 @@
 {% extends "base_sidebar.html" %}
 {% load static %}
+{% load tz %}
 
 {% block title %}Dashboard - {{ event.title }}{% endblock %}
 
@@ -21,29 +22,31 @@
                     <div>
                         <span
                             class="text-primary fw-bold text-uppercase small tracking-wider"
-                            >Vista General del Panel</span
+                            >Vista General del Evento</span
                         >
-                        <h2 class="display-6 fw-black mt-1">
+                        <h1 class="fw-black mb-1 h2">
                             {{ event.title }}
-                        </h2>
+                        </h1>
                     </div>
-                    <a
-                        href="{% url 'in_person_events:edit_event' event.id %}"
-                        class="btn btn-primary-custom"
-                    >
-                        <span class="d-flex align-items-center gap-2">
-                            <span class="material-symbols-outlined fs-5"
-                                >edit</span
-                            >
-                            Editar Evento
-                        </span>
-                    </a>
+                    <div class="d-flex align-items-center gap-2">
+                        <a
+                            href="{% url 'in_person_events:edit_event' event.id %}"
+                            class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2"
+                        >
+                            <span class="d-flex align-items-center gap-2">
+                                <span class="material-symbols-outlined fs-5"
+                                    >edit</span
+                                >
+                                Editar Evento
+                            </span>
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Stats Grid -->
-                <div class="row g-4 mb-5">
+                <div class="row g-4 mb-5 align-items-stretch">
                     <div class="col-12 col-md-6">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div
                                 class="d-flex justify-content-between align-items-center mb-3"
                             >
@@ -54,19 +57,24 @@
                                         >person_add</span
                                     >
                                 </div>
-                                <span
-                                    class="badge bg-success-subtle text-success rounded-pill"
-                                    >+12% vs semana pasada</span
-                                >
                             </div>
                             <p class="text-secondary small fw-medium mb-1">
                                 Total de Asistentes
                             </p>
-                            <h3 class="display-5 fw-bold m-0">428</h3>
+                            <h3 class="display-5 fw-bold m-0">{{ total_attendees }}</h3>
+                            <small class="text-muted d-block mt-2" style="font-size: 0.75rem;">
+                                {% if ticket_type_counts %}
+                                    {% for ticket in ticket_type_counts %}
+                                        {{ ticket.ticket_type__name|default:"General" }}: {{ ticket.count }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    Sin asistentes registrados
+                                {% endif %}
+                            </small>
                         </div>
                     </div>
                     <div class="col-12 col-md-6">
-                        <div class="stat-card tertiary">
+                        <div class="stat-card tertiary h-100">
                             <div
                                 class="d-flex justify-content-between align-items-center mb-3"
                             >
@@ -84,7 +92,7 @@
                             <p class="text-secondary small fw-medium mb-1">
                                 Ingresos
                             </p>
-                            <h3 class="display-5 fw-bold m-0">$12,400</h3>
+                            <h3 class="display-5 fw-bold m-0">${{ total_revenue|floatformat:2 }}</h3>
                         </div>
                     </div>
                 </div>
@@ -124,14 +132,10 @@
                                                         Inicio del Evento
                                                     </p>
                                                     <p class="h5 fw-bold mb-0">
-                                                        {{
-                                                        event.start_date|date:"d
-                                                        M, Y" }}
+                                                        {{ event.start_date|localtime|date:"d M, Y" }}
                                                     </p>
                                                     <p class="small text-muted">
-                                                        {{
-                                                        event.start_date|date:"g:i
-                                                        A" }}
+                                                        {{ event.start_date|localtime|date:"g:i A" }}
                                                     </p>
                                                 </div>
                                                 <div class="col-6 ps-4">
@@ -141,14 +145,10 @@
                                                         Fin del Evento
                                                     </p>
                                                     <p class="h5 fw-bold mb-0">
-                                                        {{
-                                                        event.end_date|date:"d
-                                                        M, Y" }}
+                                                        {{ event.end_date|localtime|date:"d M, Y" }}
                                                     </p>
                                                     <p class="small text-muted">
-                                                        {{
-                                                        event.end_date|date:"g:i
-                                                        A" }}
+                                                        {{ event.end_date|localtime|date:"g:i A" }}
                                                     </p>
                                                 </div>
                                             </div>
@@ -227,15 +227,25 @@
                                         <p
                                             class="h4 fw-black text-primary mb-0"
                                         >
-                                            ${{ ticket.price }}
+                                            ${{ ticket.price|floatformat:"-1" }}
                                         </p>
                                     </div>
                                 </div>
                                 {% empty %}
-                                <div class="col-12">
-                                    <p class="text-muted text-center">
-                                        No hay tipos de ticket configurados
-                                    </p>
+                                <div class="col-12 col-md-4">
+                                    <div class="ticket-card featured">
+                                        <div>
+                                            <p class="fw-bold mb-0">
+                                                General
+                                            </p>
+                                            <p class="small text-muted mb-0">
+                                                Entrada gratis
+                                            </p>
+                                        </div>
+                                        <p class="h4 fw-black text-primary mb-0">
+                                            Gratis
+                                        </p>
+                                    </div>
                                 </div>
                                 {% endfor %}
                             </div>

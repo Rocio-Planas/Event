@@ -1,0 +1,113 @@
+:root {
+    --bs-primary: #0058be;
+    --bs-primary-rgb: 0, 88, 190;
+    --bg-surface: #f8f9ff;
+    --surface-lowest: #ffffff;
+    --surface-low: #eff4ff;
+    --on-surface: #0b1c30;
+    --on-surface-variant: #424754;
+    --outline-variant: rgba(194, 198, 214, 0.15);
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-surface);
+    color: var(--on-surface);
+    overflow-x: hidden;
+}
+
+/* Sidebar Styling */
+#sidebar-wrapper {
+    min-width: 280px;
+    max-width: 280px;
+    height: 100vh;
+    transition: margin 0.25s ease-out;
+    background-color: #0b1c30 !important;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+    background-color: var(--bg-surface);
+}
+
+.list-group-item {
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.list-group-item:hover {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.list-group-item.active {
+    background-color: rgba(13, 110, 253, 0.1) !important;
+    color: #0d6efd !important;
+    font-weight: 600;
+}
+
+.bg-primary-soft { background-color: rgba(13, 110, 253, 0.1); }
+.bg-info-soft { background-color: rgba(13, 202, 240, 0.1); }
+.bg-warning-soft { background-color: rgba(255, 193, 7, 0.1); }
+.bg-success-soft { background-color: rgba(25, 135, 84, 0.1); }
+
+.card-metrics {
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    cursor: default;
+}
+
+.card-metrics:hover {
+    background-color: var(--surface-low);
+    transform: translateY(-2px);
+}
+
+.rounded-4 { border-radius: 1rem !important; }
+.rounded-3 { border-radius: 0.75rem !important; }
+
+.shadow-sm {
+    box-shadow: 0 4px 20px rgba(11, 28, 48, 0.04) !important;
+}
+
+.dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.bg-secondary-light { background-color: #c2c6d6; }
+
+.icon-xs { width: 14px; height: 14px; }
+.icon-sm { width: 18px; height: 18px; }
+.icon-md { width: 24px; height: 24px; }
+
+/* Progress bar customization */
+.progress {
+    background-color: var(--surface-low);
+}
+
+/* Custom Inputs */
+.form-control:focus {
+    background-color: white !important;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1) !important;
+}
+
+/* Utilities */
+.max-w-lg { max-width: 500px; }
+
+@media (max-width: 991.98px) {
+    #sidebar-wrapper {
+        margin-left: -280px;
+        position: fixed;
+        z-index: 1050;
+    }
+    #wrapper.toggled #sidebar-wrapper {
+        margin-left: 0;
+    }
+}

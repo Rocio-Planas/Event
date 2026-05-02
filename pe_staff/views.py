@@ -38,8 +38,8 @@ class StaffDashboardView(TemplateView):
         invitations = StaffInvitation.objects.filter(event_id=event_id)
         
         # Calcular estadísticas
-        total_members = members.count()
-        active_members = members.exclude(zone__isnull=True).count()
+        total_members = invitations.exclude(status=InvitationStatus.RECHAZADA).count()
+        active_members = members.count()
         pending_invitations = invitations.filter(status=InvitationStatus.PENDIENTE).count()
         
         # Agrupar por rol
@@ -91,11 +91,35 @@ class StaffDashboardView(TemplateView):
         context['members'] = members
         context['invitations'] = invitations
         context['pending_invitations_list'] = invitations.filter(status=InvitationStatus.PENDIENTE).order_by('-sent_at')
+        context['accepted_invitations_list'] = invitations.filter(status=InvitationStatus.ACEPTADA).order_by('-accepted_at')
+        context['rejected_invitations_list'] = invitations.filter(status=InvitationStatus.RECHAZADA).order_by('-sent_at')
+
+        accepted_emails = [inv.email for inv in context['accepted_invitations_list']]
+        user_names = {
+            user.email: user.get_full_name() or user.email
+            for user in User.objects.filter(email__in=accepted_emails)
+        }
+        context['accepted_invitations_with_name'] = [
+            {
+                'id': inv.id,
+                'email': inv.email,
+                'full_name': user_names.get(inv.email, inv.email),
+                'role': inv.role,
+                'status': inv.status,
+                'sent_at': inv.sent_at,
+                'accepted_at': inv.accepted_at,
+                'user_type': inv.user_type,
+                'phone': None,
+            }
+            for inv in context['accepted_invitations_list']
+        ]
+
         context['total_members'] = total_members
         context['active_members'] = active_members
         context['pending_invitations'] = pending_invitations
         context['members_by_role'] = members_by_role
         context['members_by_zone'] = members_by_zone
+        context['statuses'] = ['pendiente', 'rechazado', 'confirmado']
         context['event_id'] = event_id
         context['event'] = event
         context['active_page'] = 'equipo'
@@ -230,15 +254,14 @@ def accept_invitation(request, token):
         return render(request, 'pe_staff/invitation_expired.html', {'invitation': invitation})
     
     if request.user.is_authenticated:
-        # Verificar que el email coincide
-        if request.user.email.lower() != invitation.email.lower():
-            return JsonResponse({'error': 'El correo no coincide con la invitación'}, status=400)
-        
-        # Crear miembro
+        # Crear miembro directamente sin verificar email
         member, created = StaffMember.objects.get_or_create(
             event=invitation.event,
             user=request.user,
-            defaults={'role': invitation.role}
+            defaults={
+                'role': invitation.role,
+                'user_type': invitation.user_type
+            }
         )
         
         if created:

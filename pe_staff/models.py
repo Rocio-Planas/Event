@@ -91,6 +91,10 @@ class StaffMember(models.Model):
     """
     Miembros del equipo de un evento.
     """
+    class UserType(models.TextChoices):
+        PONENTE = 'ponente', 'Ponente'
+        STAFF = 'staff', 'Staff'
+
     event = models.ForeignKey(
         'in_person_events.Event',
         on_delete=models.CASCADE,
@@ -102,6 +106,12 @@ class StaffMember(models.Model):
         on_delete=models.CASCADE,
         related_name='staff_events',
         verbose_name='Usuario'
+    )
+    user_type = models.CharField(
+        max_length=20,
+        choices=UserType.choices,
+        default=UserType.STAFF,
+        verbose_name='Tipo de Usuario'
     )
     role = models.CharField(
         max_length=50,

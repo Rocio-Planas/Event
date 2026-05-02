@@ -10,6 +10,7 @@ class EmailTemplate(models.Model):
         STAFF_INVITATION = 'staff_invitation', 'Invitación de Staff'
         STAFF_ACCEPTED = 'staff_accepted', 'Confirmación de Aceptación'
         STAFF_ASSIGNED = 'staff_assigned', 'Asignación de Zona'
+        EVENT_INVITATION = 'event_invitation', 'Invitación de Evento'
         EVENT_CONFIRMATION = 'event_confirmation', 'Confirmación de Evento'
         EVENT_REMINDER = 'event_reminder', 'Recordatorio de Evento'
 
