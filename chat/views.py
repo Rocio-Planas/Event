@@ -11,8 +11,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 def is_chat_available():
-    # MODIFICADO: Siempre disponible para pruebas
-    return True
+    now = timezone.localtime(timezone.now())
+    if now.weekday() >= 5: return False
+    start = now.replace(hour=9, minute=0, second=0, microsecond=0)
+    end = now.replace(hour=18, minute=0, second=0, microsecond=0)
+    return start <= now <= end
+
 
 @login_required
 def obtener_conversacion_usuario(request):
