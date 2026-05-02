@@ -149,87 +149,93 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    const exportExcelBtn = document.getElementById('exportExcelBtn');
-    const importExcelBtn = document.getElementById('importExcelBtn');
-    const excelFileInput = document.getElementById('excelFileInput');
+    const exportExcelBtn = document.getElementById("exportExcelBtn");
+    const importExcelBtn = document.getElementById("importExcelBtn");
+    const excelFileInput = document.getElementById("excelFileInput");
 
     if (exportExcelBtn) {
-        exportExcelBtn.addEventListener('click', async () => {
+        exportExcelBtn.addEventListener("click", async () => {
             try {
-                console.log('Iniciando exportación de Excel...');
-                console.log('Event ID:', eventId);
-                
+                console.log("Iniciando exportación de Excel...");
+                console.log("Event ID:", eventId);
+
                 if (!eventId) {
-                    alert('Error: ID de evento no disponible');
+                    alert("Error: ID de evento no disponible");
                     return;
                 }
-                
+
                 exportExcelBtn.disabled = true;
-                exportExcelBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">downloading</span> Descargando...';
-                
+                exportExcelBtn.innerHTML =
+                    '<span class="material-symbols-outlined" style="font-size: 18px;">downloading</span> Descargando...';
+
                 const url = `/inventario/${eventId}/export-excel/`;
-                console.log('URL de descarga:', url);
-                
+                console.log("URL de descarga:", url);
+
                 const response = await fetch(url, {
-                    credentials: 'same-origin',
+                    credentials: "same-origin",
                 });
-                
-                console.log('Response status:', response.status);
-                console.log('Response OK:', response.ok);
-                console.log('Content-Type:', response.headers.get('content-type'));
-                
+
+                console.log("Response status:", response.status);
+                console.log("Response OK:", response.ok);
+                console.log(
+                    "Content-Type:",
+                    response.headers.get("content-type"),
+                );
+
                 if (!response.ok) {
-                    let message = 'Error desconocido';
-                    const contentType = response.headers.get('content-type') || '';
-                    if (contentType.includes('application/json')) {
+                    let message = "Error desconocido";
+                    const contentType =
+                        response.headers.get("content-type") || "";
+                    if (contentType.includes("application/json")) {
                         const error = await response.json();
                         message = error.error || message;
                     } else {
                         const text = await response.text();
-                        console.log('Response text:', text.substring(0, 200));
+                        console.log("Response text:", text.substring(0, 200));
                         message = text ? text.substring(0, 400) : message;
                     }
-                    alert('Error: ' + message);
+                    alert("Error: " + message);
                     return;
                 }
-                
-                console.log('Creando blob...');
+
+                console.log("Creando blob...");
                 const blob = await response.blob();
-                console.log('Blob size:', blob.size, 'bytes');
-                console.log('Blob type:', blob.type);
-                
+                console.log("Blob size:", blob.size, "bytes");
+                console.log("Blob type:", blob.type);
+
                 const downloadUrl = window.URL.createObjectURL(blob);
-                console.log('Download URL creada:', downloadUrl);
-                
-                const a = document.createElement('a');
+                console.log("Download URL creada:", downloadUrl);
+
+                const a = document.createElement("a");
                 a.href = downloadUrl;
-                a.download = `inventario_${new Date().toISOString().split('T')[0]}.xlsx`;
-                console.log('Download name:', a.download);
-                
+                a.download = `inventario_${new Date().toISOString().split("T")[0]}.xlsx`;
+                console.log("Download name:", a.download);
+
                 document.body.appendChild(a);
                 a.click();
-                console.log('Click realizado');
-                
+                console.log("Click realizado");
+
                 setTimeout(() => {
                     window.URL.revokeObjectURL(downloadUrl);
                     document.body.removeChild(a);
-                    console.log('Limpieza realizada');
+                    console.log("Limpieza realizada");
                 }, 500);
-                
-                alert('¡Archivo exportado correctamente!');
+
+                alert("¡Archivo exportado correctamente!");
             } catch (error) {
-                console.error('Error completo:', error);
-                console.error('Stack:', error.stack);
-                alert('Error al exportar: ' + error.message);
+                console.error("Error completo:", error);
+                console.error("Stack:", error.stack);
+                alert("Error al exportar: " + error.message);
             } finally {
                 exportExcelBtn.disabled = false;
-                exportExcelBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">download</span> Exportar';
+                exportExcelBtn.innerHTML =
+                    '<span class="material-symbols-outlined" style="font-size: 18px;">download</span> Exportar';
             }
         });
     }
 
     if (importExcelBtn) {
-        importExcelBtn.addEventListener('click', () => {
+        importExcelBtn.addEventListener("click", () => {
             if (excelFileInput) {
                 excelFileInput.click();
             }
@@ -237,45 +243,57 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (excelFileInput) {
-        excelFileInput.addEventListener('change', async (e) => {
+        excelFileInput.addEventListener("change", async (e) => {
             const file = e.target.files[0];
             if (!file) return;
             try {
                 if (importExcelBtn) {
                     importExcelBtn.disabled = true;
-                    importExcelBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">uploading</span> Importando...';
+                    importExcelBtn.innerHTML =
+                        '<span class="material-symbols-outlined" style="font-size: 18px;">uploading</span> Importando...';
                 }
 
                 const formData = new FormData();
-                formData.append('file', file);
-                const response = await fetch(`/inventario/${eventId}/import-excel/`, {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: {
-                        'X-CSRFToken': getCsrfToken(),
+                formData.append("file", file);
+                const response = await fetch(
+                    `/inventario/${eventId}/import-excel/`,
+                    {
+                        method: "POST",
+                        credentials: "same-origin",
+                        headers: {
+                            "X-CSRFToken": getCsrfToken(),
+                        },
+                        body: formData,
                     },
-                    body: formData,
-                });
+                );
 
                 let data = null;
-                const contentType = response.headers.get('content-type') || '';
-                if (contentType.includes('application/json')) {
+                const contentType = response.headers.get("content-type") || "";
+                if (contentType.includes("application/json")) {
                     data = await response.json();
                 } else {
                     const text = await response.text();
-                    data = { error: text ? text.substring(0, 400) : 'Error desconocido' };
+                    data = {
+                        error: text
+                            ? text.substring(0, 400)
+                            : "Error desconocido",
+                    };
                 }
 
                 if (response.ok) {
-                    let message = data.message || 'Importación completada';
+                    let message = data.message || "Importación completada";
                     if (data.warnings && data.warnings.length > 0) {
-                        message += '\n\nAdvertencias:\n' + data.warnings.slice(0, 5).join('\n');
+                        message +=
+                            "\n\nAdvertencias:\n" +
+                            data.warnings.slice(0, 5).join("\n");
                         if (data.warnings.length > 5) {
                             message += `\n... y ${data.warnings.length - 5} advertencias más`;
                         }
                     }
                     if (data.errors && data.errors.length > 0) {
-                        message += '\n\nErrores encontrados:\n' + data.errors.slice(0, 5).join('\n');
+                        message +=
+                            "\n\nErrores encontrados:\n" +
+                            data.errors.slice(0, 5).join("\n");
                         if (data.errors.length > 5) {
                             message += `\n... y ${data.errors.length - 5} errores más`;
                         }
@@ -284,17 +302,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     await loadItems();
                     updateGlobalStats();
                 } else {
-                    alert('Error: ' + (data.error || 'Error desconocido'));
+                    alert("Error: " + (data.error || "Error desconocido"));
                 }
             } catch (error) {
-                console.error('Error:', error);
-                alert('Error al importar: ' + error.message);
+                console.error("Error:", error);
+                alert("Error al importar: " + error.message);
             } finally {
                 if (importExcelBtn) {
                     importExcelBtn.disabled = false;
-                    importExcelBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">upload</span> Importar';
+                    importExcelBtn.innerHTML =
+                        '<span class="material-symbols-outlined" style="font-size: 18px;">upload</span> Importar';
                 }
-                excelFileInput.value = '';
+                excelFileInput.value = "";
             }
         });
     }
@@ -335,26 +354,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (deleteBtn) {
             const itemId = deleteBtn.dataset.itemId;
-            const deleteModalEl = document.getElementById('deleteItemModal');
+            const deleteModalEl = document.getElementById("deleteItemModal");
             const deleteModal = new bootstrap.Modal(deleteModalEl);
-            const itemName = deleteBtn.closest('tr').querySelector('.item-name').textContent.trim();
-            document.getElementById('deleteItemName').textContent = itemName;
-            document.getElementById('confirmDeleteBtn').dataset.itemId = itemId;
+            const itemName = deleteBtn
+                .closest("tr")
+                .querySelector(".item-name")
+                .textContent.trim();
+            document.getElementById("deleteItemName").textContent = itemName;
+            document.getElementById("confirmDeleteBtn").dataset.itemId = itemId;
             deleteModal.show();
 
-            document.getElementById('confirmDeleteBtn').onclick = function() {
-                const currentEventId = document.getElementById('inventoryModal').dataset.eventId;
+            document.getElementById("confirmDeleteBtn").onclick = function () {
+                const currentEventId =
+                    document.getElementById("inventoryModal").dataset.eventId;
                 const csrfToken = getCsrfToken();
                 if (!csrfToken) {
-                    console.error('Token CSRF no encontrado');
+                    console.error("Token CSRF no encontrado");
                     return;
                 }
 
                 const formData = new FormData();
-                formData.append('csrfmiddlewaretoken', csrfToken);
+                formData.append("csrfmiddlewaretoken", csrfToken);
 
                 fetch(`/inventario/${currentEventId}/delete/${itemId}/`, {
-                    method: 'POST',
+                    method: "POST",
                     body: formData,
                 })
                     .then((response) => response.json())
@@ -363,11 +386,11 @@ document.addEventListener("DOMContentLoaded", () => {
                             loadItems();
                             deleteModal.hide();
                         } else {
-                            console.error('Error:', result.error);
+                            console.error("Error:", result.error);
                         }
                     })
                     .catch((error) => {
-                        console.error('Error:', error);
+                        console.error("Error:", error);
                     });
             };
         }
@@ -388,11 +411,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Validaciones básicas
             if (!name) {
-                console.error('El nombre del artículo es requerido');
+                console.error("El nombre del artículo es requerido");
                 return;
             }
             if (!total || total < 1) {
-                console.error('El stock total debe ser mayor a 0');
+                console.error("El stock total debe ser mayor a 0");
                 return;
             }
 
@@ -408,7 +431,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Agregar CSRF token al FormData
             const csrfToken = getCsrfToken();
             if (!csrfToken) {
-                console.error('Token CSRF no encontrado');
+                console.error("Token CSRF no encontrado");
                 return;
             }
             formData.append("csrfmiddlewaretoken", csrfToken);

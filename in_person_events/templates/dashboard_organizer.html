@@ -61,7 +61,7 @@
                             <p class="text-secondary small fw-medium mb-1">
                                 Total de Asistentes
                             </p>
-                            <h3 class="display-5 fw-bold m-0">{{ total_attendees }}</h3>
+                            <h3 class="display-5 fw-bold m-0">{{ total_attendees }}/{{ event.capacity }}</h3>
                             <small class="text-muted d-block mt-2" style="font-size: 0.75rem;">
                                 {% if ticket_type_counts %}
                                     {% for ticket in ticket_type_counts %}

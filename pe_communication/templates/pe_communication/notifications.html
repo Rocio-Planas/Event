@@ -1,0 +1,203 @@
+{% extends 'base_bootstrap.html' %}
+{% load static %}
+
+{% block title %}Mis Notificaciones - EventPulse{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Mis Notificaciones</h1>
+                <small class="text-muted">{{ total_count }} total</small>
+            </div>
+
+            {% if unread_notifications or read_notifications %}
+                <!-- Notificaciones no leídas -->
+                {% if unread_notifications %}
+                <div id="unread-notifications" class="card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="bi bi-bell-fill me-2"></i>
+                            No Leídas ({{ unread_notifications|length }})
+                        </h5>
+                    </div>
+                    <div class="list-group">
+                        {% for notification in unread_notifications %}
+                        <div class="list-group-item mb-3 p-4 rounded-3 shadow-sm border-0 bg-white notification-item" data-id="{{ notification.id }}">
+                            <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                                <div>
+                                    <div class="notification-title fw-semibold fs-6">{{ notification.title }}</div>
+                                    <div class="text-muted small mt-1 notification-body">{{ notification.message }}</div>
+                                    <div class="text-muted small mt-2">
+                                        {% if notification.sender %}
+                                            De: {{ notification.sender.get_full_name|default:notification.sender.username }}
+                                        {% else %}
+                                            Sistema
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="text-md-end">
+                                    <div class="text-muted small mt-2 notification-date"></div>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mt-3">
+                                <div class="text-muted small d-none d-sm-block">{{ notification.created_at|date:"d/m/Y H:i" }}</div>
+                                <div>
+                                    <button type="button" class="btn btn-outline-success px-3 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2 mark-read-notification-btn"
+                                            data-id="{{ notification.id }}">
+                                        <i class="bi bi-check2"></i> Marcar como leída
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Notificaciones leídas -->
+                {% if read_notifications %}
+                <div id="read-notifications" class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Leídas ({{ read_notifications|length }})
+                        </h5>
+                    </div>
+                    <div class="list-group">
+                        {% for notification in read_notifications %}
+                        <div class="list-group-item mb-3 p-4 rounded-3 shadow-sm border-0 bg-white opacity-85 notification-item" data-id="{{ notification.id }}">
+                            <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                                <div>
+                                    <div class="notification-title fw-semibold fs-6">{{ notification.title }}</div>
+                                    <div class="text-muted small mt-1 notification-body">{{ notification.message }}</div>
+                                    <div class="text-muted small mt-2">
+                                        {% if notification.sender %}
+                                            De: {{ notification.sender.get_full_name|default:notification.sender.username }}
+                                        {% else %}
+                                            Sistema
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="text-md-end">
+                                    <span class="badge bg-light text-dark notification-type text-uppercase small"></span>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mt-3">
+                                <div class="text-muted small mt-2 notification-date">{{ notification.created_at|date:"d/m/Y H:i" }}</div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-outline-danger px-3 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2 delete-notification-btn"
+                                            data-id="{{ notification.id }}"
+                                            data-title="{{ notification.title }}">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+            {% else %}
+                <!-- Sin notificaciones -->
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-bell-slash display-1 text-muted mb-3"></i>
+                        <h5 class="text-muted">No tienes notificaciones</h5>
+                        <p class="text-muted">Cuando recibas notificaciones, aparecerán aquí.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de notificación -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notificationModalLabel">
+                        <i class="bi bi-bell me-2"></i>Detalles de Notificación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <strong class="text-muted">De:</strong>
+                            </div>
+                            <div class="col-sm-9">
+                                <span id="modal-sender">Sistema</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <strong class="text-muted">Tipo:</strong>
+                            </div>
+                            <div class="col-sm-9">
+                                <span class="badge bg-secondary" id="modal-type">Manual</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <strong class="text-muted">Fecha:</strong>
+                            </div>
+                            <div class="col-sm-9">
+                                <span id="modal-date">01/01/2024 12:00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <h6 class="text-primary mb-2" id="modal-title">Título de la notificación</h6>
+                        <div class="border rounded p-3 bg-light" id="modal-message">
+                            Mensaje completo de la notificación...
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="mark-read-modal-btn">
+                        <i class="bi bi-check2"></i> Marcar como leída
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar notificación -->
+    <div class="modal fade" id="deleteNotificationModal" tabindex="-1" aria-labelledby="deleteNotificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteNotificationModalLabel">
+                        <i class="bi bi-exclamation-triangle text-warning me-2"></i>Eliminar Notificación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que quieres eliminar esta notificación?</p>
+                    <p class="text-muted mb-0" id="delete-notification-title">Título de la notificación</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'pe_communication/js/notifications_page.js' %}"></script>
+{% endblock %}

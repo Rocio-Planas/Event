@@ -104,3 +104,36 @@ class Activity(models.Model):
         if self.capacity == 0:
             return 0
         return int((self.attendees_count / self.capacity) * 100)
+
+
+class ActivitySubscription(models.Model):
+    """
+    Modelo para gestionar suscripciones de usuarios a actividades.
+    Permite a los usuarios suscribirse/desuscribirse de actividades específicas.
+    """
+    user = models.ForeignKey(
+        'usuarios.Usuario',
+        on_delete=models.CASCADE,
+        related_name='activity_subscriptions',
+        verbose_name='Usuario'
+    )
+    activity_id = models.PositiveIntegerField(
+        verbose_name='ID de Actividad'
+    )
+    activity_title = models.CharField(
+        max_length=200,
+        verbose_name='Título de Actividad'
+    )
+    subscribed_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Fecha de Suscripción'
+    )
+
+    class Meta:
+        verbose_name = 'Suscripción a Actividad'
+        verbose_name_plural = 'Suscripciones a Actividades'
+        unique_together = ['user', 'activity_id']
+        ordering = ['-subscribed_at']
+
+    def __str__(self):
+        return f"{self.user.email} - {self.activity_title}"

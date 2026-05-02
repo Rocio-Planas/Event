@@ -103,3 +103,47 @@ class EmailLog(models.Model):
 
     def __str__(self):
         return f"{self.recipient} - {self.subject[:50]} ({self.status})"
+
+
+class Notification(models.Model):
+    """
+    Modelo para almacenar notificaciones del sistema.
+    """
+    class Type(models.TextChoices):
+        MANUAL_ALERT = 'manual_alert', 'Alerta Manual'
+        SUBSCRIPTION = 'subscription', 'Suscripción'
+        AGENDA_CHANGE = 'agenda_change', 'Cambio en Agenda'
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        verbose_name='Usuario'
+    )
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sent_notifications',
+        verbose_name='Remitente'
+    )
+    title = models.CharField('Título', max_length=200)
+    message = models.TextField('Mensaje')
+    notification_type = models.CharField(
+        'Tipo',
+        max_length=20,
+        choices=Type.choices,
+        default=Type.MANUAL_ALERT
+    )
+    is_read = models.BooleanField('Leída', default=False)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación')
+
+    class Meta:
+        verbose_name = 'Notificación'
+        verbose_name_plural = 'Notificaciones'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        sender_name = self.sender.get_full_name() if self.sender else "Sistema"
+        return f"{self.user.email} - {sender_name}: {self.title[:30]}"
