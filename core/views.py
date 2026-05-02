@@ -295,7 +295,7 @@ def suscribirse(request):
                 messages.error(request, 'Evento virtual no encontrado')
         else:
             # Lógica para eventos presenciales
-           try:
+            try:
                 # Verificar que el evento presencial exista usando el alias correcto
                 event = EventoPresencial.objects.get(id=evento_id)
                 
