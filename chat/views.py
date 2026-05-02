@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 
 def is_chat_available():
     now = timezone.localtime(timezone.now())
-    if now.weekday() >= 5: return False
+    if now.weekday() >= 5:
+        return False
     start = now.replace(hour=9, minute=0, second=0, microsecond=0)
     end = now.replace(hour=18, minute=0, second=0, microsecond=0)
     return start <= now <= end
