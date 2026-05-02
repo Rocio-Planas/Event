@@ -1,7 +1,5 @@
 from django.contrib import admin
-from .models import CategoriaEvento, Suscripcion, Resena, Consulta
-from .models import Favorito
-admin.site.register(Favorito)
+from .models import CategoriaEvento, Suscripcion, Resena, Consulta, Favorito, FavoritoPresencial
 
 @admin.register(CategoriaEvento)
 class CategoriaEventoAdmin(admin.ModelAdmin):
@@ -23,8 +21,8 @@ class SuscripcionAdmin(admin.ModelAdmin):
 class ResenaAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'evento', 'calificacion', 'aprobada', 'fecha_creacion')
     list_filter = ('calificacion', 'aprobada', 'fecha_creacion')
-    search_fields = ('nombre', 'email', 'evento__title', 'comentario')
-    raw_id_fields = ('evento',)
+    search_fields = ('nombre', 'email', 'comentario')
+    # raw_id_fields ya no es necesario porque el field 'evento' no existe, se usa el property
     actions = ['aprobar_resenas']
 
     def aprobar_resenas(self, request, queryset):
@@ -37,3 +35,6 @@ class ConsultaAdmin(admin.ModelAdmin):
     list_filter = ('tipo', 'leido', 'respondido', 'fecha_creacion')
     search_fields = ('nombre', 'email', 'asunto', 'mensaje')
     readonly_fields = ('fecha_creacion',)
+
+admin.site.register(Favorito)
+admin.site.register(FavoritoPresencial)

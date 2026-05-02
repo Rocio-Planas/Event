@@ -5,7 +5,7 @@
 {% block content %}
 <div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-on-surface" data-i18n="admin_panel_pending_reviews_title">Reseñas Pendientes de Aprobación</h1>
+        <h1 class="text-3xl font-bold text-on-surface" data-i18n="admin_panel_pending_reviews_title">Reseñas Pendientes</h1>
         <a href="{% url 'core:admin_panel' %}" class="text-primary hover:underline" data-i18n="admin_panel_back">← Volver al panel</a>
     </div>
 
@@ -25,7 +25,15 @@
                 <tbody class="divide-y divide-outline-variant">
                     {% for resena in resenas %}
                     <tr class="hover:bg-surface-container-low transition">
-                        <td class="px-6 py-4 whitespace-nowrap font-medium text-on-surface">{{ resena.evento.title }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-on-surface">
+                            {% if resena.evento_virtual %}
+                                {{ resena.evento_virtual.title }}
+                            {% elif resena.evento_presencial %}
+                                {{ resena.evento_presencial.title }}
+                            {% else %}
+                                Evento desconocido
+                            {% endif %}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ resena.nombre }}<br><span class="text-xs">{{ resena.email }}</span></td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center gap-1">
@@ -41,7 +49,10 @@
                         <td class="px-6 py-4 text-on-surface-variant max-w-xs truncate">{{ resena.comentario|truncatechars:80 }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ resena.fecha_creacion|date:"d/m/Y H:i" }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <a href="{% url 'core:admin_aprobar_resena' resena.id %}" class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition" data-i18n="admin_panel_approve">Aprobar</a>
+                            <div class="flex gap-2">
+                                <a href="{% url 'core:admin_aprobar_resena' resena.id %}" class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition" data-i18n="admin_panel_approve">Aprobar</a>
+                                <a href="{% url 'core:admin_rechazar_resena' resena.id %}" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition" data-i18n="admin_panel_reject_event">Rechazar</a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}

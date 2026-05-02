@@ -323,7 +323,6 @@
                 'admin_panel_reject_event': 'Rechazar',
                 'admin_panel_confirm_reject': '¿Rechazar este evento?',
                 'admin_panel_no_pending_events': 'No hay eventos pendientes.',
-                'admin_panel_pending_reviews_title': 'Reseñas Pendientes de Aprobación',
                 'admin_panel_review_event': 'Evento',
                 'admin_panel_review_user': 'Usuario',
                 'admin_panel_rating': 'Calificación',
@@ -387,8 +386,26 @@
                 'eventos_organizados_title': 'Eventos que organizo',
                 'eventos_virtuales_seguimiento': 'Eventos virtuales en seguimiento',
                 'eventos_presenciales_suscritos': 'Mis suscripciones a eventos presenciales',
+                // Para el formulario de contacto
+                'select_event_type': 'Seleccione tipo',
+                'select_event_first': 'Primero selecciona un tipo de evento',
+                'select_event_type_optional': 'Seleccione tipo (opcional)',
+                'select_event': 'Seleccione un evento',
+                'select_event_optional': 'Seleccione un evento (opcional)',
+                // Para la vista Mi Panel (ya deberían existir; si no, añádelas)
+                'eventos_organizados_title': 'Eventos que organizo',
+                'eventos_virtuales_seguimiento': 'Eventos virtuales en seguimiento',
+                'eventos_presenciales_suscritos': 'Mis suscripciones a eventos presenciales',
+                'admin_panel_manage_reviews': 'Gestionar',
+                'admin_panel_review_events': 'Revisar eventos pendientes',
+                'admin_panel_approve_reject_reviews': 'Aprobar o Rechazar reseñas',
+                'admin_panel_respond_inquiries': 'Responder consultas',
+                'admin_panel_pending_reviews_title': 'Reseñas Pendientes',
+                'chat_admin_title': 'Chat de soporte',
+                'chat_no_active': 'No hay conversaciones activas.',
             },
             en: {
+                'admin_panel_pending_reviews_title': 'Pending Reviews',
                 'nav_inicio': 'Home',
                 'nav_presenciales': 'In-Person Events',
                 'nav_virtuales': 'Virtual Events',
@@ -644,7 +661,6 @@
                 'admin_panel_reject_event': 'Reject',
                 'admin_panel_confirm_reject': 'Reject this event?',
                 'admin_panel_no_pending_events': 'No pending events.',
-                'admin_panel_pending_reviews_title': 'Pending Reviews for Approval',
                 'admin_panel_review_event': 'Event',
                 'admin_panel_review_user': 'User',
                 'admin_panel_rating': 'Rating',
@@ -705,7 +721,20 @@
                 'eventos_organizados_title': 'Events I organize',
                 'eventos_virtuales_seguimiento': 'Virtual events I follow',
                 'eventos_presenciales_suscritos': 'Subscribed in-person events',
-
+                'select_event_type': 'Select type',
+                'select_event_first': 'First select an event type',
+                'select_event_type_optional': 'Select type (optional)',
+                'select_event': 'Select an event',
+                'select_event_optional': 'Select an event (optional)',
+                'eventos_organizados_title': 'Events I organize',
+                'eventos_virtuales_seguimiento': 'Virtual events I follow',
+                'eventos_presenciales_suscritos': 'Subscribed in-person events',
+                'admin_panel_manage_reviews': 'Manage',
+                'admin_panel_review_events': 'Review pending events',
+                'admin_panel_approve_reject_reviews': 'Approve or Reject reviews',
+                'admin_panel_respond_inquiries': 'Answer inquiries',
+                'chat_admin_title': 'Support Chat',
+                'chat_no_active': 'No active conversations.',
             }
         };
 
@@ -941,6 +970,14 @@
                             >light_mode</span
                         >
                     </button>
+
+                    {% if user.is_authenticated and user.rol == 'administrador' %}
+                        <a href="{% url 'chat:admin_inbox' %}" class="relative p-2 hover:bg-surface-container-high rounded-full transition-colors">
+                            <span class="material-symbols-outlined" style="color: var(--text-on-surface);">chat</span>
+                            <span id="chat-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center" style="display: none;">0</span>
+                        </a>
+                    {% endif %}
+
                     {% if user.is_authenticated %}
                     <div class="relative">
                         <button
@@ -1299,9 +1336,49 @@
             banner.remove();
         });
     })();
+
 </script>
 {% endif %}
-    {% endblock %}
+{% endblock %}
+
+<script>
+        // Actualizar el contador de mensajes del chat (solo para administradores)
+    function actualizarContadorChat() {
+        const badge = document.getElementById('chat-badge');
+        if (!badge) return;
+
+        fetch('/chat/contar-no-leidos/')
+            .then(response => {
+                if (!response.ok) throw new Error('Error al obtener el conteo');
+                return response.json();
+            })
+            .then(data => {
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.style.display = 'flex';
+                    console.log('Contador de chat actualizado:', data.count);
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error al actualizar contador de chat:', error);
+                badge.style.display = 'none';
+            });
+    }
+
+    // Ejecutar al cargar la página y cada 30 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        if (document.getElementById('chat-badge')) {
+            actualizarContadorChat();
+            setInterval(actualizarContadorChat, 30000); // cada 30 segundos
+        }
+    });
+
+</script>
+
+</script>
+
 </body>
 
 <footer class="w-full border-t py-8 mt-12">

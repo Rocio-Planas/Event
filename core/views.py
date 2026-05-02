@@ -464,16 +464,14 @@ def admin_rechazar_evento(request, evento_id, tipo):
 @role_required(['administrador'])
 def admin_resenas(request):
     """Listado de reseñas pendientes de aprobación."""
-    resenas = Resena.objects.filter(aprobada=False).select_related('evento', 'usuario').order_by('-fecha_creacion')
+    resenas = Resena.objects.filter(aprobada=False).select_related('usuario').order_by('-fecha_creacion')
     paginator = Paginator(resenas, 15)
     page = request.GET.get('page', 1)
     resenas_paginadas = paginator.get_page(page)
-    
     context = {
         'resenas': resenas_paginadas,
     }
     return render(request, 'core/admin_resenas.html', context)
-
 
 @login_required
 @role_required(['administrador'])
@@ -489,6 +487,33 @@ def admin_aprobar_resena(request, resena_id):
         fail_silently=False,
     )
     messages.success(request, 'Reseña aprobada correctamente.')
+    return redirect('core:admin_resenas')
+
+@login_required
+@role_required(['administrador'])
+def admin_rechazar_resena(request, resena_id):
+    resena = get_object_or_404(Resena, id=resena_id)
+    # Guardar datos antes de eliminar
+    nombre = resena.nombre
+    email = resena.email
+    evento = resena.evento  # propiedad que devuelve el objeto evento (virtual o presencial)
+    titulo_evento = evento.title if evento else 'Evento desconocido'
+
+    # Eliminar la reseña
+    resena.delete()
+
+    # Enviar correo de notificación
+    send_mail(
+        'Tu reseña ha sido rechazada',
+        f'Hola {nombre},\n\n'
+        f'Lamentamos informarte que tu reseña para el evento "{titulo_evento}" no ha sido aprobada.\n\n'
+        'Si consideras que ha sido un error, puedes ponerte en contacto con nosotros.\n\n'
+        'Saludos,\nEl equipo de EventPulse',
+        settings.DEFAULT_FROM_EMAIL,
+        [email],
+        fail_silently=False,
+    )
+    messages.warning(request, f'Reseña de {nombre} rechazada y eliminada. Se ha notificado al usuario.')
     return redirect('core:admin_resenas')
 
 
@@ -558,51 +583,6 @@ def admin_eliminar_usuario(request, usuario_id):
     usuario.delete()
     messages.success(request, f'Usuario {usuario.email} eliminado correctamente.')
     return redirect('core:admin_usuarios')
-
-
-def contacto_view(request):
-    if request.method == 'POST':
-        form_type = request.POST.get('form_type')
-        if form_type == 'review':
-            form = ResenaForm(request.POST)
-            if form.is_valid():
-                resena = form.save(commit=False)
-                if request.user.is_authenticated:
-                    resena.usuario = request.user
-                    resena.nombre = request.user.get_full_name() or request.user.email
-                    resena.email = request.user.email
-                resena.save()
-                messages.success(request, '¡Gracias por tu reseña! Será revisada por nuestro equipo.')
-                return redirect('core:contacto')
-            else:
-                messages.error(request, 'Hubo un error al enviar la reseña. Revisa los datos.')
-        else:
-            form = ConsultaForm(request.POST)
-            if form.is_valid():
-                consulta = form.save(commit=False)
-                if request.user.is_authenticated:
-                    consulta.usuario = request.user
-                    consulta.nombre = request.user.get_full_name() or request.user.email
-                    consulta.email = request.user.email
-                consulta.save()
-                messages.success(request, 'Consulta enviada correctamente. Te responderemos pronto.')
-                return redirect('core:contacto')
-            else:
-                messages.error(request, 'Hubo un error al enviar la consulta. Revisa los datos.')
-    else:
-        review_form = ResenaForm()
-        inquiry_form = ConsultaForm()
-
-    chat_config = {
-        'available': is_chat_available(),
-        'user_id': request.user.id if request.user.is_authenticated else 0,
-    }
-
-    return render(request, 'contacto.html', {
-        'review_form': review_form,
-        'inquiry_form': inquiry_form,
-        'chat_config': chat_config,
-    })
 
 
 def about_view(request):
@@ -802,3 +782,74 @@ def admin_metrics(request):
         'usuarios_data': usuarios_data,
     }
     return render(request, 'core/admin_metrics.html', context)
+
+
+def contacto_view(request):
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        if form_type == 'review':
+            form = ResenaForm(request.POST)
+            if form.is_valid():
+                resena = form.save(commit=False)
+                if request.user.is_authenticated:
+                    resena.usuario = request.user
+                    resena.nombre = request.user.get_full_name() or request.user.email
+                    resena.email = request.user.email
+                tipo = form.cleaned_data['tipo_evento']
+                evento_id = form.cleaned_data['evento_id']
+                if tipo == 'virtual':
+                    resena.evento_virtual_id = evento_id
+                else:
+                    resena.evento_presencial_id = evento_id
+                resena.save()
+                messages.success(request, '¡Gracias por tu reseña! Será revisada por nuestro equipo.')
+                return redirect('core:contacto')
+            else:
+                messages.error(request, 'Hubo un error al enviar la reseña. Revisa los datos.')
+        else:
+            form = ConsultaForm(request.POST)
+            if form.is_valid():
+                consulta = form.save(commit=False)
+                if request.user.is_authenticated:
+                    consulta.usuario = request.user
+                    consulta.nombre = request.user.get_full_name() or request.user.email
+                    consulta.email = request.user.email
+                tipo = form.cleaned_data.get('tipo_evento')
+                evento_id = form.cleaned_data.get('evento_id')
+                if tipo == 'virtual':
+                    consulta.evento_virtual_id = evento_id
+                elif tipo == 'presencial':
+                    consulta.evento_presencial_id = evento_id
+                consulta.save()
+                messages.success(request, 'Consulta enviada correctamente. Te responderemos pronto.')
+                return redirect('core:contacto')
+            else:
+                messages.error(request, 'Hubo un error al enviar la consulta. Revisa los datos.')
+    else:
+        review_form = ResenaForm()
+        inquiry_form = ConsultaForm()
+
+    # Convertir querysets a listas de diccionarios para json_script
+    eventos_virtuales = list(
+        VirtualEvent.objects.filter(estado='aprobado')
+        .order_by('-start_datetime')
+        .values('id', 'title')
+    )
+    eventos_presenciales = list(
+        EventoPresencial.objects.filter(status='aprobado')
+        .order_by('-start_date')
+        .values('id', 'title')
+    )
+
+    chat_config = {
+        'available': is_chat_available(),
+        'user_id': request.user.id if request.user.is_authenticated else 0,
+    }
+
+    return render(request, 'contacto.html', {
+        'review_form': review_form,
+        'inquiry_form': inquiry_form,
+        'chat_config': chat_config,
+        'eventos_virtuales': eventos_virtuales,
+        'eventos_presenciales': eventos_presenciales,
+    })

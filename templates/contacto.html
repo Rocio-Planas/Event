@@ -49,12 +49,15 @@
                     </div>
                     <div>
                         <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event">Evento</label>
-                        <select name="evento" id="id_evento" class="w-full px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none transition-all">
-                            <option value="" selected data-i18n="select_event">Seleccione un evento</option>
-                            {% for evento in review_form.evento.field.queryset %}
-                                <option value="{{ evento.id }}">{{ evento.title }}</option>
-                            {% endfor %}
+                        <select id="id_tipo_evento_review" name="tipo_evento" class="w-full px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none transition-all" onchange="updateEventoSelect('review')">
+                            <option value="" data-i18n="select_event_type">Seleccione tipo</option>
+                            <option value="virtual" data-i18n="virtual">Virtual</option>
+                            <option value="presencial" data-i18n="presencial">Presencial</option>
                         </select>
+                        <select id="id_evento_review" class="w-full mt-2 px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none transition-all" disabled>
+                            <option value="" data-i18n="select_event_first">Primero selecciona un tipo de evento</option>
+                        </select>
+                        {{ review_form.evento_id }}
                     </div>
                     <div>
                         <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="rating">Calificación</label>
@@ -87,12 +90,15 @@
                     </div>
                     <div>
                         <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="event">Evento (opcional)</label>
-                        <select name="evento" id="id_evento_inquiry" class="w-full px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none transition-all">
-                            <option value="" selected data-i18n="select_event_optional">Seleccione un evento (opcional)</option>
-                            {% for evento in inquiry_form.evento.field.queryset %}
-                                <option value="{{ evento.id }}">{{ evento.title }}</option>
-                            {% endfor %}
+                        <select id="id_tipo_evento_inquiry" name="tipo_evento" class="w-full px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none transition-all" onchange="updateEventoSelect('inquiry')">
+                            <option value="" data-i18n="select_event_type_optional">Seleccione tipo (opcional)</option>
+                            <option value="virtual" data-i18n="virtual">Virtual</option>
+                            <option value="presencial" data-i18n="presencial">Presencial</option>
                         </select>
+                        <select id="id_evento_inquiry" class="w-full mt-2 px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none transition-all" disabled>
+                            <option value="" data-i18n="select_event_first">Primero selecciona un tipo de evento</option>
+                        </select>
+                        {{ inquiry_form.evento_id }}
                     </div>
                     <div>
                         <label class="text-[0.75rem] font-bold uppercase" style="color: var(--text-on-surface-variant);" data-i18n="subject">Asunto</label>
@@ -108,6 +114,10 @@
         </div>
     </div>
 </div>
+
+<!-- Datos para los selectores -->
+{{ eventos_virtuales|json_script:"eventos-virtuales-data" }}
+{{ eventos_presenciales|json_script:"eventos-presenciales-data" }}
 
 <!-- Modal del chat -->
 <div id="chat-modal" class="fixed bottom-5 right-5 w-96 bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant hidden z-50 flex flex-col">
@@ -125,6 +135,38 @@
 {{ chat_config|json_script:"chat-config" }}
 
 <script>
+    const eventosVirtuales = JSON.parse(document.getElementById('eventos-virtuales-data').textContent);
+    const eventosPresenciales = JSON.parse(document.getElementById('eventos-presenciales-data').textContent);
+
+    function updateEventoSelect(type) {
+        const tipoSelect = document.getElementById(`id_tipo_evento_${type}`);
+        const eventoSelect = document.getElementById(`id_evento_${type}`);
+        const tipo = tipoSelect.value;
+        eventoSelect.innerHTML = '<option value="">Seleccione un evento</option>';
+        if (tipo === 'virtual') {
+            eventosVirtuales.forEach(ev => {
+                eventoSelect.innerHTML += `<option value="${ev.id}">${ev.title}</option>`;
+            });
+            eventoSelect.disabled = false;
+        } else if (tipo === 'presencial') {
+            eventosPresenciales.forEach(ev => {
+                eventoSelect.innerHTML += `<option value="${ev.id}">${ev.title}</option>`;
+            });
+            eventoSelect.disabled = false;
+        } else {
+            eventoSelect.disabled = true;
+        }
+        // Sincronizar hidden input
+        const hiddenInput = tipoSelect.parentElement.querySelector('input[type="hidden"]');
+        if (hiddenInput) {
+            hiddenInput.value = eventoSelect.value;
+        }
+        eventoSelect.addEventListener('change', function() {
+            if (hiddenInput) hiddenInput.value = this.value;
+        });
+    }
+
+    // Chat (código original sin cambios)
     const chatConfig = JSON.parse(document.getElementById('chat-config').textContent);
     const chatAvailable = chatConfig.available;
     const userId = chatConfig.user_id;
@@ -141,7 +183,7 @@
 
     function openChat() {
         if (!chatAvailable) {
-            alert('El chat está disponible de lunes a viernes de 9:00 a 21:00 horas.');
+            alert('El chat está disponible de lunes a viernes de 9:00 a 18:00 horas.');
             return;
         }
         chatModal.classList.remove('hidden');
@@ -179,14 +221,42 @@
     async function sendMessage() {
         const message = chatInput.value.trim();
         if (!message) return;
-        const formData = new FormData();
-        formData.append('message', message);
+        
+        // Primero obtener o crear la conversación
+        let conversacionId;
         try {
-            await fetch('/chat/send/', { method: 'POST', body: formData, headers: { 'X-CSRFToken': '{{ csrf_token }}' } });
-            chatInput.value = '';
-            fetchMessages();
+            const convResponse = await fetch('/chat/mi-conversacion/');
+            const convData = await convResponse.json();
+            conversacionId = convData.conversacion_id;
         } catch (err) {
-            console.error('Error sending message:', err);
+            console.error('Error obteniendo conversación:', err);
+            alert('Error al conectar con el chat.');
+            return;
+        }
+
+        // Enviar el mensaje
+        const formData = new FormData();
+        formData.append('texto', message);
+        
+        try {
+            const response = await fetch(`/chat/enviar/${conversacionId}/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                                   document.querySelector('meta[name="csrf-token"]')?.content
+                }
+            });
+            const data = await response.json();
+            if (data.status === 'ok') {
+                chatInput.value = '';
+                fetchMessages();  // refrescar mensajes
+            } else {
+                alert('Error: ' + (data.error || 'No se pudo enviar'));
+            }
+        } catch (err) {
+            console.error('Error enviando mensaje:', err);
+            alert('Error de conexión al enviar mensaje.');
         }
     }
 

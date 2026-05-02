@@ -440,5 +440,75 @@
             });
         });
     });
+
+// ========== FUNCIONALIDAD DE COMPARTIR ==========
+document.addEventListener('DOMContentLoaded', function() {
+    // Facebook
+    document.querySelectorAll('.share-facebook').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const title = encodeURIComponent(this.dataset.eventTitle);
+            const url = encodeURIComponent(this.dataset.eventUrl);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+            // Cerrar el menú
+            this.closest('.share-menu').classList.add('hidden');
+        });
+    });
+
+    // X (Twitter)
+    document.querySelectorAll('.share-twitter').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const title = encodeURIComponent(this.dataset.eventTitle);
+            const url = encodeURIComponent(this.dataset.eventUrl);
+            window.open(`https://twitter.com/intent/tweet?text=${title}&url=${url}`, '_blank', 'width=600,height=400');
+            this.closest('.share-menu').classList.add('hidden');
+        });
+    });
+
+    // WhatsApp
+    document.querySelectorAll('.share-whatsapp').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const title = encodeURIComponent(this.dataset.eventTitle);
+            const url = encodeURIComponent(this.dataset.eventUrl);
+            window.open(`https://api.whatsapp.com/send?text=${title}%20${url}`, '_blank');
+            this.closest('.share-menu').classList.add('hidden');
+        });
+    });
+
+    // Telegram
+    document.querySelectorAll('.share-telegram').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const title = encodeURIComponent(this.dataset.eventTitle);
+            const url = encodeURIComponent(this.dataset.eventUrl);
+            window.open(`https://t.me/share/url?url=${url}&text=${title}`, '_blank');
+            this.closest('.share-menu').classList.add('hidden');
+        });
+    });
+
+    // Copiar enlace
+    document.querySelectorAll('.share-copy').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const url = this.dataset.eventUrl;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Enlace copiado al portapapeles');
+            }).catch(() => {
+                // Fallback para navegadores que no soportan clipboard API
+                const textarea = document.createElement('textarea');
+                textarea.value = url;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Enlace copiado al portapapeles');
+            });
+            this.closest('.share-menu').classList.add('hidden');
+        });
+    });
+});
+
 </script>
 {% endblock %}
