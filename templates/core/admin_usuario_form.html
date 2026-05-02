@@ -1,0 +1,130 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}{{ titulo }} - EventPulse{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-field {
+        transition: all 0.2s ease;
+    }
+    .form-field:focus-within label {
+        color: var(--primary);
+    }
+    .help-text {
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        color: var(--text-on-surface-variant);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    .help-text i {
+        font-size: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-surface-container-lowest rounded-2xl shadow-lg overflow-hidden border border-outline-variant/20">
+        <!-- Cabecera con gradiente -->
+        <div class="bg-gradient-to-r from-primary/10 to-primary/5 px-6 py-4 border-b border-outline-variant/20">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">person_add</span>
+                    {{ titulo }}
+                </h1>
+                <a href="{% url 'core:admin_usuarios' %}" class="text-primary hover:underline flex items-center gap-1 text-sm">
+                    <span class="material-symbols-outlined text-base">arrow_back</span> 
+                    <span data-i18n="admin_panel_back">Volver</span>
+                </a>
+            </div>
+        </div>
+
+        <form method="post" class="p-6 space-y-5">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Nombre -->
+                <div class="form-field">
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1.5 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">badge</span>
+                        <span data-i18n="first_name">Nombre</span>
+                    </label>
+                    {{ form.first_name }}
+                </div>
+                <!-- Apellido -->
+                <div class="form-field">
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1.5 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">badge</span>
+                        <span data-i18n="last_name">Apellido</span>
+                    </label>
+                    {{ form.last_name }}
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-field">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1.5 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">mail</span>
+                    <span data-i18n="email">Correo electrónico</span>
+                </label>
+                {{ form.email }}
+            </div>
+
+            <!-- Teléfono -->
+            <div class="form-field">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1.5 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">phone</span>
+                    <span data-i18n="phone">Teléfono</span>
+                </label>
+                {{ form.telefono }}
+            </div>
+
+            <!-- Rol -->
+            <div class="form-field">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1.5 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">manage_accounts</span>
+                    <span data-i18n="role">Rol</span>
+                </label>
+                {{ form.rol }}
+            </div>
+
+            <!-- Contraseña -->
+            <div class="form-field">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1.5 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">key</span>
+                    <span data-i18n="password">Contraseña</span>
+                </label>
+                {{ form.password }}
+                <div class="help-text">
+                    <span class="material-symbols-outlined text-xs">info</span>
+                    <span data-i18n="password_help">Dejar en blanco para generar una automática (12 caracteres)</span>
+                </div>
+            </div>
+
+            <!-- Activo (checkbox) -->
+            <div class="flex items-center gap-3 p-3 bg-surface-container-high rounded-xl">
+                {{ form.is_active }}
+                <label class="text-sm font-medium text-on-surface-variant" data-i18n="is_active">Usuario activo</label>
+                <span class="help-text ml-auto">
+                    <span class="material-symbols-outlined text-xs">help</span>
+                    <span data-i18n="active_help">Los usuarios inactivos no pueden iniciar sesión</span>
+                </span>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex justify-end gap-3 pt-4 border-t border-outline-variant/30">
+                <a href="{% url 'core:admin_usuarios' %}" class="px-5 py-2.5 border border-outline-variant rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 font-medium flex items-center gap-1">
+                    <span class="material-symbols-outlined text-base">close</span>
+                    <span data-i18n="cancel">Cancelar</span>
+                </a>
+                <button type="submit" class="px-6 py-2.5 btn-gradient-primary text-white rounded-xl font-semibold hover:shadow-md hover:scale-[1.02] transition-all duration-200 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-base">save</span>
+                    <span data-i18n="save_changes">Guardar cambios</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

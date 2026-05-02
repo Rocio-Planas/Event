@@ -11,11 +11,12 @@ urlpatterns = [
     path('<int:pk>/eliminar/', views.event_delete, name='event_delete'),
     path('<int:event_id>/dashboard/', views.organizer_dashboard, name='organizer_dashboard'),
     path('<int:event_id>/generar-invitacion/', views.generate_invitation, name='generate_invitation'),
-    path('evento/<int:event_id>/metrics/', views.event_metrics, name='event_metrics'),  # una sola vez
+    path('evento/<int:event_id>/metrics/', views.event_metrics, name='event_metrics'),
     path('evento/<int:event_id>/guardar-youtube/', views.save_youtube_embed, name='save_youtube_embed'),
     path('evento/<int:event_id>/heartbeat/', views.update_heartbeat, name='update_heartbeat'),
     path('evento/<int:event_id>/pdf-report/', views.generate_pdf_report, name='generate_pdf_report'),
 
     path('upload-material/<int:event_id>/', views.upload_material, name='upload_material'),
     path('<int:event_id>/download-ics/', views.download_ics, name='download_ics'),
+    path('finalizar/<int:event_id>/', views.finalize_event, name='finalize_event'),
 ]

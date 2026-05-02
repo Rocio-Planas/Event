@@ -8,6 +8,7 @@ const translations = {
     nav_contacto: "Contacto",
     my_dashboard: "Mi Panel",
     my_profile: "Mi Perfil",
+    admin_panel: "Panel de Administración",
     login: "Iniciar Sesión",
     register: "Registrarse",
     footer_copyright: "Todos los derechos reservados.",
@@ -134,7 +135,8 @@ const translations = {
 
     // Emails
     invitation_title: "Has sido invitado a un evento privado",
-    accept_invitation: "Aceptar invitación",
+    accept_invitation: "Unirme al evento - Sala de espera",
+    what_is_this: "📌 ¿Qué es esto? El enlace te llevará a la sala de espera del evento. Cuando llegue la hora, podrás acceder a la transmisión en vivo.",
     reminder_title: "Recordatorio:",
     event_starts_soon: "El evento virtual",
     starts_in_1_hour: "comienza en 1 hora.",
@@ -154,6 +156,23 @@ const translations = {
     view_recording: "Ver grabación",
     download_presentation: "Descargar presentación",
     view_event: "Ver evento",
+
+    // Rating section
+    rate_this_session: "CALIFICA ESTA SESIÓN",
+    what_do_you_think_session: "¿Qué te está pareciendo la sesión?",
+    excellent_rating: "Excelente",
+    very_good_rating: "Muy buena",
+    good_rating: "Buena",
+    fair_rating: "Regular",
+    poor_rating: "Mala",
+    your_opinion_helps_improve: "Tu opinión nos ayuda a mejorar",
+
+    // Finalize Event
+    finalize_event: "Finalizar",
+    confirm_finalize_event: "Finalizar evento",
+    finalize_confirm_message: "¿Estás seguro de que quieres finalizar este evento?",
+    finalize_confirm_warning: "El contador de tiempo se detendrá y el evento se marcará como terminado.",
+    confirm_finalize: "Sí, finalizar"
   },
   en: {
     nav_inicio: "Home",
@@ -162,6 +181,7 @@ const translations = {
     nav_contacto: "Contact",
     my_dashboard: "My Dashboard",
     my_profile: "My Profile",
+    admin_panel: "Admin Panel",
     login: "Login",
     register: "Sign up",
     footer_copyright: "All rights reserved.",
@@ -284,7 +304,8 @@ const translations = {
 
     // Emails
     invitation_title: "You have been invited to a private event",
-    accept_invitation: "Accept invitation",
+    accept_invitation: "Join the event - Waiting room",
+    what_is_this: "📌 What is this? The link will take you to the event's waiting room. When the time comes, you'll be able to access the live stream.",
     ignore_invitation: "If you did not expect this invitation, ignore this message.",
     reminder_title: "Reminder",
     join_event: "Join the event",
@@ -302,6 +323,23 @@ const translations = {
     view_recording: "View recording",
     download_presentation: "Download presentation",
     view_event: "View event",
+
+    // Rating section
+    rate_this_session: "RATE THIS SESSION",
+    what_do_you_think_session: "What do you think of the session?",
+    excellent_rating: "Excellent",
+    very_good_rating: "Very good",
+    good_rating: "Good",
+    fair_rating: "Fair",
+    poor_rating: "Poor",
+    your_opinion_helps_improve: "Your opinion helps us improve",
+
+    // Finalize Event
+    finalize_event: "Finalize",
+    confirm_finalize_event: "Finalize event",
+    finalize_confirm_message: "Are you sure you want to finalize this event?",
+    finalize_confirm_warning: "The time counter will stop and the event will be marked as finished.",
+    confirm_finalize: "Yes, finalize"
   },
 };
 
@@ -379,6 +417,12 @@ function applyTranslations() {
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
     const key = el.getAttribute("data-i18n-placeholder");
     if (t[key]) el.placeholder = t[key];
+  });
+
+  // Elementos con data-i18n-title (solo title)
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-title");
+    if (t[key]) el.title = t[key];
   });
 
   // Actualizar clases activas de los botones de idioma

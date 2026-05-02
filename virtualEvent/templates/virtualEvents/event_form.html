@@ -6,6 +6,13 @@
 {% endblock %}
 
 {% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
 <div class="container  pt-1 pb-5">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10">
@@ -45,13 +52,13 @@
 
                         <div class="ev-field-group mb-4">
                             <label for="id_title" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="event_title_label">Event Title</label>
-                            <input type="text" name="title" id="id_title" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="event_title_placeholder" placeholder="Give your event a memorable name..." required>
+                            <input type="text" name="title" id="id_title" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="event_title_placeholder" value="{{ title|default:'' }}" placeholder="Give your event a memorable name... " required>
                         </div>
 
                         <!-- Description -->
                         <div class="ev-field-group mb-4">
                             <label for="id_description" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="description_label">Description</label>
-                            <textarea name="description" id="id_description" rows="4" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="description_placeholder" placeholder="Tell people what to expect..." required></textarea>
+                            <textarea name="description" id="id_description" rows="4" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="description_placeholder" placeholder="Tell people what to expect..." required>{{ description|default:'' }}</textarea>
                         </div>
 
                         <!-- Category -->
@@ -60,16 +67,16 @@
                                 <label for="id_category" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="category_label">Category</label>
                                 <div class="position-relative">
                                     <select name="category" id="id_category" class="form-select ev-input py-3 px-4 rounded-3 cursor-pointer" required>
-                                        <option value="Seminario">Seminario</option>
-                                        <option value="Conferencia">Conferencia</option>
-                                        <option value="Taller">Taller</option>
-                                        <option value="custom">Categoría personalizada...</option>
+                                        <option value="Seminario" {% if category == 'Seminario' %}selected{% endif %}>Seminario</option>
+                                        <option value="Conferencia" {% if category == 'Conferencia' %}selected{% endif %}>Conferencia</option>
+                                        <option value="Taller" {% if category == 'Taller' %}selected{% endif %}>Taller</option>
+                                        <option value="custom" {% if category == 'custom' %}selected{% endif %}>Categoría personalizada...</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6 d-none" id="evCustomCategoryGroup">
                                 <label for="id_custom_category" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="custom_category_label">Custom Category Name</label>
-                                <input type="text" name="custom_category" id="id_custom_category" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="custom_category_placeholder" placeholder="Enter category name...">
+                                <input type="text" name="custom_category" id="id_custom_category" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="custom_category_placeholder" placeholder="Enter category name..." value="{{ custom_category|default:'' }}" >
                             </div>
                         </div>
 
@@ -77,10 +84,13 @@
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
                                 <label for="id_start_time" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="schedule_label">Schedule</label>
-                                <input type="datetime-local" name="start_time" id="id_start_time" class="form-control ev-input py-3 px-4 rounded-3" required>
+                                <input type="datetime-local" name="start_time" id="id_start_time" class="form-control ev-input py-3 px-4 rounded-3" value="{{ start_time|default:'' }}" min="{{ now|date:'Y-m-d\TH:i' }}" required>
+                                {% if errors.start_time %}
+                                    <div class="text-danger small mt-1">{{ errors.start_time }}</div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="id_duration" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="duration_label">Duration</label>
+                                <label for="id_duration" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="duration_label" value="{{ duration|default:'' }}" >Duration</label>
                                 <div class="input-group">
                                     <input type="number" name="duration" id="id_duration" min="1" class="form-control ev-input py-3 px-4 rounded-start-3" placeholder="90" required>
                                     <span class="input-group-text ev-input-addon bg-transparent border-start-0 text-muted small fw-bold text-uppercase px-3 rounded-end-3" data-i18n="minutes">Minutes</span>
@@ -130,7 +140,7 @@
                         <!-- Invitations (Conditional) -->
                         <div class="ev-field-group mb-4 d-none" id="evInvitationsGroup">
                             <label for="id_invitations" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="invite_by_email">Invite by Email</label>
-                            <textarea name="invitations" id="id_invitations" rows="3" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="invite_placeholder" placeholder="Enter email addresses separated by commas..."></textarea>
+                            <textarea name="invitations" id="id_invitations" rows="3" class="form-control ev-input py-3 px-4 rounded-3" data-i18n-placeholder="invite_placeholder" placeholder="Enter email addresses separated by commas...">{{ invitations_text|default:'' }}</textarea>
                         </div>
 
                         <!-- Submit Button -->

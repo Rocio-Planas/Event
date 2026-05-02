@@ -14,7 +14,7 @@ class ChatMessage(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     is_pinned = models.BooleanField(default=False)
-    moderated = models.BooleanField(default=False)  # True si fue marcado como ofensivo
+    moderated = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["timestamp"]
@@ -31,9 +31,7 @@ class HandRaise(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     attended = models.BooleanField(default=False)
-
-    class Meta:
-        unique_together = ["room", "user"]
+    raised_at = models.DateTimeField(auto_now_add=True) 
 
 
 class Poll(models.Model):

@@ -1,0 +1,72 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}Reseñas Pendientes - EventPulse{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-on-surface" data-i18n="admin_panel_pending_reviews_title">Reseñas Pendientes de Aprobación</h1>
+        <a href="{% url 'core:admin_panel' %}" class="text-primary hover:underline" data-i18n="admin_panel_back">← Volver al panel</a>
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-outline-variant">
+                <thead class="bg-surface-container-low">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_review_event">Evento</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_review_user">Usuario</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_rating">Calificación</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_comment">Comentario</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_review_date">Fecha</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-on-surface-variant uppercase" data-i18n="admin_panel_actions">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant">
+                    {% for resena in resenas %}
+                    <tr class="hover:bg-surface-container-low transition">
+                        <td class="px-6 py-4 whitespace-nowrap font-medium text-on-surface">{{ resena.evento.title }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ resena.nombre }}<br><span class="text-xs">{{ resena.email }}</span></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-1">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= resena.calificacion %}
+                                        <span class="material-symbols-outlined text-yellow-500 text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                                    {% else %}
+                                        <span class="material-symbols-outlined text-yellow-500 text-sm">star_outline</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-on-surface-variant max-w-xs truncate">{{ resena.comentario|truncatechars:80 }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ resena.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'core:admin_aprobar_resena' resena.id %}" class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition" data-i18n="admin_panel_approve">Aprobar</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-on-surface-variant" data-i18n="admin_panel_no_pending_reviews">No hay reseñas pendientes.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    {% if resenas.has_other_pages %}
+    <div class="flex justify-center mt-6 gap-2">
+        {% if resenas.has_previous %}
+            <a href="?page=1" class="px-3 py-1 border rounded">&laquo;</a>
+            <a href="?page={{ resenas.previous_page_number }}" class="px-3 py-1 border rounded" data-i18n="previous">Anterior</a>
+        {% endif %}
+        <span class="px-3 py-1 bg-primary text-white rounded"><span data-i18n="page">Página</span> {{ resenas.number }} <span data-i18n="of">de</span> {{ resenas.paginator.num_pages }}</span>
+        {% if resenas.has_next %}
+            <a href="?page={{ resenas.next_page_number }}" class="px-3 py-1 border rounded" data-i18n="next">Siguiente</a>
+            <a href="?page={{ resenas.paginator.num_pages }}" class="px-3 py-1 border rounded">&raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

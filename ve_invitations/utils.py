@@ -1,8 +1,7 @@
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives, send_mail
 from django.conf import settings
 from django.urls import reverse
 from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
 from datetime import timedelta
 from virtualEvent.utils.calendar_utils import (  # type: ignore
     generate_ics,
@@ -47,24 +46,38 @@ def send_invitation_email(email, event, token):
         f"- Google Calendar: {google_cal_url}"
     )
 
-    email_msg = EmailMessage(
+    email_msg = EmailMultiAlternatives(
         subject,
         plain_message,
         settings.DEFAULT_FROM_EMAIL,
-        [email],
+        [email]
     )
     email_msg.attach_alternative(html_message, "text/html")
-
-    # Adjuntar el archivo .ics
-    ics_content = generate_ics(event)
-    email_msg.attach(f"evento_{event.id}.ics", ics_content, "text/calendar")
-
     email_msg.send(fail_silently=False)
 
 
-def send_material_notification(event):
+def send_material_notification(event, request=None):
     """Envía email a todos los seguidores del evento cuando hay nuevo material.
     Usa el unique_link del evento (mismo que aparece en el dashboard)."""
+    
+    materials = event.materials.copy() if event.materials else {}
+    
+    # Si tenemos request, construir URLs absolutas correctamente
+    if request:
+        if 'slides_url' in materials and materials['slides_url']:
+            materials['slides_url'] = request.build_absolute_uri(materials['slides_url'])
+        if 'recording' in materials and materials['recording']:
+            materials['recording'] = request.build_absolute_uri(materials['recording'])
+        link = request.build_absolute_uri(reverse("ve_streaming:waiting_room", args=[event.unique_link]))
+    else:
+        # Fallback: usa BASE_URL si no hay request
+        base = getattr(settings, 'BASE_URL', 'http://127.0.0.1:8000')
+        if 'slides_url' in materials and materials['slides_url']:
+            materials['slides_url'] = f"{base}{materials['slides_url']}"
+        if 'recording' in materials and materials['recording']:
+            materials['recording'] = f"{base}{materials['recording']}"
+        link = f"{base}{reverse('ve_streaming:waiting_room', args=[event.unique_link])}"
+        
     from .models import EventFollower
 
     followers = EventFollower.objects.filter(
@@ -80,7 +93,7 @@ def send_material_notification(event):
 
     context = {
         "event": event,
-        "materials": event.materials,
+        "materials": materials,
         "link": link,
     }
     subject = f"📁 Nuevo material disponible: {event.title}"

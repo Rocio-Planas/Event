@@ -7,6 +7,8 @@ from django.views.decorators.http import require_http_methods
 from django.conf import settings
 from django.db.models import Avg
 from ve_streaming.models import StreamingRoom
+import re
+import random
 from .models import (
     ChatMessage,
     HandRaise,
@@ -15,6 +17,8 @@ from .models import (
     PollVote,
     SatisfactionRating,
 )
+from django.utils import timezone
+from datetime import timedelta
 
 
 # ------------------------------------------------------------
@@ -32,10 +36,38 @@ def get_room_or_error(room_slug):
 
 
 def moderate_content(content):
-    """Reemplaza palabras ofensivas por ***"""
-    for word in settings.OFFENSIVE_WORDS:
-        content = content.replace(word, "***")
-    return content
+    """
+    Censura palabras ofensivas desde la segunda letra.
+    Usa caracteres aleatorios de '!&#*' para el resto.
+    Ejemplo: "idiota" -> "i!&#*" (aleatorio)
+    """
+    offensive_words = getattr(settings, "OFFENSIVE_WORDS", [])
+    if not offensive_words:
+        return content
+
+    chars = "!&#*"
+
+    def censor_word(word):
+        if len(word) <= 2:
+            return "".join(random.choice(chars) for _ in word)
+        else:
+            first = word[0]
+            rest_len = len(word) - 1
+            rest = "".join(random.choice(chars) for _ in range(rest_len))
+            return first + rest
+
+    pattern = r"\b(" + "|".join(re.escape(w) for w in offensive_words) + r")\b"
+
+    def replace_match(match):
+        word = match.group(0)
+        if word[0].isupper():
+            censored = censor_word(word.lower())
+            censored = censored[0].upper() + censored[1:] if censored else censored
+        else:
+            censored = censor_word(word)
+        return censored
+
+    return re.sub(pattern, replace_match, content, flags=re.IGNORECASE)
 
 
 # ------------------------------------------------------------
@@ -130,21 +162,16 @@ def get_messages(request, room_slug):
 # ------------------------------------------------------------
 # MANOS
 # ------------------------------------------------------------
+
+
 @login_required
 @require_http_methods(["POST"])
 def raise_hand(request, room_slug):
     room, error_response = get_room_or_error(room_slug)
     if error_response:
         return error_response
-
-    hand, created = HandRaise.objects.get_or_create(
-        room=room, user=request.user, defaults={"attended": False}
-    )
-    if not created and not hand.attended:
-        return JsonResponse({"error": "Ya tienes la mano levantada"}, status=400)
-    if not created:
-        hand.attended = False
-        hand.save()
+    # Crear siempre un nuevo registro, sin verificar existencia previa
+    hand = HandRaise.objects.create(room=room, user=request.user, attended=False)
     return JsonResponse({"status": "hand_raised"})
 
 
@@ -302,10 +329,15 @@ def get_active_poll(request, room_slug):
         poll = Poll.objects.filter(room=room, is_active=True).latest("created_at")
         options = [{"id": opt.id, "text": opt.text} for opt in poll.options.all()]
         return JsonResponse(
-            {"poll_id": poll.id, "question": poll.question, "options": options}
+            {
+                "active_poll": True,
+                "poll_id": poll.id,
+                "question": poll.question,
+                "options": options,
+            }
         )
     except Poll.DoesNotExist:
-        return JsonResponse({"active_poll": None})
+        return JsonResponse({"active_poll": False})
 
 
 # ------------------------------------------------------------
@@ -352,3 +384,19 @@ def satisfaction_rating(request, room_slug):
         or 0
     )
     return JsonResponse({"status": "ok", "average": round(avg, 1)})
+
+
+@login_required
+@require_http_methods(["GET"])
+def get_unattended_hands_count(request, room_slug):
+    """Devuelve el número de manos levantadas sin atender para el organizador."""
+    room, error_response = get_room_or_error(room_slug)
+    if error_response:
+        return error_response
+
+    # Solo el organizador puede ver esto
+    if request.user != room.event.created_by:
+        return JsonResponse({"error": "No autorizado"}, status=403)
+
+    count = HandRaise.objects.filter(room=room, attended=False).count()
+    return JsonResponse({"unattended_hands": count})

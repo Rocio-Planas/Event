@@ -107,6 +107,10 @@
               <a href="{% url 'usuarios:perfil' %}" data-i18n="my_profile"
                 >Mi Perfil</a
               >
+
+              {% if user.is_authenticated and user.rol == 'administrador' %}
+                <a href="{% url 'core:admin_panel' %}" data-i18n="admin_panel">Panel de Administración</a>
+              {% endif %}
             </div>
           </div>
           {% else %}

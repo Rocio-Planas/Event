@@ -1,0 +1,192 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}Gestionar Usuarios - EventPulse{% endblock %}
+
+{% block extra_css %}
+<style>
+    .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        transition: opacity 0.2s ease;
+    }
+    .modal-content {
+        transform: scale(0.95);
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .modal-backdrop:not(.hidden) .modal-content {
+        transform: scale(1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-on-surface flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">people</span>
+            <span data-i18n="admin_panel_manage_users">Gestionar Usuarios</span>
+        </h1>
+        <div class="flex gap-3">
+            <a href="{% url 'core:admin_crear_usuario' %}" class="px-4 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition flex items-center gap-1 shadow-sm">
+                <span class="material-symbols-outlined text-base">add</span>
+                <span data-i18n="create_user">Crear usuario</span>
+            </a>
+            <a href="{% url 'core:admin_panel' %}" class="text-primary hover:underline flex items-center gap-1">
+                <span data-i18n="admin_panel_back">Volver al panel</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden border border-outline-variant/20">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-outline-variant">
+                <thead class="bg-surface-container-low">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider" data-i18n="admin_panel_user">Usuario</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider" data-i18n="admin_panel_email">Email</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider" data-i18n="admin_panel_role">Rol</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider" data-i18n="admin_panel_registered">Registro</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider" data-i18n="admin_panel_actions">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant">
+                    {% for usuario in usuarios %}
+                    <tr class="hover:bg-surface-container-low transition">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-3">
+                                {% if usuario.avatar %}
+                                    <img src="{{ usuario.avatar.url }}" class="w-9 h-9 rounded-full object-cover ring-2 ring-primary/20">
+                                {% else %}
+                                    <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold ring-2 ring-primary/20">
+                                        {{ usuario.first_name|first|default:"U" }}
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="font-medium text-on-surface">{{ usuario.get_full_name|default:"Sin nombre" }}</div>
+                                    <div class="text-xs text-on-surface-variant">ID: {{ usuario.id }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ usuario.email }}</td>
+                        <td class="px-6 py-4">
+                            <form method="post" action="{% url 'core:admin_cambiar_rol' usuario.id %}" class="flex items-center gap-2">
+                                {% csrf_token %}
+                                <select name="rol" class="px-2 py-1.5 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface text-sm focus:ring-2 focus:ring-primary/30">
+                                    <option value="espectador" {% if usuario.rol == 'espectador' %}selected{% endif %} data-i18n="spectator">Espectador</option>
+                                    <option value="organizador" {% if usuario.rol == 'organizador' %}selected{% endif %} data-i18n="organizer">Organizador</option>
+                                    <option value="expositor" {% if usuario.rol == 'expositor' %}selected{% endif %} data-i18n="exhibitor">Expositor</option>
+                                    <option value="administrador" {% if usuario.rol == 'administrador' %}selected{% endif %} data-i18n="admin">Administrador</option>
+                                </select>
+                                <button type="submit" class="text-primary hover:underline text-sm" data-i18n="admin_panel_save">Guardar</button>
+                            </form>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ usuario.date_joined|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex gap-2">
+                                <a href="{% url 'core:admin_editar_usuario' usuario.id %}" class="p-2 rounded-lg text-primary hover:bg-primary/10 transition" title="Editar">
+                                    <span class="material-symbols-outlined text-base">edit</span>
+                                </a>
+                                <button type="button" class="delete-user-btn p-2 rounded-lg text-red-500 hover:bg-red-50 transition" data-user-id="{{ usuario.id }}" data-user-name="{{ usuario.get_full_name|default:usuario.email }}">
+                                    <span class="material-symbols-outlined text-base">delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    {% if usuarios.has_other_pages %}
+    <div class="flex justify-center mt-8 gap-2">
+        {% if usuarios.has_previous %}
+            <a href="?page=1" class="px-3 py-1.5 border rounded-lg hover:bg-surface-container-high">&laquo;</a>
+            <a href="?page={{ usuarios.previous_page_number }}" class="px-3 py-1.5 border rounded-lg hover:bg-surface-container-high" data-i18n="previous">Anterior</a>
+        {% endif %}
+        <span class="px-3 py-1.5 bg-primary text-white rounded-lg">Página {{ usuarios.number }} de {{ usuarios.paginator.num_pages }}</span>
+        {% if usuarios.has_next %}
+            <a href="?page={{ usuarios.next_page_number }}" class="px-3 py-1.5 border rounded-lg hover:bg-surface-container-high" data-i18n="next">Siguiente</a>
+            <a href="?page={{ usuarios.paginator.num_pages }}" class="px-3 py-1.5 border rounded-lg hover:bg-surface-container-high">&raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal de confirmación personalizado -->
+<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" style="background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
+    <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-200 scale-95 opacity-0 modal-content">
+        <div class="p-6 text-center">
+            <div class="mx-auto w-14 h-14 mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                <span class="material-symbols-outlined text-red-600 text-3xl">warning</span>
+            </div>
+            <h3 class="text-xl font-bold text-on-surface mb-2" data-i18n="confirm_delete_title">¿Eliminar usuario?</h3>
+            <p class="text-on-surface-variant mb-4" id="deleteModalMessage" data-i18n="confirm_delete_message">Esta acción no se puede deshacer. El usuario será eliminado permanentemente.</p>
+            <div class="flex gap-3 justify-center">
+                <button id="cancelDeleteBtn" class="px-5 py-2 rounded-xl border border-outline-variant text-on-surface-variant font-semibold hover:bg-surface-container-high transition">
+                    <span data-i18n="cancel">Cancelar</span>
+                </button>
+                <form id="deleteUserForm" method="post" action="">
+                    {% csrf_token %}
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-sm">
+                        <span data-i18n="confirm_delete_btn">Sí, eliminar</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Modal de confirmación personalizado
+    const modal = document.getElementById('deleteModal');
+    const modalContent = modal.querySelector('.modal-content');
+    const deleteForm = document.getElementById('deleteUserForm');
+    const modalMessage = document.getElementById('deleteModalMessage');
+    
+    function openModal(userId, userName) {
+        deleteForm.action = "{% url 'core:admin_eliminar_usuario' 0 %}".replace('0', userId);
+        modalMessage.innerHTML = userName ? 
+            (typeof currentLang !== 'undefined' && currentLang === 'en' ? 
+                `User "${userName}" will be permanently deleted. This action cannot be undone.` : 
+                `El usuario "${userName}" será eliminado permanentemente. Esta acción no se puede deshacer.`) :
+            (typeof currentLang !== 'undefined' && currentLang === 'en' ? 
+                'This user will be permanently deleted. This action cannot be undone.' : 
+                'Este usuario será eliminado permanentemente. Esta acción no se puede deshacer.');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal() {
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }, 200);
+    }
+    
+    document.querySelectorAll('.delete-user-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            const userName = this.dataset.userName;
+            openModal(userId, userName);
+        });
+    });
+    
+    document.getElementById('cancelDeleteBtn').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+    });
+</script>
+{% endblock %}
