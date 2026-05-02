@@ -401,6 +401,8 @@
                 'admin_panel_approve_reject_reviews': 'Aprobar o Rechazar reseñas',
                 'admin_panel_respond_inquiries': 'Responder consultas',
                 'admin_panel_pending_reviews_title': 'Reseñas Pendientes',
+                'chat_admin_title': 'Chat de soporte',
+                'chat_no_active': 'No hay conversaciones activas.',
             },
             en: {
                 'admin_panel_pending_reviews_title': 'Pending Reviews',
@@ -731,6 +733,8 @@
                 'admin_panel_review_events': 'Review pending events',
                 'admin_panel_approve_reject_reviews': 'Approve or Reject reviews',
                 'admin_panel_respond_inquiries': 'Answer inquiries',
+                'chat_admin_title': 'Support Chat',
+                'chat_no_active': 'No active conversations.',
             }
         };
 
@@ -966,6 +970,14 @@
                             >light_mode</span
                         >
                     </button>
+
+                    {% if user.is_authenticated and user.rol == 'administrador' %}
+                        <a href="{% url 'chat:admin_inbox' %}" class="relative p-2 hover:bg-surface-container-high rounded-full transition-colors">
+                            <span class="material-symbols-outlined" style="color: var(--text-on-surface);">chat</span>
+                            <span id="chat-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center" style="display: none;">0</span>
+                        </a>
+                    {% endif %}
+
                     {% if user.is_authenticated %}
                     <div class="relative">
                         <button
@@ -1324,9 +1336,49 @@
             banner.remove();
         });
     })();
+
 </script>
 {% endif %}
-    {% endblock %}
+{% endblock %}
+
+<script>
+        // Actualizar el contador de mensajes del chat (solo para administradores)
+    function actualizarContadorChat() {
+        const badge = document.getElementById('chat-badge');
+        if (!badge) return;
+
+        fetch('/chat/contar-no-leidos/')
+            .then(response => {
+                if (!response.ok) throw new Error('Error al obtener el conteo');
+                return response.json();
+            })
+            .then(data => {
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.style.display = 'flex';
+                    console.log('Contador de chat actualizado:', data.count);
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error al actualizar contador de chat:', error);
+                badge.style.display = 'none';
+            });
+    }
+
+    // Ejecutar al cargar la página y cada 30 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        if (document.getElementById('chat-badge')) {
+            actualizarContadorChat();
+            setInterval(actualizarContadorChat, 30000); // cada 30 segundos
+        }
+    });
+
+</script>
+
+</script>
+
 </body>
 
 <footer class="w-full border-t py-8 mt-12">

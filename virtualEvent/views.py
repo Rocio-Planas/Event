@@ -532,9 +532,7 @@ def event_detail(request, pk):
             ).exists()
 
     # Obtener reseñas aprobadas
-    resenas = Resena.objects.filter(evento=event, aprobada=True).order_by(
-        "-fecha_creacion"
-    )
+    resenas = Resena.objects.filter(evento_virtual=event, aprobada=True).order_by('-fecha_creacion')
     total_resenas = resenas.count()
     promedio = 0
     if total_resenas > 0:

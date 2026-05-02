@@ -11,6 +11,10 @@ class Conversacion(models.Model):
 
     def __str__(self):
         return f"Conversación con {self.usuario.email}"
+    
+    def tiene_mensajes_no_leidos(self):
+        """Devuelve True si hay mensajes no leídos por el admin en esta conversación."""
+        return self.mensajes.filter(leido_por_admin=False, remitente=self.usuario).exists()
 
 class Mensaje(models.Model):
     conversacion = models.ForeignKey(Conversacion, on_delete=models.CASCADE, related_name='mensajes')
@@ -18,6 +22,7 @@ class Mensaje(models.Model):
     texto = models.TextField()
     fecha = models.DateTimeField(default=timezone.now)
     leido = models.BooleanField(default=False)
+    leido_por_admin = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['fecha']

@@ -1,0 +1,47 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+{% block title %}Chat con {{ conversacion.usuario.get_full_name|default:conversacion.usuario.email }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+        <a href="{% url 'chat:admin_inbox' %}" class="text-primary hover:underline">← Volver</a>
+        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+            {{ conversacion.usuario.first_name|first|default:conversacion.usuario.email|first|upper }}
+        </div>
+        <h1 class="text-2xl font-bold text-on-surface">{{ conversacion.usuario.get_full_name|default:conversacion.usuario.email }}</h1>
+    </div>
+
+    <!-- Zona de mensajes -->
+    <div class="bg-surface-container-low rounded-xl p-4 h-96 overflow-y-auto mb-4 space-y-3" id="chat-messages">
+        {% for msg in mensajes %}
+            <div class="flex {% if msg.remitente == request.user %}justify-end{% else %}justify-start{% endif %}">
+                <div class="max-w-[75%] rounded-xl px-4 py-2 {% if msg.remitente == request.user %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface{% endif %}">
+                    <p class="text-xs font-semibold mb-1">{{ msg.remitente.get_full_name|default:msg.remitente.email }}</p>
+                    <p class="text-sm">{{ msg.texto }}</p>
+                    <p class="text-xs mt-1 opacity-70">{{ msg.fecha|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-center text-on-surface-variant">No hay mensajes aún.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Formulario de respuesta -->
+    <form method="post" class="flex gap-2">
+        {% csrf_token %}
+        <input type="text" name="mensaje" class="flex-1 px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 focus:ring-primary" placeholder="Escribe tu respuesta..." required>
+        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-xl hover:opacity-90">Enviar</button>
+    </form>
+</div>
+
+<!-- Scroll automático al último mensaje -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('chat-messages');
+        if (container) {
+            container.scrollTop = container.scrollHeight;
+        }
+    });
+</script>
+{% endblock %}

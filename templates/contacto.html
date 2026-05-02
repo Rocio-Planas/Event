@@ -221,14 +221,42 @@
     async function sendMessage() {
         const message = chatInput.value.trim();
         if (!message) return;
-        const formData = new FormData();
-        formData.append('message', message);
+        
+        // Primero obtener o crear la conversación
+        let conversacionId;
         try {
-            await fetch('/chat/send/', { method: 'POST', body: formData, headers: { 'X-CSRFToken': '{{ csrf_token }}' } });
-            chatInput.value = '';
-            fetchMessages();
+            const convResponse = await fetch('/chat/mi-conversacion/');
+            const convData = await convResponse.json();
+            conversacionId = convData.conversacion_id;
         } catch (err) {
-            console.error('Error sending message:', err);
+            console.error('Error obteniendo conversación:', err);
+            alert('Error al conectar con el chat.');
+            return;
+        }
+
+        // Enviar el mensaje
+        const formData = new FormData();
+        formData.append('texto', message);
+        
+        try {
+            const response = await fetch(`/chat/enviar/${conversacionId}/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                                   document.querySelector('meta[name="csrf-token"]')?.content
+                }
+            });
+            const data = await response.json();
+            if (data.status === 'ok') {
+                chatInput.value = '';
+                fetchMessages();  // refrescar mensajes
+            } else {
+                alert('Error: ' + (data.error || 'No se pudo enviar'));
+            }
+        } catch (err) {
+            console.error('Error enviando mensaje:', err);
+            alert('Error de conexión al enviar mensaje.');
         }
     }
 
