@@ -60,6 +60,15 @@ def generate_event_pdf(context):
         textColor=colors.darkblue,
     )
 
+    desc_style = ParagraphStyle(
+        "Description",
+        parent=styles["Normal"],
+        fontSize=10,
+        leading=14,
+        textColor=colors.black,
+        wordWrap="CJK",
+    )
+
     story = []
     event = context["event"]
     analytics = context["analytics"]
@@ -78,19 +87,15 @@ def generate_event_pdf(context):
     # Información general
     story.append(Paragraph("Información General", heading_style))
     story.append(Spacer(1, 0.05 * inch))
+
+    desc_paragraph = Paragraph(event.description, desc_style)
+
     data = [
         ["Fecha del evento:", event.start_datetime.strftime("%d/%m/%Y %H:%M")],
         ["Duración (minutos):", event.duration_minutes],
         ["Tipo de acceso:", "Público" if event.privacy == "public" else "Privado"],
         ["Categoría:", event.category],
-        [
-            "Descripción:",
-            (
-                event.description[:200] + "..."
-                if len(event.description) > 200
-                else event.description
-            ),
-        ],
+        ["Descripción:", desc_paragraph],  
     ]
     table = Table(data, colWidths=[2 * inch, 4 * inch])
     table.setStyle(

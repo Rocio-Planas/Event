@@ -107,7 +107,9 @@ body {
 .sr-chat-container {
   display: flex;
   flex-direction: column;
+  flex: 1;
   height: 800px;
+  height: auto;
   background: var(--sr-card-bg);
   border-radius: 1.25rem;
   border: 1px solid var(--sr-border);
@@ -127,7 +129,7 @@ body {
 
 .sr-chat-messages {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: auto; /* ← ESTO SÍ FUNCIONA con height fijo */
   padding: 1.5rem;
   background: #f8fafc;
   display: flex;
@@ -148,19 +150,22 @@ body {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   background: #fff;
   border: 1px solid var(--sr-border);
-  align-self: flex-start;
+  margin-bottom: 1rem; /* ← en vez de gap del contenedor */
 }
 
 .sr-chat-bubble:not(.sr-mine) {
   border-top-left-radius: 0;
+  margin-right: auto; /* ← alineación izquierda */
+  margin-left: 0;
 }
 
 .sr-chat-bubble.sr-mine {
   background: var(--sr-primary);
   color: #fff;
   border-color: var(--sr-primary);
-  align-self: flex-end;
   border-top-right-radius: 0;
+  margin-left: auto; /* ← alineación derecha */
+  margin-right: 0;
 }
 
 /* FILA DEL MENSAJE: Flexbox horizontal para texto + pin */
@@ -405,7 +410,7 @@ button:focus-visible {
 
 /* Cabecera de encuesta en vivo */
 :root .sr-card-main .card-header.bg-white {
-  background-color: #0d6efd  !important;
+  background-color: #0d6efd !important;
   border-bottom: none !important;
 }
 :root .sr-card-main .card-header.bg-white .sr-label {
@@ -649,6 +654,12 @@ button:focus-visible {
   flex-direction: column;
 }
 
+/* Métricas: no se estiran, quedan arriba */
+#sr-metrics-container {
+  flex-shrink: 0;
+  margin-bottom: 1rem;
+}
+
 /* ========== MODO OSCURO COMPLETO para streaming-room ========== */
 .dark {
   --sr-bg: #121212;
@@ -884,12 +895,12 @@ button:focus-visible {
 
 /* ===== MODO OSCURO: CABECERA "ENCUESTA EN VIVO"  ===== */
 .dark .sr-card-main .card-header.bg-white {
-    background-color: var(--primary) !important;
-    border-bottom: none !important;
+  background-color: var(--primary) !important;
+  border-bottom: none !important;
 }
 .dark .sr-card-main .card-header.bg-white .sr-label,
 .dark .sr-card-main .card-header.bg-white i {
-    color: white !important;
+  color: white !important;
 }
 
 /* ===== CORRECCIÓN DEL ÁREA BLANCA DEBAJO DEL REPRODUCTOR ===== */
@@ -952,23 +963,6 @@ button:focus-visible {
 /* === Fuerza a la columna izquierda a tener la misma altura que el chat === */
 .row.g-4 {
   align-items: stretch !important; /* ya debería estar, pero por si acaso */
-}
-
-.row.g-4 > .col-lg-8 {
-  display: flex;
-  flex-direction: column;
-  min-height: 800px;
-}
-
-/* El contenido de la izquierda NO se estira, solo se distribuye normalmente */
-.row.g-4 > .col-lg-8 > * {
-  flex-shrink: 0;
-}
-
-/* La fila de las dos tarjetas (encuesta+calificación) puede crecer si sobra espacio */
-.row.g-4 > .col-lg-8 .row.g-4:last-child {
-  flex-grow: 1; /* ocupa el espacio sobrante para que no quede hueco abajo */
-  margin-bottom: 0;
 }
 
 /* El contenedor de las opciones de la encuesta (dentro de la tarjeta de nueva encuesta) */

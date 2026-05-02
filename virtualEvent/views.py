@@ -593,10 +593,6 @@ def finalize_event(request, event_id):
         event.final_elapsed_seconds = elapsed_seconds
         event.status = "finished"
         event.save()
-        messages.success(
-            request,
-            f'Evento "{event.title}" finalizado. Duración total: {elapsed_seconds // 3600:02d}:{(elapsed_seconds % 3600) // 60:02d}:{elapsed_seconds % 60:02d}',
-        )
     return redirect("ve_streaming:streaming_room", unique_link=event.unique_link)
 
 

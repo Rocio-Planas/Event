@@ -11,10 +11,12 @@ class StreamingPolling {
     this.hasVoted = false;
     this.handsInterval = null;
     this.lastHandsCount = 0;
+    this.notificationPermissionRequested = false;
 
     this.init();
     if (this.isOrganizer) {
       this.startHandsMonitoring();
+      this.setupNotificationRequest();
     }
     this.lastRaiseHandTime = 0;
   }
@@ -24,6 +26,37 @@ class StreamingPolling {
     this.bindEvents();
     this.loadActivePoll();
     this.startPollRefresh();
+  }
+
+  setupNotificationRequest() {
+    if (!this.isOrganizer) return;
+
+    const requestOnClick = () => {
+      if (!this.notificationPermissionRequested && window.Notification) {
+        this.notificationPermissionRequested = true;
+        Notification.requestPermission().then((perm) => {
+          console.log("Permiso de notificaciones:", perm);
+        });
+      }
+
+      const unlockAudio = () => {
+        const audio = new Audio("/static/sounds/bright-bell.mp3");
+        audio.volume = 0.01;
+        audio
+          .play()
+          .then(() => {
+            audio.pause();
+            audio.currentTime = 0;
+            console.log("Audio desbloqueado");
+          })
+          .catch((e) => console.log("Audio unlock falló", e));
+      };
+      unlockAudio();
+
+      document.removeEventListener("click", requestOnClick);
+    };
+
+    document.addEventListener("click", requestOnClick);
   }
 
   startPolling() {
@@ -579,12 +612,25 @@ class StreamingPolling {
   }
 
   showHandNotification(newCount) {
-    const message = `🙋‍♂️ ${newCount} persona(s) ha(n) levantado la mano. Revisa el chat.`;
+    const message = `${newCount} persona(s) ha(n) levantado la mano. Revisa el chat.`;
     if (typeof window.showToast === "function") {
       window.showToast(message, "warning");
     } else {
       console.warn("showToast no disponible:", message);
     }
+
+    if (
+      this.isOrganizer &&
+      window.Notification &&
+      Notification.permission === "granted"
+    ) {
+      new Notification("Nueva mano levantada", {
+        body: message,
+        icon: "/static/images/hand-icon.png",
+        silent: false,
+      });
+    }
+
     const badgeContainer = document.getElementById("hands-notification-badge");
     const counterSpan = document.getElementById("hands-count");
     if (badgeContainer && counterSpan) {
