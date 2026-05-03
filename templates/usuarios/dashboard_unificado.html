@@ -159,10 +159,17 @@
                         <span data-i18n="presencial">Presencial</span>
                     </p>
                     <div class="flex gap-2 mt-4">
-                        <a href="#"
+                        <a
+                            href="{% url 'in_person_events:dashboard_assistant' suscripcion.evento_id %}"
                             class="flex-1 text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high"
-                            onclick="alert('Detalle de evento presencial (pendiente)')" data-i18n="ver">Ver</a>
-                        <form method="post" action="{% url 'core:cancelar_suscripcion' suscripcion.id %}" class="flex-1">
+                            data-i18n="ver"
+                            >Ver</a
+                        >
+                        <form
+                            method="post"
+                            action="{% url 'core:cancelar_suscripcion' suscripcion.id %}"
+                            class="flex-1"
+                        >
                             {% csrf_token %}
                             <button type="submit"
                                 class="w-full text-center py-2 text-sm font-semibold border border-error/20 text-error rounded-lg hover:bg-error-container/20" data-i18n="cancelar_subscripcion">

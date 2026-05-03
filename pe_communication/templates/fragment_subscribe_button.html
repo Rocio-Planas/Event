@@ -1,0 +1,123 @@
+{# =========================================== #}
+{# FRAGMENT C: Subscribe Button + Toggle #}
+{# =========================================== #}
+
+{# HTML: Botón de suscripción para actividades #}
+
+<button type="button"
+        class="btn btn-outline-primary btn-subscribe"
+        data-activity-id="{{ activity.id }}"
+        id="subscribe-btn-{{ activity.id }}">
+    <i class="bi bi-bell me-1"></i>
+    <span class="btn-text">Suscribirse</span>
+</button>
+
+{# JavaScript: Fetch API para toggle de suscripción #}
+{#Incustrar este script en la página donde se renderiza el botón #}
+
+<script>
+(function() {
+    'use strict';
+
+    const TOGGLE_ENDPOINT = '/comunicacion/toggle-subscription/';
+
+    // Función para verificar estado de suscripción al cargar página
+    async function checkSubscriptionStatus(activityId) {
+        try {
+            const formData = new FormData();
+            formData.append('activity_id', activityId);
+
+            const response = await fetch(TOGGLE_ENDPOINT, {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                updateButtonState(activityId, data.action === 'subscribed');
+            }
+        } catch (error) {
+            console.error('Error checking subscription status:', error);
+        }
+    }
+
+    // Función para togglear suscripción
+    async function toggleSubscription(activityId, button) {
+        const originalContent = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+        try {
+            const formData = new FormData();
+            formData.append('activity_id', activityId);
+
+            const response = await fetch(TOGGLE_ENDPOINT, {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                updateButtonState(activityId, data.action === 'subscribed');
+
+                // Mostrar toast o feedback visual
+                if (typeof showToast === 'function') {
+                    showToast(data.message, data.action === 'subscribed' ? 'success' : 'info');
+                } else {
+                    alert(data.message);
+                }
+            } else {
+                alert(data.error || 'Error desconocido');
+                button.innerHTML = originalContent;
+            }
+        } catch (error) {
+            console.error('Error toggling subscription:', error);
+            alert('Error de conexión');
+            button.innerHTML = originalContent;
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    // Función para actualizar estado visual del botón
+    function updateButtonState(activityId, isSubscribed) {
+        const button = document.getElementById('subscribe-btn-' + activityId);
+        if (!button) return;
+
+        if (isSubscribed) {
+            button.classList.remove('btn-outline-primary');
+            button.classList.add('btn-success');
+            button.innerHTML = '<i class="bi bi-bell-fill me-1"></i><span class="btn-text">Suscrito</span>';
+        } else {
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-primary');
+            button.innerHTML = '<i class="bi bi-bell me-1"></i><span class="btn-text">Suscribirse</span>';
+        }
+    }
+
+    // Attach event listeners a todos los botones de suscripción
+    document.addEventListener('DOMContentLoaded', function() {
+        const subscribeButtons = document.querySelectorAll('.btn-subscribe');
+
+        subscribeButtons.forEach(function(button) {
+            const activityId = button.dataset.activityId;
+
+            // Verificar estado actual de suscripción
+            checkSubscriptionStatus(activityId);
+
+            // Click handler
+            button.addEventListener('click', function() {
+                toggleSubscription(activityId, button);
+            });
+        });
+    });
+
+    // Exponer función global para uso externo
+    window.toggleSubscription = toggleSubscription;
+    window.checkSubscriptionStatus = checkSubscriptionStatus;
+})();
+</script>

@@ -23,7 +23,14 @@
 }
 
 /* ========== ESTILOS GLOBALES ========== */
+html,
 body {
+  min-height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
   background-color: var(--bg-surface);
   color: var(--text-on-surface);
   font-family: "Inter", sans-serif;
@@ -32,6 +39,10 @@ body {
   transition:
     background-color 0.3s,
     color 0.3s;
+}
+
+main {
+  flex: 1;
 }
 
 /* ========== NAVBAR ========== */

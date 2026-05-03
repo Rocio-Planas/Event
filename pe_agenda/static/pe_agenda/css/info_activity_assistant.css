@@ -1,0 +1,209 @@
+
+
+:root {
+    --primary: #0058be;
+    --primary-variant: #2170e4;
+    --secondary: #006c49;
+    --secondary-container: #e8f5f0;
+    --surface: #fcfdfe;
+    --surface-container-low: #f1f3f9;
+    --surface-container-lowest: #ffffff;
+    --on-surface: #1a1c1e;
+    --on-surface-variant: #44474e;
+    --outline-variant: #e1e4ed;
+    --error: #ba1a1a;
+    --font-sans: "Inter", sans-serif;
+}
+
+/* Back Link */
+.back-link {
+    color: var(--on-surface-variant);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--primary);
+}
+
+/* Badge */
+.badge-confirmada {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: var(--secondary-container);
+    color: var(--secondary);
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Metadata Pills */
+.metadata-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: var(--surface-container-low);
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+.metadata-pill .material-symbols-outlined {
+    font-size: 18px;
+}
+
+/* Activity Cards */
+.activity-card {
+    background-color: var(--surface-container-lowest);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--outline-variant);
+    margin-bottom: 2rem;
+}
+
+.activity-card h3 {
+    color: var(--on-surface);
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.activity-card h3 .material-symbols-outlined {
+    font-size: 24px;
+}
+
+/* Speaker Card */
+.speaker-card {
+    background-color: var(--surface-container-lowest);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--outline-variant);
+}
+
+.speaker-card img {
+    border-radius: 12px 0 0 12px;
+}
+
+/* Info Items */
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background-color: var(--surface-container-low);
+    border-radius: 8px;
+}
+
+.info-item .material-symbols-outlined {
+    font-size: 20px;
+    margin-top: 2px;
+}
+
+.info-item strong {
+    display: block;
+    color: var(--on-surface);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.info-item p {
+    margin: 0;
+    color: var(--on-surface-variant);
+    font-size: 14px;
+}
+
+/* Buttons */
+.btn-primary-custom {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-variant) 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 88, 190, 0.3);
+    color: white;
+}
+
+.btn-outline-secondary {
+    border: 1px solid var(--outline-variant);
+    color: var(--on-surface-variant);
+    background-color: transparent;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--surface-container-low);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Text Styles */
+.text-xs-caps {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.fw-extrabold {
+    font-weight: 800;
+}
+
+.fst-italic {
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .activity-card {
+        padding: 1.5rem;
+    }
+
+    .metadata-pill {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+
+    .info-item {
+        padding: 12px;
+    }
+}
+
+/* Utility Classes */
+.d-grid {
+    display: grid;
+}
+
+.gap-3 {
+    gap: 1rem;
+}
+
+.py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.lh-lg {
+    line-height: 1.8;
+}

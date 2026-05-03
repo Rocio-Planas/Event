@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+    --bs-primary: #0058be;
+    --bs-primary-rgb: 0, 88, 190;
+    --stratos-surface: #f8f9ff;
+    --stratos-surface-low: #eff4ff;
+    --stratos-surface-lowest: #ffffff;
+    --stratos-on-surface: #0b1c30;
+    --stratos-on-surface-variant: #424754;
+    --stratos-secondary: #006c49;
+    --stratos-tertiary: #924700;
+    --stratos-error: #ba1a1a;
+    --stratos-outline-variant: rgba(194, 198, 214, 0.2);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--stratos-surface);
+    color: var(--stratos-on-surface);
+    overflow-x: hidden;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: #fcfdfe;
+    border-right: 1px solid var(--stratos-outline-variant);
+    padding: 1.5rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-logo {
+    display: flex;
+    items-center: center;
+    gap: 10px;
+    margin-bottom: 2rem;
+    padding-top: 1rem;
+}
+
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.75rem 1rem;
+    color: var(--stratos-on-surface-variant);
+    font-weight: 500;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    margin-bottom: 4px;
+}
+
+.sidebar-nav .nav-link:hover {
+    background-color: var(--stratos-surface-low);
+    color: var(--bs-primary);
+}
+
+.sidebar-nav .nav-link.active {
+    background-color: #e5eeff;
+    color: var(--bs-primary);
+}
+
+/* Main Content area */
+.main-content {
+    margin-left: 260px;
+    padding: 2rem 3rem;
+    min-height: 100vh;
+}
+
+/* Header / Navbar */
+.top-navbar {
+    height: 64px;
+    padding: 0 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    margin-left: 260px;
+    border-bottom: 1px solid var(--stratos-outline-variant);
+}
+
+/* Cards & Stats */
+.stat-card {
+    background: var(--stratos-surface-low);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: none;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--bs-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.stand-card {
+    background: var(--stratos-surface-lowest);
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: 1px solid var(--stratos-outline-variant);
+    box-shadow: 0 4px 20px rgba(11, 28, 48, 0.02);
+    transition: transform 0.2s ease;
+}
+
+.stand-card:hover {
+    transform: translateY(-4px);
+}
+
+.badge-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.resource-item {
+    background: var(--stratos-surface-low);
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+/* Progress bar tweak */
+.progress {
+    height: 6px;
+    background-color: var(--stratos-outline-variant);
+}
+
+/* Optimization Banner */
+.optimization-banner {
+    background-color: #0b1c30;
+    color: #ffffff;
+    border-radius: 24px;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.optimization-banner::after {
+    content: 'analytics';
+    font-family: 'Material Symbols Outlined';
+    position: absolute;
+    right: -20px;
+    bottom: -20px;
+    font-size: 200px;
+    opacity: 0.05;
+}
+
+.btn-premium {
+    background: var(--bs-primary);
+    color: white;
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    border-radius: 12px;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-premium:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.btn-outline-premium {
+    border: 1px solid rgba(0, 88, 190, 0.2);
+    color: var(--bs-primary);
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    border-radius: 12px;
+    background: transparent;
+}
+
+.btn-outline-premium:hover {
+    background: var(--stratos-surface-low);
+}
+
+@media (max-width: 992px) {
+    .sidebar { transform: translateX(-100%); }
+    .main-content, .top-navbar { margin-left: 0; padding: 1.5rem; }
+}

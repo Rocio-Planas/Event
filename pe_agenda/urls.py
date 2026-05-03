@@ -10,5 +10,6 @@ urlpatterns = [
     path('activities/<int:event_id>/delete/<int:activity_id>/', views.delete_activity, name='delete_activity'),
     path('activities/<int:event_id>/view/<int:activity_id>/', views.view_activity, name='view_activity'),
     path('activities/<int:event_id>/info/<int:activity_id>/', views.info_activity, name='info_activity'),
+    path('chronogram-assistant/<int:event_id>/', views.chronogram_assistant, name='chronogram_assistant'),
     path('api/activities/<int:event_id>/', views.get_activities_json, name='get_activities_json'),
 ]

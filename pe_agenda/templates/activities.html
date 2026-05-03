@@ -9,29 +9,8 @@
 {% endblock %}
 
 {% block content %}
-    <!-- Top Bar -->
-    <header class="top-bar">
-        <div class="d-flex align-items-center gap-4">
-            <h1>EventHorizon</h1>
-            <nav class="top-nav d-none d-md-flex">
-                <a href="{% url 'in_person_events:dashboard_organizer' event.id %}">Resumen</a>
-                <a href="#">Acciones Rápidas</a>
-            </nav>
-        </div>
-
-        <div class="d-flex align-items-center gap-3">
-            <button class="btn p-1 text-secondary">
-                <span class="material-symbols-outlined">notifications</span>
-            </button>
-            <button class="btn p-1 text-secondary">
-                <span class="material-symbols-outlined">help_outline</span>
-            </button>
-            <div class="ms-2">
-                <img src="https://picsum.photos/seed/user/32/32" alt="Profile" class="rounded-circle border" referrerpolicy="no-referrer">
-            </div>
-        </div>
-    </header>
-
+{% with active_page='actividades' %}
+<div class="p-4">
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
@@ -340,6 +319,8 @@
             </div>
         </div>
     </div>
+{% endwith %}
+</div>
 {% endblock %}
 
 {% block extra_scripts %}

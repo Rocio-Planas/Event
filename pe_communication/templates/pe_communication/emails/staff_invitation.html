@@ -1,0 +1,16 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Invitación al equipo</title>
+</head>
+<body>
+    <h1>¡Estás invitado al equipo!</h1>
+    <p>Te invitamos a unirte al equipo del evento <strong>{{ event.title }}</strong>.</p>
+    {% if invitation.role %}
+    <p>Rol asignado: <strong>{{ invitation.get_role_display }}</strong></p>
+    {% endif %}
+    <p>Haz clic en el siguiente enlace para aceptar la invitación:</p>
+    <p><a href="{{ accept_url }}">Aceptar invitación</a></p>
+    <p>Si no puedes aceptar, ignora este mensaje.</p>
+</body>
+</html>

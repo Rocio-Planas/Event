@@ -321,15 +321,25 @@ h2 {
 
 /* Resource Grid */
 .resource-grid {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
 }
 
-@media (min-width: 640px) {
-    .resource-grid {
-        grid-template-columns: 1fr 1fr;
-    }
+.resources-section {
+    margin-top: 1.5rem;
+}
+
+.resource-item {
+    width: 100%;
+}
+
+.resource-item.resource-empty {
+    justify-content: flex-start;
+}
+
+.resource-item.resource-empty .resource-content {
+    width: 100%;
 }
 
 /* Icons (Material Symbols) */
@@ -619,6 +629,14 @@ h2 {
     align-items: center;
     justify-content: space-between;
     border: 1px solid rgba(225, 228, 237, 0.3);
+}
+
+.resource-item.resource-empty {
+    justify-content: flex-start;
+}
+
+.resource-item.resource-empty .resource-content {
+    width: 100%;
 }
 
 .resource-content {

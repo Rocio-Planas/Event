@@ -1,0 +1,167 @@
+:root {
+    --primary-color: #0058be;
+    --secondary-color: #006c49;
+    --bg-surface: #f8f9ff;
+    --surface-container: #ffffff;
+    --text-main: #0b1c30;
+    --text-muted: #424754;
+    --accent-gradient: linear-gradient(135deg, #0058be 0%, #2170e4 100%);
+}
+
+body {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    z-index: 1000;
+    padding: 1.5rem 1rem;
+}
+
+.sidebar .nav-link {
+    color: var(--text-muted);
+    font-weight: 500;
+    border-radius: 0.5rem;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #f3f4f6;
+    color: var(--primary-color);
+}
+
+.sidebar .nav-link.active {
+    background-color: #eff6ff;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Main Content Area */
+.main-content {
+    margin-left: 260px;
+    padding: 2rem;
+}
+
+/* Top Navbar */
+.top-nav {
+    margin-left: 260px;
+    height: 64px;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+/* Card Enhancements */
+.custom-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.activity-card {
+    border-left: 4px solid var(--primary-color);
+    background-color: #ffffff;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+    transition: transform 0.2s;
+}
+
+.activity-card:hover {
+    transform: translateX(4px);
+}
+
+.btn-signature {
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    padding: 0.6rem 1.25rem;
+}
+
+.btn-signature:hover {
+    opacity: 0.9;
+    color: white;
+}
+
+.badge-custom {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 0.35em 0.65em;
+    border-radius: 50rem;
+}
+
+.progress-custom {
+    height: 8px;
+    background-color: rgba(255,255,255,0.2);
+    border-radius: 4px;
+}
+
+.progress-custom .progress-bar {
+    background-color: white;
+}
+
+/* Icons */
+.material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* Table Styling */
+.table th {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom-width: 1px;
+}
+
+.table td {
+    vertical-align: middle;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.fab {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.fs-edit-icon {
+    font-size: 1.25rem !important;
+}
+
+.fs-7 { font-size: 0.8rem; }
+.hover-opacity-100:hover { opacity: 1 !important; }

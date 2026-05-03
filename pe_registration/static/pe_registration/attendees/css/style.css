@@ -1,0 +1,91 @@
+body {
+    font-family: "Inter", sans-serif;
+    background-color: var(--bg-surface);
+    color: var(--text-on-surface);
+    overflow-x: hidden;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background-color: var(--surface-container-low);
+    color: var(--primary);
+}
+
+.nav-link.active {
+    font-weight: 600;
+}
+
+/* Dashboard Content */
+.main-content {
+    margin-left: 260px;
+    padding: 0;
+    background-color: var(--bg-surface);
+}
+
+/* Metrics Cards */
+.metric-card {
+    background-color: var(--surface-container-lowest);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    height: 100%;
+}
+
+.icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-container-low);
+    color: var(--primary);
+}
+
+/* Table Design */
+.data-table-container {
+    background-color: var(--surface-container-lowest);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    margin-top: 2rem;
+}
+
+.table thead th {
+    background-color: var(--surface-container-low);
+    border-bottom: 1px solid var(--border-outline-variant);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--text-on-surface-variant);
+    padding: 1rem 1.5rem;
+}
+
+.table tbody td {
+    padding: 1rem 1.5rem;
+    vertical-align: middle;
+}
+
+/* Action Buttons */
+.btn-primary-custom {
+    background: var(--primary-gradient);
+    border: none;
+    color: white;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.badge-confirmed {
+    background-color: #e6fcf5;
+    color: #087f5b;
+    font-weight: 600;
+}
+
+.badge-pending {
+    background-color: #fff9db;
+    color: #f08c00;
+    font-weight: 600;
+}

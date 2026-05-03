@@ -201,18 +201,56 @@ def view_activity(request, event_id, activity_id):
 @login_required
 def info_activity(request, event_id, activity_id):
     """
-    Vista para mostrar la información completa de una actividad.
+    Vista para mostrar información detallada de una actividad para asistentes.
     """
-    event = get_object_or_404(Event, id=event_id, organizer=request.user)
+    event = get_object_or_404(Event, id=event_id)
+    
+    # TEMPORALMENTE DESACTIVADO PARA TESTING
+    # Verificar que el usuario esté inscrito al evento
+    # if not request.user.suscripciones.filter(evento_id=event_id, tipo_evento='presencial').exists():
+    #     messages.error(request, 'No estás inscrito a este evento.')
+    #     return redirect('usuarios:dashboard')
+    
     activity = get_object_or_404(Activity, id=activity_id, event=event)
-
+    
     context = {
         'event': event,
         'activity': activity,
-        'active_page': 'actividades'
     }
+    
+    return render(request, 'info_activity_assistant.html', context)
 
-    return render(request, 'info_activity.html', context)
+
+@login_required
+def chronogram_assistant(request, event_id):
+    """
+    Vista para mostrar el cronograma completo del evento para asistentes.
+    """
+    event = get_object_or_404(Event, id=event_id)
+    
+    # TEMPORALMENTE DESACTIVADO PARA TESTING
+    # Verificar que el usuario esté inscrito al evento
+    # if not request.user.suscripciones.filter(evento_id=event_id, tipo_evento='presencial').exists():
+    #     messages.error(request, 'No estás inscrito a este evento.')
+    #     return redirect('usuarios:dashboard')
+    
+    activities = Activity.objects.filter(event=event).order_by('start_time')
+    
+    # Obtener categorías únicas para los filtros
+    categories = activities.values_list('status', flat=True).distinct()
+    
+    # Marcar actividades en las que el usuario está inscrito (si hay sistema de inscripción)
+    # Por ahora, asumimos que no hay sistema de inscripción individual a actividades
+    for activity in activities:
+        activity.user_inscribed = False  # Placeholder
+    
+    context = {
+        'event': event,
+        'activities': activities,
+        'categories': categories,
+    }
+    
+    return render(request, 'chronogram_assistant.html', context)
 
 
 @login_required

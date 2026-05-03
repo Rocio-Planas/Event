@@ -1,0 +1,966 @@
+{% extends "base_sidebar.html" %} {% load static %} {% block title %}Gestión de
+Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
+<link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+/>
+<link
+    rel="stylesheet"
+    href="{% static 'pe_stand/info_stands/css/styles.css' %}"
+/>
+{% endblock %} {% block content %}
+<div
+    class="container-fluid p-4"
+    data-event-id="{{ event_id }}"
+    data-stand-id="{{ stand.id }}"
+>
+    <!-- Dashboard Header -->
+    <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-5"
+    >
+        <div>
+            <p
+                class="text-primary fw-bold text-uppercase mb-1"
+                style="font-size: 0.75rem; letter-spacing: 0.05em"
+            >
+                <span class="material-symbols-outlined fs-6 me-1"
+                    >storefront</span
+                >
+                {{ event.title }}
+            </p>
+            <h3 class="fw-black h2 mb-2">{{ stand.name }}</h3>
+            <div class="d-flex gap-3 text-muted" style="font-size: 0.85rem">
+                <span class="d-flex align-items-center gap-1"
+                    ><span class="material-symbols-outlined fs-6"
+                        >location_on</span
+                    >
+                    {{ stand.location }}</span
+                >
+                <span class="d-flex align-items-center gap-1"
+                    ><span class="material-symbols-outlined fs-6">groups</span>
+                    Capacidad: {{ stand.capacity }}</span
+                >
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm px-3 rounded-3">
+                Editar Detalles
+            </button>
+            <button
+                id="downloadPdfBtn"
+                class="btn btn-signature btn-sm px-3 d-flex align-items-center gap-2"
+            >
+                <span class="material-symbols-outlined">file_download</span>
+                Descargar PDF
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-12">
+            <div class="custom-card">
+                <div
+                    class="d-flex justify-content-between align-items-center mb-4"
+                >
+                    <h4 class="h5 fw-bold mb-0">Equipo Asignado</h4>
+                    <div class="d-flex gap-2">
+                        <button
+                            class="btn btn-signature btn-sm fw-bold shadow-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#changeTeamModal"
+                        >
+                            <span class="material-symbols-outlined fs-6 me-1"
+                                >group_add</span
+                            >
+                            Cambiar Equipo
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm fw-bold">
+                            Gestionar Roles
+                        </button>
+                    </div>
+                </div>
+                <div id="assignedTeamList" class="row g-3">
+                    <div class="col-12 mt-0">
+                        <p
+                            class="text-uppercase fw-bold text-primary mb-1"
+                            style="font-size: 0.65rem; letter-spacing: 0.05em"
+                        >
+                            Liderazgo
+                        </p>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div
+                            class="d-flex align-items-center gap-3 p-2 bg-light rounded-3 h-100 border-start border-3 border-primary"
+                        >
+                            <img
+                                src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                                alt="Elena"
+                                class="rounded-3"
+                                style="
+                                    width: 48px;
+                                    height: 48px;
+                                    object-fit: cover;
+                                "
+                            />
+                            <div class="flex-grow-1">
+                                <p class="mb-0 fw-bold small">
+                                    Elena Rodríguez
+                                </p>
+                                <p
+                                    class="mb-0 text-muted"
+                                    style="font-size: 0.7rem"
+                                >
+                                    Líder de Stand
+                                </p>
+                            </div>
+                            <button class="btn btn-link p-0 text-primary">
+                                <span class="material-symbols-outlined"
+                                    >chat</span
+                                >
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-12 mt-4">
+                        <hr class="my-0 opacity-10" />
+                        <p
+                            class="text-uppercase fw-bold text-muted mt-2 mb-1"
+                            style="font-size: 0.65rem; letter-spacing: 0.05em"
+                        >
+                            Staff Operativo
+                        </p>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div
+                            class="d-flex align-items-center gap-3 p-2 bg-light rounded-3 h-100"
+                        >
+                            <img
+                                src="https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                                alt="Marcos"
+                                class="rounded-3"
+                                style="
+                                    width: 48px;
+                                    height: 48px;
+                                    object-fit: cover;
+                                "
+                            />
+                            <div class="flex-grow-1">
+                                <p class="mb-0 fw-bold small">
+                                    Marcos Valenzuela
+                                </p>
+                                <p
+                                    class="mb-0 text-muted"
+                                    style="font-size: 0.7rem"
+                                >
+                                    Especialista IT
+                                </p>
+                            </div>
+                            <button class="btn btn-link p-0 text-primary">
+                                <span class="material-symbols-outlined"
+                                    >chat</span
+                                >
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="custom-card">
+                <div
+                    class="d-flex justify-content-between align-items-center mb-4"
+                >
+                    <h4 class="h5 fw-bold mb-0">Cronograma de Actividades</h4>
+                    <div class="d-flex align-items-center gap-3">
+                        <div
+                            class="input-group input-group-sm w-auto"
+                            style="max-width: 200px"
+                        >
+                            <span
+                                class="input-group-text bg-light border-0 ps-3"
+                            >
+                                <span
+                                    class="material-symbols-outlined fs-6 text-muted"
+                                    >search</span
+                                >
+                            </span>
+                            <input
+                                type="text"
+                                id="searchActivities"
+                                class="form-control bg-light border-0"
+                                placeholder="Buscar actividad..."
+                            />
+                        </div>
+                        <button
+                            class="btn btn-signature btn-sm fw-bold shadow-sm text-nowrap"
+                            data-bs-toggle="modal"
+                            data-bs-target="#assignActivityModal"
+                        >
+                            <span class="material-symbols-outlined fs-6 me-1"
+                                >add_task</span
+                            >
+                            Asignar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="activity-card mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <div class="d-flex flex-column">
+                            <span
+                                class="text-primary fw-bold text-uppercase"
+                                style="font-size: 0.65rem"
+                                >En curso — 10:00 AM</span
+                            >
+                            <small class="text-muted" style="font-size: 0.7rem"
+                                >26 de Abril, 2026</small
+                            >
+                        </div>
+                        <div class="d-flex">
+                            <img
+                                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                                style="width: 28px; height: 28px"
+                                class="rounded-circle border border-2 border-white ms-n2"
+                            />
+                            <img
+                                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                                style="
+                                    width: 28px;
+                                    height: 28px;
+                                    margin-left: -8px;
+                                "
+                                class="rounded-circle border border-2 border-white"
+                            />
+                        </div>
+                    </div>
+                    <h5 class="fw-bold h6">Demostración IA Generativa</h5>
+                    <p class="text-muted small mb-3">
+                        Presentación interactiva de casos de uso para retail con
+                        expertos de AWS.
+                    </p>
+                    <div
+                        class="d-flex justify-content-between align-items-center"
+                    >
+                        <div
+                            class="d-flex gap-3 text-muted"
+                            style="font-size: 0.7rem"
+                        >
+                            <span class="d-flex align-items-center gap-1"
+                                ><span class="material-symbols-outlined fs-6"
+                                    >schedule</span
+                                >
+                                45 min</span
+                            >
+                            <span class="d-flex align-items-center gap-1"
+                                ><span class="material-symbols-outlined fs-6"
+                                    >person</span
+                                >
+                                Ponentes: Sarah J., David L.</span
+                            >
+                        </div>
+                        <button
+                            class="btn btn-link btn-sm p-0 text-primary fw-bold text-decoration-none"
+                            style="font-size: 0.75rem"
+                            data-bs-toggle="modal"
+                            data-bs-target="#activityDetailsModal"
+                        >
+                            Ver detalles
+                        </button>
+                    </div>
+                </div>
+
+                <div class="activity-card mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <div class="d-flex flex-column">
+                            <span
+                                class="text-muted fw-bold text-uppercase"
+                                style="font-size: 0.65rem"
+                                >Próximo — 11:30 AM</span
+                            >
+                            <small class="text-muted" style="font-size: 0.7rem"
+                                >26 de Abril, 2026</small
+                            >
+                        </div>
+                        <div class="d-flex">
+                            <img
+                                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                                style="width: 28px; height: 28px"
+                                class="rounded-circle border border-2 border-white"
+                            />
+                        </div>
+                    </div>
+                    <h5 class="fw-bold h6">Networking Lunch: Partners</h5>
+                    <p class="text-muted small mb-3">
+                        Sesión de vinculación entre patrocinadores y asistentes
+                        V.I.P. para fortalecer la red de contactos.
+                    </p>
+                    <div
+                        class="d-flex justify-content-between align-items-center"
+                    >
+                        <div
+                            class="d-flex gap-3 text-muted"
+                            style="font-size: 0.7rem"
+                        >
+                            <span class="d-flex align-items-center gap-1"
+                                ><span class="material-symbols-outlined fs-6"
+                                    >schedule</span
+                                >
+                                60 min</span
+                            >
+                            <span class="d-flex align-items-center gap-1"
+                                ><span class="material-symbols-outlined fs-6"
+                                    >person</span
+                                >
+                                Ponente: Maria Garcia</span
+                            >
+                        </div>
+                        <button
+                            class="btn btn-link btn-sm p-0 text-primary fw-bold text-decoration-none"
+                            style="font-size: 0.75rem"
+                            data-bs-toggle="modal"
+                            data-bs-target="#activityDetailsModal"
+                        >
+                            Ver detalles
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="custom-card shadow-sm border-0 overflow-hidden p-0">
+        <div
+            class="px-4 pt-4 pb-3 d-flex justify-content-between align-items-center"
+        >
+            <div>
+                <h4 class="h5 fw-bold mb-1">Inventario de Recursos</h4>
+                <p class="text-muted small mb-0">
+                    Logística y despliegue técnico del stand.
+                </p>
+            </div>
+            <button
+                id="addResourceBtn"
+                class="btn btn-signature btn-sm rounded-2 d-flex align-items-center gap-2 px-3 py-2"
+                data-bs-toggle="modal"
+                data-bs-target="#addResourceModal"
+            >
+                <span class="material-symbols-outlined fs-6">add_circle</span>
+                Añadir Recurso
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mb-0 align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="col-resource px-4">Recurso</th>
+                        <th class="col-qty px-4 text-center">
+                            Gestión de recursos
+                        </th>
+                        <th class="col-status px-4">Estado</th>
+                        <th class="col-dest px-4">Destino</th>
+                        <th class="px-4"></th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    <tr>
+                        <td class="px-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div
+                                    class="bg-light rounded p-2 d-flex align-items-center justify-content-center"
+                                    style="width: 40px; height: 40px"
+                                >
+                                    <span
+                                        class="material-symbols-outlined text-muted fs-5"
+                                        >tv</span
+                                    >
+                                </div>
+                                <div class="fw-bold fs-7 text-nowrap">
+                                    Pantallas LED 4K 65"
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4">
+                            <div
+                                class="d-flex align-items-center justify-content-center gap-3"
+                            >
+                                <button
+                                    class="btn btn-outline-secondary btn-sm rounded-circle p-1 d-flex align-items-center justify-content-center btn-remove"
+                                    style="width: 28px; height: 28px"
+                                >
+                                    <span class="material-symbols-outlined fs-6"
+                                        >remove</span
+                                    >
+                                </button>
+                                <div class="text-center fw-bold">
+                                    <span class="assigned-val">4</span
+                                    ><span class="text-muted">/</span
+                                    ><span class="required-val text-muted"
+                                        >4</span
+                                    >
+                                </div>
+                                <button
+                                    class="btn btn-outline-primary btn-sm rounded-circle p-1 d-flex align-items-center justify-content-center btn-add"
+                                    style="width: 28px; height: 28px"
+                                >
+                                    <span class="material-symbols-outlined fs-6"
+                                        >add</span
+                                    >
+                                </button>
+                            </div>
+                        </td>
+                        <td class="px-4">
+                            <span
+                                class="badge badge-custom bg-success-subtle text-success status-badge"
+                                >Completado</span
+                            >
+                        </td>
+                        <td class="px-4">
+                            <small class="text-muted fw-medium target-label"
+                                >Display principal</small
+                            >
+                        </td>
+                        <td class="px-4 text-end">
+                            <button
+                                class="btn btn-link btn-sm p-0 text-muted opacity-50 hover-opacity-100"
+                                title="Editar destino"
+                            >
+                                <span
+                                    class="material-symbols-outlined fs-edit-icon"
+                                    >edit</span
+                                >
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div
+                                    class="bg-light rounded p-2 d-flex align-items-center justify-content-center"
+                                    style="width: 40px; height: 40px"
+                                >
+                                    <span
+                                        class="material-symbols-outlined text-muted fs-5"
+                                        >router</span
+                                    >
+                                </div>
+                                <div class="fw-bold fs-7 text-nowrap">
+                                    Router Industrial 5G
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4">
+                            <div
+                                class="d-flex align-items-center justify-content-center gap-3"
+                            >
+                                <button
+                                    class="btn btn-outline-secondary btn-sm rounded-circle p-1 d-flex align-items-center justify-content-center btn-remove"
+                                    style="width: 28px; height: 28px"
+                                >
+                                    <span class="material-symbols-outlined fs-6"
+                                        >remove</span
+                                    >
+                                </button>
+                                <div class="text-center fw-bold">
+                                    <span class="assigned-val">1</span
+                                    ><span class="text-muted">/</span
+                                    ><span class="required-val text-muted"
+                                        >2</span
+                                    >
+                                </div>
+                                <button
+                                    class="btn btn-outline-primary btn-sm rounded-circle p-1 d-flex align-items-center justify-content-center btn-add"
+                                    style="width: 28px; height: 28px"
+                                >
+                                    <span class="material-symbols-outlined fs-6"
+                                        >add</span
+                                    >
+                                </button>
+                            </div>
+                        </td>
+                        <td class="px-4">
+                            <span
+                                class="badge badge-custom bg-warning-subtle text-warning status-badge"
+                                >Pendiente</span
+                            >
+                        </td>
+                        <td class="px-4">
+                            <small class="text-muted fw-medium target-label"
+                                >Conectividad estable</small
+                            >
+                        </td>
+                        <td class="px-4 text-end">
+                            <button
+                                class="btn btn-link btn-sm p-0 text-muted opacity-50 hover-opacity-100"
+                                title="Editar destino"
+                            >
+                                <span
+                                    class="material-symbols-outlined fs-edit-icon"
+                                    >edit</span
+                                >
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div
+                                    class="bg-light rounded p-2 d-flex align-items-center justify-content-center"
+                                    style="width: 40px; height: 40px"
+                                >
+                                    <span
+                                        class="material-symbols-outlined text-muted fs-5"
+                                        >chair</span
+                                    >
+                                </div>
+                                <div class="fw-bold fs-7 text-nowrap">
+                                    Sillas Ergonómicas
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4">
+                            <div
+                                class="d-flex align-items-center justify-content-center gap-3"
+                            >
+                                <button
+                                    class="btn btn-outline-secondary btn-sm rounded-circle p-1 d-flex align-items-center justify-content-center btn-remove"
+                                    style="width: 28px; height: 28px"
+                                >
+                                    <span class="material-symbols-outlined fs-6"
+                                        >remove</span
+                                    >
+                                </button>
+                                <div class="text-center fw-bold">
+                                    <span class="assigned-val">0</span
+                                    ><span class="text-muted">/</span
+                                    ><span class="required-val text-muted"
+                                        >12</span
+                                    >
+                                </div>
+                                <button
+                                    class="btn btn-outline-primary btn-sm rounded-circle p-1 d-flex align-items-center justify-content-center btn-add"
+                                    style="width: 28px; height: 28px"
+                                >
+                                    <span class="material-symbols-outlined fs-6"
+                                        >add</span
+                                    >
+                                </button>
+                            </div>
+                        </td>
+                        <td class="px-4">
+                            <span
+                                class="badge badge-custom bg-danger-subtle text-danger status-badge"
+                                >Crítico</span
+                            >
+                        </td>
+                        <td class="px-4">
+                            <small class="text-muted fw-medium target-label"
+                                >Mobiliario staff</small
+                            >
+                        </td>
+                        <td class="px-4 text-end">
+                            <button
+                                class="btn btn-link btn-sm p-0 text-muted opacity-50 hover-opacity-100"
+                                title="Editar destino"
+                            >
+                                <span
+                                    class="material-symbols-outlined fs-edit-icon"
+                                    >edit</span
+                                >
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div
+            class="p-3 border-top bg-light d-flex justify-content-between align-items-center px-4"
+        >
+            <div class="small text-muted">Mostrando 3 recursos</div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled">
+                        <a class="page-link border-0" href="#">Anterior</a>
+                    </li>
+                    <li class="page-item active">
+                        <a class="page-link border-0" href="#">1</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link border-0" href="#">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <button class="fab btn-signature">
+        <span class="material-symbols-outlined">add</span>
+    </button>
+
+    <div
+        class="modal fade"
+        id="addResourceModal"
+        tabindex="-1"
+        aria-labelledby="addResourceModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5 class="modal-title fw-bold" id="addResourceModalLabel">
+                        Seleccionar Recursos
+                    </h5>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body px-4">
+                    <p class="text-muted small mb-4">
+                        Selecciona los elementos que deseas asignar al stand
+                        desde el catálogo global.
+                    </p>
+                    <div
+                        id="resourceCatalog"
+                        class="list-group list-group-flush border rounded-3 overflow-hidden"
+                    >
+                        <div class="p-4 text-center text-muted">
+                            Cargando catálogo...
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button
+                        type="button"
+                        class="btn btn-light rounded-3 px-4"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="button"
+                        id="confirmAddBtn"
+                        class="btn btn-signature rounded-3 px-4"
+                    >
+                        Añadir Seleccionados
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="modal fade"
+        id="editResourceModal"
+        tabindex="-1"
+        aria-labelledby="editResourceModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5 class="modal-title fw-bold" id="editResourceModalLabel">
+                        Editar Recurso
+                    </h5>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body px-4">
+                    <p class="text-muted small mb-4" id="editResourceName">
+                        Ajusta los detalles logísticos para este elemento.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted"
+                            >DESTINO EN STAND</label
+                        >
+                        <input
+                            type="text"
+                            id="editDestInput"
+                            class="form-control rounded-3"
+                            placeholder="Ej. Sala VIP"
+                        />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted"
+                            >CANTIDAD REQUERIDA</label
+                        >
+                        <input
+                            type="number"
+                            id="editReqInput"
+                            class="form-control rounded-3"
+                            min="1"
+                        />
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button
+                        type="button"
+                        class="btn btn-light rounded-3 px-4"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="button"
+                        id="saveResourceEditBtn"
+                        class="btn btn-signature rounded-3 px-4"
+                    >
+                        Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="modal fade"
+        id="assignActivityModal"
+        tabindex="-1"
+        aria-labelledby="assignActivityModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5
+                        class="modal-title fw-bold"
+                        id="assignActivityModalLabel"
+                    >
+                        Asignar Nueva Actividad
+                    </h5>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body px-4">
+                    <p class="text-muted small mb-4">
+                        Selecciona una actividad del catálogo oficial del evento
+                        para tu stand.
+                    </p>
+                    <div
+                        id="activityCatalogList"
+                        class="list-group list-group-flush border rounded-3 overflow-hidden"
+                    ></div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button
+                        type="button"
+                        class="btn btn-light rounded-3 px-4"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="button"
+                        id="confirmAssignActivityBtn"
+                        class="btn btn-signature rounded-3 px-4"
+                    >
+                        Asignar al Stand
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="modal fade"
+        id="activityDetailsModal"
+        tabindex="-1"
+        aria-labelledby="activityDetailsModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5
+                        class="modal-title fw-bold"
+                        id="activityDetailsModalLabel"
+                    >
+                        Detales de la Actividad
+                    </h5>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body px-4 pb-4">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="bg-primary-subtle rounded-3 p-3">
+                            <span
+                                class="material-symbols-outlined text-primary fs-2"
+                                >auto_awesome</span
+                            >
+                        </div>
+                        <div>
+                            <h4 class="h5 fw-bold mb-1">
+                                Demostración IA Generativa
+                            </h4>
+                            <span
+                                class="badge bg-primary-subtle text-primary fw-bold"
+                                style="font-size: 0.65rem"
+                                >EN CURSO</span
+                            >
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted mb-2"
+                            >DESCRIPCIÓN COMPLETA</label
+                        >
+                        <p class="text-secondary small">
+                            Descubre cómo la IA Generativa está transformando la
+                            experiencia de compra en el sector retail. En esta
+                            sesión de 45 minutos, nuestros expertos de AWS
+                            presentarán casos de éxito reales y realizarán una
+                            demostración técnica en vivo utilizando herramientas
+                            de vanguardia.
+                        </p>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label
+                                class="form-label small fw-bold text-muted mb-1"
+                                >PONENTES</label
+                            >
+                            <p class="small mb-0 fw-medium">
+                                Sarah Johnson (AWS)
+                            </p>
+                            <p class="small mb-0 fw-medium">
+                                David Lee (EventPro)
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <label
+                                class="form-label small fw-bold text-muted mb-1"
+                                >HORARIO</label
+                            >
+                            <p class="small mb-0 fw-medium">
+                                10:00 AM - 10:45 AM
+                            </p>
+                            <p
+                                class="small mb-0 text-muted"
+                                style="font-size: 0.7rem"
+                            >
+                                26 de Abril, 2026
+                            </p>
+                        </div>
+                    </div>
+                    <div
+                        class="p-3 bg-light rounded-3 d-flex align-items-center justify-content-between"
+                    >
+                        <div
+                            class="d-flex align-items-center gap-2 text-muted small"
+                        >
+                            <span class="material-symbols-outlined fs-5"
+                                >groups</span
+                            >
+                            <span>Capacidad: 25 asistentes</span>
+                        </div>
+                        <span class="text-success small fw-bold"
+                            >Cupo Completo</span
+                        >
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 gap-2 flex-column">
+                    <div class="d-flex w-100 gap-2">
+                        <button
+                            type="button"
+                            id="moveActivityBtn"
+                            class="btn btn-outline-primary flex-grow-1 rounded-3"
+                        >
+                            <span
+                                class="material-symbols-outlined fs-6 me-1 align-middle"
+                                >shortcut</span
+                            >
+                            Mover
+                        </button>
+                        <button
+                            type="button"
+                            id="deleteActivityBtn"
+                            class="btn btn-outline-danger flex-grow-1 rounded-3"
+                        >
+                            <span
+                                class="material-symbols-outlined fs-6 me-1 align-middle"
+                                >delete</span
+                            >
+                            Eliminar
+                        </button>
+                    </div>
+                    <button
+                        type="button"
+                        class="btn btn-signature w-100 rounded-3"
+                        data-bs-dismiss="modal"
+                    >
+                        Cerrar Detalles
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="modal fade"
+        id="changeTeamModal"
+        tabindex="-1"
+        aria-labelledby="changeTeamModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5 class="modal-title fw-bold" id="changeTeamModalLabel">
+                        Asignar Equipo
+                    </h5>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body px-4">
+                    <p class="text-muted small mb-4">
+                        Selecciona los miembros del staff para este stand.
+                    </p>
+                    <div
+                        id="staffCatalog"
+                        class="list-group list-group-flush border rounded-3 overflow-hidden"
+                    >
+                        <div class="p-4 text-center text-muted">
+                            Cargando catálogo de personal...
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button
+                        type="button"
+                        class="btn btn-light rounded-3 px-4"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="button"
+                        id="confirmTeamChangeBtn"
+                        class="btn btn-signature rounded-3 px-4"
+                    >
+                        Confirmar Equipo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {% block extra_scripts %}
+<script src="{% static 'pe_stand/info_stands/js/script.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte Analítico - {{ event_title }}</title>
+    <style>
+        body { font-family: 'Helvetica', 'Arial', sans-serif; margin: 40px; color: #333; }
+        h1 { color: #0d6efd; border-bottom: 2px solid #0d6efd; padding-bottom: 10px; }
+        h2 { color: #333; margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border: 1px solid #ddd; }
+        th { background-color: #0d6efd; color: white; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        .metric-card { display: inline-block; width: 30%; margin: 10px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+        .metric-value { font-size: 24px; font-weight: bold; color: #0d6efd; }
+        .metric-label { font-size: 14px; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>Reporte Analítico: {{ event_title }}</h1>
+    <p><strong>Fecha:</strong> {{ metrics.total_attendance }} asistentes registrados</p>
+    <p><strong>ID Evento:</strong> {{ event_id }}</p>
+
+    <h2>Métricas Principales</h2>
+    <div>
+        <div class="metric-card">
+            <div class="metric-value">{{ metrics.total_attendance }}</div>
+            <div class="metric-label">Total de Asistentes</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">${{ metrics.total_revenue|floatformat:2 }}</div>
+            <div class="metric-label">Ingresos Totales</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">${{ metrics.avg_ticket_price|floatformat:2 }}</div>
+            <div class="metric-label">Precio Promedio</div>
+        </div>
+    </div>
+
+    <h2>Distribución por Tipo de Ticket</h2>
+    <table>
+        <tr><th>Tipo de Ticket</th><th>Cantidad</th></tr>
+        {% for ticket_type, count in metrics.ticket_distribution.items %}
+        <tr><td>{{ ticket_type }}</td><td>{{ count }}</td></tr>
+        {% endfor %}
+    </table>
+
+    <h2>Demografía por Edad</h2>
+    <table>
+        <tr><th>Grupo de Edad</th><th>Cantidad</th></tr>
+        {% for age_group, count in metrics.age_distribution.items %}
+        <tr><td>{{ age_group }}</td><td>{{ count }}</td></tr>
+        {% endfor %}
+    </table>
+
+    <h2>Distribución por Género</h2>
+    <table>
+        <tr><th>Género</th><th>Cantidad</th></tr>
+        {% for gender, count in metrics.gender_distribution.items %}
+        <tr><td>{{ gender }}</td><td>{{ count }}</td></tr>
+        {% endfor %}
+    </table>
+
+    <p style="margin-top: 40px; color: #999; font-size: 12px;">Generado el {% now "d/m/Y H:i" %}</p>
+</body>
+</html>

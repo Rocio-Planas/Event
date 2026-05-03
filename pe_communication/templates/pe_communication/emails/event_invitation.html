@@ -1,0 +1,20 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Invitación al evento</title>
+</head>
+<body>
+    <h1>¡Estás invitado!</h1>
+    <p>Te invitamos a participar en el evento <strong>{{ event.title }}</strong>.</p>
+    {% if organizer_name %}
+    <p>Organizador: <strong>{{ organizer_name }}</strong></p>
+    {% endif %}
+    {% if custom_message %}
+    <p><strong>Mensaje del organizador:</strong></p>
+    <p>{{ custom_message }}</p>
+    {% endif %}
+    <p>Encuentra todos los detalles del evento en el siguiente enlace:</p>
+    <p><a href="{{ event_url }}">Ver detalles del evento</a></p>
+    <p>Si no deseas recibir esta invitación, puedes ignorar este mensaje.</p>
+</body>
+</html>

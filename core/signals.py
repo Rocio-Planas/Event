@@ -4,7 +4,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 from virtualEvent.models import VirtualEvent
-from .models import Resena, Consulta
+from .models import Resena, Consulta, Suscripcion
 
 @receiver(post_save, sender=VirtualEvent)
 def promover_a_organizador(sender, instance, created, **kwargs):
@@ -77,3 +77,48 @@ def notificar_consulta_respondida(sender, instance, created, **kwargs):
                 fail_silently=False,
             )
             instance._email_sent = True
+
+
+@receiver(post_save, sender=Suscripcion)
+def sincronizar_suscripcion_presencial(sender, instance, created, **kwargs):
+    """
+    Cuando se crea una suscripción a un evento presencial,
+    crea automáticamente un registro en pe_registration.Registration.
+
+    Nota de negocio:
+    - Suscripciones desde la homepage deben ser confirmadas automáticamente.
+    - Invitaciones privadas se manejan como pendientes en in_person_events.views.create_event_form.
+    """
+    if created and instance.tipo_evento == 'presencial':
+        try:
+            from in_person_events.models import Event
+            from pe_registration.models import Registration, TicketType
+            
+            # Obtener el evento presencial
+            event = Event.objects.get(id=instance.evento_id)
+            
+            # Obtener el primer ticket type disponible (o crear uno default)
+            ticket_type = event.ticket_types.first()
+            if not ticket_type:
+                ticket_type = TicketType.objects.create(
+                    event=event,
+                    name='General',
+                    price=0
+                )
+            
+            # Crear el registro en pe_registration
+            registration, created_reg = Registration.objects.get_or_create(
+                event=event,
+                user=instance.usuario,
+                defaults={
+                    'ticket_type': ticket_type,
+                    'status': Registration.Status.CONFIRMADA,
+                    'payment_status': 'completado'
+                }
+            )
+            
+            if created_reg:
+                print(f"✅ Registration creado para {instance.usuario.email} en evento {event.title}")
+            
+        except Exception as e:
+            print(f"⚠️ Error sincronizando suscripción: {str(e)}")

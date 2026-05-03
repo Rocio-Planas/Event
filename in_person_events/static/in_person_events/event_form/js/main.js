@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Visibility Toggles
     const publicCard = document.getElementById("publicVisibility");
     const privateCard = document.getElementById("privateVisibility");
+    const invitationsInput = document.getElementById("id_invitations");
     const publicRadio = publicCard
         ? publicCard.querySelector('input[type="radio"]')
         : null;
@@ -40,11 +41,22 @@ document.addEventListener("DOMContentLoaded", () => {
         ? privateCard.querySelector('input[type="radio"]')
         : null;
 
+    function toggleInvitationsRequired(show) {
+        if (invitationsInput) {
+            invitationsInput.required = show;
+        }
+    }
+
     if (publicCard) {
         publicCard.addEventListener("click", () => {
             publicCard.classList.add("active");
             privateCard.classList.remove("active");
             if (publicRadio) publicRadio.checked = true;
+            const invitationsGroup = document.getElementById("evInvitationsGroup");
+            if (invitationsGroup) {
+                invitationsGroup.classList.add("d-none");
+            }
+            toggleInvitationsRequired(false);
         });
     }
 
@@ -53,7 +65,41 @@ document.addEventListener("DOMContentLoaded", () => {
             privateCard.classList.add("active");
             publicCard.classList.remove("active");
             if (privateRadio) privateRadio.checked = true;
+            // Show invitations field for private events
+            const invitationsGroup =
+                document.getElementById("evInvitationsGroup");
+            if (invitationsGroup) {
+                invitationsGroup.classList.remove("d-none");
+            }
+            toggleInvitationsRequired(true);
         });
+    }
+
+    // Handle radio button changes for visibility
+    const visibilityRadios = document.querySelectorAll(
+        'input[name="visibility"]',
+    );
+    visibilityRadios.forEach((radio) => {
+        radio.addEventListener("change", (e) => {
+            const invitationsGroup =
+                document.getElementById("evInvitationsGroup");
+            if (invitationsGroup) {
+                if (e.target.value === "privado") {
+                    invitationsGroup.classList.remove("d-none");
+                    toggleInvitationsRequired(true);
+                } else {
+                    invitationsGroup.classList.add("d-none");
+                    toggleInvitationsRequired(false);
+                }
+            }
+        });
+    });
+
+    const currentVisibility = document.querySelector('input[name="visibility"]:checked');
+    if (currentVisibility && currentVisibility.value === 'privado') {
+        toggleInvitationsRequired(true);
+    } else {
+        toggleInvitationsRequired(false);
     }
 
     // Ticket Management
@@ -91,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return `
             <div class="ticket-item d-flex flex-column flex-md-row align-items-center gap-3" id="ticket-${ticketId}">
                 <div class="flex-grow-1 w-100">
-                    <label class="form-label mb-1">Nombre del Ticket</label>
+                    <label class="ev-label mb-1">Nombre del Ticket</label>
                     <input
                         type="text"
                         class="form-control border-0 bg-transparent p-0 fw-medium shadow-none"
@@ -100,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     />
                 </div>
                 <div class="w-100 w-md-25">
-                    <label class="form-label mb-1">Precio</label>
+                    <label class="ev-label mb-1">Precio</label>
                     <div class="d-flex align-items-center">
                         <span class="fw-bold me-1">€</span>
                         <input

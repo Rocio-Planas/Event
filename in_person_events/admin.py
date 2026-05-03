@@ -1,5 +1,13 @@
 from django.contrib import admin
-from .models import Event, EventStateHistory
+from .models import Event, EventStateHistory, EventResource
+
+
+class EventResourceInline(admin.TabularInline):
+    model = EventResource
+    extra = 1
+    readonly_fields = ('uploaded_at',)
+    fields = ('title', 'file', 'uploaded_at')
+    show_change_link = True
 
 
 @admin.register(Event)
@@ -32,6 +40,7 @@ class EventAdmin(admin.ModelAdmin):
         }),
     )
     
+    inlines = [EventResourceInline]
     actions = ['approve_events', 'reject_events', 'mark_as_active', 'mark_as_inactive']
     
     def approve_events(self, request, queryset):
