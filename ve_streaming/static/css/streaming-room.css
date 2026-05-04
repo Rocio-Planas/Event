@@ -1136,3 +1136,62 @@ button:focus-visible {
 .dark #sr-poll-options-container::-webkit-scrollbar-thumb {
   background: var(--primary);
 }
+
+
+
+/* ============================================
+   RESPONSIVE: BARRA INFERIOR DEL REPRODUCTOR 
+   ============================================ */
+
+@media (max-width: 767.98px) {
+  .sr-video-wrapper > div:last-child,
+  .sr-video-wrapper .bg-white.py-3.px-4.d-flex {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  .sr-video-wrapper .d-flex.align-items-center.gap-3 {
+    gap: 0.5rem !important;
+    flex: 1 1 auto !important;
+  }
+
+  .sr-video-wrapper .d-flex.gap-2 {
+    gap: 0.5rem !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+  }
+
+  .sr-video-wrapper .btn-light.btn-sm.sr-btn-pill {
+    font-size: 0.7rem !important;
+    padding: 0.3rem 0.7rem !important;
+  }
+
+  .sr-live-indicator {
+    font-size: 0.65rem !important;
+    padding: 0.25rem 0.6rem !important;
+  }
+
+  .sr-video-wrapper .text-muted.small.fw-bold {
+    font-size: 0.7rem !important;
+  }
+}
+
+/* Para pantallas extra pequeñas (menos de 480px) */
+@media (max-width: 480px) {
+  .sr-video-wrapper .btn-light.btn-sm.sr-btn-pill {
+    font-size: 0.65rem !important;
+    padding: 0.25rem 0.6rem !important;
+  }
+  .sr-live-indicator {
+    font-size: 0.6rem !important;
+    padding: 0.2rem 0.5rem !important;
+  }
+  
+  .sr-video-wrapper > div:last-child {
+    gap: 0.3rem !important;
+  }
+}

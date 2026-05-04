@@ -695,3 +695,24 @@ main {
     gap: 0.5rem;
   }
 }
+
+
+/* ========== LÍMITE MÍNIMO DE ANCHO EN PANTALLAS EXTREMADAMENTE PEQUEÑAS ========== */
+
+@media (max-width: 319px) {
+  html {
+    overflow-x: auto;
+  }
+  body {
+    min-width: 320px;
+    width: 320px;
+    overflow-x: auto;
+  }
+  
+  .navbar-custom,
+  main,
+  footer,
+  .container {
+    min-width: 320px;
+  }
+}
