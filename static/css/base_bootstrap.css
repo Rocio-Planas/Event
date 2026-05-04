@@ -398,6 +398,38 @@ main {
   outline: 0 !important;
 }
 
+/* ========== HOVER PARA DROPDOWN DE NOTIFICACIONES (CORREGIDO) ========== */
+.dropdown-menu .dropdown-item {
+  border-radius: 0.5rem;
+  margin: 0.2rem 0.5rem;
+  width: calc(100% - 1rem);
+  transition: all 0.2s ease;
+}
+
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+  background-color: #e9ecef !important;
+  color: #0057cd !important;
+  transform: translateX(2px);
+}
+
+/* Modo oscuro: fondo gris oscuro suave, texto azul primario */
+.dark .dropdown-menu .dropdown-item:hover,
+.dark .dropdown-menu .dropdown-item:focus {
+  background-color: #2a2a36 !important;
+  color: #7a9eff !important;
+  transform: translateX(2px);
+}
+
+/* Excepción para el texto "Sin notificaciones" - sin efecto hover */
+.dropdown-item.text-muted:hover,
+.dark .dropdown-item.text-muted:hover {
+  background-color: transparent !important;
+  color: var(--text-on-surface-variant) !important;
+  transform: none !important;
+  cursor: default;
+}
+
 /* ========== RESPONSIVE EXTRA PARA DISPOSITIVOS ESPECÍFICOS ========== */
 @media (max-width: 400px) {
   .navbar-container {
@@ -626,7 +658,6 @@ main {
     height: 32px;
   }
 
-  /* Oculta sombra de la navbar cuando el menú está abierto */
   .navbar-custom:has(~ .nav-links.show) {
     box-shadow: none;
   }
@@ -686,7 +717,6 @@ main {
   }
 }
 
-
 @media (min-width: 768px) and (max-width: 900px) {
   .nav-link {
     font-size: 0.75rem;
@@ -695,7 +725,6 @@ main {
     gap: 0.5rem;
   }
 }
-
 
 /* ========== LÍMITE MÍNIMO DE ANCHO EN PANTALLAS EXTREMADAMENTE PEQUEÑAS ========== */
 
@@ -708,7 +737,7 @@ main {
     width: 320px;
     overflow-x: auto;
   }
-  
+
   .navbar-custom,
   main,
   footer,
