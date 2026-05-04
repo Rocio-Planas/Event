@@ -94,10 +94,38 @@ class Activity(models.Model):
         """Retorna la duración de la actividad en minutos"""
         return int((self.end_time - self.start_time).total_seconds() / 60)
     
+    def get_current_status(self):
+        """Retorna el estado real de la actividad según la hora local y la duración."""
+        if self.status == self.Status.CANCELADA:
+            return self.Status.CANCELADA
+
+        def _to_local(dt):
+            if timezone.is_naive(dt):
+                dt = timezone.make_aware(dt, timezone.get_current_timezone())
+            return timezone.localtime(dt)
+
+        now = timezone.localtime()
+        start_time = _to_local(self.start_time)
+        end_time = _to_local(self.end_time)
+
+        if end_time <= now:
+            return self.Status.COMPLETADA
+        if start_time <= now < end_time:
+            return self.Status.EN_CURSO
+        return self.Status.PROGRAMADA
+    
+    @property
+    def current_status(self):
+        return self.get_current_status()
+    
     def is_ongoing(self):
         """Verifica si la actividad está en curso"""
-        now = timezone.now()
-        return self.start_time <= now <= self.end_time
+        return self.get_current_status() == self.Status.EN_CURSO
+    
+    def save(self, *args, **kwargs):
+        if self.status != self.Status.CANCELADA:
+            self.status = self.get_current_status()
+        super().save(*args, **kwargs)
     
     def get_availability_percentage(self):
         """Retorna el porcentaje de disponibilidad"""

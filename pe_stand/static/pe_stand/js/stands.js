@@ -102,20 +102,15 @@ function handleCreateStand(e) {
                 // Reset form
                 e.target.reset();
 
-                // Show success message
-                showToast("Stand creado correctamente", "success");
-
-                // Reload page to show new stand
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                // Reload page immediately
+                window.location.reload();
             } else {
-                showToast(result.error || "Error al crear el stand", "error");
+                alert(result.error || "Error al crear el stand");
             }
         })
         .catch((error) => {
             console.error("Error:", error);
-            showToast("Error de conexión", "error");
+            alert("Error de conexión");
         })
         .finally(() => {
             // Re-enable submit button

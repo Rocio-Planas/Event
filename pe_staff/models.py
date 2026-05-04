@@ -116,6 +116,8 @@ class StaffMember(models.Model):
     role = models.CharField(
         max_length=50,
         choices=StaffRole.choices,
+        null=True,
+        blank=True,
         verbose_name='Rol'
     )
     zone = models.CharField(
@@ -136,4 +138,5 @@ class StaffMember(models.Model):
         unique_together = ['event', 'user']
 
     def __str__(self):
-        return f"{self.user.get_full_name() or self.user.email} - {self.event.title} ({self.role})"
+        role_display = self.role or ('Ponente' if self.user_type == 'ponente' else 'Sin Rol')
+        return f"{self.user.get_full_name() or self.user.email} - {self.event.title} ({role_display})"

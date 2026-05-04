@@ -449,3 +449,115 @@ function updateBudgetProgress(value) {
         budgetValue.innerText = value + '%';
     }
 }
+
+// Add Staff to Stand functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const mainContainer = document.querySelector('[data-stand-id]');
+    const standId = mainContainer ? mainContainer.dataset.standId : null;
+    
+    console.log('Stand ID:', standId);
+    
+    if (!standId) {
+        console.log('Missing standId');
+        return;
+    }
+    
+    // Guardar standId en window para acceder desde el modal
+    window.currentStandId = standId;
+    
+    // Handle checkbox changes - delegar al document porque el modal tiene aria-hidden
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('staff-checkbox')) {
+            const confirmBtn = document.getElementById('confirmAddStaffBtn');
+            const anyChecked = document.querySelectorAll('.staff-checkbox:checked').length > 0;
+            if (confirmBtn) {
+                confirmBtn.disabled = !anyChecked;
+                if (!anyChecked) {
+                    confirmBtn.textContent = 'Aceptar';
+                }
+            }
+        }
+    });
+    
+    // Handle confirm add staff click
+    document.addEventListener('click', async function(e) {
+        if (e.target && e.target.id === 'confirmAddStaffBtn') {
+            const confirmAddStaffBtn = e.target;
+            const selectedCheckboxes = document.querySelectorAll('.staff-checkbox:checked');
+            const selectedUsers = Array.from(selectedCheckboxes).map(cb => ({
+                user_id: cb.value,
+                role: cb.dataset.role
+            }));
+            
+            console.log('Selected users:', selectedUsers);
+            
+            if (selectedUsers.length === 0) return;
+            
+            confirmAddStaffBtn.disabled = true;
+            confirmAddStaffBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Añadiendo...';
+            
+            try {
+                const response = await fetch('/api/stands/' + window.currentStandId + '/add-staff/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        users: selectedUsers
+                    })
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.error || 'Error al añadir personal');
+                    confirmAddStaffBtn.disabled = false;
+                    confirmAddStaffBtn.textContent = 'Aceptar';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al comunicar con el servidor');
+                confirmAddStaffBtn.disabled = false;
+                confirmAddStaffBtn.textContent = 'Aceptar';
+            }
+        }
+    });
+});
+
+// Función para obtener el token CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Función para obtener el token CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}

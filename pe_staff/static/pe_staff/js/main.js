@@ -140,7 +140,7 @@ function getCSRFToken() {
     return cookieValue;
 }
 
-// Cancelar invitación pendiente
+// Cancelar invitación pendiente (pasar a rechazada)
 document.addEventListener("click", async function (event) {
     const button = event.target.closest(".cancel-invitation-btn");
     if (!button) return;
@@ -148,33 +148,86 @@ document.addEventListener("click", async function (event) {
     const invitationId = button.getAttribute("data-invitation-id");
     if (!invitationId) return;
 
-    if (!confirm("¿Deseas cancelar esta invitación pendiente?")) {
-        return;
-    }
+    const invitationRow = button.closest('tr');
+    const invitationNameEl = invitationRow?.querySelector('.fw-bold');
+    const invitationName = invitationNameEl ? invitationNameEl.textContent : 'esta invitación';
 
-    try {
-        const response = await fetch(
-            `/equipo/staff/${eventId}/cancel-invitation/${invitationId}/`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCSRFToken(),
+    const cancelModalEl = document.getElementById('cancelInvitationModal');
+    const cancelModal = new bootstrap.Modal(cancelModalEl);
+    document.getElementById('cancelInvitationName').textContent = invitationName;
+    document.getElementById('confirmCancelInvitationBtn').dataset.invitationId = invitationId;
+    cancelModal.show();
+
+    document.getElementById('confirmCancelInvitationBtn').onclick = async function() {
+        try {
+            const response = await fetch(
+                `/equipo/staff/${eventId}/cancel-invitation/${invitationId}/`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken(),
+                    },
                 },
-            },
-        );
+            );
 
-        const data = await response.json();
-        if (data.success) {
-            alert("Invitación cancelada");
-            window.location.reload();
-        } else {
-            alert(data.error || "Error al cancelar la invitación");
+            const data = await response.json();
+            if (data.success) {
+                cancelModal.hide();
+                window.location.reload();
+            } else {
+                alert(data.error || "Error al cancelar la invitación");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Error al cancelar la invitación");
         }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("Error al cancelar la invitación");
-    }
+    };
+});
+
+// Eliminar invitación (aceptada o rechazada)
+document.addEventListener("click", async function (event) {
+    const button = event.target.closest(".delete-invitation-btn");
+    if (!button) return;
+
+    const invitationId = button.getAttribute("data-invitation-id");
+    if (!invitationId) return;
+
+    const invitationRow = button.closest('tr');
+    const invitationNameEl = invitationRow?.querySelector('.fw-bold');
+    const invitationName = invitationNameEl ? invitationNameEl.textContent : 'esta invitación';
+
+    const deleteModalEl = document.getElementById('deleteInvitationModal');
+    const deleteModal = new bootstrap.Modal(deleteModalEl);
+    document.getElementById('deleteInvitationName').textContent = invitationName;
+    document.getElementById('confirmDeleteInvitationBtn').dataset.invitationId = invitationId;
+    deleteModal.show();
+
+    document.getElementById('confirmDeleteInvitationBtn').onclick = async function() {
+        try {
+            const response = await fetch(
+                `/equipo/staff/${eventId}/delete-invitation/${invitationId}/`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken(),
+                    },
+                },
+            );
+
+            const data = await response.json();
+            if (data.success) {
+                deleteModal.hide();
+                window.location.reload();
+            } else {
+                alert(data.error || "Error al eliminar la invitación");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Error al eliminar la invitación");
+        }
+    };
 });
 
 // Ver miembros

@@ -100,7 +100,7 @@
                     <tr>
                         <th class="px-4 py-3">Miembro</th>
                         <th class="py-3">Rol</th>
-                        <th class="py-3">Zona/Actividad Asignada</th>
+                        <th class="py-3">Zona/Actividad</th>
                         <th class="py-3">Estado</th>
                         <th class="px-4 py-3 text-center">Acciones</th>
                     </tr>
@@ -122,19 +122,9 @@
                         </td>
                         <td><span class="badge bg-primary">{% if member.user_type == 'ponente' %}Ponente{% else %}Staff({{ member.get_role_display }}){% endif %}</span></td>
                         <td>
-                            {% if member.zone %}
-                            <span class="badge bg-success">{{ member.zone }}</span>
-                            {% else %}
-                            <span class="badge bg-secondary">Sin asignar</span>
-                            {% endif %}
+                            {% if member.zone %}<span class="badge bg-success">{{ member.zone }}</span>{% else %}<span class="text-muted">No asignada</span>{% endif %}
                         </td>
-                        <td>
-                            {% if member.zone %}
-                            <span class="badge bg-success">Confirmado</span>
-                            {% else %}
-                            <span class="badge bg-success">Confirmado</span>
-                            {% endif %}
-                        </td>
+                        <td><span class="badge bg-success">Confirmado</span></td>
                         <td class="px-4 text-center">
                             <div class="btn-group">
                                 <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewMemberModal" 
@@ -178,7 +168,7 @@
                             {% elif invitation.role %}
                                 <span class="badge bg-success">Staff({{ invitation.get_role_display }})</span>
                             {% else %}
-                                <span class="badge bg-secondary">No aplica</span>
+                                <span class="text-muted">No asignada</span>
                             {% endif %}
                         </td>
                         <td class="py-3">
@@ -197,7 +187,7 @@
                                     title="Ver">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger cancel-invitation-btn" title="Eliminar" data-invitation-id="{{ invitation.id }}">
+                                <button class="btn btn-sm btn-outline-danger delete-invitation-btn" title="Eliminar" data-invitation-id="{{ invitation.id }}">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
                                 </button>
                             </div>
@@ -225,7 +215,7 @@
                             {% elif invitation.role %}
                                 <span class="badge bg-secondary">Staff({{ invitation.get_role_display }})</span>
                             {% else %}
-                                <span class="badge bg-secondary">No aplica</span>
+                                <span class="text-muted">No asignada</span>
                             {% endif %}
                         </td>
                         <td class="py-3">
@@ -235,7 +225,9 @@
                             <span class="badge bg-danger">Rechazado</span>
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <span class="material-symbols-outlined text-muted">close</span>
+                            <button class="btn btn-sm btn-outline-danger delete-invitation-btn" title="Eliminar" data-invitation-id="{{ invitation.id }}">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -473,6 +465,46 @@
                 <div class="modal-footer border-top-0 px-4 pb-4">
                     <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-danger px-4" id="confirmDeleteMemberBtn">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cancelar Invitación -->
+    <div class="modal fade" id="cancelInvitationModal" tabindex="-1" aria-labelledby="cancelInvitationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold text-danger" id="cancelInvitationModalLabel">Cancelar Invitación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <p class="mb-2">¿Estás seguro de que deseas cancelar la invitación de <strong id="cancelInvitationName"></strong>?</p>
+                    <p class="text-muted small mb-0">La invitación cambiará a estado rechazado.</p>
+                </div>
+                <div class="modal-footer border-top-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmCancelInvitationBtn">Cancelar Invitación</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Eliminar Invitación -->
+    <div class="modal fade" id="deleteInvitationModal" tabindex="-1" aria-labelledby="deleteInvitationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold text-danger" id="deleteInvitationModalLabel">Eliminar Invitación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <p class="mb-2">¿Estás seguro de que deseas eliminar la invitación de <strong id="deleteInvitationName"></strong>?</p>
+                    <p class="text-muted small mb-0">Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer border-top-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteInvitationBtn">Eliminar</button>
                 </div>
             </div>
         </div>

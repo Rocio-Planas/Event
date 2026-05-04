@@ -11,6 +11,7 @@ urlpatterns = [
     path('staff/<int:event_id>/invite/', views.invite_staff, name='invite'),
     path('staff/<int:event_id>/invitations/', views.get_invitations, name='get_invitations'),
     path('staff/<int:event_id>/cancel-invitation/<int:invitation_id>/', views.cancel_invitation, name='cancel_invitation'),
+    path('staff/<int:event_id>/delete-invitation/<int:invitation_id>/', views.delete_invitation, name='delete_invitation'),
     
     # Aceptar invitación (público)
     path('accept/<uuid:token>/', views.accept_invitation, name='accept_invitation'),

@@ -8,9 +8,20 @@ from django.urls import reverse
 from in_person_events.models import Event
 from in_person_events.forms import EventForm
 from pe_registration.models import TicketType
+from pe_stand.models import Stand
 from .models import Activity
 from .forms import ActivityForm
 import json
+
+
+def _refresh_activity_status(activity):
+    if activity.status != Activity.Status.CANCELADA:
+        activity.status = activity.get_current_status()
+    return activity
+
+
+def is_unassigned_location(location):
+    return not location or str(location).strip().lower() in ['no asignada', 'sin asignar', 'sin asignada', 'unassigned']
 
 
 @login_required
@@ -44,13 +55,21 @@ def activities(request, event_id):
     
     if speaker_filter != 'all':
         activities_list = activities_list.filter(speaker_name=speaker_filter)
-    
+
+    for activity in activities_list:
+        _refresh_activity_status(activity)
+
+    event_zones = Stand.objects.filter(event=event).exclude(name='').values_list('name', flat=True).distinct().order_by('name')
+
     context = {
         'event': event,
         'activities': activities_list,
         'active_page': 'actividades',
         'total_activities': activities_list.count(),
-        'form': ActivityForm(),  # Agregar formulario para el modal
+        'form': ActivityForm(),
+        'confirmed_ponentes': event.staff_members.filter(user_type='ponente'),
+        'ponente_profiles': {m.user.id: m.user for m in event.staff_members.filter(user_type='ponente')},
+        'event_zones': event_zones,
     }
     
     return render(request, 'activities.html', context)
@@ -61,76 +80,86 @@ def create_activity(request, event_id):
     """
     Vista para crear una nueva actividad en un evento.
     """
+    from datetime import datetime
+
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
     
     if request.method == 'GET':
-        # Si se accede directamente a la URL de creación, redirige a la lista de actividades
-        # ya que el formulario de creación se maneja como un modal dentro de `activities`.
         return redirect('pe_agenda:activities', event_id=event.id)
     if request.method == 'POST':
-        form = ActivityForm(request.POST)
-        if form.is_valid():
-            activity = form.save(commit=False)
-            activity.event = event
-            activity.save()
-            messages.success(request, 'Actividad creada exitosamente')
-            
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': True, 'message': 'Actividad creada exitosamente'})
+        title = request.POST.get('title', '').strip()
+        description = request.POST.get('description', '').strip()
+        location = request.POST.get('location', '').strip()
+        speaker_name = request.POST.get('speaker_name', '').strip()
+        
+        start_time_str = request.POST.get('start_time', '')
+        end_time_str = request.POST.get('end_time', '')
+        
+        if not title:
+            messages.error(request, 'El título es obligatorio')
             return redirect('pe_agenda:activities', event_id=event.id)
-        else:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'errors': form.errors}, status=400)
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
-            return redirect(f"{reverse('pe_agenda:activities', args=[event.id])}?modal=create")
-    else:
-        form = ActivityForm()
-    
-    context = {
-        'event': event,
-        'form': form,
-        'active_page': 'actividades'
-    }
-    
-    return render(request, 'create_activity_form.html', context)
+        
+        if not start_time_str or not end_time_str:
+            messages.error(request, 'Las horas de inicio y fin son obligatorias')
+            return redirect('pe_agenda:activities', event_id=event.id)
+        
+        try:
+            start_time = datetime.fromisoformat(start_time_str.replace('T', ' '))
+            end_time = datetime.fromisoformat(end_time_str.replace('T', ' '))
+        except ValueError as e:
+            messages.error(request, f'Formato de fecha inválido: {str(e)}')
+            return redirect('pe_agenda:activities', event_id=event.id)
+        
+        activity = Activity.objects.create(
+            event=event,
+            title=title,
+            description=description,
+            start_time=start_time,
+            end_time=end_time,
+            location=location,
+            speaker_name=speaker_name,
+            status='programada'
+        )
+        
+        messages.success(request, 'Actividad creada exitosamente')
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': 'Actividad creada exitosamente'})
+        return redirect('pe_agenda:activities', event_id=event.id)
 
 
 @login_required
 def edit_activity(request, event_id, activity_id):
-    """
-    Vista para editar una actividad existente.
-    """
+    from datetime import datetime
+
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
     activity = get_object_or_404(Activity, id=activity_id, event=event)
     
     if request.method == 'POST':
-        form = ActivityForm(request.POST, instance=activity)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Actividad actualizada exitosamente')
-            
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': True, 'message': 'Actividad actualizada exitosamente'})
-            return redirect('pe_agenda:activities', event_id=event.id)
-        else:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'errors': form.errors}, status=400)
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
-    else:
-        form = ActivityForm(instance=activity)
-    
-    context = {
-        'event': event,
-        'activity': activity,
-        'form': form,
-        'active_page': 'actividades'
-    }
-    
-    return render(request, 'create_activity_form.html', context)
+        activity.title = request.POST.get('title', '').strip()
+        activity.description = request.POST.get('description', '').strip()
+        activity.location = request.POST.get('location', '').strip()
+        activity.speaker_name = request.POST.get('speaker_name', '').strip()
+        
+        start_time_str = request.POST.get('start_time', '')
+        end_time_str = request.POST.get('end_time', '')
+        
+        if start_time_str:
+            activity.start_time = datetime.fromisoformat(start_time_str.replace('T', ' '))
+        if end_time_str:
+            activity.end_time = datetime.fromisoformat(end_time_str.replace('T', ' '))
+        
+        activity.save()
+
+        if is_unassigned_location(activity.location):
+            from pe_stand.models import StandActivity
+            StandActivity.objects.filter(activity_id=activity.id).delete()
+
+        messages.success(request, 'Actividad actualizada exitosamente')
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': 'Actividad actualizada exitosamente'})
+        return redirect('pe_agenda:activities', event_id=event.id)
 
 
 @login_required
@@ -142,18 +171,19 @@ def get_activities_json(request, event_id):
     """
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
     
-    activities_list = Activity.objects.filter(event=event).values(
-        'id',
-        'title',
-        'start_time',
-        'end_time',
-        'location',
-        'speaker_name',
-        'status',
-    ).order_by('start_time')
-    
-    # Convertir a lista para JSON
-    activities_data = list(activities_list)
+    activities_qs = Activity.objects.filter(event=event).order_by('start_time')
+    activities_data = []
+    for activity in activities_qs:
+        _refresh_activity_status(activity)
+        activities_data.append({
+            'id': activity.id,
+            'title': activity.title,
+            'start_time': activity.start_time.isoformat() if activity.start_time else None,
+            'end_time': activity.end_time.isoformat() if activity.end_time else None,
+            'location': activity.location,
+            'speaker_name': activity.speaker_name,
+            'status': activity.status,
+        })
     
     return JsonResponse({
         'success': True,
@@ -164,12 +194,32 @@ def get_activities_json(request, event_id):
 
 @login_required
 @require_http_methods(["POST"])
-def delete_activity(request, event_id, activity_id):
+def cancel_activity(request, event_id, activity_id):
     """
-    Elimina una actividad existente.
+    Cancela una actividad existente.
     """
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
     activity = get_object_or_404(Activity, id=activity_id, event=event)
+    
+    activity.status = 'cancelada'
+    activity.save()
+    messages.success(request, 'Actividad cancelada correctamente.')
+    
+    return redirect('pe_agenda:activities', event_id=event.id)
+
+
+@login_required
+@require_http_methods(["POST"])
+def delete_activity(request, event_id, activity_id):
+    """
+    Elimina una actividad existente. Solo se puede eliminar si está cancelada.
+    """
+    event = get_object_or_404(Event, id=event_id, organizer=request.user)
+    activity = get_object_or_404(Activity, id=activity_id, event=event)
+    
+    if activity.status != 'cancelada':
+        messages.error(request, 'Solo puedes eliminar actividades canceladas.')
+        return redirect('pe_agenda:activities', event_id=event.id)
     
     activity_title = activity.title
     activity.delete()
@@ -188,6 +238,7 @@ def view_activity(request, event_id, activity_id):
     """
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
     activity = get_object_or_404(Activity, id=activity_id, event=event)
+    _refresh_activity_status(activity)
     
     context = {
         'event': event,
@@ -212,13 +263,14 @@ def info_activity(request, event_id, activity_id):
     #     return redirect('usuarios:dashboard')
     
     activity = get_object_or_404(Activity, id=activity_id, event=event)
+    _refresh_activity_status(activity)
     
     context = {
         'event': event,
         'activity': activity,
     }
     
-    return render(request, 'info_activity_assistant.html', context)
+    return render(request, 'info_activity.html', context)
 
 
 @login_required
@@ -235,9 +287,11 @@ def chronogram_assistant(request, event_id):
     #     return redirect('usuarios:dashboard')
     
     activities = Activity.objects.filter(event=event).order_by('start_time')
+    for activity in activities:
+        _refresh_activity_status(activity)
     
     # Obtener categorías únicas para los filtros
-    categories = activities.values_list('status', flat=True).distinct()
+    categories = list({activity.status for activity in activities})
     
     # Marcar actividades en las que el usuario está inscrito (si hay sistema de inscripción)
     # Por ahora, asumimos que no hay sistema de inscripción individual a actividades
@@ -261,6 +315,7 @@ def get_activity_json(request, event_id, activity_id):
     """
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
     activity = get_object_or_404(Activity, id=activity_id, event=event)
+    _refresh_activity_status(activity)
     
     activity_data = {
         'id': activity.id,

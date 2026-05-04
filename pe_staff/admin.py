@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils import timezone
 from .models import StaffInvitation, StaffMember
 
 
@@ -22,7 +23,12 @@ class StaffInvitationAdmin(admin.ModelAdmin):
 
     def accept_invitations(self, request, queryset):
         from .models import InvitationStatus
-        updated = queryset.update(status=InvitationStatus.ACEPTADA)
+        updated = 0
+        for invitation in queryset:
+            invitation.status = InvitationStatus.ACEPTADA
+            invitation.accepted_at = timezone.now()
+            invitation.save()
+            updated += 1
         self.message_user(request, f'{updated} invitation(s) accepted.')
     accept_invitations.short_description = 'Accept selected invitations'
 

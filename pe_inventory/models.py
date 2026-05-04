@@ -130,7 +130,12 @@ class StandAssignment(models.Model):
         verbose_name='Recurso'
     )
     quantity = models.PositiveIntegerField(
+        default=0,
         verbose_name='Cantidad Asignada'
+    )
+    required_quantity = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Cantidad Requerida'
     )
     
     # Relación externa hacia la aplicación 'pe_stand'
@@ -141,6 +146,12 @@ class StandAssignment(models.Model):
         blank=True,
         related_name='item_assignments',
         verbose_name='Stand'
+    )
+    details = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='Detalles'
     )
     created_at = models.DateTimeField(
         auto_now_add=True,

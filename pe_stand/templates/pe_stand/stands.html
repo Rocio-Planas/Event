@@ -10,51 +10,55 @@
 
 {% block content %}
 {% with active_page='zona' %}
-<div class="container-fluid p-4" data-event-id="{{ event_id }}">
-            
-            <!-- Título y Acciones -->
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-3">
-                <div>
-                    <h1 class="fw-black mb-1 h2" style="font-weight: 800;">Panel de Control de Stands</h1>
-                    <p class="text-muted mb-0">Supervisa el estado operativo y recursos en tiempo real.</p>
-                </div>
-                <div>
-                    <button class="btn-premium px-4 py-2 fw-bold d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createStandModal">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">add</span> Crear Zona/Stand
-                    </button>
-                </div>
-            </div>
+<div class="p-4">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-800 display-6" style="max-width: 800px;">Panel de Control de Stands</h2>
+            <p class="text-muted mb-0">Supervisa el estado operativo y recursos en tiempo real.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" data-bs-toggle="modal" data-bs-target="#createStandModal">
+                <span class="material-symbols-outlined" style="font-size: 18px;">add</span> Crear Zona/Stand
+            </button>
+        </div>
+    </div>
 
-            <!-- Dashboard Stats -->
-            <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <p class="stat-label">Total Stands</p>
-                        <div class="d-flex justify-content-between align-items-baseline">
-                            <span class="h2 fw-black mb-0">{{ total_stands }}</span>
-                            <span class="text-success small fw-bold">+3 nuevos</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <p class="stat-label">Capacidad Total</p>
-                        <div class="d-flex justify-content-between align-items-baseline">
-                            <span class="h2 fw-black mb-0">{{ total_capacity }}</span>
-                            <span class="text-muted small">Pax</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-card">
-                        <p class="stat-label text-warning" style="color: var(--stratos-tertiary) !important;">Alertas Recursos</p>
-                        <div class="d-flex justify-content-between align-items-baseline">
-                            <span class="h2 fw-black mb-0">12</span>
-                            <span class="text-danger small fw-bold">Crítico</span>
-                        </div>
-                    </div>
-                </div>
+<!-- Dashboard Stats -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-4">
+            <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 d-flex align-items-center justify-content-center">
+                <span class="material-symbols-outlined">business_center</span>
             </div>
+            <div>
+                <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Total Stands</small>
+                <h3 class="fw-bold mb-0">{{ total_stands }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-4">
+            <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 d-flex align-items-center justify-content-center">
+                <span class="material-symbols-outlined">groups</span>
+            </div>
+            <div>
+                <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Zonas Activas</small>
+                <h3 class="fw-bold mb-0">{{ active_zones|default:"0" }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-4">
+            <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 d-flex align-items-center justify-content-center">
+                <span class="material-symbols-outlined">warning</span>
+            </div>
+            <div>
+                <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Alertas Recursos</small>
+                <h3 class="fw-bold mb-0">{{ total_alerts|default:"0" }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Stand Management Grid -->
             <div class="row g-4">
@@ -64,7 +68,9 @@
                             <div class="mb-3">
                                 <h3 class="h5 fw-bold mb-1">{{ stand.name }}</h3>
                                 <p class="text-primary small fw-bold mb-1">{{ stand.location }}</p>
-                                <p class="text-muted mb-0" style="font-size: 10px; font-weight: 700; text-transform: uppercase;">Líder: {{ stand.staff.count|default:"Sin Líder" }}</p>
+                                <p class="text-muted mb-0" style="font-size: 10px; font-weight: 700; text-transform: uppercase;">
+                                    {% if stand.get_leaders %}Líder: {{ stand.get_leaders }}{% else %}Sin Líder{% endif %}
+                                </p>
                             </div>
                             <div class="d-flex gap-4 py-3 border-top border-bottom mb-4">
                                 <div class="d-flex align-items-center gap-2">
@@ -83,7 +89,7 @@
                                         <span class="material-symbols-outlined text-muted fs-6">chair</span> Recursos asignados
                                     </span>
                                     <div class="d-flex align-items-center gap-2">
-                                        <span class="text-muted fw-bold" style="font-size: 10px;">{{ stand.staff.count }} items</span>
+                                        <span class="text-muted fw-bold" style="font-size: 10px;">{{ stand.get_resource_count }} items</span>
                                         <div style="width: 6px; height: 6px; border-radius: 50%; background: var(--stratos-secondary);"></div>
                                     </div>
                                 </div>
@@ -101,7 +107,6 @@
                             </div>
                             <h3 class="h5 fw-bold mb-2">Aún no hay stands registrados</h3>
                             <p class="text-muted mb-4">Agrega tu primer stand para empezar a gestionar recursos, personal y actividades desde este panel.</p>
-                            <a href="#" class="btn-premium fw-bold w-100 py-3" style="max-width: 320px; margin: 0 auto;">Crear Stand</a>
                         </div>
                     </div>
                 {% endfor %}
@@ -113,31 +118,30 @@
 <!-- Modal for Creating Stand -->
 <div class="modal fade" id="createStandModal" tabindex="-1" aria-labelledby="createStandModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow">
-            <div class="modal-header border-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold" id="createStandModalLabel">Crear Nuevo Stand</h5>
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom bg-light">
+                <h5 class="modal-title fw-800" id="createStandModalLabel">Crear Nuevo Stand</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="createStandForm">
                 {% csrf_token %}
-                <div class="modal-body px-4">
+                <div class="modal-body p-4">
                     <p class="text-muted small mb-4">Configura los detalles básicos del stand. Podrás asignar personal, actividades y recursos después.</p>
                     <div class="mb-3">
-                        <label for="standName" class="form-label small fw-bold text-muted">NOMBRE DEL STAND</label>
-                        <input type="text" id="standName" name="name" class="form-control rounded-3" placeholder="Ej. Auditorio Principal" required>
+                        <label for="standName" class="form-label small fw-bold text-uppercase text-primary">Nombre del Stand</label>
+                        <input type="text" id="standName" name="name" class="form-control border-0 bg-light py-2" placeholder="Ej. Auditorio Principal" required>
                     </div>
                     <div class="mb-3">
-                        <label for="standLocation" class="form-label small fw-bold text-muted">UBICACIÓN</label>
-                        <input type="text" id="standLocation" name="location" class="form-control rounded-3" placeholder="Ej. Pabellón 1 - A01" required>
+                        <label for="standLocation" class="form-label small fw-bold text-uppercase text-primary">Ubicación</label>
+                        <input type="text" id="standLocation" name="location" class="form-control border-0 bg-light py-2" placeholder="Ej. Pabellón 1 - A01" required>
                     </div>
                     <div class="mb-3">
-                        <label for="standCapacity" class="form-label small fw-bold text-muted">CAPACIDAD</label>
-                        <input type="number" id="standCapacity" name="capacity" class="form-control rounded-3" placeholder="Ej. 150" min="1" required>
+                        <label for="standCapacity" class="form-label small fw-bold text-uppercase text-primary">Capacidad</label>
+                        <input type="number" id="standCapacity" name="capacity" class="form-control border-0 bg-light py-2" placeholder="Ej. 150" min="1" required>
                     </div>
-                </div>
-                <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn-premium rounded-3 px-4">Crear Stand</button>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-gradient w-100 py-3 fw-bold rounded-2">Crear Stand</button>
+                    </div>
                 </div>
             </form>
         </div>

@@ -40,6 +40,11 @@ class StaffDashboardView(TemplateView):
         # Calcular estadísticas
         total_members = invitations.exclude(status=InvitationStatus.RECHAZADA).count()
         active_members = members.count()
+        
+        member_emails = [m.user.email for m in members]
+        accepted_without_user = invitations.filter(status=InvitationStatus.ACEPTADA).exclude(email__in=member_emails)
+        
+        active_members = members.count() + accepted_without_user.count()
         pending_invitations = invitations.filter(status=InvitationStatus.PENDIENTE).count()
         
         # Agrupar por rol
@@ -94,10 +99,12 @@ class StaffDashboardView(TemplateView):
         context['accepted_invitations_list'] = invitations.filter(status=InvitationStatus.ACEPTADA).order_by('-accepted_at')
         context['rejected_invitations_list'] = invitations.filter(status=InvitationStatus.RECHAZADA).order_by('-sent_at')
 
-        accepted_emails = [inv.email for inv in context['accepted_invitations_list']]
+        member_emails = [m.user.email for m in members]
+        accepted_without_user = context['accepted_invitations_list'].exclude(email__in=member_emails)
+
         user_names = {
             user.email: user.get_full_name() or user.email
-            for user in User.objects.filter(email__in=accepted_emails)
+            for user in User.objects.filter(email__in=[inv.email for inv in accepted_without_user])
         }
         context['accepted_invitations_with_name'] = [
             {
@@ -111,7 +118,7 @@ class StaffDashboardView(TemplateView):
                 'user_type': inv.user_type,
                 'phone': None,
             }
-            for inv in context['accepted_invitations_list']
+            for inv in accepted_without_user
         ]
 
         context['total_members'] = total_members
@@ -180,13 +187,13 @@ def invite_staff(request, event_id):
         if not User.objects.filter(email=email).exists():
             return JsonResponse({'error': 'El correo no está registrado en la plataforma'}, status=400)
         
-        # Verificar que no sea già miembro (solo para staff)
-        if user_type == 'staff' and StaffMember.objects.filter(event_id=event_id, user__email=email).exists():
+        # Verificar que no sea già miembro del equipo (cualquier tipo)
+        if StaffMember.objects.filter(event_id=event_id, user__email=email).exists():
             return JsonResponse({'error': 'El usuario ya es miembro del equipo'}, status=400)
         
-        # Verificar invitación pendiente
-        if StaffInvitation.objects.filter(event_id=event_id, email=email, status=InvitationStatus.PENDIENTE).exists():
-            return JsonResponse({'error': 'Ya existe una invitación pendiente para este correo'}, status=400)
+        # Verificar invitación pendiente o aceptada (no invitar dos veces)
+        if StaffInvitation.objects.filter(event_id=event_id, email=email, status__in=[InvitationStatus.PENDIENTE, InvitationStatus.ACEPTADA]).exists():
+            return JsonResponse({'error': 'Ya existe una invitación activa para este correo'}, status=400)
         
         # Crear invitación
         expiration = timezone.now() + timedelta(days=7)
@@ -234,7 +241,7 @@ def get_invitations(request, event_id):
 
 @login_required
 def cancel_invitation(request, event_id, invitation_id):
-    """Cancela una invitación."""
+    """Cancela una invitación (pasar a rechazada)."""
     if request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
     
@@ -243,6 +250,18 @@ def cancel_invitation(request, event_id, invitation_id):
     invitation.save()
     
     return JsonResponse({'success': True, 'message': 'Invitación cancelada'})
+
+
+@login_required
+def delete_invitation(request, event_id, invitation_id):
+    """Elimina una invitación de la base de datos."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    
+    invitation = get_object_or_404(StaffInvitation, id=invitation_id, event_id=event_id)
+    invitation.delete()
+    
+    return JsonResponse({'success': True, 'message': 'Invitación eliminada'})
 
 
 @login_required
