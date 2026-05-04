@@ -302,3 +302,227 @@ main {
   color: var(--text-on-surface-variant) !important;
   opacity: 0.8 !important;
 }
+
+.dark .bi-bell,
+.dark #notificationDropdown i {
+  color: white !important;
+}
+
+.dark .bi-chat-dots {
+  color: white !important;
+}
+
+/* ========== DROPDOWN DE NOTIFICACIONES ========== */
+.dropdown-menu {
+  background-color: var(--surface-container-lowest);
+  color: var(--text-on-surface);
+  border: 1px solid var(--border-outline-variant);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-menu .dropdown-header {
+  color: var(--text-on-surface);
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+}
+
+.dropdown-menu .dropdown-item {
+  color: var(--text-on-surface);
+  background-color: transparent;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+  background-color: var(--surface-container-high);
+  color: var(--text-on-surface);
+}
+
+.dropdown-menu .dropdown-item.text-muted {
+  color: var(--text-on-surface-variant) !important;
+}
+
+.dropdown-divider {
+  border-top-color: var(--border-outline-variant);
+}
+
+#notifications-list .dropdown-item {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.dark .dropdown-menu {
+  background-color: var(--surface-container-lowest);
+  border-color: var(--border-outline-variant);
+}
+
+.dark .dropdown-menu .dropdown-header {
+  color: var(--text-on-surface);
+}
+
+.dark .dropdown-menu .dropdown-item {
+  color: var(--text-on-surface);
+}
+
+.dark .dropdown-menu .dropdown-item:hover {
+  background-color: var(--surface-container-high);
+  color: white;
+}
+
+.dark .dropdown-item.text-muted {
+  color: #b0b3c0 !important;
+}
+
+#notificationDropdown,
+#notificationDropdown:focus,
+#notificationDropdown:active,
+#notificationDropdown:focus-visible,
+#notificationDropdown:focus-within {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+#notificationDropdown i,
+#notificationDropdown .bi-bell {
+  pointer-events: none;
+}
+
+.btn:focus,
+.btn:active {
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+/* ========== NAVBAR RESPONSIVE ========== */
+.navbar-toggler {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.navbar-toggler:focus {
+  outline: none;
+}
+
+@media (max-width: 767px) {
+  .navbar-container {
+    flex-wrap: wrap;
+    padding: 0.5rem 1rem;
+  }
+  .flex.items-center.gap-4 {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  /* Menú lateral */
+  .nav-links {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 80%;
+    max-width: 300px;
+    height: 100vh;
+    background-color: var(--surface-container-lowest);
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem;
+    z-index: 1000;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+    border-right: 1px solid var(--border-outline-variant);
+    margin-left: 0;
+    gap: 0.5rem;
+    display: flex;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-out;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  .nav-links.show {
+    transform: translateX(0);
+  }
+
+  /* Overlay */
+  .menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s;
+  }
+  .menu-overlay.show {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* Enlaces del menú - efecto hover y active mejorado */
+  .nav-links a {
+    padding: 0.75rem 1rem;
+    width: 100%;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    color: var(--text-on-surface);
+    text-decoration: none;
+  }
+
+  .nav-links a:hover,
+  .nav-links a:active {
+    background-color: var(--surface-container-high);
+    color: var(--primary);
+    transform: translateX(8px) scale(1.02);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Ripple sutil al hacer clic (efecto táctil) */
+  .nav-links a:active::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(0, 87, 205, 0.2);
+    transform: translate(-50%, -50%);
+    transition:
+      width 0.3s,
+      height 0.3s;
+  }
+
+  .nav-links a:active::after {
+    width: 200%;
+    height: 200%;
+  }
+
+  /* Avatar */
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Oculta sombra de la navbar cuando el menú está abierto */
+  .navbar-custom:has(~ .nav-links.show) {
+    box-shadow: none;
+  }
+}

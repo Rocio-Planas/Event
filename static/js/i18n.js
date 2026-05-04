@@ -17,7 +17,7 @@ const translations = {
     privacy_link: "Política de privacidad",
 
     // Event Form
-    form_title: "Detalles del Nuevo Evento",
+    form_title: "Crear Evento Virtual",
     form_subtitle: "Configura tu próxima reunión memorable con precisión.",
     event_cover: "Portada del Evento",
     drop_image: "Suelta tu imagen aquí o explora",
@@ -189,7 +189,7 @@ const translations = {
     terms_link: "Terms and Conditions",
     privacy_link: "Privacy Policy",
 
-    form_title: "New Event Details",
+    form_title: "Create Virtual Event",
     form_subtitle: "Configure your next remarkable gathering with precision.",
     event_cover: "Event Cover",
     drop_image: "Drop your image here or browse",
