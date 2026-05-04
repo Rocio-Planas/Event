@@ -80,6 +80,124 @@
             margin: 0 auto;
             width: 100%;
         }
+
+        /* ========== DROPDOWN DE NOTIFICACIONES (CORREGIDO) ========== */
+        .dropdown-menu {
+        background-color: var(--surface-container-lowest);
+        color: var(--text-on-surface);
+        border: 1px solid var(--border-outline-variant);
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-menu .dropdown-header {
+        color: var(--text-on-surface);
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        }
+
+        .dropdown-menu .dropdown-item {
+        color: var(--text-on-surface);
+        background-color: transparent;
+        border-radius: 0.5rem;
+        margin: 0.2rem 0.5rem;
+        width: calc(100% - 1rem);
+        transition: all 0.2s ease;
+        }
+
+        .dropdown-menu .dropdown-item:hover,
+        .dropdown-menu .dropdown-item:focus {
+        background-color: #e9ecef !important;
+        color: #0057cd !important;
+        transform: translateX(2px);
+        }
+
+        .dropdown-menu .dropdown-item.text-muted {
+        color: var(--text-on-surface-variant) !important;
+        }
+
+        .dropdown-divider {
+        border-top-color: var(--border-outline-variant);
+        }
+
+        #notifications-list .dropdown-item {
+        white-space: normal;
+        word-wrap: break-word;
+        }
+
+        /* Modo oscuro */
+        .dark .dropdown-menu {
+        background-color: var(--surface-container-lowest);
+        border-color: var(--border-outline-variant);
+        }
+
+        .dark .dropdown-menu .dropdown-header {
+        color: var(--text-on-surface);
+        }
+
+        .dark .dropdown-menu .dropdown-item {
+        color: var(--text-on-surface);
+        }
+
+        .dark .dropdown-menu .dropdown-item:hover,
+        .dark .dropdown-menu .dropdown-item:focus {
+        background-color: #2a2a36 !important;
+        color: #7a9eff !important;
+        transform: translateX(2px);
+        }
+
+        .dark .dropdown-item.text-muted {
+        color: var(--text-on-surface-variant) !important;
+        }
+
+        /* Sin hover para "Sin notificaciones" */
+        .dropdown-item.text-muted:hover,
+        .dark .dropdown-item.text-muted:hover {
+        background-color: transparent !important;
+        color: var(--text-on-surface-variant) !important;
+        transform: none !important;
+        cursor: default;
+        }
+
+        /* Campana blanca en modo oscuro */
+        .dark .bi-bell,
+        .dark #notificationDropdown i {
+        color: white !important;
+        }
+
+        /* Eliminar borde de foco en el botón */
+        #notificationDropdown:focus,
+        #notificationDropdown:active,
+        #notificationDropdown:focus-visible {
+        outline: none !important;
+        box-shadow: none !important;
+        }
+        /* FUERZA eliminar bordes y outline de la campana (para Bootstrap y Tailwind) */
+        #notificationDropdown,
+        #notificationDropdown:focus,
+        #notificationDropdown:active,
+        #notificationDropdown:focus-visible,
+        #notificationDropdown:focus-within,
+        #notificationDropdown .btn,
+        #notificationDropdown.btn {
+        outline: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: transparent !important;
+        }
+
+        /* Asegura que el texto "Sin notificaciones" sea legible en modo oscuro */
+        .dark .dropdown-item.text-muted,
+        .dark .dropdown-item.text-muted.small {
+        color: #b0b3c0 !important;  /* mismo gris que tu variable */
+        }
+
+        /* Si el texto está dentro de un elemento con clase .text-muted, forzar también */
+        .dark .text-muted,
+        .dark #notifications-list .dropdown-item,
+        .dark .dropdown-item[class*="text-muted"] {
+        color: #b0b3c0 !important;
+        }
     </style>
     <script>
         // ==================== TRADUCCIONES COMPLETAS ====================
