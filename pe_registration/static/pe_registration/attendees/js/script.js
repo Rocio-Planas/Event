@@ -19,7 +19,6 @@ const itemsPerPage = 15;
 // Filtros
 let filters = {
     search: "",
-    ticket: "all",
     status: "all",
 };
 
@@ -51,11 +50,9 @@ function renderTable() {
                 .toLowerCase()
                 .includes(filters.search.toLowerCase()) ||
             attendee.email.toLowerCase().includes(filters.search.toLowerCase());
-        const matchesTicket =
-            filters.ticket === "all" || attendee.ticket_type === filters.ticket;
         const matchesStatus =
             filters.status === "all" || attendee.status === filters.status;
-        return matchesSearch && matchesTicket && matchesStatus;
+        return matchesSearch && matchesStatus;
     });
 
     const totalItems = filtered.length;
@@ -77,7 +74,7 @@ function renderTable() {
                 </td>
             </tr>
         `;
-        paginationInfo.textContent = "Mostrando 0 de 0 asistentes";
+        paginationInfo.textContent = `Mostrando ${paginated.length} asistentes`;
         updatePaginationButtons(1);
         return;
     }
@@ -124,7 +121,7 @@ function renderTable() {
         .join("");
 
     const shownCount = paginated.length;
-    paginationInfo.textContent = `Mostrando ${shownCount} de ${totalItems} asistentes`;
+    paginationInfo.textContent = `Mostrando ${paginated.length} asistentes`;
     updatePaginationButtons(totalPages);
 }
 
@@ -310,8 +307,10 @@ async function loadAttendees() {
         const params = new URLSearchParams({
             search: filters.search,
             status: filters.status,
-            ticket: filters.ticket,
         });
+        if (filters.ticket && filters.ticket !== "all") {
+            params.set("ticket", filters.ticket);
+        }
 
         const url = `/tickets/api/attendees/${eventId}/?${params}`;
         console.log("URL del fetch:", url);
@@ -344,19 +343,17 @@ const nextPageBtn = document.getElementById("nextPageBtn");
 searchInput?.addEventListener("input", (e) => {
     filters.search = e.target.value;
     resetPagination();
-    loadAttendees();
-});
-
-ticketSelect?.addEventListener("change", (e) => {
-    filters.ticket = e.target.value;
-    resetPagination();
-    loadAttendees();
+    if (currentView === "attendees") {
+        renderTable();
+    } else {
+        renderWaitlistTable();
+    }
 });
 
 statusSelect?.addEventListener("change", (e) => {
     filters.status = e.target.value;
     resetPagination();
-    loadAttendees();
+    renderTable();
 });
 
 prevPageBtn?.addEventListener("click", () => {
@@ -371,7 +368,184 @@ nextPageBtn?.addEventListener("click", () => {
     renderTable();
 });
 
+// Variables waitlist
+let waitlistData = [];
+let currentView = "attendees";
+
+function switchView(view) {
+    currentView = view;
+    const attendeesTable = document.getElementById("attendeesTable");
+    const waitlistTable = document.getElementById("waitlistTable");
+    const statusFilterCol = document.getElementById("statusFilterCol");
+    const waitlistSwitch = document.getElementById("waitlistSwitch");
+    const paginationInfo = document.getElementById("paginationInfo");
+
+    if (view === "waitlist") {
+        if (waitlistSwitch) waitlistSwitch.checked = true;
+        if (attendeesTable) attendeesTable.style.display = "none";
+        if (waitlistTable) waitlistTable.style.display = "table";
+        if (statusFilterCol) statusFilterCol.style.display = "none";
+        loadWaitlist();
+    } else {
+        if (waitlistSwitch) waitlistSwitch.checked = false;
+        if (attendeesTable) attendeesTable.style.display = "table";
+        if (waitlistTable) waitlistTable.style.display = "none";
+        if (statusFilterCol) statusFilterCol.style.display = "block";
+        if (paginationInfo) paginationInfo.textContent = "";
+    }
+    currentPage = 1;
+}
+
+function toggleWaitlistView(isWaitlist) {
+    switchView(isWaitlist ? "waitlist" : "attendees");
+}
+
+function loadWaitlist() {
+    console.log("Cargando waitlist para eventId:", eventId);
+    const url = `/tickets/api/waitlist/${eventId}/`;
+    fetch(url)
+        .then((res) => {
+            console.log("Response status:", res.status);
+            return res.json();
+        })
+        .then((data) => {
+            console.log("Waitlist data:", data);
+            console.log("waitlistData:", data.waitlist);
+            waitlistData = data.waitlist || [];
+            console.log("waitlistData длиnа:", waitlistData.length);
+            renderWaitlistTable();
+            document.getElementById("totalWaitlist").textContent =
+                waitlistData.length;
+        })
+        .catch((err) => console.error("Error cargando waitlist:", err));
+}
+
+function renderWaitlistTable() {
+    const tableBody = document.getElementById("waitlistTableBody");
+    if (!tableBody) return;
+    const paginationInfo = document.getElementById("paginationInfo");
+
+    const filtered = waitlistData.filter((item) => {
+        const matchesSearch =
+            !filters.search ||
+            item.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+            item.email.toLowerCase().includes(filters.search.toLowerCase());
+        return matchesSearch;
+    });
+
+    if (filtered.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center py-4">
+                    <div class="text-muted">
+                        <span class="material-symbols-outlined" style="width: 48px; height: 48px;">hourglass_empty</span>
+                        <p>No hay usuarios en lista de espera</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+        if (paginationInfo) paginationInfo.textContent = "";
+        return;
+    }
+
+    if (paginationInfo)
+        paginationInfo.textContent = `Mostrando ${filtered.length} en lista de espera`;
+
+    tableBody.innerHTML = filtered
+        .map(
+            (item, index) => `
+        <tr>
+            <td class="px-4 py-3">${index + 1}</td>
+            <td class="py-3">
+                <div class="fw-bold">${item.name}</div>
+                <small class="text-muted">${item.email}</small>
+            </td>
+            <td class="py-3">${item.created_at}</td>
+            <td class="px-4 py-3 text-center">
+                <button class="btn btn-sm btn-outline-danger" onclick="removeFromWaitlist(${item.id})" title="Eliminar">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">delete</span>
+                </button>
+            </td>
+        </tr>
+    `,
+        )
+        .join("");
+}
+
+function promoteFromWaitlist() {
+    const modal = new bootstrap.Modal(
+        document.getElementById("deleteWaitlistModal"),
+    );
+    document.getElementById("deleteWaitlistModalLabel").textContent =
+        "Promover usuario";
+    document.querySelector("#deleteWaitlistModal .modal-body p").textContent =
+        "¿Estás seguro de que deseas promover al primer usuario de la lista de espera?";
+
+    const btn = document.getElementById("confirmDeleteWaitlistBtn");
+    btn.onclick = function () {
+        modal.hide();
+        doPromoteFromWaitlist();
+    };
+    modal.show();
+}
+
+function doPromoteFromWaitlist() {
+    const url = `/tickets/api/waitlist/${eventId}/promote/`;
+    fetch(url, {
+        method: "POST",
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.success) {
+                loadWaitlist();
+                loadAttendees();
+            } else {
+                alert(data.error || "Error al promover");
+            }
+        })
+        .catch((err) => console.error("Error:", err));
+}
+
+function removeFromWaitlist(waitlistId) {
+    const item = waitlistData.find((w) => w.id === waitlistId);
+    if (!item) return;
+
+    const modal = new bootstrap.Modal(
+        document.getElementById("deleteWaitlistModal"),
+    );
+    document.getElementById("deleteWaitlistModalLabel").textContent =
+        "Eliminar de lista de espera";
+    document.getElementById("deleteWaitlistName").textContent = item.name;
+
+    const btn = document.getElementById("confirmDeleteWaitlistBtn");
+    btn.onclick = function () {
+        modal.hide();
+        doRemoveFromWaitlist(waitlistId);
+    };
+    modal.show();
+}
+
+function doRemoveFromWaitlist(waitlistId) {
+    const url = `/tickets/api/waitlist/${eventId}/remove/${waitlistId}/`;
+    fetch(url, {
+        method: "DELETE",
+        headers: { "X-CSRFToken": getCookie("csrftoken") },
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.success) {
+                loadWaitlist();
+            } else {
+                alert(data.error || "Error al eliminar");
+            }
+        })
+        .catch((err) => console.error("Error:", err));
+}
+
 // Inicializar
 document.addEventListener("DOMContentLoaded", () => {
+    switchView("attendees");
     loadAttendees();
+    loadWaitlist();
 });

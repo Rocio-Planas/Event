@@ -5,9 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
+from django.db import transaction
+from django.utils import timezone
 
 from in_person_events.models import Event
-from pe_registration.models import Registration, TicketType
+from pe_registration.models import Registration, TicketType, EventWaitlist
 
 
 def home(request):
@@ -208,3 +210,74 @@ def delete_registration(request, event_id, registration_id):
         'success': True,
         'message': 'Inscripción eliminada y usuario desuscrito del evento',
     })
+
+
+@login_required
+@login_required
+def get_waitlist(request, event_id):
+    """API para obtener la lista de espera de un evento."""
+    event = get_object_or_404(Event, id=event_id, organizer=request.user)
+    
+    waitlist = EventWaitlist.objects.filter(
+        event_id=event_id
+    ).select_related('user').order_by('created_at')
+    
+    waitlist_data = []
+    for item in waitlist:
+        waitlist_data.append({
+            'id': item.id,
+            'name': item.user.get_full_name() or item.user.email,
+            'email': item.user.email,
+            'created_at': item.created_at.strftime('%Y-%m-%d %H:%M'),
+        })
+    
+    return JsonResponse({'waitlist': waitlist_data})
+
+
+@login_required
+@transaction.atomic
+def promote_from_waitlist(request, event_id):
+    """API para promover al primer usuario de la lista de espera."""
+    event = get_object_or_404(Event, id=event_id, organizer=request.user)
+    
+    next_in_line = EventWaitlist.objects.select_for_update(
+        nowait=False
+    ).filter(event=event).order_by('created_at').first()
+    
+    if not next_in_line:
+        return JsonResponse({
+            'success': False,
+            'error': 'No hay usuarios en la lista de espera'
+        })
+    
+    default_ticket = TicketType.objects.filter(event=event).first()
+    
+    new_registration = Registration.objects.create(
+        event=event,
+        user=next_in_line.user,
+        ticket_type=default_ticket,
+        status=Registration.Status.CONFIRMADA,
+        payment_status='pendiente',
+        registration_date=timezone.now()
+    )
+    
+    next_in_line.delete()
+    
+    return JsonResponse({
+        'success': True,
+        'message': 'Usuario promovido exitosamente',
+        'registration_id': new_registration.id
+    })
+
+
+@login_required
+def remove_from_waitlist(request, event_id, waitlist_id):
+    """API para eliminar un usuario de la lista de espera."""
+    event = get_object_or_404(Event, id=event_id, organizer=request.user)
+    
+    EventWaitlist.objects.filter(
+        id=waitlist_id,
+        event=event
+    ).delete()
+    
+    return JsonResponse({'success': True})

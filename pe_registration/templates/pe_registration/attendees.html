@@ -15,21 +15,17 @@
                 <h2 class="fw-800 display-6">Gestión de Asistentes</h2>
                 <p class="text-muted mb-0">Administra la base de datos de invitados y supervisa el estado de sus reservaciones.</p>
             </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted small">Asistentes</span>
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="waitlistSwitch" onchange="toggleWaitlistView(this.checked)">
+                </div>
+                <span class="text-muted small">Lista de Espera</span>
+            </div>
         </div>
 
     <!-- Stats -->
     <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 d-flex align-items-center justify-content-center">
-                    <span class="material-symbols-outlined">groups</span>
-                </div>
-                <div>
-                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Total Registrados</small>
-                    <h3 class="fw-black mb-0" id="totalRegistered">{{ total_registered }}</h3>
-                </div>
-            </div>
-        </div>
         <div class="col-md-4">
             <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
                 <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 d-flex align-items-center justify-content-center">
@@ -52,28 +48,30 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-4">
+            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3" id="waitlistStatsCard">
+                <div class="bg-info bg-opacity-10 text-info p-3 rounded-3 d-flex align-items-center justify-content-center">
+                    <span class="material-symbols-outlined">queue</span>
+                </div>
+                <div>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">En Espera</small>
+                    <h3 class="fw-black mb-0" id="totalWaitlist">0</h3>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Filters -->
     <div class="content-card mb-4 bg-light p-4 rounded-3 border">
         <div class="row g-3 align-items-center">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Asistente</label>
                 <div class="search-container shadow-sm rounded-2 w-100 bg-white position-relative">
                     <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: #6c757d;">search</span>
                     <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Nombre o email..." id="searchAttendee">
                 </div>
             </div>
-            <div class="col-md-4">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Ticket</label>
-                <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterTicket">
-                    <option value="all">Todos los Tickets</option>
-                    {% for ticket in ticket_types %}
-                    <option value="{{ ticket.id }}">{{ ticket.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-4">
+            <div class="col-md-6" id="statusFilterCol">
                 <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Estado</label>
                 <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterStatus">
                     <option value="all">Todos los Estados</option>
@@ -88,7 +86,7 @@
     <!-- Attendees Table -->
     <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white mb-4">
         <div class="table-responsive">
-            <table class="table mb-0 align-middle">
+            <table class="table mb-0 align-middle" id="attendeesTable">
                 <thead class="bg-light">
                     <tr>
                         <th class="px-4 py-3">Asistente</th>
@@ -100,18 +98,21 @@
                 </thead>
                 <tbody id="attendeesTableBody"></tbody>
             </table>
+            <table class="table mb-0 align-middle" id="waitlistTable" style="display: none;">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="px-4 py-3">#</th>
+                        <th class="py-3">Asistente</th>
+                        <th class="py-3">Fecha de Inscripción</th>
+                        <th class="px-4 py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="waitlistTableBody"></tbody>
+            </table>
         </div>
         <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
             <div class="small text-muted fw-bold" id="paginationInfo">Mostrando 0 de 0 asistentes</div>
             <nav aria-label="Page navigation">
-                <ul class="pagination pagination-sm mb-0 gap-2" id="paginationControls">
-                    <li class="page-item">
-                        <button class="btn btn-sm btn-white border px-3 fw-bold small" id="prevPageBtn" disabled>Anterior</button>
-                    </li>
-                    <li class="page-item">
-                        <button class="btn btn-sm btn-white border px-3 fw-bold small" id="nextPageBtn" disabled>Siguiente</button>
-                    </li>
-                </ul>
             </nav>
         </div>
     </div>
@@ -190,6 +191,24 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-danger" id="confirmDeleteAttendeeBtn">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteWaitlistModal" tabindex="-1" aria-labelledby="deleteWaitlistModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteWaitlistModalLabel">Eliminar de lista de espera</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar a <strong id="deleteWaitlistName"></strong> de la lista de espera?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteWaitlistBtn">Eliminar</button>
                 </div>
             </div>
         </div>
