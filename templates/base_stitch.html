@@ -282,6 +282,10 @@
             font-size: 0.8rem;
             white-space: nowrap;
         }
+        /* Aumenta el margen superior en móviles para que no se superponga la navbar */
+    main.pt-24 {
+        padding-top: 120px !important; /* 96px original + 24px extra para la barra expandida */
+}
     }
     </style>
     <script>
@@ -1213,21 +1217,28 @@
                             "
                             id="user-menu"
                         >
-                            <a
-                                href="{% url 'usuarios:dashboard' %}"
-                                class="block px-4 py-2 text-sm hover:bg-surface-container-high"
-                                data-i18n="my_dashboard"
-                                >Mi Panel</a
-                            >
-                            <a
-                                href="{% url 'usuarios:perfil' %}"
-                                class="block px-4 py-2 text-sm hover:bg-surface-container-high"
-                                data-i18n="my_profile"
-                                >Mi Perfil</a
-                            >
-                            {% if user.is_authenticated and user.rol == 'administrador' %}
-                                <a href="{% url 'core:admin_panel' %}" class="block px-4 py-2 text-sm hover:bg-surface-container-high" data-i18n="admin_panel">Panel de Administración</a>
-                            {% endif %}
+                        <a
+                            href="{% url 'usuarios:dashboard' %}"
+                            class="block px-4 py-2 text-sm hover:bg-surface-container-high"
+                            data-i18n="my_dashboard"
+                            >Mi Panel</a
+                        >
+                        <a
+                            href="{% url 'usuarios:perfil' %}"
+                            class="block px-4 py-2 text-sm hover:bg-surface-container-high"
+                            data-i18n="my_profile"
+                            >Mi Perfil</a
+                        >
+                        {% if user.is_authenticated and user.rol == 'administrador' %}
+                            <a href="{% url 'core:admin_panel' %}" class="block px-4 py-2 text-sm hover:bg-surface-container-high" data-i18n="admin_panel">Panel de Administración</a>
+                        {% endif %}
+                        <div class="border-t border-outline-variant my-1"></div>
+                        <a
+                            href="{% url 'usuarios:logout' %}"
+                            class="block px-4 py-2 text-sm hover:bg-surface-container-high text-red-500"
+                            data-i18n="logout"
+                            >Cerrar Sesión</a
+                        >
                         </div>
                     </div>
                     {% else %}
