@@ -157,8 +157,10 @@ def home(request):
     if busqueda:
         eventos_filtrados = [e for e in eventos_filtrados if busqueda.lower() in e['titulo'].lower() or busqueda.lower() in e['categoria'].lower()]
 
-    # 9. Personalización por preferencias (solo sin filtros)
-    if not categoria_filtro and not busqueda and request.user.is_authenticated:
+    
+    # 9. Personalización por preferencias (solo si no es "Todas" explícito)
+    mostrar_todos = request.GET.get('all') == '1'
+    if not categoria_filtro and not busqueda and request.user.is_authenticated and not mostrar_todos:
         preferencias = list(request.user.preferencias.values_list('nombre', flat=True))
         if preferencias:
             categorias_pref_norm = [normalizar_categoria(c) for c in preferencias]
@@ -639,11 +641,22 @@ def detalle_evento_presencial(request, evento_id):
                 usuario=request.user, evento_id=evento.id, tipo_evento='presencial'
             ).exists()
             es_favorito = FavoritoPresencial.objects.filter(usuario=request.user, evento=evento).exists()
+
+    # ========== NUEVO: Obtener reseñas aprobadas para este evento presencial ==========
+    resenas = Resena.objects.filter(evento_presencial=evento, aprobada=True).order_by('-fecha_creacion')
+    total_resenas = resenas.count()
+    promedio = 0
+    if total_resenas > 0:
+        promedio = round(sum(r.calificacion for r in resenas) / total_resenas, 1)
+
     context = {
         'evento': evento_data,
         'esta_suscrito': esta_suscrito,
         'es_organizador': es_organizador,
         'es_favorito': es_favorito,
+        'resenas': resenas,              # ← nuevo
+        'promedio': promedio,            # ← nuevo
+        'total_resenas': total_resenas,  # ← nuevo
     }
     return render(request, 'evento_presencial_detalle.html', context)
 

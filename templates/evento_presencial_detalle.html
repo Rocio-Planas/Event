@@ -119,14 +119,57 @@
         <p class="text-sm text-on-surface-variant mt-2">{{ evento.ubicacion }}</p>
     </div>
 
-    <!-- Sección de reseñas (placeholder) -->
+    <!-- ========== SECCIÓN DE RESEÑAS (CORREGIDA) ========== -->
     <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
         <h2 class="text-2xl font-bold text-on-surface mb-6" data-i18n="reviews_section">Reseñas</h2>
-        <div class="text-center py-8">
-            <span class="material-symbols-outlined text-5xl text-outline-variant">rate_review</span>
-            <p class="text-on-surface-variant mt-2" data-i18n="reviews_coming_soon">Próximamente: podrás dejar reseñas de este evento después de asistir.</p>
-            <a href="{% url 'core:contacto' %}" class="mt-4 inline-block text-primary hover:underline" data-i18n="contact_organizer">Contactar con el organizador</a>
+
+        <!-- Calificación promedio -->
+        <div class="flex items-center gap-3 mb-6">
+            <div class="flex items-center gap-1">
+                {% for i in "12345"|make_list %}
+                    {% if forloop.counter <= promedio|add:"0" %}
+                        <span class="material-symbols-outlined text-yellow-500" style="font-variation-settings: 'FILL' 1;">star</span>
+                    {% elif forloop.counter <= promedio|add:"0.5" %}
+                        <span class="material-symbols-outlined text-yellow-500">star_half</span>
+                    {% else %}
+                        <span class="material-symbols-outlined text-yellow-500">star_outline</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <span class="text-on-surface font-bold">{{ promedio|default:"0" }}</span>
+            <span class="text-on-surface-variant">({{ total_resenas }} reseñas)</span>
         </div>
+
+        {% if resenas %}
+            <div class="space-y-6">
+                {% for resena in resenas %}
+                <div class="border-b border-outline-variant/30 pb-6 last:border-0">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-semibold text-on-surface">{{ resena.nombre }}</p>
+                            <p class="text-xs text-on-surface-variant">{{ resena.fecha_creacion|date:"d/m/Y" }}</p>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= resena.calificacion %}
+                                    <span class="material-symbols-outlined text-yellow-500 text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                                {% else %}
+                                    <span class="material-symbols-outlined text-yellow-500 text-sm">star_outline</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p class="text-on-surface-variant mt-2">{{ resena.comentario }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8">
+                <span class="material-symbols-outlined text-5xl text-outline-variant">rate_review</span>
+                <p class="text-on-surface-variant mt-2" data-i18n="no_reviews">Aún no hay reseñas para este evento. ¡Sé el primero en opinar!</p>
+                <a href="{% url 'core:contacto' %}" class="mt-4 inline-block text-primary hover:underline" data-i18n="write_review">Escribir una reseña</a>
+            </div>
+        {% endif %}
     </div>
 
     <div class="mt-6 text-center">
@@ -175,7 +218,6 @@
             const eventoId = this.dataset.eventoId;
             const icon = this.querySelector('.like-icon');
             const wasFilled = icon.classList.contains('filled');
-            // Cambio visual inmediato
             if (wasFilled) {
                 icon.classList.remove('filled');
                 this.classList.remove('bg-red-100', 'text-red-700', 'border-red-300');
@@ -192,7 +234,6 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Actualizar según respuesta del servidor
                 if (data.liked) {
                     icon.classList.add('filled');
                     this.classList.add('bg-red-100', 'text-red-700', 'border-red-300');

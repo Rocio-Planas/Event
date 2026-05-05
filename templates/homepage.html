@@ -49,7 +49,7 @@
     <section class="mb-12">
         <h2 class="text-2xl font-bold mb-6" style="color: var(--text-on-surface);" data-i18n="cat_title">Explorar por Categoría</h2>
         <div class="flex flex-wrap gap-3">
-            <a href="{% url 'core:home' %}" class="rounded-full px-5 py-2 text-sm font-medium transition-all {% if not categoria_seleccionada %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}" data-i18n="all_categories">Todas</a>
+           <a href="{% url 'core:home' %}?all=1" class="rounded-full px-5 py-2 text-sm font-medium transition-all {% if not categoria_seleccionada %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}" data-i18n="all_categories">Todas</a>
             {% for cat in categorias %}
             <a href="?categoria={{ cat.nombre }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" class="rounded-full px-5 py-2 text-sm font-medium transition-all flex items-center gap-2 {% if categoria_seleccionada == cat.nombre %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
                 <span class="material-symbols-outlined text-base">{{ cat.icono|default:"category" }}</span>
