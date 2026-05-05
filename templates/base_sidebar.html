@@ -96,7 +96,7 @@
                     Analíticas
                 </a>
                 <a
-                    href="{% url 'pe_surveys:survey_list' %}"
+                    href="{% url 'pe_surveys:survey_list' event.id %}"
                     class="nav-link {% if active_page == 'encuestas' %}active{% endif %}"
                 >
                     <span class="material-symbols-outlined">poll</span>

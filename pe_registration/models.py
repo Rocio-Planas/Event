@@ -56,7 +56,7 @@ class Registration(models.Model):
         verbose_name='Estado'
     )
     registration_date = models.DateTimeField(
-        auto_now_add=True,
+        default=timezone.now,
         verbose_name='Fecha de Inscripción'
     )
     payment_status = models.CharField(

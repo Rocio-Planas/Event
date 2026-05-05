@@ -1,252 +1,500 @@
-{% extends 'pe_surveys/base_survey.html' %}
+{% extends "base_sidebar.html" %}
 {% load static %}
 
-{% block title %}
-  Encuestas - EventConcierge
-{% endblock %}
+{% block title %}Encuestas - EventConcierge{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'pe_surveys/css/survey_list.css' %}" />
-{% endblock %} {% block content %}
-  <div class="d-flex justify-content-between align-items-end mb-4">
-    <div>
-      <h2 class="fw-800 display-6">Encuestas</h2>
-      <p class="text-muted mb-0">Gestiona las encuestas de tus eventos</p>
-    </div>
-    <button type="button" class="btn btn-primary fw-semibold d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createSurveyModal">
-      <span class="material-symbols-outlined" style="font-size: 18px">add</span>
-      Nueva Encuesta
-    </button>
-  </div>
+    <link rel="stylesheet" href="{% static 'pe_inventory/inventory/css/styles.css' %}">
+{% endblock %}
 
-  <div class="content-card border-0 shadow-sm overflow-hidden bg-white">
-    <div class="table-responsive">
-      <table class="table mb-0 align-middle">
-        <thead class="bg-light">
-          <tr>
-            <th class="px-4 py-3">Título</th>
-            <th class="py-3">Descripción</th>
-            <th class="py-3">Estado</th>
-            <th class="py-3">Tipo de Entrega</th>
-            <th class="py-3">Fecha Programada</th>
-            <th class="px-4 py-3 text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for survey in surveys %}
-            <tr>
-              <td class="px-4 py-3">
-                <div class="fw-bold">{{ survey.title }}</div>
-              </td>
-              <td class="py-3">{{ survey.description|truncatechars:50 }}</td>
-              <td class="py-3">
-                {% if survey.is_active %}
-                  <span class="badge bg-success">Activa</span>
-                {% else %}
-                  <span class="badge bg-secondary">Inactiva</span>
-                {% endif %}
-              </td>
-              <td class="py-3">
-                {% if survey.delivery_type == 'inmediato' %}
-                  <span class="text-success">Inmediato</span>
-                {% else %}
-                  <span class="text-warning">Programada</span>
-                {% endif %}
-              </td>
-              <td class="py-3">
-                {% if survey.scheduled_date %}
-                  {{ survey.scheduled_date|date:'d/m/Y H:i' }}
-                {% else %}
-                  <span class="text-muted">-</span>
-                {% endif %}
-              </td>
-              <td class="px-4 text-center">
-                <div class="btn-group">
-                  <a href="{% url 'pe_surveys:survey_edit' survey.pk %}" class="btn btn-sm btn-outline-primary" title="Editar"><span class="material-symbols-outlined" style="font-size: 16px">edit</span></a>
-                  <button class="btn btn-sm btn-outline-{% if survey.is_active %}
-                      
-                      
-                      
-                      danger
-
-
-
-                    {% else %}
-                      
-                      
-                      
-                      success
-
-
-
-                    {% endif %}"
-                    onclick="toggleSurvey({{ survey.pk }})"
-                    title="{% if survey.is_active %}
-                      
-                      
-                      
-                      Desactivar
-
-
-
-                    {% else %}
-                      
-                      
-                      
-                      Activar
-
-
-
-                    {% endif %}">
-                    <span class="material-symbols-outlined" style="font-size: 16px">
-                      {% if survey.is_active %}
-                        block
-                      {% else %}
-                        check_circle
-                      {% endif %}
-                    </span>
-                  </button>
-                  <button class="btn btn-sm btn-outline-info" onclick="sendSurvey({{ survey.pk }})" title="Enviar"><span class="material-symbols-outlined" style="font-size: 16px">send</span></button>
-                  <a href="{% url 'pe_surveys:survey_results' survey.pk %}" class="btn btn-sm btn-outline-secondary" title="Ver Resultados"><span class="material-symbols-outlined" style="font-size: 16px">analytics</span></a>
-                </div>
-              </td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="6" class="text-center py-4">
-                <div class="text-muted">
-                  <span class="material-symbols-outlined" style="width: 48px; height: 48px">poll</span>
-                  <p>No hay encuestas creadas</p>
-                </div>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal fade" id="createSurveyModal" tabindex="-1" aria-labelledby="createSurveyModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="createSurveyModalLabel">
-            {% if survey %}
-              Editar
-            {% else %}
-              Nueva
-            {% endif %}Encuesta
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form method="post"
-            action="{% if survey %}
-              {% url 'pe_surveys:survey_edit' survey.pk %}
-            {% else %}
-              {% url 'pe_surveys:survey_create' %}
-            {% endif %}">
-            {% csrf_token %}
-            <div class="row g-4 mb-4">
-              <div class="col-md-8">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Título de la Encuesta</label>
-                {{ form.title }}
-              </div>
-              <div class="col-md-4">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Estado</label>
-                <div class="form-check form-switch mt-2">
-                  {{ form.is_active }}
-                  <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Encuesta Activa</label>
-                </div>
-              </div>
+{% block content %}
+{% with active_page='encuestas' %}
+    <div class="p-4">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="fw-800 display-6">Encuestas</h2>
+                <p class="text-muted mb-0">Gestiona las encuestas de tus eventos</p>
             </div>
-            <div class="row g-4 mb-4">
-              <div class="col-12">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Descripción</label>
-                {{ form.description }}
-              </div>
-            </div>
-            <div class="row g-4 mb-4">
-              <div class="col-md-6">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Tipo de Entrega</label>
-                {{ form.delivery_type }}
-              </div>
-              <div class="col-md-6"
-                id="scheduled_date_field"
-                style="display: {% if form.delivery_type.value == 'fecha_especifica' %}
-                  
-                  
-                  
-                  block
-
-
-
-                {% else %}
-                  
-                  
-                  
-                  none
-
-
-
-                {% endif %};">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Fecha Programada</label>
-                {{ form.scheduled_date }}
-              </div>
-            </div>
-            <hr class="my-4" />
-            <h4 class="fw-bold mb-3">Preguntas</h4>
-            {{ formset.management_form }}
-            <div id="questions_container">
-              {% for question_form in formset %}
-                <div class="question-block border rounded-3 p-3 mb-3">
-                  <div class="row g-3">
-                    <div class="col-md-6">
-                      <label class="small text-muted">Pregunta</label>
-                      {{ question_form.text }}
-                    </div>
-                    <div class="col-md-3">
-                      <label class="small text-muted">Tipo</label>
-                      {{ question_form.question_type }}
-                    </div>
-                    <div class="col-md-2">
-                      <label class="small text-muted">Orden</label>
-                      {{ question_form.order }}
-                    </div>
-                    <div class="col-md-1">
-                      <label class="small text-muted">Req.</label>
-                      {{ question_form.is_required }}
-                    </div>
-                    <div class="col-md-12 options-field" style="display: none">
-                      <label class="small text-muted">Opciones (separadas por coma)</label>
-                      {{ question_form.options }}
-                    </div>
-                  </div>
-                </div>
-              {% endfor %}
-            </div>
-            <button type="button" class="btn btn-outline-secondary mb-4" onclick="addQuestion()">
-              <span class="material-symbols-outlined me-1" style="font-size: 18px">add</span>
-              Agregar Pregunta
+            <button type="button" class="btn btn-primary fw-semibold d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createSurveyModal">
+                <span class="material-symbols-outlined" style="font-size: 18px">add</span>
+                Nueva Encuesta
             </button>
-            <hr class="my-4" />
-            <div class="d-flex gap-2 justify-content-end">
-              <button type="button" class="btn btn-secondary" onclick="window.location.href='{% url 'pe_surveys:survey_list' %}'">Cancelar</button>
-              <button type="submit" class="btn btn-primary">Guardar Encuesta</button> 
-            </div>
-          </form>
         </div>
-      </div>
+
+        <div class="content-card mb-4 bg-light p-4 rounded-3 border">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-12">
+                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Encuesta</label>
+                    <div class="search-container shadow-sm rounded-2 w-100 bg-white position-relative">
+                        <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: #6c757d;">search</span>
+                        <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Buscar por título..." id="surveySearch" onkeyup="filterSurveys()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white mb-4">
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="px-4 py-3">Título</th>
+                            <th class="py-3">Estado</th>
+                            <th class="py-3">Envío</th>
+                            <th class="px-4 py-3 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="surveyTableBody">
+                        {% for survey in surveys %}
+                            <tr>
+                                <td class="px-4 py-3">
+                                    <div class="fw-bold">{{ survey.title }}</div>
+                                </td>
+                                <td class="py-3">
+                                    {% if survey.is_active %}
+                                        <span class="badge bg-success">Activa</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactiva</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3">
+                                    {% if survey.delivery_type == 'inmediato' %}
+                                        Enviado el {{ survey.created_at|date:'d/m/Y H:i' }}
+                                    {% elif survey.delivery_type == 'programado' and survey.scheduled_date %}
+                                        {% if survey.scheduled_date < now %}
+                                            Enviado el {{ survey.scheduled_date|date:'d/m/Y H:i' }}
+                                        {% else %}
+                                            Programada para {{ survey.scheduled_date|date:'d/m/Y H:i' }}
+                                        {% endif %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 text-center">
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-outline-primary" title="Editar" onclick="openEditSurveyModal('{{ survey.pk }}', '{{ survey.title|escapejs }}', '{{ survey.survey_type }}', {% if survey.is_multiple_choice %}true{% else %}false{% endif %}, '{{ survey.delivery_type }}', '{% if survey.scheduled_date %}{{ survey.scheduled_date|date:"Y-m-d H:i:s" }}{% else %}{% endif %}', [{% for opt in survey.options.all %}'{{ opt.text|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
+                                            <span class="material-symbols-outlined" style="font-size: 16px">edit</span>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="openDeleteSurveyModal('{{ survey.pk }}', '{{ survey.title|escapejs }}')" title="Eliminar">
+                                            <span class="material-symbols-outlined" style="font-size: 16px">delete</span>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-info" onclick="sendSurvey({{ survey.pk }}, {{ event.id }})" title="Enviar"><span class="material-symbols-outlined" style="font-size: 16px">send</span></button>
+                                        <a href="{% url 'pe_surveys:survey_results' event.id survey.pk %}" class="btn btn-sm btn-outline-secondary" title="Ver Resultados"><span class="material-symbols-outlined" style="font-size: 16px">analytics</span></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <span class="material-symbols-outlined" style="width: 48px; height: 48px">poll</span>
+                                        <p>No hay encuestas creadas</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
+                <div class="small text-muted fw-bold" id="paginationInfo">Mostrando <span id="surveyCount">{{ surveys|length }}</span> encuestas</div>
+            </div>
+        </div>
     </div>
-  </div>
+
+    <!-- Modal Editar Encuesta -->
+    <div class="modal fade" id="editSurveyModal" tabindex="-1" aria-labelledby="editSurveyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title fw-800" id="editSurveyModalLabel">Editar Encuesta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="editSurveyId">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Título de la Encuesta</label>
+                            <input type="text" id="editSurveyTitle" class="form-control" placeholder="Título de la encuesta">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Tipo de Encuesta</label>
+                            <select id="editSurveyType" class="form-select">
+                                <option value="escala">Escala 1-5</option>
+                                <option value="texto">Texto con Opciones</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="form-check form-switch mt-2">
+                                <input type="checkbox" id="editIsMultipleChoice" class="form-check-input">
+                                <label class="form-check-label" for="editIsMultipleChoice">Múltiples Opciones</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Tipo de Entrega</label>
+                            <select id="editDeliveryType" class="form-select">
+                                <option value="inmediato">Inmediato</option>
+                                <option value="programado">Programado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4" id="editScheduledDateField" style="display: none;">
+                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Fecha Programada</label>
+                            <input type="datetime-local" id="editScheduledDate" class="form-control">
+                        </div>
+                    </div>
+                    <div id="editOptionsSection" style="display: none;">
+                        <hr class="my-4">
+                        <h4 class="fw-bold mb-3">Opciones</h4>
+                        <div id="editOptionsContainer"></div>
+                        <button type="button" class="btn btn-outline-secondary" id="editAddOptionBtn">
+                            <span class="material-symbols-outlined me-1" style="font-size: 18px">add</span>
+                            Agregar Opción
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary rounded-3 px-4" onclick="saveSurveyEdit()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="createSurveyModal" tabindex="-1" aria-labelledby="createSurveyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title fw-800" id="createSurveyModalLabel">
+                        {% if survey %}Editar{% else %}Nueva{% endif %} Encuesta
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form method="post" action="{% if survey.pk %}{% url 'pe_surveys:survey_edit' event.id survey.pk %}{% else %}{% url 'pe_surveys:survey_create' event.id %}{% endif %}">
+                        {% csrf_token %}
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Título de la Encuesta</label>
+                                {{ form.title }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Tipo de Encuesta</label>
+                                {{ form.survey_type }}
+                            </div>
+                        </div>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-4">
+                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Estado</label>
+                                <div class="form-check form-switch mt-2">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Encuesta Activa</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4" id="multiple_choice_field" style="display: none;">
+                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Múltiples Opciones</label>
+                                <div class="form-check form-switch mt-2">
+                                    {{ form.is_multiple_choice }}
+                                    <label class="form-check-label" for="{{ form.is_multiple_choice.id_for_label }}">Permitir múltiples</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Tipo de Entrega</label>
+                                {{ form.delivery_type }}
+                            </div>
+                        </div>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6" id="scheduled_date_field" style="display: {% if form.delivery_type.value == 'programado' %}block{% else %}none{% endif %};">
+                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Fecha Programada</label>
+                                {{ form.scheduled_date }}
+                            </div>
+                        </div>
+                        <hr class="my-4" />
+                        <h4 class="fw-bold mb-3" id="options_title" style="display: none;">Opciones</h4>
+                        {{ formset.management_form }}
+                        <div id="options_error" class="alert alert-danger" style="display: none;" role="alert">
+                            <span class="material-symbols-outlined me-2" style="font-size: 18px">error</span>
+                            <span id="options_error_text"></span>
+                        </div>
+                        <div id="options_container" style="display: none;">
+                            {% for option_form in formset %}
+                                <div class="option-block border rounded-3 p-3 mb-3">
+                                    <div class="row g-3 align-items-end">
+                                        <div class="col-md-10">
+                                            <label class="small text-muted">Opción</label>
+                                            {{ option_form.text }}
+                                        </div>
+                                        <div class="col-md-2 text-end">
+                                            <button type="button" class="btn btn-outline-danger btn-sm remove-option-btn" title="Eliminar opción">
+                                                <span class="material-symbols-outlined" style="font-size: 16px">delete</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary mb-4" id="add_option_btn" style="display: none;">
+                            <span class="material-symbols-outlined me-1" style="font-size: 18px">add</span>
+                            Agregar Opción
+                        </button>
+                        <hr class="my-4" />
+                        <div class="d-flex gap-2 justify-content-between align-items-center">
+                            <div>
+                                {% if survey.pk %}
+                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSurveyModal">
+                                        <span class="material-symbols-outlined me-1" style="font-size: 16px">delete</span>
+                                        Eliminar
+                                    </button>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar Encuesta</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endwith %}
+
+<!-- Modal de Confirmación para Cancelar -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom bg-light">
+                <h6 class="modal-title fw-bold" id="cancelModalLabel">Confirmar Cancelación</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-3">
+                    <span class="material-symbols-outlined text-warning" style="font-size: 48px">warning</span>
+                </div>
+                <p class="mb-0">¿Estás seguro de que quieres cancelar? Los cambios no guardados se perderán.</p>
+            </div>
+            <div class="modal-footer border-top justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, continuar editando</button>
+                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal" onclick="window.location.href='{% url 'pe_surveys:survey_list' event.id %}'">Sí, cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación para Eliminar -->
+<div class="modal fade" id="surveyDeleteModal" tabindex="-1" aria-labelledby="surveyDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold text-danger" id="surveyDeleteModalLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4">
+                <p class="mb-2">¿Estás seguro de que deseas eliminar la encuesta <strong id="surveyTitleToDelete"></strong>?</p>
+                <p class="text-muted small mb-0">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer border-top-0 px-4 pb-4">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger px-4" onclick="confirmDeleteSurvey()">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_scripts %}
-  <script src="{% static 'pe_surveys/js/survey_list.js' %}"></script>
-  
-  <script>
-    window.hasFormErrors = {{ form.errors|length }} > 0;
-    window.isEditing = {{ survey|yesno:"true,false" }};
-  </script>
+    <script src="{% static 'pe_surveys/js/survey_form.js' %}"></script>
+    <script src="{% static 'pe_surveys/js/survey_list.js' %}"></script>
+    <script>
+        var eventId = {{ event.id }};
+        
+        function openEditSurveyModal(surveyId, title, surveyType, isMultipleChoice, deliveryType, scheduledDate, options) {
+            document.getElementById('editSurveyId').value = surveyId;
+            document.getElementById('editSurveyTitle').value = title;
+            document.getElementById('editSurveyType').value = surveyType;
+            document.getElementById('editIsMultipleChoice').checked = isMultipleChoice;
+            document.getElementById('editDeliveryType').value = deliveryType;
+            
+            if (scheduledDate) {
+                document.getElementById('editScheduledDate').value = scheduledDate.replace(' ', 'T');
+            } else {
+                document.getElementById('editScheduledDate').value = '';
+            }
+            
+            toggleEditFields();
+            
+            var container = document.getElementById('editOptionsContainer');
+            container.innerHTML = '';
+            
+            if (surveyType === 'texto' && options.length > 0) {
+                options.forEach(function(opt) {
+                    addEditOption(opt);
+                });
+            }
+            
+            var modal = new bootstrap.Modal(document.getElementById('editSurveyModal'));
+            modal.show();
+        }
+        
+        function toggleEditFields() {
+            var surveyType = document.getElementById('editSurveyType').value;
+            var deliveryType = document.getElementById('editDeliveryType').value;
+            
+            document.getElementById('editOptionsSection').style.display = (surveyType === 'texto') ? 'block' : 'none';
+            document.getElementById('editScheduledDateField').style.display = (deliveryType === 'programado') ? 'block' : 'none';
+        }
+        
+        function addEditOption(textValue) {
+            var container = document.getElementById('editOptionsContainer');
+            var optionCount = container.children.length;
+            var div = document.createElement('div');
+            div.className = 'option-block border rounded-3 p-3 mb-3';
+            div.innerHTML = '<div class="row g-3 align-items-end"><div class="col-md-10"><label class="small text-muted">Opción</label><input type="text" class="form-control option-input" value="' + (textValue || '') + '" placeholder="Opción"></div><div class="col-md-2 text-end"><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest(\'.option-block\').remove()"><span class="material-symbols-outlined" style="font-size: 16px">delete</span></button></div></div>';
+            container.appendChild(div);
+        }
+        
+        document.getElementById('editSurveyType').addEventListener('change', toggleEditFields);
+        document.getElementById('editDeliveryType').addEventListener('change', toggleEditFields);
+        document.getElementById('editAddOptionBtn').addEventListener('click', function() { addEditOption(''); });
+        
+        function saveSurveyEdit() {
+            var surveyId = document.getElementById('editSurveyId').value;
+            var title = document.getElementById('editSurveyTitle').value;
+            var surveyType = document.getElementById('editSurveyType').value;
+            var isMultipleChoice = document.getElementById('editIsMultipleChoice').checked;
+            var deliveryType = document.getElementById('editDeliveryType').value;
+            var scheduledDate = document.getElementById('editScheduledDate').value || null;
+            
+            if (!title) {
+                alert('El título es requerido');
+                return;
+            }
+            
+            var options = [];
+            if (surveyType === 'texto') {
+                document.querySelectorAll('#editOptionsContainer .option-input').forEach(function(input) {
+                    if (input.value.trim()) {
+                        options.push(input.value.trim());
+                    }
+                });
+                console.log('Options collected:', options);
+            }
+            
+            var url = '/encuestas/' + eventId + '/api/update-survey/';
+            console.log('Fetching URL:', url);
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    survey_id: surveyId,
+                    title: title,
+                    survey_type: surveyType,
+                    is_multiple_choice: isMultipleChoice,
+                    delivery_type: deliveryType,
+                    scheduled_date: scheduledDate,
+                    options: options
+                })
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.error || 'Error al guardar');
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            });
+        }
+        
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        var deleteSurveyId = null;
+        
+        function openDeleteSurveyModal(surveyId, title) {
+            console.log('openDeleteSurveyModal called', surveyId, title);
+            deleteSurveyId = surveyId;
+            var titleEl = document.getElementById('surveyTitleToDelete');
+            var modalEl = document.getElementById('surveyDeleteModal');
+            console.log('titleEl:', titleEl, 'modalEl:', modalEl);
+            if (titleEl) {
+                titleEl.textContent = title;
+            }
+            if (modalEl) {
+                var modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            }
+        }
+        
+        function confirmDeleteSurvey() {
+            if (!deleteSurveyId) return;
+            
+            fetch('/encuestas/' + eventId + '/api/delete-survey/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ survey_id: deleteSurveyId })
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.error || 'Error al eliminar');
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            });
+        }
+        
+        document.getElementById('surveySearch').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter' || this.value.length >= 3) {
+                var searchUrl = window.location.pathname + '?search=' + encodeURIComponent(this.value);
+                window.location.href = searchUrl;
+            }
+        });
+        
+        function filterSurveys() {
+            var searchText = document.getElementById('surveySearch').value.toLowerCase();
+            var rows = document.querySelectorAll('#surveyTableBody tr');
+            var visibleCount = 0;
+            
+            rows.forEach(function(row) {
+                var title = row.querySelector('.fw-bold');
+                if (title) {
+                    var titleText = title.textContent.toLowerCase();
+                    if (titleText.indexOf(searchText) === -1) {
+                        row.style.display = 'none';
+                    } else {
+                        row.style.display = '';
+                        visibleCount++;
+                    }
+                }
+            });
+            
+            document.getElementById('surveyCount').textContent = visibleCount;
+        }
+    </script>
 {% endblock %}

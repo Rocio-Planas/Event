@@ -1,4 +1,4 @@
-/* Stands Management - Specific Styles */
+
 
 :root {
     --stratos-primary: #0058be;
@@ -7,6 +7,10 @@
     --stratos-error: #ff3838;
     --background-light: #f8f9ff;
     --border-color: #e0e0e0;
+}
+
+.fw-800 {
+    font-weight: 800;
 }
 
 /* Stat Cards */

@@ -10,256 +10,84 @@
 />
 {% endblock %} {% block content %}
 {% with active_page='configuracion' %}
-<div class="container-fluid px-5 py-5" style="max-width: 1000px">
-    <header class="mb-5">
-        <h1 class="display-6 fw-extrabold mb-2">Configuración General</h1>
-        <p class="text-muted">
-            Configura la identidad de tu evento, las preferencias de
-            localización y las reglas operativas globales.
-        </p>
-    </header>
-
-    <div class="vstack gap-5">
-        <!-- Identidad -->
-        <section class="row g-4">
-            <div class="col-md-4">
-                <h3 class="h6 fw-bold mb-1">Identidad del Evento</h3>
-                <p class="small text-muted">
-                    Define cómo aparece tu evento en la plataforma.
-                </p>
+    <div class="p-4">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="fw-800 display-6">Configuración General</h2>
+                <p class="text-muted mb-0">Configura las reglas operativas globales.</p>
             </div>
-            <div class="col-md-8">
-                <div class="custom-card vstack gap-4">
-                    <div>
-                        <label class="form-label small fw-semibold text-muted"
-                            >URL corta / Slug</label
-                        >
-                        <div class="input-group-custom">
-                            <span class="input-prefix">stratos.events/</span>
-                            <input
-                                type="text"
-                                class="custom-input"
-                                value="tech-summit-24"
-                            />
-                        </div>
+        </div>
+
+        <div class="vstack gap-4">
+            <!-- Opciones Avanzadas -->
+            <div class="content-card border-0 shadow-sm p-4 bg-white">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <h3 class="h6 fw-bold mb-1">Opciones Avanzadas</h3>
+                        <p class="small text-muted mb-0">Ajusta la lógica de registro y operativa de tu evento.</p>
                     </div>
-                    <div>
-                        <label class="form-label small fw-semibold text-muted"
-                            >Logo Principal del Evento</label
-                        >
-                        <div class="logo-upload-zone">
-                            <div
-                                class="bg-white rounded p-1 shadow-sm border"
-                                style="width: 80px; height: 80px"
-                            >
-                                <img
-                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF1hItkse-zeOifbEUypFZShfOHMF7kCJWmLwGsPgnDYwu77jA0fWtFPV-vBnQX_18OZOmvF5f0rS3Fk6AF4U2Sg7D6CcijLDlpskUr6860eZyi6ApC8hHysYqJ2xqvwJ6G16N2Jk2rHBFvlTX1UlzH65kMsuAXY_bDicMmCOMRZl9l7LCxrZZo6IpiqNHh-g0Qm91GxkMSIagKYzTp3rntSRgQqkhkojLj75ewaZkz7BT_5wnoymEVgOWGOuzD2PClkRY9apXWIU"
-                                    alt="Logo"
-                                    class="img-fluid rounded"
-                                />
-                            </div>
+                    <div class="col-md-8 vstack gap-3">
+                        <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: var(--surface-container-lowest, #f8f9ff);">
                             <div>
-                                <button
-                                    class="btn btn-link p-0 small fw-bold text-decoration-none"
-                                >
-                                    Reemplazar Logo
-                                </button>
-                                <p
-                                    class="small text-muted mb-0"
-                                    style="font-size: 0.75rem"
-                                >
-                                    Recomendado: 512x512px SVG o PNG
-                                </p>
+                                <p class="fw-bold mb-0">Activar Lista de Espera</p>
+                                <p class="small text-muted mb-0" style="font-size: 0.75rem">Abre automáticamente una lista de espera cuando se agoten las entradas.</p>
+                            </div>
+                            <div class="custom-switch active"></div>
+                        </div>
+                        <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: var(--surface-container-lowest, #f8f9ff);">
+                            <div>
+                                <p class="fw-bold mb-0">Mostrar recuento de asistentes públicamente</p>
+                                <p class="small text-muted mb-0" style="font-size: 0.75rem">Muestra el número actual de usuarios registrados en la página de inicio.</p>
+                            </div>
+                            <div class="custom-switch"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zona de Peligro -->
+            <div class="content-card border-0 shadow-sm p-4 bg-white">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <h3 class="h6 fw-bold text-danger mb-1">Zona de Peligro</h3>
+                        <p class="small text-muted mb-0">Acciones destructivas para este evento.</p>
+                    </div>
+                    <div class="col-md-8 vstack gap-3">
+                        <div class="p-4 rounded-3 d-flex justify-content-between align-items-center shadow-sm" style="border: 2px dashed #fecaca; background-color: #fef2f2;">
+                            <div>
+                                <p class="fw-bold text-danger mb-0">Eliminar Evento</p>
+                                <p class="small text-danger mb-0" style="font-size: 0.75rem">Elimina permanentemente todos los datos.</p>
+                            </div>
+                            <button type="button" class="btn btn-danger px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Eliminar para Siempre</button>
+                        </div>
+
+                        <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 rounded-4">
+                                    <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                                        <h5 class="modal-title fw-bold text-danger" id="confirmDeleteModalLabel">¿Confirmar eliminación?</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body px-4">
+                                        <p class="mb-2">Esta acción es <strong>permanente</strong> y no se puede deshacer. Se eliminarán todos los asistentes y tickets asociados a <strong>{{ event.title }}</strong>.</p>
+                                        <p class="text-muted small mb-0">Esta acción no se puede deshacer.</p>
+                                    </div>
+                                    <div class="modal-footer border-top-0 px-4 pb-4">
+                                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                                        <form action="{% url 'in_person_events:delete_event' event.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger px-4 fw-bold">Sí, eliminar permanentemente</button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- Región -->
-        <section class="row g-4">
-            <div class="col-md-4">
-                <h3 class="h6 fw-bold mb-1">Región y Localización</h3>
-                <p class="small text-muted">
-                    Establece el entorno local para los horarios y comunicación.
-                </p>
-            </div>
-            <div class="col-md-8">
-                <div class="custom-card vstack gap-4">
-                    <div>
-                        <label class="form-label small fw-semibold text-muted"
-                            >Moneda</label
-                        >
-                        <select class="form-select bg-light border-0 py-2">
-                            <option value="USD">
-                                USD - Dólar Estadounidense
-                            </option>
-                            <option selected value="MXN">
-                                MXN - Peso Mexicano
-                            </option>
-                            <option value="COP">COP - Peso Colombiano</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="form-label small fw-semibold text-muted"
-                            >Idioma Predeterminado</label
-                        >
-                        <select class="form-select bg-light border-0 py-2">
-                            <option>Inglés (EE. UU.)</option>
-                            <option selected>Español</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Opciones Avanzadas -->
-        <section class="row g-4">
-            <div class="col-md-4">
-                <h3 class="h6 fw-bold mb-1">Opciones Avanzadas</h3>
-                <p class="small text-muted">
-                    Ajusta la lógica de registro y operativa de tu evento.
-                </p>
-            </div>
-            <div class="col-md-8 vstack gap-3">
-                <div
-                    class="custom-card p-3 d-flex justify-content-between align-items-center"
-                >
-                    <div>
-                        <p class="fw-bold mb-0">Activar Lista de Espera</p>
-                        <p
-                            class="small text-muted mb-0"
-                            style="font-size: 0.75rem"
-                        >
-                            Abre automáticamente una lista de espera cuando se
-                            agoten las entradas.
-                        </p>
-                    </div>
-                    <div class="custom-switch active"></div>
-                </div>
-                <div
-                    class="custom-card p-3 d-flex justify-content-between align-items-center"
-                >
-                    <div>
-                        <p class="fw-bold mb-0">
-                            Mostrar recuento de asistentes públicamente
-                        </p>
-                        <p
-                            class="small text-muted mb-0"
-                            style="font-size: 0.75rem"
-                        >
-                            Muestra el número actual de usuarios registrados en
-                            la página de inicio.
-                        </p>
-                    </div>
-                    <div class="custom-switch"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Zona de Peligro -->
-        <section class="row g-4">
-            <div class="col-md-4">
-                <h3 class="h6 fw-bold text-danger mb-1">Zona de Peligro</h3>
-                <p class="small text-muted">
-                    Acciones destructivas para este evento.
-                </p>
-            </div>
-            <div class="col-md-8 vstack gap-3">
-                <div
-                    class="danger-card p-4 rounded-4 d-flex justify-content-between align-items-center shadow-sm"
-                >
-                    <div>
-                        <p class="fw-bold text-danger mb-0">Eliminar Evento</p>
-                        <p
-                            class="small text-danger mb-0"
-                            style="font-size: 0.75rem"
-                        >
-                            Elimina permanentemente todos los datos.
-                        </p>
-                    </div>
-                    <button
-                        type="button"
-                        class="btn btn-danger px-4 fw-bold shadow-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#confirmDeleteModal"
-                    >
-                        Eliminar para Siempre
-                    </button>
-                </div>
-
-                <div
-                    class="modal fade"
-                    id="confirmDeleteModal"
-                    tabindex="-1"
-                    aria-labelledby="confirmDeleteModalLabel"
-                    aria-hidden="true"
-                >
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content border-0 shadow">
-                            <div class="modal-header border-0">
-                                <h5
-                                    class="modal-title fw-bold"
-                                    id="confirmDeleteModalLabel"
-                                >
-                                    ¿Confirmar eliminación?
-                                </h5>
-                                <button
-                                    type="button"
-                                    class="btn-close"
-                                    data-bs-dismiss="modal"
-                                    aria-label="Close"
-                                ></button>
-                            </div>
-                            <div class="modal-body text-muted">
-                                Esta acción es <strong>permanente</strong> y no
-                                se puede deshacer. Se eliminarán todos los
-                                asistentes y tickets asociados a
-                                <strong>{{ event.title }}</strong>.
-                            </div>
-                            <div class="modal-footer border-0">
-                                <button
-                                    type="button"
-                                    class="btn btn-link text-decoration-none text-muted"
-                                    data-bs-dismiss="modal"
-                                >
-                                    Cancelar
-                                </button>
-                                <form
-                                    action="{% url 'in_person_events:delete_event' event.id %}"
-                                    method="POST"
-                                >
-                                    {% csrf_token %}
-                                    <button
-                                        type="submit"
-                                        class="btn btn-danger px-4 fw-bold"
-                                    >
-                                        Sí, eliminar permanentemente
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Final Actions -->
-        <div class="pt-4 border-top d-flex justify-content-end gap-3">
-            <button
-                class="btn btn-link text-decoration-none text-muted fw-bold"
-            >
-                Descartar Cambios
-            </button>
-            <button class="btn btn-primary-custom px-5">
-                Guardar Configuración
-            </button>
         </div>
     </div>
-</div>
 {% endwith %}
 {% endblock %} {% block extra_js %}
-<!-- Custom JS -->
 <script src="{% static 'in_person_events/config_event/js/main.js' %}"></script>
 {% endblock %}
