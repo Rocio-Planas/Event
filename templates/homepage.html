@@ -4,16 +4,28 @@
 
 {% block extra_css %}
 <style>
-    .like-icon {
+        .like-icon {
         transition: transform 0.2s ease;
-        color: #6b7280;
     }
     .like-icon.filled {
-        color: #ef4444;
+        color: #ef4444 !important;
+        font-variation-settings: 'FILL' 1;
     }
     .like-btn:hover .like-icon,
     .like-btn-presencial:hover .like-icon {
         transform: scale(1.1);
+    }
+    @media (max-width: 640px) {
+    .hero-section form {
+        flex-direction: column;
+        padding: 0 1rem;
+    }
+    .hero-section input {
+        width: 100% !important;
+    }
+    .hero-section button {
+        width: 100% !important;
+        }
     }
 </style>
 {% endblock %}
@@ -25,26 +37,35 @@
     <div class="rounded-2xl p-8 text-center" style="background: linear-gradient(135deg, var(--primary) 0%, var(--surface-container-low) 100%);">
         <h1 class="text-4xl md:text-5xl font-bold mb-4" style="color: var(--text-on-surface);" data-i18n="hero_title">Descubre Experiencias Increíbles</h1>
         <p class="text-lg mb-6" style="color: var(--text-on-surface-variant);" data-i18n="hero_subtitle">Eventos presenciales y virtuales adaptados a tus gustos.</p>
-        <form method="get" action="{% url 'core:home' %}" class="flex justify-center gap-3 max-w-md mx-auto">
-            <input type="text" name="busqueda" value="{{ busqueda }}" class="flex-1 px-4 py-3 rounded-lg border focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none" style="background-color: var(--surface-container-lowest); border-color: var(--border-outline-variant); color: var(--text-on-surface);" data-i18n-placeholder="search_placeholder" placeholder="Buscar eventos...">
+        <form method="get" action="{% url 'core:home' %}" class="flex flex-col sm:flex-row justify-center gap-3 max-w-md mx-auto">
+            <input type="text" name="busqueda" id="search-input" value="{{ busqueda }}" class="flex-1 px-4 py-3 rounded-lg border focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none" style="background-color: var(--surface-container-lowest); border-color: var(--border-outline-variant); color: var(--text-on-surface);" data-i18n-placeholder="search_placeholder" placeholder="Buscar eventos...">
             <button type="submit" class="px-6 py-3 btn-gradient-primary text-white rounded-lg font-semibold" data-i18n="search_btn">Buscar</button>
         </form>
     </div>
 </section>
 
 <!-- Filtro de categorías (pills) -->
-<section class="mb-12">
-    <h2 class="text-2xl font-bold mb-6" style="color: var(--text-on-surface);" data-i18n="cat_title">Explorar por Categoría</h2>
-    <div class="flex flex-wrap gap-3">
-        <a href="{% url 'core:home' %}" class="rounded-full px-5 py-2 text-sm font-medium transition-all {% if not categoria_seleccionada %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}" data-i18n="all_categories">Todas</a>
-        {% for cat in categorias %}
-        <a href="?categoria={{ cat.nombre }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" class="rounded-full px-5 py-2 text-sm font-medium transition-all flex items-center gap-2 {% if categoria_seleccionada == cat.nombre %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
-            <span class="material-symbols-outlined text-base">{{ cat.icono|default:"category" }}</span>
-            <span class="category-name" data-cat-original="{{ cat.nombre }}">{{ cat.nombre }}</span>
-        </a>
-        {% endfor %}
-    </div>
-</section>
+<div id="filtros-container">
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6" style="color: var(--text-on-surface);" data-i18n="cat_title">Explorar por Categoría</h2>
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'core:home' %}" class="rounded-full px-5 py-2 text-sm font-medium transition-all {% if not categoria_seleccionada %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}" data-i18n="all_categories">Todas</a>
+            {% for cat in categorias %}
+            <a href="?categoria={{ cat.nombre }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" class="rounded-full px-5 py-2 text-sm font-medium transition-all flex items-center gap-2 {% if categoria_seleccionada == cat.nombre %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
+                <span class="material-symbols-outlined text-base">{{ cat.icono|default:"category" }}</span>
+                <span class="category-name" data-cat-original="{{ cat.nombre }}">{{ cat.nombre }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<!-- Botón para mostrar filtros -->
+<div id="mostrar-filtros-btn" class="mb-6" style="display: none;">
+    <button type="button" onclick="document.getElementById('filtros-container').style.display='block'; this.parentElement.style.display='none';" class="rounded-full px-5 py-2 text-sm font-medium bg-surface-container-high text-on-surface-variant">
+        <span class="material-symbols-outlined text-base">filter_list</span> <span data-i18n="show_filters">Filtros</span>
+    </button>
+</div>
 
 <!-- Lista de eventos -->
 <section class="mb-12">
@@ -80,11 +101,11 @@
                         {% if user.is_authenticated %}
                             {% if evento.tipo == 'virtual' %}
                                 <button class="like-btn transition hover:scale-110 focus:outline-none relative z-20" data-evento-id="{{ evento.id }}">
-                                    <span class="material-symbols-outlined like-icon {% if evento.es_favorito %}filled{% endif %}">favorite</span>
+                                    <span class="material-symbols-outlined like-icon {% if evento.es_favorito %}filled{% endif %}"{% if evento.es_favorito %} style="color: #ef4444 !important;"{% endif %}>favorite</span>
                                 </button>
                             {% else %}
                                 <button class="like-btn-presencial transition hover:scale-110 focus:outline-none relative z-20" data-evento-id="{{ evento.id }}">
-                                    <span class="material-symbols-outlined like-icon {% if evento.es_favorito %}filled{% endif %}">favorite</span>
+                                    <span class="material-symbols-outlined like-icon {% if evento.es_favorito %}filled{% endif %}"{% if evento.es_favorito %} style="color: #ef4444 !important;"{% endif %}>favorite</span>
                                 </button>
                             {% endif %}
                         {% else %}
@@ -286,13 +307,11 @@
             }
         }
         map.setView([lat, lon], 12);
-        // Marcador de búsqueda
         const searchIcon = L.divIcon({
             html: '<div style="background-color: #ef4444; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>',
             iconSize: [16, 16], popupAnchor: [0, -8]
         });
         L.marker([lat, lon], { icon: searchIcon }).addTo(markersLayer).bindPopup(`<b>📍 ${locationName}</b>`);
-        // Marcadores de eventos
         for (const item of eventosCercanos) {
             const popupContent = `
                 <div class="p-2" style="min-width: 200px; max-width: 260px;">
@@ -336,8 +355,8 @@
         initMap();
         const searchBtn = document.getElementById('search-map');
         if (searchBtn) searchBtn.addEventListener('click', (e) => { e.preventDefault(); searchAndShowEvents(); });
-        const searchInput = document.getElementById('search-location');
-        if (searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); searchAndShowEvents(); } });
+        const searchInputMap = document.getElementById('search-location');
+        if (searchInputMap) searchInputMap.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); searchAndShowEvents(); } });
         
         // Menús de compartir
         document.querySelectorAll('.share-trigger').forEach(trigger => {
@@ -350,7 +369,7 @@
         });
         document.addEventListener('click', () => document.querySelectorAll('.share-menu').forEach(m => m.classList.add('hidden')));
         
-        // ========== SISTEMA DE "ME GUSTA" (ambos tipos) ==========
+        // ========== SISTEMA DE "ME GUSTA" ==========
         function getCSRFToken() {
             return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
                    document.querySelector('meta[name="csrf-token"]')?.content;
@@ -363,6 +382,7 @@
                 const eventoId = this.dataset.eventoId;
                 const icon = this.querySelector('.like-icon');
                 const isFilled = icon.classList.contains('filled');
+                
                 if (isFilled) {
                     icon.classList.remove('filled');
                     icon.style.color = '#6b7280';
@@ -370,6 +390,7 @@
                     icon.classList.add('filled');
                     icon.style.color = '#ef4444';
                 }
+                
                 fetch("{% url 'core:toggle_favorito' %}", {
                     method: 'POST',
                     headers: { 'X-CSRFToken': getCSRFToken(), 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -377,10 +398,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.liked) {
-                        icon.classList.add('filled');
-                        icon.style.color = '#ef4444';
-                    } else {
+                    if (!data.liked) {
                         icon.classList.remove('filled');
                         icon.style.color = '#6b7280';
                     }
@@ -405,6 +423,7 @@
                 const eventoId = this.dataset.eventoId;
                 const icon = this.querySelector('.like-icon');
                 const isFilled = icon.classList.contains('filled');
+                
                 if (isFilled) {
                     icon.classList.remove('filled');
                     icon.style.color = '#6b7280';
@@ -412,6 +431,7 @@
                     icon.classList.add('filled');
                     icon.style.color = '#ef4444';
                 }
+                
                 fetch("{% url 'core:toggle_favorito_presencial' %}", {
                     method: 'POST',
                     headers: { 'X-CSRFToken': getCSRFToken(), 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -419,10 +439,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.liked) {
-                        icon.classList.add('filled');
-                        icon.style.color = '#ef4444';
-                    } else {
+                    if (!data.liked) {
                         icon.classList.remove('filled');
                         icon.style.color = '#6b7280';
                     }
@@ -439,76 +456,104 @@
                 });
             });
         });
+
     });
 
-// ========== FUNCIONALIDAD DE COMPARTIR ==========
-document.addEventListener('DOMContentLoaded', function() {
-    // Facebook
-    document.querySelectorAll('.share-facebook').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const title = encodeURIComponent(this.dataset.eventTitle);
-            const url = encodeURIComponent(this.dataset.eventUrl);
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
-            // Cerrar el menú
-            this.closest('.share-menu').classList.add('hidden');
-        });
-    });
-
-    // X (Twitter)
-    document.querySelectorAll('.share-twitter').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const title = encodeURIComponent(this.dataset.eventTitle);
-            const url = encodeURIComponent(this.dataset.eventUrl);
-            window.open(`https://twitter.com/intent/tweet?text=${title}&url=${url}`, '_blank', 'width=600,height=400');
-            this.closest('.share-menu').classList.add('hidden');
-        });
-    });
-
-    // WhatsApp
-    document.querySelectorAll('.share-whatsapp').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const title = encodeURIComponent(this.dataset.eventTitle);
-            const url = encodeURIComponent(this.dataset.eventUrl);
-            window.open(`https://api.whatsapp.com/send?text=${title}%20${url}`, '_blank');
-            this.closest('.share-menu').classList.add('hidden');
-        });
-    });
-
-    // Telegram
-    document.querySelectorAll('.share-telegram').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const title = encodeURIComponent(this.dataset.eventTitle);
-            const url = encodeURIComponent(this.dataset.eventUrl);
-            window.open(`https://t.me/share/url?url=${url}&text=${title}`, '_blank');
-            this.closest('.share-menu').classList.add('hidden');
-        });
-    });
-
-    // Copiar enlace
-    document.querySelectorAll('.share-copy').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const url = this.dataset.eventUrl;
-            navigator.clipboard.writeText(url).then(() => {
-                alert('Enlace copiado al portapapeles');
-            }).catch(() => {
-                // Fallback para navegadores que no soportan clipboard API
-                const textarea = document.createElement('textarea');
-                textarea.value = url;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                alert('Enlace copiado al portapapeles');
+    // ========== FUNCIONALIDAD DE COMPARTIR ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.share-facebook').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const title = encodeURIComponent(this.dataset.eventTitle);
+                const url = encodeURIComponent(this.dataset.eventUrl);
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+                this.closest('.share-menu').classList.add('hidden');
             });
-            this.closest('.share-menu').classList.add('hidden');
+        });
+        document.querySelectorAll('.share-twitter').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const title = encodeURIComponent(this.dataset.eventTitle);
+                const url = encodeURIComponent(this.dataset.eventUrl);
+                window.open(`https://twitter.com/intent/tweet?text=${title}&url=${url}`, '_blank', 'width=600,height=400');
+                this.closest('.share-menu').classList.add('hidden');
+            });
+        });
+        document.querySelectorAll('.share-whatsapp').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const title = encodeURIComponent(this.dataset.eventTitle);
+                const url = encodeURIComponent(this.dataset.eventUrl);
+                window.open(`https://api.whatsapp.com/send?text=${title}%20${url}`, '_blank');
+                this.closest('.share-menu').classList.add('hidden');
+            });
+        });
+        document.querySelectorAll('.share-telegram').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const title = encodeURIComponent(this.dataset.eventTitle);
+                const url = encodeURIComponent(this.dataset.eventUrl);
+                window.open(`https://t.me/share/url?url=${url}&text=${title}`, '_blank');
+                this.closest('.share-menu').classList.add('hidden');
+            });
+        });
+        document.querySelectorAll('.share-copy').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const url = this.dataset.eventUrl;
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Enlace copiado al portapapeles');
+                }).catch(() => {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = url;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    alert('Enlace copiado al portapapeles');
+                });
+                this.closest('.share-menu').classList.add('hidden');
+            });
         });
     });
-});
+
+    // ========== CONTROL DE FILTROS POR BÚSQUEDA ==========
+    (function() {
+        const searchInput = document.getElementById('search-input');
+        const filtrosContainer = document.getElementById('filtros-container');
+        const mostrarFiltrosBtn = document.getElementById('mostrar-filtros-btn');
+
+        function ocultarFiltros() {
+            if (filtrosContainer) filtrosContainer.style.display = 'none';
+            if (mostrarFiltrosBtn) mostrarFiltrosBtn.style.display = 'block';
+        }
+
+        function mostrarFiltros() {
+            if (filtrosContainer) filtrosContainer.style.display = 'block';
+            if (mostrarFiltrosBtn) mostrarFiltrosBtn.style.display = 'none';
+        }
+
+        if (searchInput && searchInput.value.trim() !== '') {
+            ocultarFiltros();
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                if (this.value.trim() !== '') {
+                    ocultarFiltros();
+                } else {
+                    mostrarFiltros();
+                }
+            });
+        }
+
+        const btnFiltros = document.querySelector('#mostrar-filtros-btn button');
+        if (btnFiltros) {
+            btnFiltros.addEventListener('click', function() {
+                mostrarFiltros();
+            });
+        }
+    })();
 
 </script>
 {% endblock %}

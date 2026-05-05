@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.i18n import set_language  # noqa: F401
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,7 +29,6 @@ urlpatterns = [
     # Incluye las URLs de autenticación bajo el prefijo 'password-reset/'
     path('password-reset/', include('django.contrib.auth.urls')),
     path('chat/', include('chat.urls')),
-
     path("cookies/", include("cookie_consent.urls")),
 
     # Eventos virtuales
@@ -47,6 +47,11 @@ urlpatterns = [
     path('analytics/', include('pe_analytics.urls', namespace='pe_analytics')),
     path('encuestas/', include('pe_surveys.urls', namespace='pe_surveys')),
     path('comunicacion/', include('pe_communication.urls')),
+
+    path('accounts/login/', auth_views.LoginView.as_view(
+        template_name='usuarios/login.html',
+        redirect_authenticated_user=True
+    ), name='login'),
 ]
 
 if settings.DEBUG:

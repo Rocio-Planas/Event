@@ -199,6 +199,90 @@
         .dark .dropdown-item[class*="text-muted"] {
         color: #b0b3c0 !important;
         }
+                /* Corrección para botones de idioma y tema */
+        .lang-switch {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 2px !important;
+            background-color: var(--surface-container-high);
+            border-radius: 9999px;
+            padding: 3px;
+        }
+        .lang-btn {
+            all: unset;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 32px !important;
+            height: 28px !important;
+            font-size: 0.75rem !important;
+            font-weight: bold !important;
+            border-radius: 9999px !important;
+            cursor: pointer !important;
+            padding: 2px 8px !important;
+            transition: all 0.2s ease !important;
+            color: #64748b;
+            background: transparent;
+        }
+        .lang-btn.lang-active {
+            background-color: white !important;
+            color: var(--primary) !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+        }
+        .theme-btn {
+            all: unset;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 36px !important;
+            height: 36px !important;
+            border-radius: 9999px !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+        .theme-btn:hover {
+            background-color: var(--surface-container-high) !important;
+        }
+                /* Responsividad: pantallas pequeñas (móviles) */
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            .navbar-container .hidden.md\\:flex {
+                display: flex !important;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                width: 100%;
+                justify-content: center;
+                order: 3;
+            }
+            .navbar-container > .flex.items-center.gap-8 {
+                width: 100%;
+                justify-content: center;
+            }
+            .hero-section .flex.justify-center.gap-3 {
+                flex-direction: column;
+            }
+            .hero-section .flex.justify-center.gap-3 input {
+                width: 100%;
+            }
+            .hero-section .flex.justify-center.gap-3 button {
+                width: 100%;
+            }
+        }
+            /* Links de navegación visibles en móvil */
+    @media (max-width: 768px) {
+        .navbar-container .flex.flex-wrap.items-center.justify-center {
+            order: 3;
+            margin-top: 0.5rem;
+            gap: 0.75rem !important;
+        }
+        .navbar-container .flex.flex-wrap.items-center.justify-center a {
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+    }
     </style>
     <script>
         // ==================== TRADUCCIONES COMPLETAS ====================
@@ -533,8 +617,10 @@
                 'admin_panel_pending_reviews_title': 'Reseñas Pendientes',
                 'chat_admin_title': 'Chat de soporte',
                 'chat_no_active': 'No hay conversaciones activas.',
+                'show_filters': 'Filtros'
             },
             en: {
+                'show_filters': 'Filters',
                 'admin_panel_pending_reviews_title': 'Pending Reviews',
                 'nav_inicio': 'Home',
                 'nav_presenciales': 'In-Person Events',
@@ -870,64 +956,48 @@
 
             let currentLang = localStorage.getItem("lang") || "es";
 
-            function applyTranslations() {
+                        function applyTranslations() {
                 const t = translations[currentLang];
                 document.querySelectorAll("[data-i18n]").forEach((el) => {
                     const key = el.getAttribute("data-i18n");
                     if (t[key]) {
-                        if (
-                            el.tagName === "INPUT" ||
-                            el.tagName === "TEXTAREA"
-                        ) {
-                            if (el.hasAttribute("placeholder"))
-                                el.placeholder = t[key];
+                        if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+                            if (el.hasAttribute("placeholder")) el.placeholder = t[key];
                             else el.value = t[key];
                         } else {
                             el.innerText = t[key];
                         }
                     }
                 });
-                document
-                    .querySelectorAll("[data-i18n-placeholder]")
-                    .forEach((el) => {
-                        const key = el.getAttribute("data-i18n-placeholder");
-                        if (t[key]) el.placeholder = t[key];
-                    });
+                document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+                    const key = el.getAttribute("data-i18n-placeholder");
+                    if (t[key]) el.placeholder = t[key];
+                });
                 document.querySelectorAll(".category-name").forEach((el) => {
                     const catOriginal = el.getAttribute("data-cat-original");
                     if (catOriginal && t[`cat_${catOriginal}`]) {
                         el.innerText = t[`cat_${catOriginal}`];
                     }
                 });
+
+                // CORRECCIÓN: Aplicar estilos inline a los botones de idioma
                 const langEs = document.getElementById("lang-es");
                 const langEn = document.getElementById("lang-en");
                 if (langEs && langEn) {
                     if (currentLang === "es") {
-                        langEs.classList.add(
-                            "bg-white",
-                            "shadow-sm",
-                            "text-primary",
-                        );
-                        langEs.classList.remove("text-slate-500");
-                        langEn.classList.remove(
-                            "bg-white",
-                            "shadow-sm",
-                            "text-primary",
-                        );
-                        langEn.classList.add("text-slate-500");
+                        langEs.style.backgroundColor = "white";
+                        langEs.style.boxShadow = "0 1px 2px rgba(0,0,0,0.1)";
+                        langEs.style.color = "var(--primary)";
+                        langEn.style.backgroundColor = "transparent";
+                        langEn.style.boxShadow = "none";
+                        langEn.style.color = "#64748b";
                     } else {
-                        langEn.classList.add(
-                            "bg-white",
-                            "shadow-sm",
-                            "text-primary",
-                        );
-                        langEn.classList.remove("text-slate-500");
-                        langEs.classList.remove(
-                            "bg-white",
-                            "shadow-sm",
-                            "text-primary",
-                        );
-                        langEs.classList.add("text-slate-500");
+                        langEn.style.backgroundColor = "white";
+                        langEn.style.boxShadow = "0 1px 2px rgba(0,0,0,0.1)";
+                        langEn.style.color = "var(--primary)";
+                        langEs.style.backgroundColor = "transparent";
+                        langEs.style.boxShadow = "none";
+                        langEs.style.color = "#64748b";
                     }
                 }
             }
@@ -986,9 +1056,9 @@
                 const icon = document.getElementById("theme-icon");
                 if (!icon) return;
                 if (document.documentElement.classList.contains("dark")) {
-                    icon.textContent = "dark_mode";
+                    icon.className = "bi bi-moon-fill";
                 } else {
-                    icon.textContent = "light_mode";
+                    icon.className = "bi bi-brightness-high-fill";
                 }
             }
 
@@ -1038,7 +1108,7 @@
                         class="text-xl font-bold tracking-tight text-on-surface"
                         >EventPulse</span
                     >
-                    <div class="hidden md:flex items-center gap-6">
+                    <div class="flex flex-wrap items-center justify-center gap-6 w-full md:w-auto">
                         <a
                             class="font-sans text-sm font-medium transition-colors duration-200"
                             style="color: var(--text-on-surface-variant)"
@@ -1070,12 +1140,12 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <div class="lang-switch">
-                        <button class="lang-btn lang-active" id="lang-es">ES</button>
-                        <button class="lang-btn" id="lang-en">EN</button>
+                    <div style="display: flex; align-items: center; background-color: var(--surface-container-high); border-radius: 9999px; padding: 2px; gap: 1px;">
+                        <button id="lang-es" type="button" style="background-color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); border: none; border-radius: 9999px; padding: 2px 10px; font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: all 0.2s; color: var(--primary);">ES</button>
+                        <button id="lang-en" type="button" style="background-color: transparent; box-shadow: none; border: none; border-radius: 9999px; padding: 2px 10px; font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: all 0.2s; color: #64748b;">EN</button>
                     </div>
-                    <button class="theme-btn" id="theme-toggle" aria-label="Cambiar tema">
-                        <i class="bi bi-brightness-high-fill" id="theme-icon" style="font-size: 1.5rem"></i>
+                         <button type="button" id="theme-toggle" aria-label="Cambiar tema" style="background: none; border: none; cursor: pointer; padding: 6px; border-radius: 9999px; transition: all 0.2s;">
+                        <i id="theme-icon" class="bi bi-brightness-high-fill" style="font-size: 1.25rem; color: var(--text-on-surface);"></i>
                     </button>
 
                     {% if user.is_authenticated and user.rol == 'administrador' %}
