@@ -1154,7 +1154,7 @@
 
                     {% if user.is_authenticated and user.rol == 'administrador' %}
                         <a href="{% url 'chat:admin_inbox' %}" class="relative p-2 hover:bg-surface-container-high rounded-full transition-colors">
-                            <span class="material-symbols-outlined" style="color: var(--text-on-surface);">chat</span>
+                            <i class="bi bi-chat-dots" style="font-size: 1.25rem; color: var(--text-on-surface);"></i>
                             <span id="chat-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center" style="display: none;">0</span>
                         </a>
                     {% endif %}
