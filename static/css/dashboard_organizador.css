@@ -1,0 +1,58 @@
+:root {
+    --primary: #0057cd;
+    --secondary: #425c9b;
+    --surface-container-low: #f1f4f9;
+    --surface-container-lowest: #ffffff;
+    --text-on-surface: #181c20;
+    --text-on-surface-variant: #424655;
+    --border-outline-variant: #c2c6d8;
+}
+
+.card {
+    background-color: var(--surface-container-lowest);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(225, 228, 237, 0.5);
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+}
+h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+}
+h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.btn-primary {
+    background: linear-gradient(
+        135deg,
+        var(--primary) 0%,
+        var(--primary-variant) 100%
+    );
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+}

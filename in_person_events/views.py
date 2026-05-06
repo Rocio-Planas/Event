@@ -1,4 +1,7 @@
+import base64
+import io
 import json
+import qrcode
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -154,13 +157,81 @@ def dashboard_assistant(request, event_id):
     ticket_types = event.ticket_types.all()
     resources = event.resources.all()
     total_attendees = event.registrations.filter(status=Registration.Status.CONFIRMADA).count()
+    user_registration = Registration.objects.filter(
+        event=event,
+        user=request.user,
+        status__in=[Registration.Status.CONFIRMADA, Registration.Status.PENDIENTE]
+    ).select_related('ticket_type').first()
+    selected_ticket_type = user_registration.ticket_type if user_registration else None
+
+    ticket_holder_name = request.user.get_full_name() or request.user.email
+    ticket_type_name = selected_ticket_type.name if selected_ticket_type else 'General'
+    ticket_qr_data_url = None
+
+    if user_registration:
+        qr_payload = json.dumps({
+            'event_id': event.id,
+            'event_title': event.title,
+            'registration_id': user_registration.id,
+            'user_id': request.user.id,
+            'user_name': ticket_holder_name,
+            'ticket_type': ticket_type_name,
+        }, ensure_ascii=False)
+
+        qr = qrcode.QRCode(
+            version=2,
+            error_correction=qrcode.constants.ERROR_CORRECT_Q,
+            box_size=8,
+            border=3,
+        )
+        qr.add_data(qr_payload)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color='black', back_color='white')
+        buffer = io.BytesIO()
+        img.save(buffer, format='PNG')
+        ticket_qr_data_url = f"data:image/png;base64,{base64.b64encode(buffer.getvalue()).decode()}"
+
     return render(request, 'dashboard_assistant.html', {
         'event': event,
         'activities': activities,
         'ticket_types': ticket_types,
         'resources': resources,
         'total_attendees': total_attendees,
+        'user_registration': user_registration,
+        'selected_ticket_type': selected_ticket_type,
+        'ticket_holder_name': ticket_holder_name,
+        'ticket_type_name': ticket_type_name,
+        'ticket_qr_data_url': ticket_qr_data_url,
     })
+
+
+@login_required
+def select_ticket_type(request, event_id):
+    """Permite al asistente cambiar el tipo de ticket asignado."""
+    event = get_object_or_404(Event, id=event_id)
+    if request.method != 'POST':
+        return redirect('in_person_events:dashboard_assistant', event_id=event_id)
+
+    ticket_type_id = request.POST.get('ticket_type_id')
+    registration = Registration.objects.filter(
+        event=event,
+        user=request.user,
+        status__in=[Registration.Status.CONFIRMADA, Registration.Status.PENDIENTE]
+    ).select_related('ticket_type').first()
+
+    if not registration:
+        messages.error(request, 'No se encontró tu inscripción. No es posible cambiar el tipo de entrada.')
+        return redirect('in_person_events:dashboard_assistant', event_id=event_id)
+
+    ticket_type = event.ticket_types.filter(id=ticket_type_id).first()
+    if not ticket_type:
+        messages.error(request, 'Tipo de entrada inválido.')
+        return redirect('in_person_events:dashboard_assistant', event_id=event_id)
+
+    registration.ticket_type = ticket_type
+    registration.save(update_fields=['ticket_type'])
+    messages.success(request, 'Tu tipo de entrada se actualizó correctamente.')
+    return redirect('in_person_events:dashboard_assistant', event_id=event_id)
 
 
 @login_required
