@@ -1,145 +1,122 @@
 {% extends "base_sidebar.html" %}
 {% load static %}
 
-{% block title %}Analíticas - EventConcierge{% endblock %}
+{% block title %}Analíticas - {{ event.title }}{% endblock %}
 
 {% block extra_head %}
-    <link rel="stylesheet" href="{% static 'pe_analytics/css/style.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'pe_inventory/inventory/css/styles.css' %}">
 {% endblock %}
 
 {% block content %}
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-end mb-4">
-        <div>
-            <h2 class="fw-800 display-6">Analíticas del Evento</h2>
-            <p class="text-muted mb-0">Resumen de rendimiento y estadísticas</p>
+{% with active_page='analiticas' %}
+    <div class="p-4">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="fw-800 display-6">Analíticas del Evento</h2>
+                <p class="text-muted mb-0">Resumen de rendimiento y estadísticas</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" onclick="exportReport()">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
+                    Exportar PDF
+                </button>
+            </div>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-white border shadow-sm fw-semibold d-flex align-items-center gap-2" onclick="loadStats()">
-                <span class="material-symbols-outlined" style="font-size: 18px;">refresh</span>
-                Actualizar
-            </button>
-            <button class="btn btn-primary fw-semibold d-flex align-items-center gap-2" onclick="exportReport()">
-                <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
-                Exportar PDF
-            </button>
-        </div>
-    </div>
 
-    <!-- Stats Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white h-100">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3">
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-3">
+                    <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 d-flex align-items-center justify-content-center">
                         <span class="material-symbols-outlined">payments</span>
                     </div>
+                    <div>
+                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Ingresos Totales</small>
+                        <h3 class="fw-black mb-0">${{ total_revenue|floatformat:2 }}</h3>
+                    </div>
                 </div>
-                <p class="text-muted small fw-medium mb-1">Ingresos Totales</p>
-                <h3 class="fw-black mb-0">${{ total_revenue|floatformat:2 }}</h3>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white h-100">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="bg-success bg-opacity-10 text-success p-3 rounded-3">
+            <div class="col-md-4">
+                <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-3">
+                    <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 d-flex align-items-center justify-content-center">
                         <span class="material-symbols-outlined">groups</span>
                     </div>
+                    <div>
+                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Total Asistentes</small>
+                        <h3 class="fw-black mb-0">{{ total_attendance }}</h3>
+                    </div>
                 </div>
-                <p class="text-muted small fw-medium mb-1">Total de Asistentes</p>
-                <h3 class="fw-black mb-0">{{ total_attendance }}</h3>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white h-100">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3">
+            <div class="col-md-4">
+                <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-3">
+                    <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 d-flex align-items-center justify-content-center">
                         <span class="material-symbols-outlined">confirmation_number</span>
                     </div>
-                </div>
-                <p class="text-muted small fw-medium mb-1">Precio Promedio de Entrada</p>
-                <h3 class="fw-black mb-0">${{ avg_ticket_price|floatformat:2 }}</h3>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Charts -->
-    <div class="row g-4 mb-4">
-        <div class="col-lg-8">
-            <div class="content-card border-0 shadow-sm p-4 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h5 class="fw-bold text-dark mb-1">Distribución de Entradas</h5>
-                        <p class="text-muted small mb-0">Ventas por categoría</p>
+                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Precio Promedio</small>
+                        <h3 class="fw-black mb-0">${{ avg_ticket_price|floatformat:2 }}</h3>
                     </div>
                 </div>
-                <div class="chart-container" style="height: 300px;">
-                    <canvas id="distributionChart"></canvas>
-                </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <div class="content-card border-0 shadow-sm p-4 h-100">
-                <h5 class="fw-bold text-dark mb-1">Distribución por Tipo</h5>
-                <p class="text-muted small mb-4">Desglose de tickets</p>
-                <div class="chart-container mx-auto mb-4" style="height: 180px; width: 180px;">
-                    <canvas id="pieChart"></canvas>
-                </div>
-                <div id="ticketLegend"></div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Demographics -->
-    <div class="row g-4 mb-4">
-        <div class="col-lg-6">
-            <div class="content-card border-0 shadow-sm p-4 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h5 class="fw-bold text-dark mb-1">Demografía por Edad</h5>
-                        <p class="text-muted small mb-0">Distribución de asistentes por grupo de edad</p>
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                <div class="content-card border-0 shadow-sm p-4 bg-white rounded-3 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1">Inscripciones por Fecha</h5>
+                            <p class="text-muted small mb-0">Número de inscripciones acumuladas</p>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="distributionChart"></canvas>
                     </div>
                 </div>
-                <div class="chart-container" style="height: 250px;">
-                    <canvas id="ageChart"></canvas>
+            </div>
+            <div class="col-lg-4">
+                <div class="content-card border-0 shadow-sm p-4 bg-white rounded-3 h-100">
+                    <h5 class="fw-bold text-dark mb-1">Distribución por Tipo</h5>
+                    <p class="text-muted small mb-4">Desglose de tickets</p>
+                    <div class="chart-container mx-auto mb-4" style="height: 180px; width: 180px;">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                    <div id="ticketLegend"></div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-6">
-            <div class="content-card border-0 shadow-sm p-4 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h5 class="fw-bold text-dark mb-1">Distribución por Género</h5>
-                        <p class="text-muted small mb-0">Datos demográficos autodeclarados</p>
+
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="content-card border-0 shadow-sm p-4 bg-white rounded-3 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1">Demografía por Edad</h5>
+                            <p class="text-muted small mb-0">Distribución de asistentes por grupo de edad</p>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="ageChart"></canvas>
                     </div>
                 </div>
-                <div class="chart-container" style="height: 250px;">
-                    <canvas id="genderChart"></canvas>
+            </div>
+            <div class="col-lg-6">
+                <div class="content-card border-0 shadow-sm p-4 bg-white rounded-3 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1">Distribución por Género</h5>
+                            <p class="text-muted small mb-0">Datos demográficos autodeclarados</p>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="genderChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <div class="content-card border-0 shadow-sm overflow-hidden bg-white">
-        <div class="row g-0 align-items-center">
-            <div class="col-md-8 p-4">
-                <h4 class="fw-bold text-dark mb-2">Análisis Profundo Listo</h4>
-                <p class="text-muted mb-4">Descarga el conjunto de datos completo para modelado personalizado o integra mediante nuestra API REST para sincronización en tiempo real.</p>
-                <div class="d-flex flex-wrap gap-3">
-                    <button class="btn btn-dark px-4 py-2 fw-bold" onclick="loadRawData()">
-                        <span class="material-symbols-outlined me-2" style="font-size: 18px;">download</span>
-                        Obtener Datos
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-4 d-none d-md-block p-0 overflow-hidden" style="max-height: 200px;">
-                <img src="https://images.unsplash.com/photo-1551288049-bbbda536339a?q=80&w=2070&auto=format&fit=crop" class="img-fluid object-fit-cover w-100 h-100" style="filter: grayscale(1); opacity: 0.5;">
-            </div>
         </div>
     </div>
+{% endwith %}
 {% endblock %}
 
 {% block extra_scripts %}
@@ -151,6 +128,7 @@
     const ageData = {{ age_distribution|safe }};
     const genderData = {{ gender_distribution|safe }};
     const ticketData = {{ ticket_distribution|safe }};
+    const registrationsTimeline = {{ registrations_timeline|safe }};
 
     function initCharts() {
         const ageLabels = Object.keys(ageData);
@@ -161,6 +139,9 @@
         
         const ticketLabels = Object.keys(ticketData);
         const ticketValues = Object.values(ticketData);
+        
+        const timelineLabels = Object.keys(registrationsTimeline);
+        const timelineValues = Object.values(registrationsTimeline);
 
         const colors = {
             primary: '#0d6efd',
@@ -219,14 +200,17 @@
         });
 
         distributionChart = new Chart(document.getElementById('distributionChart'), {
-            type: 'bar',
+            type: 'line',
             data: {
-                labels: ticketLabels,
+                labels: timelineLabels,
                 datasets: [{
-                    label: 'Entradas Vendidas',
-                    data: ticketValues,
-                    backgroundColor: colors.primary,
-                    borderRadius: 4
+                    label: 'Inscripciones',
+                    data: timelineValues,
+                    borderColor: colors.primary,
+                    backgroundColor: colors.primary + '20',
+                    fill: true,
+                    tension: 0.3,
+                    borderWidth: 2
                 }]
             },
             options: {
@@ -299,15 +283,43 @@
 
     async function exportReport() {
         try {
-            const response = await fetch(`/pe_analytics/export/${eventId}/`, {
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            const chartIds = ['distributionChart', 'pieChart', 'ageChart', 'genderChart'];
+            const chartImages = {};
+            
+            let hasCharts = false;
+            for (const id of chartIds) {
+                const canvas = document.getElementById(id);
+                if (canvas && canvas.width > 0 && canvas.height > 0) {
+                    chartImages[id] = canvas.toDataURL('image/png');
+                    hasCharts = true;
+                }
+            }
+            
+            console.log('Charts captured:', hasCharts, Object.keys(chartImages));
+
+            const formData = new FormData();
+            formData.append('charts', JSON.stringify(chartImages));
+            
+            const response = await fetch(`/analytics/export/${eventId}/`, {
                 method: 'POST',
+                body: formData,
                 headers: { 'X-CSRFToken': getCookie('csrftoken') }
             });
-            const result = await response.json();
-            if (result.success && result.pdf_url) {
-                window.open(result.pdf_url, '_blank');
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `reporte_analiticas_${eventId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
             } else {
-                alert('Reporte generado exitosamente');
+                const result = await response.json();
+                alert(result.error || 'Error al generar el reporte');
             }
         } catch (error) {
             console.error('Error exportando reporte:', error);

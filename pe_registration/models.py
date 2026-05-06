@@ -56,7 +56,7 @@ class Registration(models.Model):
         verbose_name='Estado'
     )
     registration_date = models.DateTimeField(
-        auto_now_add=True,
+        default=timezone.now,
         verbose_name='Fecha de Inscripción'
     )
     payment_status = models.CharField(
@@ -74,3 +74,36 @@ class Registration(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.event.title}"
+
+
+class EventWaitlist(models.Model):
+    """
+    Lista de espera para eventos llenos.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='waitlist_entries',
+        verbose_name='Usuario'
+    )
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name='waitlist',
+        verbose_name='Evento'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Entrada')
+
+    class Meta:
+        verbose_name = 'Lista de Espera'
+        verbose_name_plural = 'Lista de Espera'
+        ordering = ['created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['event', 'user'],
+                name='unique_waitlist_per_event'
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user.email} - {self.event.title} (Lista de Espera)"

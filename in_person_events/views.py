@@ -130,10 +130,12 @@ def dashboard_organizer(request, event_id):
     """Dashboard para el organizador."""
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
     ticket_types = event.ticket_types.all()
-    registrations = event.registrations.select_related('ticket_type').all()
+    registrations = event.registrations.select_related('ticket_type').filter(status=Registration.Status.CONFIRMADA)
     total_attendees = registrations.count()
     ticket_type_counts = registrations.values('ticket_type__name').annotate(count=Count('id')).order_by('ticket_type__name')
-    total_revenue = registrations.aggregate(total=Sum('ticket_type__price'))['total'] or 0
+    total_revenue = registrations.aggregate(total=Sum('ticket_type__price'))['total']
+    if total_revenue is None:
+        total_revenue = float(0)
     return render(request, 'dashboard_organizer.html', {
         'event': event,
         'ticket_types': ticket_types,
@@ -151,11 +153,13 @@ def dashboard_assistant(request, event_id):
     activities = event.activities.order_by('start_time')[:5]
     ticket_types = event.ticket_types.all()
     resources = event.resources.all()
+    total_attendees = event.registrations.filter(status=Registration.Status.CONFIRMADA).count()
     return render(request, 'dashboard_assistant.html', {
         'event': event,
         'activities': activities,
         'ticket_types': ticket_types,
         'resources': resources,
+        'total_attendees': total_attendees,
     })
 
 
@@ -172,45 +176,55 @@ def edit_event(request, event_id):
             try:
                 event = form.save(commit=False)
                 event.save()
-                
-                # Procesar tickets siempre
-                tickets_json = request.POST.get('tickets_data', '[]')
-                try:
-                    tickets_list = json.loads(tickets_json) if tickets_json else []
-                    # Verificar si hay registros antes de eliminar tickets
-                    if event.registrations.exists():
-                        messages.warning(request, 'Los tickets no se pudieron modificar porque el evento ya tiene registros.')
-                    else:
-                        # Limpiar tickets antiguos y crear nuevos
-                        event.ticket_types.all().delete()
-                        for t_data in tickets_list:
-                            TicketType.objects.create(
-                                event=event,
-                                name=t_data.get('name', 'Entrada General'),
-                                price=t_data.get('price', 0)
-                            )
-                except json.JSONDecodeError as e:
-                    messages.error(request, f'Error al procesar los tickets: {str(e)}')
-                    # Re-renderizar con los datos que fueron enviados
-                    return render(request, 'edit_event_form.html', {
-                        'form': form,
-                        'event': event,
-                        'ticket_types': event.ticket_types.all(),
-                        'tickets_json': tickets_json,
-                    })
-                
-                messages.success(request, 'Evento actualizado correctamente.')
-                return redirect('in_person_events:dashboard_organizer', event_id=event.id)
-            
             except Exception as e:
-                messages.error(request, f'Error al actualizar el evento: {str(e)}')
-                tickets_json = request.POST.get('tickets_data', '[]')
-        else:
-            # Si el formulario no es válido, mostramos los errores pero re-renderizamos con los datos
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
+                messages.error(request, f'Error al guardar el evento: {str(e)}')
+                return render(request, 'edit_event_form.html', {
+                    'form': form,
+                    'event': event,
+                    'ticket_types': event.ticket_types.all(),
+                    'tickets_json': request.POST.get('tickets_data', '[]'),
+                })
+            
             tickets_json = request.POST.get('tickets_data', '[]')
+            try:
+                tickets_list = json.loads(tickets_json) if tickets_json else []
+                
+                # Delete all old tickets
+                event.ticket_types.all().delete()
+                
+                # Create new tickets
+                for t_data in tickets_list:
+                    TicketType.objects.create(
+                        event=event,
+                        name=t_data.get('name', 'Entrada General'),
+                        price=t_data.get('price', 0)
+                    )
+                
+                # Find default ticket (lowest price)
+                default_ticket = event.ticket_types.order_by('price').first()
+                
+                # Reassign registrations with deleted ticket
+                reassigned_count = 0
+                if default_ticket:
+                    current_ids = set(event.ticket_types.values_list('id', flat=True))
+                    for reg in event.registrations.all():
+                        if reg.ticket_type_id not in current_ids:
+                            reg.ticket_type = default_ticket
+                            reg.save(update_fields=['ticket_type'])
+                            reassigned_count += 1
+                
+                return redirect('in_person_events:dashboard_organizer', event_id=event.id)
+                
+            except json.JSONDecodeError as e:
+                messages.error(request, f'Error al procesar los tickets: {str(e)}')
+            except Exception as e:
+                messages.error(request, f'Error al procesar los tickets: {str(e)}')
+        
+        # Si el formulario no es válido
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(request, f'{field}: {error}')
+        tickets_json = request.POST.get('tickets_data', '[]')
     else:
         form = EventForm(instance=event, user=request.user)
         # Verificar si la imagen existe, si no, limpiarla
@@ -234,6 +248,18 @@ def edit_event(request, event_id):
 
 def configure_event(request, event_id):
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
+
+    if request.method == 'POST':
+        show_attendee_count = request.POST.get('show_attendee_count') == 'true'
+        event.show_attendee_count = show_attendee_count
+        event.save(update_fields=['show_attendee_count'])
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'show_attendee_count': event.show_attendee_count})
+
+        messages.success(request, 'Configuración guardada correctamente.')
+        return redirect('in_person_events:configure_event', event_id=event.id)
+
     return render(request, 'configure_event.html', {
         'event': event,
         'active_page': 'configuracion'
@@ -270,3 +296,50 @@ def delete_page(request):
     return render(request, 'delete_page.html', {
         'deleted_event': deleted_event
     })
+
+
+@login_required
+def send_announcement(request, event_id):
+    """Enviar un anuncio a todos los asistentes del evento."""
+    from pe_communication.views import send_email_notification
+    from pe_communication.models import Notification
+    
+    event = get_object_or_404(Event, id=event_id, organizer=request.user)
+    
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        message = request.POST.get('message', '').strip()
+        
+        if not title or not message:
+            messages.error(request, 'El título y el mensaje son obligatorios.')
+            return redirect('in_person_events:dashboard_organizer', event_id=event.id)
+        
+        registrations = event.registrations.filter(status=Registration.Status.CONFIRMADA).select_related('user')
+        sent_count = 0
+        
+        for registration in registrations:
+            if registration.user:
+                Notification.objects.create(
+                    user=registration.user,
+                    sender=request.user,
+                    title=f"{title} - {event.title}",
+                    message=message,
+                    notification_type=Notification.Type.MANUAL_ALERT
+                )
+                
+                if registration.user.email:
+                    try:
+                        send_email_notification(
+                            recipient_email=registration.user.email,
+                            subject=f"{title} - {event.title}",
+                            body_html=f"<p>{message}</p>",
+                            body_text=message,
+                        )
+                    except Exception as e:
+                        print(f"Error sending email to {registration.user.email}: {e}")
+                
+                sent_count += 1
+        
+        messages.success(request, f'Anuncio enviado a {sent_count} asistente(s).')
+    
+    return redirect('in_person_events:dashboard_organizer', event_id=event.id)

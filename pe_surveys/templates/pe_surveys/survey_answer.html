@@ -1,0 +1,156 @@
+{% extends "base_bootstrap.html" %}
+{% load static %}
+
+{% block title %}Encuesta - {{ survey.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/event-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container pt-1 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <div class="card ev-form-card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5 ev-form-body">
+                    <header class="ev-header mb-5">
+                        <div class="text-center mb-4">
+                            <span class="material-symbols-outlined text-primary" style="font-size: 64px;">.poll</span>
+                        </div>
+                        <h1 class="ev-title h3 fw-extrabold mb-2">{{ survey.title }}</h1>
+                        <p class="ev-subtitle text-muted small">
+                            Encuesta del evento: <strong>{{ survey.event.title }}</strong>
+                        </p>
+                    </header>
+
+                    <form id="surveyForm">
+                        {% csrf_token %}
+                        <input type="hidden" id="surveyId" value="{{ survey.pk }}">
+                        <input type="hidden" id="eventId" value="{{ event_id }}">
+                        
+                        {% if survey.survey_type == 'escala' %}
+                            <div class="mb-5">
+                                <label class="ev-label small fw-bold text-uppercase tracking-wider mb-3 d-block">Tu valoración</label>
+                                <div class="d-flex justify-content-between gap-2 mb-3">
+                                    {% for i in "12345" %}
+                                    <div class="text-center">
+                                        <input class="btn-check" type="radio" name="rating" id="rating{{ i }}" value="{{ i }}" {% if forloop.last %}checked{% endif %}>
+                                        <label class="btn btn-outline-primary rounded-3 py-3 px-3 fw-bold" for="rating{{ i }}">{{ i }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">Muy insatisfecho</small>
+                                    <small class="text-muted">Muy satisfecho</small>
+                                </div>
+                            </div>
+                        {% elif survey.survey_type == 'texto' %}
+                            <div class="mb-5">
+                                <label class="ev-label small fw-bold text-uppercase tracking-wider mb-3 d-block">
+                                    {% if survey.is_multiple_choice %}Selecciona una o más opciones{% else %}Selecciona una opción{% endif %}
+                                </label>
+                                <div class="d-grid gap-3">
+                                    {% for option in survey.options.all %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="{% if survey.is_multiple_choice %}checkbox{% else %}radio{% endif %}" name="options" id="option{{ option.pk }}" value="{{ option.pk }}">
+                                        <label class="form-check-label w-100 p-3 rounded-3 border" for="option{{ option.pk }}">{{ option.text }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-5">
+                            <label class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Comentarios adicionales (opcional)</label>
+                            <textarea class="form-control border-0 bg-light" id="comments" rows="3" placeholder="Tu opinión nos importa..."></textarea>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                            <button type="submit" class="btn btn-primary btn-lg py-3 rounded-4 fw-bold text-uppercase tracking-widest shadow-sm">
+                                <span class="material-symbols-outlined me-2">send</span>
+                                Enviar Respuesta
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="successMessage" class="text-center py-5 d-none">
+                        <span class="material-symbols-outlined text-success" style="font-size: 80px;">check_circle</span>
+                        <h2 class="h3 fw-extrabold mt-4 mb-3">¡Gracias!</h2>
+                        <p class="text-muted">Tu respuesta ha sido enviada correctamente.</p>
+                        <p class="text-muted small">Puedes cerrar esta ventana.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('surveyForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    var surveyId = document.getElementById('surveyId').value;
+    var eventId = document.getElementById('eventId').value;
+    var comments = document.getElementById('comments').value;
+    var answer = null;
+    
+    {% if survey.survey_type == 'escala' %}
+        var rating = document.querySelector('input[name="rating"]:checked');
+        answer = rating ? parseInt(rating.value) : null;
+    {% elif survey.survey_type == 'texto' %}
+        {% if survey.is_multiple_choice %}
+            var selected = [];
+            document.querySelectorAll('input[name="options"]:checked').forEach(function(cb) {
+                selected.push(parseInt(cb.value));
+            });
+            answer = selected;
+        {% else %}
+            var option = document.querySelector('input[name="options"]:checked');
+            answer = option ? parseInt(option.value) : null;
+        {% endif %}
+    {% endif %}
+    
+    fetch('/encuestas/' + eventId + '/responder/' + surveyId + '/api/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            answer: answer,
+            comments: comments
+        })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            document.getElementById('surveyForm').classList.add('d-none');
+            document.getElementById('successMessage').classList.remove('d-none');
+        } else {
+            alert(data.error || 'Error al enviar respuesta');
+        }
+    })
+    .catch(function(err) {
+        console.error(err);
+        alert('Error de conexión');
+    });
+});
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

@@ -1,23 +1,609 @@
 {% extends "base_sidebar.html" %} {% load static %} {% block title %}Gestión de
 Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
-<link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-/>
-<link
-    rel="stylesheet"
-    href="{% static 'pe_stand/info_stands/css/styles.css' %}"
-/>
+<link rel="stylesheet" href="{% static 'pe_stand/css/stands.css' %}">
 {% endblock %} {% block content %}
-<div
-    class="container-fluid p-4"
-    data-event-id="{{ event_id }}"
-    data-stand-id="{{ stand.id }}"
->
+<script>
+var currentStandId = {{ stand.id }};
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function addSelectedStaff() {
+    var selectedCheckboxes = document.querySelectorAll('.staff-checkbox:checked');
+    var selectedUsers = Array.from(selectedCheckboxes).map(function(cb) {
+        return { user_id: cb.value, role: cb.dataset.role };
+    });
+    
+    if (selectedUsers.length === 0) return;
+    
+    var btn = document.getElementById('confirmAddStaffBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Añadiendo...';
+    
+    fetch('/stands/api/' + currentStandId + '/add-staff/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ users: selectedUsers })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Error desconocido');
+            btn.disabled = false;
+            btn.textContent = 'Aceptar';
+        }
+    })
+    .catch(function(error) {
+        alert('Error de conexión');
+        btn.disabled = false;
+        btn.textContent = 'Aceptar';
+    });
+}
+
+function openNotificationModal(userId, userName) {
+    document.getElementById('notificationUserId').value = userId;
+    document.getElementById('notificationUserName').textContent = userName;
+    var modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+    modal.show();
+}
+
+function sendNotification() {
+    var userId = document.getElementById('notificationUserId').value;
+    var title = document.getElementById('notificationTitle').value;
+    var message = document.getElementById('notificationMessage').value;
+    
+    if (!title || !message) {
+        alert('Completa todos los campos');
+        return;
+    }
+    
+    var btn = document.getElementById('sendNotificationBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Enviando...';
+    
+    fetch('/comunicacion/send/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            user_id: userId,
+            title: title,
+            message: message
+        })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            alert('Notificación enviada');
+            bootstrap.Modal.getInstance(document.getElementById('notificationModal')).hide();
+            document.getElementById('notificationTitle').value = '';
+            document.getElementById('notificationMessage').value = '';
+        } else {
+            alert(data.error || 'Error al enviar');
+        }
+        btn.disabled = false;
+        btn.textContent = 'Enviar';
+    })
+    .catch(function(error) {
+        alert('Error de conexión');
+        btn.disabled = false;
+        btn.textContent = 'Enviar';
+    });
+}
+
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('staff-checkbox')) {
+        var anyChecked = document.querySelectorAll('.staff-checkbox:checked').length > 0;
+        document.getElementById('confirmAddStaffBtn').disabled = !anyChecked;
+    }
+    if (e.target.classList.contains('activity-checkbox')) {
+        var anyChecked = document.querySelectorAll('.activity-checkbox:checked').length > 0;
+        document.getElementById('confirmAssignActivityBtn').disabled = !anyChecked;
+    }
+    if (e.target.classList.contains('resource-checkbox')) {
+        var anyChecked = document.querySelectorAll('.resource-checkbox:checked').length > 0;
+        document.getElementById('confirmAddBtn').disabled = !anyChecked;
+    }
+});
+
+function removeStaffFromStand(userId, userName) {
+    document.getElementById('removeStaffUserId').value = userId;
+    document.getElementById('removeStaffUserName').textContent = userName;
+    var modal = new bootstrap.Modal(document.getElementById('removeStaffModal'));
+    modal.show();
+}
+
+function confirmRemoveStaff() {
+    var userId = document.getElementById('removeStaffUserId').value;
+    
+    fetch('/stands/api/' + currentStandId + '/remove-staff/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ user_id: userId })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('removeStaffModal')).hide();
+            location.reload();
+        } else {
+            alert(data.error || 'Error al remover');
+        }
+    })
+    .catch(function(error) {
+        alert('Error de conexión');
+    });
+}
+
+function addSelectedActivities() {
+    var selectedCheckboxes = document.querySelectorAll('.activity-checkbox:checked');
+    var selectedActivities = Array.from(selectedCheckboxes).map(function(cb) {
+        return { activity_id: cb.value };
+    });
+    
+    if (selectedActivities.length === 0) return;
+    
+    var btn = document.getElementById('confirmAssignActivityBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Asignando...';
+    
+    fetch('/stands/api/' + currentStandId + '/add-activities/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ activities: selectedActivities })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Error desconocido');
+            btn.disabled = false;
+            btn.textContent = 'Asignar';
+        }
+    })
+    .catch(function(error) {
+        alert('Error de conexión');
+        btn.disabled = false;
+        btn.textContent = 'Asignar';
+    });
+}
+
+function addSelectedResources() {
+    var selectedCheckboxes = document.querySelectorAll('.resource-checkbox:checked');
+    var selectedItems = Array.from(selectedCheckboxes).map(function(cb) {
+        return cb.value;
+    });
+
+    if (selectedItems.length === 0) return;
+
+    var btn = document.getElementById('confirmAddBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Añadiendo...';
+
+    fetch('/stands/api/' + currentStandId + '/add-resources/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ item_ids: selectedItems })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('No se pudieron agregar los recursos');
+            btn.disabled = false;
+            btn.textContent = 'Añadir Seleccionados';
+        }
+    })
+    .catch(function(error) {
+        alert('Error de conexión');
+        btn.disabled = false;
+        btn.textContent = 'Añadir Seleccionados';
+    });
+}
+
+function updateQuantity(assignmentId, delta, maxStock) {
+    var currentQtySpan = document.querySelector('[data-assignment-id="' + assignmentId + '"] .assigned-val');
+    var currentQty = parseInt(currentQtySpan.textContent);
+    var newQty = currentQty + delta;
+    
+    if (newQty < 0 || newQty > maxStock) {
+        return;
+    }
+
+    fetch('/stands/' + currentStandId + '/update-resource/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ assignment_id: assignmentId, quantity: newQty })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(function(error) {
+        console.error('Error:', error);
+    });
+}
+
+function openActivityDetails(activityId, title, description, startDate, endDate, duration, location, speakerName, speakerEmail, status) {
+    document.getElementById('detailActivityId').value = activityId;
+    document.getElementById('detailActivityTitle').textContent = title;
+    document.getElementById('detailActivityDescription').textContent = description || 'Descripción no disponible';
+    document.getElementById('detailActivityTime').textContent = 'Inicio: ' + startDate;
+    document.getElementById('detailActivityDate').textContent = 'Fin: ' + endDate;
+    document.getElementById('detailActivityDuration').textContent = duration + ' min';
+    document.getElementById('detailActivityLocation').textContent = location || 'Sin ubicación';
+
+    var statusLabel = 'Programada';
+    var statusClass = 'bg-primary text-white';
+    if (status === 'en_curso') {
+        statusLabel = 'En curso';
+        statusClass = 'bg-warning text-dark';
+    } else if (status === 'completada') {
+        statusLabel = 'Completada';
+        statusClass = 'bg-success text-white';
+    } else if (status === 'cancelada') {
+        statusLabel = 'Cancelada';
+        statusClass = 'bg-danger text-white';
+    }
+    var statusElement = document.getElementById('detailActivityStatus');
+    statusElement.textContent = statusLabel;
+    statusElement.className = 'badge fw-bold ' + statusClass;
+
+    if (speakerName) {
+        document.getElementById('detailActivitySpeaker').textContent = speakerName;
+        document.getElementById('detailActivitySpeakerEmail').textContent = speakerEmail || '';
+    } else {
+        document.getElementById('detailActivitySpeaker').textContent = 'Sin asignar';
+        document.getElementById('detailActivitySpeakerEmail').textContent = '';
+    }
+
+    if (!location) {
+        document.getElementById('detailActivityLocation').textContent = 'No asignada';
+    }
+
+    var modal = new bootstrap.Modal(document.getElementById('activityDetailsModal'));
+    modal.show();
+}
+
+function openEditResourceModal(assignmentId, itemName, itemCategory, currentDetails, currentRequired) {
+    document.getElementById('editAssignmentId').value = assignmentId;
+    document.getElementById('editResourceName').textContent = itemName + ' (' + itemCategory + ')';
+    document.getElementById('editReqInput').value = currentDetails || '';
+    document.getElementById('editRequiredInput').value = currentRequired || 0;
+    var modal = new bootstrap.Modal(document.getElementById('editResourceModal'));
+    modal.show();
+}
+
+function saveResourceEdit() {
+    var assignmentId = document.getElementById('editAssignmentId').value;
+    var details = document.getElementById('editReqInput').value;
+    var requiredQty = document.getElementById('editRequiredInput').value;
+    
+    if (details.length > 100) {
+        alert('El texto no puede exceder 100 caracteres');
+        return;
+    }
+    
+    var btn = document.getElementById('saveResourceEditBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
+    
+    fetch('/stands/' + currentStandId + '/update-resource/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ assignment_id: assignmentId, details: details, required_quantity: parseInt(requiredQty) || 0 })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Error al guardar');
+        }
+    })
+    .catch(function(error) {
+        console.error('Error:', error);
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'Guardar Cambios';
+    });
+}
+
+function removeResource(assignmentId) {
+    if (!confirm('¿Quitar este recurso del stand? La cantidad se liberará al stock available.')) {
+        return;
+    }
+    
+    fetch('/stands/' + currentStandId + '/delete-resource/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ assignment_id: assignmentId })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Error al eliminar');
+        }
+    })
+    .catch(function(error) {
+        console.error('Error:', error);
+    });
+}
+
+function adjustQuantity(assignmentId, delta, button) {
+    var td = button.closest('td');
+    var span = td.querySelector('span');
+    var currentText = span.textContent.trim();
+    var parts = currentText.split(' / ');
+    var currentQty = parseInt(parts[0]) || 0;
+    var requiredQty = parseInt(parts[1]) || 0;
+    
+    var newQty = Math.max(0, currentQty + delta); // Don't go below 0
+    
+    fetch('/stands/' + currentStandId + '/update-resource/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ assignment_id: assignmentId, quantity: newQty })
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            // Update the display
+            span.textContent = newQty + ' / ' + requiredQty;
+        } else {
+            console.warn('No se pudo actualizar cantidad:', data.error);
+        }
+    })
+    .catch(function(error) {
+        console.error('Error:', error);
+        alert('Error al actualizar cantidad: ' + error.message);
+    });
+}
+
+function openMoveModal() {
+    var activityId = document.getElementById('detailActivityId').value;
+    if (!activityId) {
+        alert('Selecciona una actividad primero');
+        return;
+    }
+    var detailsModal = bootstrap.Modal.getInstance(document.getElementById('activityDetailsModal'));
+    if (detailsModal) {
+        detailsModal.hide();
+    }
+    var moveModal = new bootstrap.Modal(document.getElementById('moveActivityModal'));
+    moveModal.show();
+}
+
+function moveActivityToStand() {
+    var activityId = document.getElementById('detailActivityId').value;
+    var targetStandId = document.getElementById('moveStandSelect').value;
+
+    if (!targetStandId) {
+        alert('Selecciona un stand destino');
+        return;
+    }
+
+    var btn = document.querySelector('#moveActivityModal .btn-signature');
+    btn.disabled = true;
+    btn.textContent = 'Moviendo...';
+
+    fetch('/stands/api/' + currentStandId + '/move-activity/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ activity_id: activityId, target_stand_id: targetStandId })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            var moveModal = bootstrap.Modal.getInstance(document.getElementById('moveActivityModal'));
+            if (moveModal) moveModal.hide();
+            var detailsModal = bootstrap.Modal.getInstance(document.getElementById('activityDetailsModal'));
+            if (detailsModal) detailsModal.hide();
+            removeActivityCard(activityId);
+        } else {
+            alert(data.error || 'Error al mover la actividad');
+        }
+    })
+    .catch(function(error) {
+        alert('Error de conexión');
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'Mover';
+    });
+}
+
+function deleteActivityFromStand() {
+    var activityId = document.getElementById('detailActivityId').value;
+    if (!activityId) return;
+
+    if (!confirm('¿Deseas quitar esta actividad del stand y dejar su zona como no asignada?')) {
+        return;
+    }
+
+    var btn = document.getElementById('deleteActivityBtn');
+    btn.disabled = true;
+    btn.textContent = 'Quitando...';
+
+    fetch('/stands/api/' + currentStandId + '/remove-activity/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ activity_id: activityId })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            var detailsModal = bootstrap.Modal.getInstance(document.getElementById('activityDetailsModal'));
+            if (detailsModal) detailsModal.hide();
+            removeActivityCard(activityId);
+        } else {
+            alert(data.error || 'Error al quitar la actividad del stand');
+        }
+    })
+    .catch(function(error) {
+        alert('Error de conexión');
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'Quitar';
+    });
+}
+
+function removeActivityCard(activityId) {
+    var card = document.querySelector('[data-activity-id="' + activityId + '"]');
+    if (card) {
+        card.remove();
+    }
+}
+
+function filterActivities() {
+    var searchInput = document.getElementById('searchActivities');
+    var filter = searchInput.value.toLowerCase();
+    var activityCards = document.querySelectorAll('.activity-card');
+    
+    activityCards.forEach(function(card) {
+        var title = card.getAttribute('data-title') || '';
+        var titleLower = title.toLowerCase();
+        
+        if (titleLower.indexOf(filter) !== -1) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal').forEach(function(modal) {
+        if (!modal.hasAttribute('inert')) {
+            modal.setAttribute('inert', '');
+        }
+
+        modal.addEventListener('shown.bs.modal', function() {
+            modal.removeAttribute('inert');
+        });
+
+        modal.addEventListener('hidden.bs.modal', function() {
+            if (modal.contains(document.activeElement)) {
+                document.activeElement.blur();
+            }
+            modal.setAttribute('inert', '');
+        });
+    });
+});
+</script>
+<div class="p-4" data-event-id="{{ event_id }}" data-stand-id="{{ stand.id }}">
+    <a href="{% url 'pe_stand:dashboard' event_id %}" class="btn btn-link text-primary text-decoration-none mb-3 d-flex align-items-center gap-1 p-0">
+        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver
+    </a>
+
     <!-- Dashboard Header -->
-    <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-5"
-    >
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-5">
         <div>
             <p
                 class="text-primary fw-bold text-uppercase mb-1"
@@ -43,15 +629,9 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
             </div>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary btn-sm px-3 rounded-3">
+            <button class="btn btn-signature btn-sm px-3 d-flex align-items-center gap-2">
+                <span class="material-symbols-outlined">edit</span>
                 Editar Detalles
-            </button>
-            <button
-                id="downloadPdfBtn"
-                class="btn btn-signature btn-sm px-3 d-flex align-items-center gap-2"
-            >
-                <span class="material-symbols-outlined">file_download</span>
-                Descargar PDF
             </button>
         </div>
     </div>
@@ -59,271 +639,152 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
     <div class="row g-4 mb-5">
         <div class="col-12">
             <div class="custom-card">
-                <div
-                    class="d-flex justify-content-between align-items-center mb-4"
-                >
+                <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="h5 fw-bold mb-0">Equipo Asignado</h4>
-                    <div class="d-flex gap-2">
-                        <button
-                            class="btn btn-signature btn-sm fw-bold shadow-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#changeTeamModal"
-                        >
-                            <span class="material-symbols-outlined fs-6 me-1"
-                                >group_add</span
-                            >
-                            Cambiar Equipo
-                        </button>
-                        <button class="btn btn-outline-primary btn-sm fw-bold">
-                            Gestionar Roles
-                        </button>
+                    <button type="button" class="btn btn-signature btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+                        <span class="material-symbols-outlined fs-6 me-1">person_add</span>
+                        Añadir Personal
+                    </button>
+                </div>
+
+                <!-- Inline Add Staff Section -->
+                <div id="addStaffModal" class="modal fade" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true" inert>
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content border-0 rounded-4 shadow">
+                            <div class="modal-header border-bottom bg-light">
+                                <h5 class="modal-title fw-bold" id="addStaffModalLabel">Seleccionar Personal</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
+                                {% if available_staff %}
+                                <div class="list-group list-group-flush">
+                                    {% for member in available_staff %}
+                                    {% if member.user %}
+                                    <label class="list-group-item d-flex align-items-center gap-3 p-3 cursor-pointer">
+                                        <input class="form-check-input me-2 staff-checkbox" type="checkbox" value="{{ member.user.id }}" data-role="{{ member.role }}">
+                                        {% if member.user.avatar %}
+                                        <img src="{{ member.user.avatar.url }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            {{ member.user.first_name|default:"U"|first|upper }}
+                                        </div>
+                                        {% endif %}
+                                        <div class="flex-grow-1">
+                                            <p class="mb-0 fw-bold small">{{ member.user.get_full_name|default:member.user.email }}</p>
+                                            <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ member.role }}</p>
+                                        </div>
+                                    </label>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="p-4 text-center text-muted">
+                                    <span class="material-symbols-outlined" style="font-size: 48px;">group</span>
+                                    <p class="mt-2">No hay personal disponible</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer border-0 px-4 pb-4">
+                                <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" id="confirmAddStaffBtn" class="btn btn-signature rounded-3 px-4" disabled onclick="addSelectedStaff()">Aceptar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
                 <div id="assignedTeamList" class="row g-3">
-                    <div class="col-12 mt-0">
-                        <p
-                            class="text-uppercase fw-bold text-primary mb-1"
-                            style="font-size: 0.65rem; letter-spacing: 0.05em"
-                        >
-                            Liderazgo
-                        </p>
-                    </div>
+                    {% if staff %}
+                    {% for member in staff %}
+                    {% if member.user %}
                     <div class="col-md-6 col-lg-4">
-                        <div
-                            class="d-flex align-items-center gap-3 p-2 bg-light rounded-3 h-100 border-start border-3 border-primary"
-                        >
-                            <img
-                                src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                alt="Elena"
-                                class="rounded-3"
-                                style="
-                                    width: 48px;
-                                    height: 48px;
-                                    object-fit: cover;
-                                "
-                            />
-                            <div class="flex-grow-1">
-                                <p class="mb-0 fw-bold small">
-                                    Elena Rodríguez
-                                </p>
-                                <p
-                                    class="mb-0 text-muted"
-                                    style="font-size: 0.7rem"
-                                >
-                                    Líder de Stand
-                                </p>
+                        <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3 h-100">
+                            {% if member.user.avatar %}
+                            <img src="{{ member.user.avatar.url }}" alt="{{ member.user.get_full_name }}" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;">
+                            {% else %}
+                            <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                {{ member.user.first_name|default:"U"|first|upper }}
                             </div>
-                            <button class="btn btn-link p-0 text-primary">
-                                <span class="material-symbols-outlined"
-                                    >chat</span
-                                >
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <p class="mb-0 fw-bold small">{{ member.user.get_full_name|default:member.user.email }}</p>
+                                <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ member.role }}</p>
+                            </div>
+                            <button class="btn btn-link p-0 text-primary" onclick="openNotificationModal('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')">
+                                <span class="material-symbols-outlined">chat</span>
+                            </button>
+                            <button class="btn btn-link p-0 text-danger" onclick="removeStaffFromStand('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')" title="Quitar de la zona">
+                                <span class="material-symbols-outlined">person_remove</span>
                             </button>
                         </div>
                     </div>
-                    <div class="col-12 mt-4">
-                        <hr class="my-0 opacity-10" />
-                        <p
-                            class="text-uppercase fw-bold text-muted mt-2 mb-1"
-                            style="font-size: 0.65rem; letter-spacing: 0.05em"
-                        >
-                            Staff Operativo
-                        </p>
+                    {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    <div class="col-12 text-center text-muted py-4">
+                        <span class="material-symbols-outlined" style="font-size: 48px;">group</span>
+                        <p class="mt-2">No hay personal asignado</p>
                     </div>
-                    <div class="col-md-6 col-lg-4">
-                        <div
-                            class="d-flex align-items-center gap-3 p-2 bg-light rounded-3 h-100"
-                        >
-                            <img
-                                src="https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                alt="Marcos"
-                                class="rounded-3"
-                                style="
-                                    width: 48px;
-                                    height: 48px;
-                                    object-fit: cover;
-                                "
-                            />
-                            <div class="flex-grow-1">
-                                <p class="mb-0 fw-bold small">
-                                    Marcos Valenzuela
-                                </p>
-                                <p
-                                    class="mb-0 text-muted"
-                                    style="font-size: 0.7rem"
-                                >
-                                    Especialista IT
-                                </p>
-                            </div>
-                            <button class="btn btn-link p-0 text-primary">
-                                <span class="material-symbols-outlined"
-                                    >chat</span
-                                >
-                            </button>
-                        </div>
-                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
         <div class="col-12">
             <div class="custom-card">
-                <div
-                    class="d-flex justify-content-between align-items-center mb-4"
-                >
+                <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="h5 fw-bold mb-0">Cronograma de Actividades</h4>
                     <div class="d-flex align-items-center gap-3">
-                        <div
-                            class="input-group input-group-sm w-auto"
-                            style="max-width: 200px"
-                        >
-                            <span
-                                class="input-group-text bg-light border-0 ps-3"
-                            >
-                                <span
-                                    class="material-symbols-outlined fs-6 text-muted"
-                                    >search</span
-                                >
+                        <div class="input-group input-group-sm w-auto" style="max-width: 200px">
+                            <span class="input-group-text bg-light border-0 ps-3">
+                                <span class="material-symbols-outlined fs-6 text-muted">search</span>
                             </span>
-                            <input
-                                type="text"
-                                id="searchActivities"
-                                class="form-control bg-light border-0"
-                                placeholder="Buscar actividad..."
-                            />
+                            <input type="text" id="searchActivities" class="form-control bg-light border-0" placeholder="Buscar actividad..." onkeyup="filterActivities()">
                         </div>
-                        <button
-                            class="btn btn-signature btn-sm fw-bold shadow-sm text-nowrap"
-                            data-bs-toggle="modal"
-                            data-bs-target="#assignActivityModal"
-                        >
-                            <span class="material-symbols-outlined fs-6 me-1"
-                                >add_task</span
-                            >
+                        <button class="btn btn-signature btn-sm fw-bold shadow-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#assignActivityModal">
+                            <span class="material-symbols-outlined fs-6 me-1">add_task</span>
                             Asignar
                         </button>
                     </div>
                 </div>
 
-                <div class="activity-card mb-3">
+                {% if activities %}
+                {% for activity in activities %}
+                <div class="activity-card mb-3" data-activity-id="{{ activity.id }}" data-title="{{ activity.title|escapejs }}">
                     <div class="d-flex justify-content-between mb-2">
                         <div class="d-flex flex-column">
-                            <span
-                                class="text-primary fw-bold text-uppercase"
-                                style="font-size: 0.65rem"
-                                >En curso — 10:00 AM</span
-                            >
-                            <small class="text-muted" style="font-size: 0.7rem"
-                                >26 de Abril, 2026</small
-                            >
-                        </div>
-                        <div class="d-flex">
-                            <img
-                                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                style="width: 28px; height: 28px"
-                                class="rounded-circle border border-2 border-white ms-n2"
-                            />
-                            <img
-                                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                style="
-                                    width: 28px;
-                                    height: 28px;
-                                    margin-left: -8px;
-                                "
-                                class="rounded-circle border border-2 border-white"
-                            />
+                            <span class="{% if activity.status == 'en_curso' %}text-primary{% elif activity.status == 'completada' %}text-success{% elif activity.status == 'cancelada' %}text-danger{% else %}text-muted{% endif %} fw-bold text-uppercase" style="font-size: 0.75rem;">
+                                {% if activity.status == 'programada' %}Programada — {{ activity.start_time|date:"H:i" }}
+                                {% elif activity.status == 'en_curso' %}En curso — {{ activity.start_time|date:"H:i" }}
+                                {% elif activity.status == 'completada' %}Completada — {{ activity.start_time|date:"H:i" }}
+                                {% elif activity.status == 'cancelada' %}Cancelada — {{ activity.start_time|date:"H:i" }}
+                                {% else %}{{ activity.status|title }} — {{ activity.start_time|date:"H:i" }}
+                                {% endif %}
+                            </span>
+                            <small class="text-muted" style="font-size: 0.7rem">{{ activity.start_time|date:"d \d\e F, Y" }}</small>
                         </div>
                     </div>
-                    <h5 class="fw-bold h6">Demostración IA Generativa</h5>
-                    <p class="text-muted small mb-3">
-                        Presentación interactiva de casos de uso para retail con
-                        expertos de AWS.
-                    </p>
-                    <div
-                        class="d-flex justify-content-between align-items-center"
-                    >
-                        <div
-                            class="d-flex gap-3 text-muted"
-                            style="font-size: 0.7rem"
-                        >
-                            <span class="d-flex align-items-center gap-1"
-                                ><span class="material-symbols-outlined fs-6"
-                                    >schedule</span
-                                >
-                                45 min</span
-                            >
-                            <span class="d-flex align-items-center gap-1"
-                                ><span class="material-symbols-outlined fs-6"
-                                    >person</span
-                                >
-                                Ponentes: Sarah J., David L.</span
-                            >
+                    <h5 class="fw-bold h6">{{ activity.title }}</h5>
+                    <p class="text-muted small mb-3">{{ activity.description|truncatechars:100 }}</p>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.7rem">
+                            <span class="d-flex align-items-center gap-1">
+                                <span class="material-symbols-outlined fs-6">schedule</span>
+                                {{ activity.get_duration }} min
+                            </span>
                         </div>
-                        <button
-                            class="btn btn-link btn-sm p-0 text-primary fw-bold text-decoration-none"
-                            style="font-size: 0.75rem"
-                            data-bs-toggle="modal"
-                            data-bs-target="#activityDetailsModal"
-                        >
+                        <button class="btn btn-link btn-sm p-0 text-primary fw-bold text-decoration-none" style="font-size: 0.75rem" onclick="openActivityDetails({{ activity.id }}, '{{ activity.title|escapejs }}', '{{ activity.description|escapejs }}', '{{ activity.start_time|date:"d/m/Y H:i" }}', '{{ activity.end_time|date:"d/m/Y H:i" }}', '{{ activity.get_duration }}', '{{ activity.location|escapejs }}', '{{ activity.speaker_name|escapejs }}', '{{ activity.speaker_email|escapejs }}', '{{ activity.status }}')">
                             Ver detalles
                         </button>
                     </div>
                 </div>
-
-                <div class="activity-card mb-3">
-                    <div class="d-flex justify-content-between mb-2">
-                        <div class="d-flex flex-column">
-                            <span
-                                class="text-muted fw-bold text-uppercase"
-                                style="font-size: 0.65rem"
-                                >Próximo — 11:30 AM</span
-                            >
-                            <small class="text-muted" style="font-size: 0.7rem"
-                                >26 de Abril, 2026</small
-                            >
-                        </div>
-                        <div class="d-flex">
-                            <img
-                                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                style="width: 28px; height: 28px"
-                                class="rounded-circle border border-2 border-white"
-                            />
-                        </div>
-                    </div>
-                    <h5 class="fw-bold h6">Networking Lunch: Partners</h5>
-                    <p class="text-muted small mb-3">
-                        Sesión de vinculación entre patrocinadores y asistentes
-                        V.I.P. para fortalecer la red de contactos.
-                    </p>
-                    <div
-                        class="d-flex justify-content-between align-items-center"
-                    >
-                        <div
-                            class="d-flex gap-3 text-muted"
-                            style="font-size: 0.7rem"
-                        >
-                            <span class="d-flex align-items-center gap-1"
-                                ><span class="material-symbols-outlined fs-6"
-                                    >schedule</span
-                                >
-                                60 min</span
-                            >
-                            <span class="d-flex align-items-center gap-1"
-                                ><span class="material-symbols-outlined fs-6"
-                                    >person</span
-                                >
-                                Ponente: Maria Garcia</span
-                            >
-                        </div>
-                        <button
-                            class="btn btn-link btn-sm p-0 text-primary fw-bold text-decoration-none"
-                            style="font-size: 0.75rem"
-                            data-bs-toggle="modal"
-                            data-bs-target="#activityDetailsModal"
-                        >
-                            Ver detalles
-                        </button>
-                    </div>
+                {% endfor %}
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <span class="material-symbols-outlined" style="font-size: 48px;">event_note</span>
+                    <p class="mt-2">No hay actividades asignadas</p>
+                    <p class="small">Asigna actividades a este stand para mostrar el cronograma</p>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -354,240 +815,93 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
                 <thead class="bg-light">
                     <tr>
                         <th class="col-resource px-4">Recurso</th>
-                        <th class="col-qty px-4 text-center">
-                            Gestión de recursos
-                        </th>
+                        <th class="col-cat px-4">Categoría</th>
+                        <th class="col-qty px-4 text-center">Asignados/Necesarios</th>
                         <th class="col-status px-4">Estado</th>
-                        <th class="col-dest px-4">Destino</th>
-                        <th class="px-4"></th>
+                        <th class="px-4">Detalles</th>
+                        <th class="px-4 text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="border-top-0">
-                    <tr>
-                        <td class="px-4">
-                            <div class="d-flex align-items-center gap-3">
-                                <div
-                                    class="bg-light rounded p-2 d-flex align-items-center justify-content-center"
-                                    style="width: 40px; height: 40px"
-                                >
-                                    <span
-                                        class="material-symbols-outlined text-muted fs-5"
-                                        >tv</span
+                    {% if assignments %}
+                        {% for assignment in assignments %}
+                        <tr data-assignment-id="{{ assignment.id }}">
+                            <td class="px-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div
+                                        class="bg-light rounded p-2 d-flex align-items-center justify-content-center"
+                                        style="width: 40px; height: 40px"
                                     >
+                                        <span
+                                            class="material-symbols-outlined text-muted fs-5"
+                                            >inventory_2</span
+                                        >
+                                    </div>
+                                    <div class="fw-bold fs-7 text-nowrap">
+                                        {{ assignment.item.name }}
+                                    </div>
                                 </div>
-                                <div class="fw-bold fs-7 text-nowrap">
-                                    Pantallas LED 4K 65"
+                            </td>
+                            <td class="px-4">
+                                <span class="badge bg-light text-dark">{{ assignment.item.category }}</span>
+                            </td>
+                            <td class="px-4">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="adjustQuantity('{{ assignment.id }}', -1, this)">-</button>
+                                    <span class="fw-bold">{{ assignment.quantity|default:0 }} / {{ assignment.required_quantity|default:0 }}</span>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="adjustQuantity('{{ assignment.id }}', 1, this)">+</button>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="px-4">
-                            <div
-                                class="d-flex align-items-center justify-content-center gap-3"
-                            >
-                                <button
-                                    class="btn btn-outline-secondary btn-sm rounded-circle p-1 d-flex align-items-center justify-content-center btn-remove"
-                                    style="width: 28px; height: 28px"
-                                >
-                                    <span class="material-symbols-outlined fs-6"
-                                        >remove</span
+                            </td>
+                            <td class="px-4">
+                                {% if assignment.item.status == 'Sin Stock' %}
+                                    <span class="badge badge-custom bg-danger-subtle text-danger status-badge">{{ assignment.item.status }}</span>
+                                {% elif assignment.item.status == 'Stock Bajo' %}
+                                    <span class="badge badge-custom bg-warning-subtle text-warning status-badge">{{ assignment.item.status }}</span>
+                                {% else %}
+                                    <span class="badge badge-custom bg-success-subtle text-success status-badge">{{ assignment.item.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4">
+                                <span class="small text-muted">{{ assignment.details|default:"-" }}</span>
+                            </td>
+                            <td class="px-4 text-center">
+                                <div class="d-flex align-items-center justify-content-center gap-1">
+                                    <button
+                                        class="btn btn-link btn-sm p-0 text-muted"
+                                        title="Editar detalles"
+                                        onclick="openEditResourceModal('{{ assignment.id }}', '{{ assignment.item.name|escapejs }}', '{{ assignment.item.category|escapejs }}', '{{ assignment.details|default:""|escapejs }}', '{{ assignment.required_quantity|default:0 }}')"
                                     >
-                                </button>
-                                <div class="text-center fw-bold">
-                                    <span class="assigned-val">4</span
-                                    ><span class="text-muted">/</span
-                                    ><span class="required-val text-muted"
-                                        >4</span
+                                        <span class="material-symbols-outlined fs-6">edit</span>
+                                    </button>
+                                    <button
+                                        class="btn btn-link btn-sm p-0 text-danger"
+                                        title="Quitar recurso"
+                                        onclick="removeResource('{{ assignment.id }}')"
                                     >
+                                        <span class="material-symbols-outlined fs-6">delete</span>
+                                    </button>
                                 </div>
-                                <button
-                                    class="btn btn-outline-primary btn-sm rounded-circle p-1 d-flex align-items-center justify-content-center btn-add"
-                                    style="width: 28px; height: 28px"
-                                >
-                                    <span class="material-symbols-outlined fs-6"
-                                        >add</span
-                                    >
-                                </button>
-                            </div>
-                        </td>
-                        <td class="px-4">
-                            <span
-                                class="badge badge-custom bg-success-subtle text-success status-badge"
-                                >Completado</span
-                            >
-                        </td>
-                        <td class="px-4">
-                            <small class="text-muted fw-medium target-label"
-                                >Display principal</small
-                            >
-                        </td>
-                        <td class="px-4 text-end">
-                            <button
-                                class="btn btn-link btn-sm p-0 text-muted opacity-50 hover-opacity-100"
-                                title="Editar destino"
-                            >
-                                <span
-                                    class="material-symbols-outlined fs-edit-icon"
-                                    >edit</span
-                                >
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="px-4">
-                            <div class="d-flex align-items-center gap-3">
-                                <div
-                                    class="bg-light rounded p-2 d-flex align-items-center justify-content-center"
-                                    style="width: 40px; height: 40px"
-                                >
-                                    <span
-                                        class="material-symbols-outlined text-muted fs-5"
-                                        >router</span
-                                    >
-                                </div>
-                                <div class="fw-bold fs-7 text-nowrap">
-                                    Router Industrial 5G
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-4">
-                            <div
-                                class="d-flex align-items-center justify-content-center gap-3"
-                            >
-                                <button
-                                    class="btn btn-outline-secondary btn-sm rounded-circle p-1 d-flex align-items-center justify-content-center btn-remove"
-                                    style="width: 28px; height: 28px"
-                                >
-                                    <span class="material-symbols-outlined fs-6"
-                                        >remove</span
-                                    >
-                                </button>
-                                <div class="text-center fw-bold">
-                                    <span class="assigned-val">1</span
-                                    ><span class="text-muted">/</span
-                                    ><span class="required-val text-muted"
-                                        >2</span
-                                    >
-                                </div>
-                                <button
-                                    class="btn btn-outline-primary btn-sm rounded-circle p-1 d-flex align-items-center justify-content-center btn-add"
-                                    style="width: 28px; height: 28px"
-                                >
-                                    <span class="material-symbols-outlined fs-6"
-                                        >add</span
-                                    >
-                                </button>
-                            </div>
-                        </td>
-                        <td class="px-4">
-                            <span
-                                class="badge badge-custom bg-warning-subtle text-warning status-badge"
-                                >Pendiente</span
-                            >
-                        </td>
-                        <td class="px-4">
-                            <small class="text-muted fw-medium target-label"
-                                >Conectividad estable</small
-                            >
-                        </td>
-                        <td class="px-4 text-end">
-                            <button
-                                class="btn btn-link btn-sm p-0 text-muted opacity-50 hover-opacity-100"
-                                title="Editar destino"
-                            >
-                                <span
-                                    class="material-symbols-outlined fs-edit-icon"
-                                    >edit</span
-                                >
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="px-4">
-                            <div class="d-flex align-items-center gap-3">
-                                <div
-                                    class="bg-light rounded p-2 d-flex align-items-center justify-content-center"
-                                    style="width: 40px; height: 40px"
-                                >
-                                    <span
-                                        class="material-symbols-outlined text-muted fs-5"
-                                        >chair</span
-                                    >
-                                </div>
-                                <div class="fw-bold fs-7 text-nowrap">
-                                    Sillas Ergonómicas
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-4">
-                            <div
-                                class="d-flex align-items-center justify-content-center gap-3"
-                            >
-                                <button
-                                    class="btn btn-outline-secondary btn-sm rounded-circle p-1 d-flex align-items-center justify-content-center btn-remove"
-                                    style="width: 28px; height: 28px"
-                                >
-                                    <span class="material-symbols-outlined fs-6"
-                                        >remove</span
-                                    >
-                                </button>
-                                <div class="text-center fw-bold">
-                                    <span class="assigned-val">0</span
-                                    ><span class="text-muted">/</span
-                                    ><span class="required-val text-muted"
-                                        >12</span
-                                    >
-                                </div>
-                                <button
-                                    class="btn btn-outline-primary btn-sm rounded-circle p-1 d-flex align-items-center justify-content-center btn-add"
-                                    style="width: 28px; height: 28px"
-                                >
-                                    <span class="material-symbols-outlined fs-6"
-                                        >add</span
-                                    >
-                                </button>
-                            </div>
-                        </td>
-                        <td class="px-4">
-                            <span
-                                class="badge badge-custom bg-danger-subtle text-danger status-badge"
-                                >Crítico</span
-                            >
-                        </td>
-                        <td class="px-4">
-                            <small class="text-muted fw-medium target-label"
-                                >Mobiliario staff</small
-                            >
-                        </td>
-                        <td class="px-4 text-end">
-                            <button
-                                class="btn btn-link btn-sm p-0 text-muted opacity-50 hover-opacity-100"
-                                title="Editar destino"
-                            >
-                                <span
-                                    class="material-symbols-outlined fs-edit-icon"
-                                    >edit</span
-                                >
-                            </button>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                No hay recursos asignados a este stand.
+                            </td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
         <div
             class="p-3 border-top bg-light d-flex justify-content-between align-items-center px-4"
         >
-            <div class="small text-muted">Mostrando 3 recursos</div>
+            <div class="small text-muted">Mostrando {{ assignments|length }} recurso{% if assignments|length != 1 %}s{% endif %}</div>
             <nav aria-label="Page navigation">
                 <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item disabled">
-                        <a class="page-link border-0" href="#">Anterior</a>
-                    </li>
-                    <li class="page-item active">
-                        <a class="page-link border-0" href="#">1</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link border-0" href="#">Siguiente</a>
-                    </li>
+
                 </ul>
             </nav>
         </div>
@@ -603,6 +917,7 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
         tabindex="-1"
         aria-labelledby="addResourceModalLabel"
         aria-hidden="true"
+        inert
     >
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
@@ -626,9 +941,32 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
                         id="resourceCatalog"
                         class="list-group list-group-flush border rounded-3 overflow-hidden"
                     >
-                        <div class="p-4 text-center text-muted">
-                            Cargando catálogo...
+                    {% if available_resources %}
+                        <div class="list-group list-group-flush">
+                            {% for item in available_resources %}
+                            <label class="list-group-item d-flex align-items-center gap-3 p-3 cursor-pointer">
+                                <input class="form-check-input me-2 resource-checkbox" type="checkbox" value="{{ item.item_id }}" {% if item.available_stock == 0 %}disabled{% endif %}>
+                                <div class="bg-light rounded overflow-hidden d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                    {% if item.image_url %}
+                                        <img src="{{ item.image_url }}" alt="{{ item.name }}" class="img-fluid" style="max-width: 100%; max-height: 100%;" />
+                                    {% else %}
+                                        <span class="material-symbols-outlined text-muted fs-4">inventory_2</span>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="mb-1 fw-bold small">{{ item.name }}</p>
+                                    <p class="mb-0 text-muted" style="font-size: 0.7rem;">
+                                        {{ item.category }} · {{ item.available_stock }} disponibles
+                                    </p>
+                                </div>
+                            </label>
+                            {% endfor %}
                         </div>
+                    {% else %}
+                        <div class="p-4 text-center text-muted">
+                            No hay recursos disponibles para este evento.
+                        </div>
+                    {% endif %}
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
@@ -643,6 +981,8 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
                         type="button"
                         id="confirmAddBtn"
                         class="btn btn-signature rounded-3 px-4"
+                        disabled
+                        onclick="addSelectedResources()"
                     >
                         Añadir Seleccionados
                     </button>
@@ -672,29 +1012,32 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
                     ></button>
                 </div>
                 <div class="modal-body px-4">
+                    <input type="hidden" id="editAssignmentId">
                     <p class="text-muted small mb-4" id="editResourceName">
-                        Ajusta los detalles logísticos para este elemento.
+                        Ajusta los detalles para este elemento.
                     </p>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted"
-                            >DESTINO EN STAND</label
-                        >
-                        <input
-                            type="text"
-                            id="editDestInput"
-                            class="form-control rounded-3"
-                            placeholder="Ej. Sala VIP"
-                        />
-                    </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted"
                             >CANTIDAD REQUERIDA</label
                         >
                         <input
                             type="number"
+                            id="editRequiredInput"
+                            class="form-control rounded-3"
+                            min="0"
+                            value="0"
+                        />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted"
+                            >DETALLE (máx 100 caracteres)</label
+                        >
+                        <input
+                            type="text"
                             id="editReqInput"
                             class="form-control rounded-3"
-                            min="1"
+                            maxlength="100"
+                            placeholder="Ej. Sala VIP, Entrada principal"
                         />
                     </div>
                 </div>
@@ -710,6 +1053,7 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
                         type="button"
                         id="saveResourceEditBtn"
                         class="btn btn-signature rounded-3 px-4"
+                        onclick="saveResourceEdit()"
                     >
                         Guardar Cambios
                     </button>
@@ -718,54 +1062,37 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
         </div>
     </div>
 
-    <div
-        class="modal fade"
-        id="assignActivityModal"
-        tabindex="-1"
-        aria-labelledby="assignActivityModalLabel"
-        aria-hidden="true"
-    >
-        <div class="modal-dialog modal-dialog-centered">
+    <div class="modal fade" id="assignActivityModal" tabindex="-1" aria-labelledby="assignActivityModalLabel" aria-hidden="true" inert>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-header border-0 px-4 pt-4">
-                    <h5
-                        class="modal-title fw-bold"
-                        id="assignActivityModalLabel"
-                    >
-                        Asignar Nueva Actividad
-                    </h5>
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                    ></button>
+                <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title fw-bold" id="assignActivityModalLabel">Asignar Actividades</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body px-4">
-                    <p class="text-muted small mb-4">
-                        Selecciona una actividad del catálogo oficial del evento
-                        para tu stand.
-                    </p>
-                    <div
-                        id="activityCatalogList"
-                        class="list-group list-group-flush border rounded-3 overflow-hidden"
-                    ></div>
+                <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
+                    {% if available_activities %}
+                    <div class="list-group list-group-flush">
+                        {% for activity in available_activities %}
+                        <label class="list-group-item d-flex align-items-center gap-3 p-3 cursor-pointer">
+                            <input class="form-check-input me-2 activity-checkbox" type="checkbox" value="{{ activity.id }}">
+                            <div class="flex-grow-1">
+                                <p class="mb-0 fw-bold small">{{ activity.title }}</p>
+                                <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ activity.start_time|date:"d/m/Y H:i" }} - {{ activity.location|default:"No asignada" }}</p>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <span class="material-symbols-outlined" style="font-size: 48px;">event_note</span>
+                        <p class="mt-2">No hay actividades disponibles</p>
+                        <p class="small">Todas las actividades del evento ya están asignadas a este stand</p>
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button
-                        type="button"
-                        class="btn btn-light rounded-3 px-4"
-                        data-bs-dismiss="modal"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="button"
-                        id="confirmAssignActivityBtn"
-                        class="btn btn-signature rounded-3 px-4"
-                    >
-                        Asignar al Stand
-                    </button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="confirmAssignActivityBtn" class="btn btn-signature rounded-3 px-4" disabled onclick="addSelectedActivities()">Asignar</button>
                 </div>
             </div>
         </div>
@@ -777,6 +1104,7 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
         tabindex="-1"
         aria-labelledby="activityDetailsModalLabel"
         aria-hidden="true"
+        inert
     >
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
@@ -785,7 +1113,7 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
                         class="modal-title fw-bold"
                         id="activityDetailsModalLabel"
                     >
-                        Detales de la Actividad
+                        Detalles de la Actividad
                     </h5>
                     <button
                         type="button"
@@ -794,49 +1122,44 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
                         aria-label="Close"
                     ></button>
                 </div>
+                <input type="hidden" id="detailActivityId">
                 <div class="modal-body px-4 pb-4">
                     <div class="d-flex align-items-center gap-3 mb-4">
                         <div class="bg-primary-subtle rounded-3 p-3">
                             <span
                                 class="material-symbols-outlined text-primary fs-2"
-                                >auto_awesome</span
+                                >event</span
                             >
                         </div>
                         <div>
-                            <h4 class="h5 fw-bold mb-1">
-                                Demostración IA Generativa
+                            <h4 class="h5 fw-bold mb-1" id="detailActivityTitle">
+                                Título de la Actividad
                             </h4>
                             <span
+                                id="detailActivityStatus"
                                 class="badge bg-primary-subtle text-primary fw-bold"
                                 style="font-size: 0.65rem"
-                                >EN CURSO</span
-                            >
+                            >PROGRAMADA</span>
                         </div>
                     </div>
                     <div class="mb-4">
                         <label class="form-label small fw-bold text-muted mb-2"
                             >DESCRIPCIÓN COMPLETA</label
                         >
-                        <p class="text-secondary small">
-                            Descubre cómo la IA Generativa está transformando la
-                            experiencia de compra en el sector retail. En esta
-                            sesión de 45 minutos, nuestros expertos de AWS
-                            presentarán casos de éxito reales y realizarán una
-                            demostración técnica en vivo utilizando herramientas
-                            de vanguardia.
+                        <p class="text-secondary small" id="detailActivityDescription">
+                            Descripción no disponible
                         </p>
                     </div>
                     <div class="row g-3 mb-4">
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >PONENTES</label
+                                >PONENTE</label
                             >
-                            <p class="small mb-0 fw-medium">
-                                Sarah Johnson (AWS)
+                            <p class="small mb-0 fw-medium" id="detailActivitySpeaker">
+                                Sin asignar
                             </p>
-                            <p class="small mb-0 fw-medium">
-                                David Lee (EventPro)
+                            <p class="small mb-0 text-muted" id="detailActivitySpeakerEmail" style="font-size: 0.7rem">
                             </p>
                         </div>
                         <div class="col-6">
@@ -844,31 +1167,37 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
                                 class="form-label small fw-bold text-muted mb-1"
                                 >HORARIO</label
                             >
-                            <p class="small mb-0 fw-medium">
-                                10:00 AM - 10:45 AM
+                            <p class="small mb-0 fw-medium" id="detailActivityTime">
+                                --:-- - --:--
                             </p>
                             <p
                                 class="small mb-0 text-muted"
                                 style="font-size: 0.7rem"
+                                id="detailActivityDate"
                             >
-                                26 de Abril, 2026
+                                --
                             </p>
                         </div>
                     </div>
-                    <div
-                        class="p-3 bg-light rounded-3 d-flex align-items-center justify-content-between"
-                    >
-                        <div
-                            class="d-flex align-items-center gap-2 text-muted small"
-                        >
-                            <span class="material-symbols-outlined fs-5"
-                                >groups</span
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label
+                                class="form-label small fw-bold text-muted mb-1"
+                                >DURACIÓN</label
                             >
-                            <span>Capacidad: 25 asistentes</span>
+                            <p class="small mb-0 fw-medium" id="detailActivityDuration">
+                                -- min
+                            </p>
                         </div>
-                        <span class="text-success small fw-bold"
-                            >Cupo Completo</span
-                        >
+                        <div class="col-6">
+                            <label
+                                class="form-label small fw-bold text-muted mb-1"
+                                >UBICACIÓN</label
+                            >
+                            <p class="small mb-0 fw-medium" id="detailActivityLocation">
+                                --
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4 gap-2 flex-column">
@@ -877,6 +1206,7 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
                             type="button"
                             id="moveActivityBtn"
                             class="btn btn-outline-primary flex-grow-1 rounded-3"
+                            onclick="openMoveModal()"
                         >
                             <span
                                 class="material-symbols-outlined fs-6 me-1 align-middle"
@@ -888,12 +1218,13 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
                             type="button"
                             id="deleteActivityBtn"
                             class="btn btn-outline-danger flex-grow-1 rounded-3"
+                            onclick="deleteActivityFromStand()"
                         >
                             <span
                                 class="material-symbols-outlined fs-6 me-1 align-middle"
                                 >delete</span
                             >
-                            Eliminar
+                            Quitar
                         </button>
                     </div>
                     <button
@@ -908,59 +1239,79 @@ Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
         </div>
     </div>
 
-    <div
-        class="modal fade"
-        id="changeTeamModal"
-        tabindex="-1"
-        aria-labelledby="changeTeamModalLabel"
-        aria-hidden="true"
-    >
+    <div class="modal fade" id="moveActivityModal" tabindex="-1" aria-labelledby="moveActivityModalLabel" aria-hidden="true" inert>
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-header border-0 px-4 pt-4">
-                    <h5 class="modal-title fw-bold" id="changeTeamModalLabel">
-                        Asignar Equipo
-                    </h5>
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                    ></button>
+                <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title fw-bold" id="moveActivityModalLabel">Mover Actividad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="text-muted small mb-4">
-                        Selecciona los miembros del staff para este stand.
-                    </p>
-                    <div
-                        id="staffCatalog"
-                        class="list-group list-group-flush border rounded-3 overflow-hidden"
-                    >
-                        <div class="p-4 text-center text-muted">
-                            Cargando catálogo de personal...
-                        </div>
+                    <p class="text-muted small mb-3">Selecciona el stand destino para esta actividad.</p>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Stand destino</label>
+                        <select id="moveStandSelect" class="form-select">
+                            <option value="">Selecciona un stand</option>
+                            {% for event_stand in event_stands %}
+                            <option value="{{ event_stand.id }}">{{ event_stand.name }} — {{ event_stand.location }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button
-                        type="button"
-                        class="btn btn-light rounded-3 px-4"
-                        data-bs-dismiss="modal"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="button"
-                        id="confirmTeamChangeBtn"
-                        class="btn btn-signature rounded-3 px-4"
-                    >
-                        Confirmar Equipo
-                    </button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-signature rounded-3 px-4" onclick="moveActivityToStand()">Mover</button>
                 </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %} {% block extra_scripts %}
-<script src="{% static 'pe_stand/info_stands/js/script.js' %}"></script>
+
+    <!-- Notification Modal -->
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true" inert>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-bottom bg-light">
+                    <h5 class="modal-title fw-bold" id="notificationModalLabel">Enviar Notificación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-3">Para: <span id="notificationUserName" class="fw-bold"></span></p>
+                    <input type="hidden" id="notificationUserId">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">ASUNTO</label>
+                        <input type="text" id="notificationTitle" class="form-control rounded-3" placeholder="Ej. Información importante">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">MENSAJE</label>
+                        <textarea id="notificationMessage" class="form-control rounded-3" rows="4" placeholder="Escribe tu mensaje..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="sendNotificationBtn" class="btn btn-signature rounded-3 px-4" onclick="sendNotification()">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="removeStaffModal" tabindex="-1" aria-labelledby="removeStaffModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5 class="modal-title fw-bold" id="removeStaffModalLabel">Quitar de la zona</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <input type="hidden" id="removeStaffUserId">
+                    <p>¿Estás seguro de que deseas quitar a <strong id="removeStaffUserName"></strong> de esta zona? Quedará sin zona asignada.</p>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger rounded-3 px-4" onclick="confirmRemoveStaff()">Quitar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
 {% endblock %}

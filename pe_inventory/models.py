@@ -102,15 +102,19 @@ class Item(models.Model):
     @property
     def status(self):
         """Calcula dinámicamente el estado del stock."""
-        if self.total_stock == 0:
-            return self.Status.SIN_STOCK
+        available = self.available_stock
+        total = self.total_stock
         
-        used = self.used_stock
-        available = self.total_stock - used
+        if total == 0:
+            return self.Status.SIN_STOCK
         
         if available == 0:
             return self.Status.SIN_STOCK
-        elif available < (self.total_stock * 0.2):
+        
+        ratio = available / total if total > 0 else 0
+        
+        # Stock Bajo si disponibilidad <= 30% del total o <= 1 unidad
+        if ratio <= 0.30 or available <= 1:
             return self.Status.STOCK_BAJO
         else:
             return self.Status.EN_STOCK
@@ -130,7 +134,12 @@ class StandAssignment(models.Model):
         verbose_name='Recurso'
     )
     quantity = models.PositiveIntegerField(
+        default=0,
         verbose_name='Cantidad Asignada'
+    )
+    required_quantity = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Cantidad Requerida'
     )
     
     # Relación externa hacia la aplicación 'pe_stand'
@@ -141,6 +150,12 @@ class StandAssignment(models.Model):
         blank=True,
         related_name='item_assignments',
         verbose_name='Stand'
+    )
+    details = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='Detalles'
     )
     created_at = models.DateTimeField(
         auto_now_add=True,

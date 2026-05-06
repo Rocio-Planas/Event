@@ -1,17 +1,35 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Survey(models.Model):
     """
     Encuesta para eventos presenciales.
     """
+    class SurveyType(models.TextChoices):
+        ESCALA = 'escala', 'Escala 1-5'
+        TEXTO = 'texto', 'Texto con Opciones'
+
     class DeliveryType(models.TextChoices):
         INMEDIATO = 'inmediato', 'Inmediato'
-        FECHA_ESPECIFICA = 'fecha_especifica', 'Fecha Específica'
+        PROGRAMADO = 'programado', 'Programado'
 
+    event = models.ForeignKey(
+        'in_person_events.Event',
+        on_delete=models.CASCADE,
+        related_name='surveys',
+        verbose_name='Evento'
+    )
     title = models.CharField('Título', max_length=200)
-    description = models.TextField('Descripción', blank=True)
+    survey_type = models.CharField(
+        'Tipo de Encuesta',
+        max_length=20,
+        choices=SurveyType.choices,
+        default=SurveyType.ESCALA
+    )
+    is_multiple_choice = models.BooleanField('Permitir Múltiples Opciones', default=False)
     is_active = models.BooleanField('Activa', default=True)
     delivery_type = models.CharField(
         'Tipo de Entrega',
@@ -32,62 +50,80 @@ class Survey(models.Model):
         return self.title
 
     def clean(self):
-        if self.delivery_type == self.DeliveryType.FECHA_ESPECIFICA and not self.scheduled_date:
-            raise ValidationError({'scheduled_date': 'La fecha programada es requerida paraenvíos programados.'})
+        if self.delivery_type == self.DeliveryType.PROGRAMADO and not self.scheduled_date:
+            raise ValidationError({'scheduled_date': 'La fecha programada es requerida para envíos programados.'})
 
-    def send(self):
+    def send_survey_emails(self):
         """
-        Lógica para enviar la encuesta a los participantes.
+        Envía emails de la encuesta a todos los asistentes confirmados.
         """
         from pe_registration.models import Registration
         from pe_communication.models import EmailTemplate
-        from django.utils import timezone
+        from django.core.mail import send_mail
+        from django.conf import settings
         
         registrations = Registration.objects.filter(
-            event_id=1,
+            event_id=1,  # Asumiendo event_id fijo, ajustar según contexto
             status=Registration.Status.CONFIRMADA
         ).select_related('user')
         
         emails_sent = 0
         for reg in registrations:
-            pass
+            # Lógica de envío de email
+            # Usar EmailTemplate o send_mail
+            send_mail(
+                subject=f"Encuesta: {self.title}",
+                message=f"Por favor, responde la encuesta: {self.title}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[reg.user.email],
+                fail_silently=False,
+            )
+            emails_sent += 1
         
         return emails_sent
 
+    def should_send(self):
+        """Check if survey should be sent based on delivery_type and scheduled_date."""
+        if self.delivery_type == self.DeliveryType.INMEDIATO:
+            return True
+        if self.delivery_type == 'programado' and self.scheduled_date:
+            from django.utils import timezone
+            return self.scheduled_date <= timezone.now()
+        return False
 
-class Question(models.Model):
-    """
-    Pregunta dentro de una encuesta.
-    """
-    class QuestionType(models.TextChoices):
-        TEXTO = 'texto', 'Texto'
-        ESCALA = 'escala', 'Escala 1-5'
-        OPCION_MULTIPLE = 'opcion_multiple', 'Opción Múltiple'
 
+@receiver(post_save, sender=Survey)
+def send_immediate_survey(sender, instance, created, **kwargs):
+    if created and instance.delivery_type == Survey.DeliveryType.INMEDIATO:
+        instance.send_survey_emails()
+
+
+@receiver(post_save, sender=Survey)
+def check_scheduled_survey(sender, instance, created, **kwargs):
+    if not created and instance.delivery_type == 'programado' and instance.scheduled_date:
+        from django.utils import timezone
+        if instance.scheduled_date <= timezone.now():
+            instance.send_survey_emails()
+
+
+class SurveyOption(models.Model):
+    """
+    Opciones para encuestas de tipo TEXTO.
+    """
     survey = models.ForeignKey(
         Survey,
         on_delete=models.CASCADE,
-        related_name='questions',
+        related_name='options',
         verbose_name='Encuesta'
     )
-    text = models.CharField('Pregunta', max_length=500)
-    is_required = models.BooleanField('Requerida', default=False)
-    question_type = models.CharField(
-        'Tipo de Pregunta',
-        max_length=20,
-        choices=QuestionType.choices,
-        default=QuestionType.TEXTO
-    )
-    options = models.JSONField('Opciones', default=list, blank=True)
-    order = models.PositiveIntegerField('Orden', default=0)
+    text = models.CharField('Opción', max_length=200)
 
     class Meta:
-        verbose_name = 'Pregunta'
-        verbose_name_plural = 'Preguntas'
-        ordering = ['order']
+        verbose_name = 'Opción de Encuesta'
+        verbose_name_plural = 'Opciones de Encuesta'
 
     def __str__(self):
-        return f"{self.survey.title} - {self.text[:50]}"
+        return f"{self.survey.title} - {self.text}"
 
 
 class Response(models.Model):
@@ -101,13 +137,7 @@ class Response(models.Model):
         verbose_name='Encuesta'
     )
     user_id = models.IntegerField('ID del Usuario')
-    question = models.ForeignKey(
-        Question,
-        on_delete=models.CASCADE,
-        related_name='responses',
-        verbose_name='Pregunta'
-    )
-    answer = models.TextField('Respuesta')
+    answer = models.JSONField('Respuesta')  # Para múltiples opciones si aplica
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

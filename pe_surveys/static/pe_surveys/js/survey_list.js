@@ -1,5 +1,5 @@
-function toggleSurvey(pk) {
-    fetch(`/pe_surveys/toggle/${pk}/`, {
+function toggleSurvey(pk, event_id) {
+    fetch(`/encuestas/${event_id}/toggle/${pk}/`, {
         method: "POST",
         headers: { "X-CSRFToken": getCookie("csrftoken") },
     })
@@ -11,17 +11,17 @@ function toggleSurvey(pk) {
         });
 }
 
-function sendSurvey(pk) {
+function sendSurvey(pk, event_id) {
     if (!confirm("¿Enviar esta encuesta a todos los participantes?")) return;
 
-    fetch(`/pe_surveys/api/send-survey/${pk}/`, {
+    fetch(`/encuestas/${event_id}/api/send-survey/${pk}/`, {
         method: "POST",
         headers: { "X-CSRFToken": getCookie("csrftoken") },
     })
         .then((res) => res.json())
         .then((data) => {
             if (data.success) {
-                alert("Encuesta enviada. Emails enviados: " + data.emails_sent);
+                alert("Encuesta enviada");
             } else {
                 alert("Error: " + data.error);
             }
@@ -90,6 +90,8 @@ document.querySelectorAll(".question-type-select").forEach((select) => {
 });
 // Show modal if there are errors or editing
 if (window.hasFormErrors || window.isEditing) {
-    var myModal = new bootstrap.Modal(document.getElementById('createSurveyModal'));
+    var myModal = new bootstrap.Modal(
+        document.getElementById("createSurveyModal"),
+    );
     myModal.show();
 }

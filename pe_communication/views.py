@@ -262,6 +262,49 @@ class SendManualNotificationView(View):
 
 
 @login_required
+def send_single_notification(request):
+    """
+    API para enviar una notificación a un usuario específico.
+    POST /api/notifications/send/
+    """
+    from pe_communication.models import Notification
+    from django.contrib.auth import get_user_model
+    import json
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        title = data.get('title')
+        message = data.get('message')
+        
+        if not all([user_id, title, message]):
+            return JsonResponse({'success': False, 'error': 'Todos los campos son requeridos'}, status=400)
+        
+        User = get_user_model()
+        user = User.objects.get(id=user_id)
+        
+        notification = Notification.objects.create(
+            user=user,
+            sender=request.user,
+            title=title,
+            message=message,
+            notification_type=Notification.Type.MANUAL_ALERT
+        )
+        
+        return JsonResponse({'success': True, 'message': 'Notificación enviada'})
+        
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Usuario no encontrado'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Datos inválidos'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
 def toggle_activity_subscription(request):
     """
     Endpoint API para suscribir/desuscribir al usuario de una actividad.

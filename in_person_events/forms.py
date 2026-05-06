@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from .models import Event
 from pe_registration.models import TicketType
+from virtualEvent.models import VirtualEvent
+from core.models import CategoriaEvento
 
 class EventForm(forms.ModelForm):
     """Formulario para crear eventos"""
@@ -27,15 +29,28 @@ class EventForm(forms.ModelForm):
         help_text="Emails de invitados separados por comas (solo para eventos privados)"
     )
 
+    # Get categories from virtualEvent predefined
+    all_categories = list(VirtualEvent.PREDEFINED_CATEGORIES)
+    
+    # Add categories from virtualEvent (custom categories created by users)
+    try:
+        virtual_cats = VirtualEvent.objects.values_list('category', flat=True).distinct()
+        for cat in virtual_cats:
+            if cat and cat not in [c[0] for c in all_categories]:
+                all_categories.append((cat, cat))
+    except:
+        pass
+    
+    # Add categories from core (database)
+    try:
+        db_categories = [(cat.nombre, cat.nombre) for cat in CategoriaEvento.objects.filter(activo=True)]
+        all_categories = all_categories + db_categories
+    except:
+        pass
+    
     # Campos con choices personalizados
     category = forms.ChoiceField(
-        choices=[
-            ('conference', 'Conferencia'),
-            ('workshop', 'Taller'),
-            ('networking', 'Networking'),
-            ('concert', 'Concierto'),
-            ('other', 'Otro'),
-        ],
+        choices=all_categories,
         required=True,
         widget=forms.Select(attrs={
             'class': 'form-select ev-input py-3 px-4 rounded-3 cursor-pointer',
@@ -55,11 +70,10 @@ class EventForm(forms.ModelForm):
     )
 
     image = forms.ImageField(
-        required=True,
+        required=False,
         widget=forms.FileInput(attrs={
-            'class': 'ev-file-input position-absolute w-100 h-100 opacity-0 cursor-pointer',
             'id': 'evImageInput',
-            'id': 'fileInput'
+            'accept': 'image/*'
         })
     )
 
@@ -116,11 +130,11 @@ class EventForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
         # En creación, establecer fecha mínima a hoy
-        if not self.instance.pk:
-            from datetime import datetime
-            today = datetime.now().strftime('%Y-%m-%dT%H:%M')
-            self.fields['start_date'].widget.attrs['min'] = today
-            self.fields['end_date'].widget.attrs['min'] = today
+        from datetime import datetime
+        # Set minimum date to today (for both new and edit)
+        today = datetime.now().strftime('%Y-%m-%dT%H:%M')
+        self.fields['start_date'].widget.attrs['min'] = today
+        self.fields['end_date'].widget.attrs['min'] = today
 
         # En edición no es obligatorio volver a subir la imagen si ya existe
         if self.instance and self.instance.pk:
@@ -165,8 +179,7 @@ class EventForm(forms.ModelForm):
         if capacity is None or capacity <= 0:
             self.add_error('capacity', "La capacidad debe ser mayor que cero.")
 
-        if visibility == Event.Visibility.PRIVADO and not invitations:
-            self.add_error('invitations', "Debes ingresar al menos un email para eventos privados.")
+        # No se valida invitations aquí - el organizador puede invitar después desde asistentes
 
         try:
             if not tickets_json:

@@ -545,13 +545,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 </td>
                                 <td><span class="badge bg-primary text-white item-category">${item.category}</span></td>
                                 <td>
-                                    <div class="d-flex justify-content-between small fw-bold mb-1">
-                                        <span class="text-muted">Total: <span class="item-total">${item.total_stock}</span></span>
-                                        <span class="text-primary">Usados: <span class="item-used">${item.used_stock}</span></span>
-                                    </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar ${usagePercent > 80 ? "bg-warning" : "bg-primary"}" style="width: ${usagePercent}%;"></div>
-                                    </div>
+                                    <span class="fw-bold text-dark">${item.used_stock}/${item.total_stock}</span>
                                 </td>
                                 <td><span class="badge ${statusBadgeClass} item-status">${item.status}</span></td>
                                 <td>
@@ -573,6 +567,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 }
                 updateGlobalStats();
+                updatePaginationInfo();
             } else {
                 console.error("No success flag in response");
                 document.getElementById("inventoryTableBody").innerHTML =

@@ -102,9 +102,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     activity.location;
                 document.getElementById("editSpeakerName").value =
                     activity.speaker_name || "";
-                document.getElementById("editSpeakerEmail").value =
-                    activity.speaker_email || "";
-                document.getElementById("editStatus").value = activity.status;
 
                 const form = document.getElementById("editActivityForm");
                 form.action = `${baseUrl}edit/${activity.id}/`;
@@ -122,37 +119,71 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
             if (activity) {
-                document.getElementById("viewTitle").textContent =
-                    activity.title;
-                document.getElementById("viewDescription").textContent =
-                    activity.description || "Sin descripción";
-
+                // Título
+                document.getElementById("viewActivityTitle").textContent = activity.title;
+                
+                // Estado
+                const statusMap = {
+                    'programada': { text: 'Programada', class: 'bg-primary' },
+                    'en_curso': { text: 'En Curso', class: 'bg-warning text-dark' },
+                    'completada': { text: 'Completada', class: 'bg-success' },
+                    'cancelada': { text: 'Cancelada', class: 'bg-danger' }
+                };
+                const statusInfo = statusMap[activity.status] || { text: activity.status, class: 'bg-secondary' };
+                const statusBadge = document.getElementById("viewActivityStatus");
+                statusBadge.textContent = statusInfo.text;
+                statusBadge.className = `badge ${statusInfo.class} mb-3`;
+                
+                // Descripción
+                document.getElementById("viewActivityDescription").textContent = activity.description || "Sin descripción";
+                
+                // Horario
                 const startDate = new Date(activity.start_time);
                 const endDate = new Date(activity.end_time);
-                document.getElementById("viewStartTime").textContent =
-                    startDate.toLocaleString("es-ES");
-                document.getElementById("viewEndTime").textContent =
-                    endDate.toLocaleString("es-ES");
-
-                document.getElementById("viewLocation").textContent =
-                    activity.location;
-                document.getElementById("viewSpeaker").innerHTML =
-                    activity.speaker_name
-                        ? `${activity.speaker_name}<br><small class="text-muted">${activity.speaker_email}</small>`
-                        : '<span class="text-muted">-</span>';
-
-                const statusEl = document.getElementById("viewStatus");
-                const statusMap = {
-                    programada:
-                        '<span class="badge bg-primary">Programada</span>',
-                    en_curso:
-                        '<span class="badge bg-warning text-dark">En Curso</span>',
-                    completada:
-                        '<span class="badge bg-success">Completada</span>',
-                    cancelada: '<span class="badge bg-danger">Cancelada</span>',
-                };
-                statusEl.innerHTML =
-                    statusMap[activity.status] || activity.status;
+                document.getElementById("viewActivityStartDate").textContent = startDate.toLocaleDateString("es-ES", { day: 'numeric', month: 'long' });
+                document.getElementById("viewActivityStartTime").textContent = startDate.toLocaleTimeString("es-ES", { hour: 'numeric', minute: '2-digit' });
+                document.getElementById("viewActivityEndDate").textContent = endDate.toLocaleDateString("es-ES", { day: 'numeric', month: 'long' });
+                document.getElementById("viewActivityEndTime").textContent = endDate.toLocaleTimeString("es-ES", { hour: 'numeric', minute: '2-digit' });
+                
+                // Duración
+                const durationMs = endDate - startDate;
+                const durationMins = Math.round(durationMs / 60000);
+                let durationText = "";
+                if (durationMins >= 60) {
+                    const hours = Math.floor(durationMins / 60);
+                    const mins = durationMins % 60;
+                    durationText = mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+                } else {
+                    durationText = `${durationMins}min`;
+                }
+                document.getElementById("viewActivityDuration").textContent = `Duración: ${durationText}`;
+                
+                // Ubicación
+                document.getElementById("viewActivityLocation").textContent = activity.location || "No asignada";
+                
+                // Ponente
+                const speakerEmail = activity.speaker_email || "";
+                const speakerProfile = window.ponenteProfiles && window.ponenteProfiles[speakerEmail];
+                
+                if (activity.speaker_name) {
+                    document.getElementById("viewSpeakerName").textContent = activity.speaker_name;
+                    document.getElementById("viewSpeakerEmail").textContent = speakerEmail || "Sin email";
+                    document.getElementById("viewSpeakerPhone").textContent = (speakerProfile && speakerProfile.phone) || "Sin teléfono";
+                    document.getElementById("viewSpeakerBio").textContent = (speakerProfile && speakerProfile.bio) || "Sin biografía";
+                    document.getElementById("viewSpeakerWebsite").textContent = (speakerProfile && speakerProfile.website) || "No disponible";
+                    document.getElementById("viewSpeakerTwitter").textContent = (speakerProfile && speakerProfile.twitter) || "No disponible";
+                    document.getElementById("viewSpeakerInstagram").textContent = (speakerProfile && speakerProfile.instagram) || "No disponible";
+                    document.getElementById("viewSpeakerLinkedin").textContent = (speakerProfile && speakerProfile.linkedin) || "No disponible";
+                } else {
+                    document.getElementById("viewSpeakerName").textContent = "No asignado";
+                    document.getElementById("viewSpeakerEmail").textContent = "-";
+                    document.getElementById("viewSpeakerPhone").textContent = "-";
+                    document.getElementById("viewSpeakerBio").textContent = "-";
+                    document.getElementById("viewSpeakerWebsite").textContent = "-";
+                    document.getElementById("viewSpeakerTwitter").textContent = "-";
+                    document.getElementById("viewSpeakerInstagram").textContent = "-";
+                    document.getElementById("viewSpeakerLinkedin").textContent = "-";
+                }
             }
         });
     }
@@ -181,6 +212,36 @@ document.addEventListener("DOMContentLoaded", function () {
                 deleteForm.action = `${baseUrl}delete/${activity.id}/`;
             }
         });
+    }
+
+    // Cancel Modal - confirmation
+    const cancelModal = document.getElementById("cancelActivityModal");
+    if (cancelModal) {
+        cancelModal.addEventListener("show.bs.modal", function (event) {
+            const button = event.relatedTarget;
+            const activityId = button.getAttribute("data-activity-id");
+            const activity = window.activitiesData.find(
+                (a) => a.id == activityId
+            );
+
+            if (activity) {
+                document.getElementById("cancelActivityTitle").textContent = activity.title;
+                document.getElementById("cancelActivityId").value = activity.id;
+
+                const cancelForm = document.getElementById("cancelActivityForm");
+                const baseUrl = window.activitiesBaseUrl;
+                cancelForm.action = `${baseUrl}cancel/${activity.id}/`;
+                console.log('Cancel URL:', cancelForm.action);
+            }
+        });
+        
+        // Intercept submit to show loading state
+        const cancelForm = document.getElementById("cancelActivityForm");
+        if (cancelForm) {
+            cancelForm.addEventListener("submit", function(e) {
+                console.log('Cancel form submitted to:', this.action);
+            });
+        }
     }
 
     // No se intercepta el submit de eliminación para que el formulario

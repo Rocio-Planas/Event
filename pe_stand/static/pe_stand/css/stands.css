@@ -1,4 +1,4 @@
-/* Stands Management - Specific Styles */
+
 
 :root {
     --stratos-primary: #0058be;
@@ -7,6 +7,10 @@
     --stratos-error: #ff3838;
     --background-light: #f8f9ff;
     --border-color: #e0e0e0;
+}
+
+.fw-800 {
+    font-weight: 800;
 }
 
 /* Stat Cards */
@@ -112,6 +116,111 @@
 
 .btn-premium:active {
     transform: translateY(0);
+}
+
+/* Gradient Button (matches inventory) */
+.btn-gradient {
+    background: linear-gradient(135deg, #0058be 0%, #2170e4 100%);
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 88, 190, 0.3) !important;
+    color: white;
+    filter: brightness(1.1);
+}
+
+/* Signature Button (blue gradient) */
+.btn-signature {
+    background: linear-gradient(135deg, #0058be 0%, #2170e4 100%);
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-signature:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 88, 190, 0.3);
+    color: white;
+    filter: brightness(1.1);
+}
+
+/* Custom Card */
+.custom-card {
+    background: #ffffff;
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+}
+
+/* Activity Card */
+.activity-card {
+    background: #f8f9ff;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+}
+
+.activity-card:hover {
+    border-color: var(--stratos-primary);
+}
+
+/* Badge Custom */
+.badge-custom {
+    padding: 6px 12px;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.bg-success-subtle {
+    background-color: #d1fae5 !important;
+}
+
+.bg-warning-subtle {
+    background-color: #fef3c7 !important;
+}
+
+.bg-danger-subtle {
+    background-color: #fee2e2 !important;
+}
+
+/* FAB Button */
+.fab {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0058be 0%, #2170e4 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 88, 190, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.fab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 88, 190, 0.5);
+}
+
+/* Content Card (matches inventory) */
+.content-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 /* Tracking indicators */

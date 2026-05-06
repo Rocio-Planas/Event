@@ -47,7 +47,7 @@ class InventoryDashboardView(TemplateView):
                 'notes': item.notes,
             })
         
-        # Calcular estadísticas globales
+        # Calcular estadísticas globales usando los valores de status
         total_in_stock = sum(1 for i in items_data if i['status'] == 'En Stock')
         total_low_stock = sum(1 for i in items_data if i['status'] == 'Stock Bajo')
         total_no_stock = sum(1 for i in items_data if i['status'] == 'Sin Stock')

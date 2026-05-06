@@ -4,39 +4,40 @@
 {% block title %}{{ activity.title }} - Detalle de Actividad{% endblock %}
 
 {% block extra_head %}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-    <link rel="stylesheet" href="{% static 'agenda/info_activity/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'pe_inventory/inventory/css/styles.css' %}">
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid p-0">
-        <!-- Breadcrumbs -->
-        <nav class="mb-2">
-            <ol class="breadcrumb text-xs-caps mb-0" style="--bs-breadcrumb-divider: '›';">
-                <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-primary">Activities</a></li>
-                <li class="breadcrumb-item active text-muted">Detalle de Actividad</li>
-            </ol>
-        </nav>
-        
+{% with active_page='actividades' %}
+    <div class="p-4">
         <!-- Header Section -->
-        <div class="row mb-5">
-            <div class="col-12">
-                <h2 class="display-5 fw-extrabold mb-3">{{ activity.title }}</h2>
-                <div class="badge-confirmada mb-2">
-                    {% if activity.status == 'programada' %}Programada{% elif activity.status == 'en_curso' %}En Curso{% elif activity.status == 'completada' %}Completada{% elif activity.status == 'cancelada' %}Cancelada{% else %}Pendiente{% endif %}
-                </div>
-                
-                <div class="d-flex flex-wrap gap-3">
-                    <div class="metadata-pill">
-                        <span class="material-symbols-outlined text-primary">location_on</span>
-                        {{ activity.location }}
-                    </div>
-                    <div class="metadata-pill">
-                        <span class="material-symbols-outlined text-primary">schedule</span>
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="fw-800 display-6">{{ activity.title }}</h2>
+                {% if activity.status == 'programada' %}
+                <span class="badge bg-primary">Programada</span>
+                {% elif activity.status == 'en_curso' %}
+                <span class="badge bg-warning text-dark">En Curso</span>
+                {% elif activity.status == 'completada' %}
+                <span class="badge bg-success">Completada</span>
+                {% elif activity.status == 'cancelada' %}
+                <span class="badge bg-danger">Cancelada</span>
+                {% endif %}
+                <div class="d-flex flex-wrap gap-3 mt-2">
+                    <span class="text-muted">
+                        <span class="material-symbols-outlined text-primary" style="font-size: 18px;">location_on</span>
+                        {{ activity.location|default:"No asignada" }}
+                    </span>
+                    <span class="text-muted">
+                        <span class="material-symbols-outlined text-primary" style="font-size: 18px;">schedule</span>
                         {{ activity.start_time|date:"H:i" }} - {{ activity.end_time|date:"H:i" }} ({{ activity.get_duration }} min)
-                    </div>
+                    </span>
                 </div>
+            </div>
+            <div>
+                <a href="{% url 'pe_agenda:activities' event.id %}" class="btn btn-outline-secondary px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver
+                </a>
             </div>
         </div>
         
@@ -44,101 +45,66 @@
             <!-- Left Column -->
             <div class="col-lg-8">
                 <!-- Description -->
-                <section class="stratos-card mb-4">
-                    <h4 class="fw-bold mb-4 d-flex align-items-center gap-2">
-                        <span style="width: 4px; height: 24px; background: var(--stratos-primary); border-radius: 2px;"></span>
-                        Descripción General
-                    </h4>
-                    <p class="text-muted fs-5 fw-light lh-lg">
+                <div class="content-card mb-4 bg-white p-4 rounded-3 border shadow-sm">
+                    <h4 class="fw-bold mb-4">Descripción General</h4>
+                    <p class="text-muted">
                         {{ activity.description|default:"No hay descripción disponible." }}
                     </p>
-                </section>
+                </div>
                 
                 <!-- Speaker -->
-                <section class="speaker-card shadow-sm">
-                    <div class="row g-0 w-100">
-                        <div class="col-md-4">
-                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Elena Valenzuela" class="img-fluid h-100 object-fit-cover">
+                {% if activity.speaker_name %}
+                <div class="content-card mb-4 bg-white p-4 rounded-3 border shadow-sm">
+                    <h4 class="fw-bold mb-4">Ponente</h4>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                            <span class="material-symbols-outlined" style="font-size: 32px;">person</span>
                         </div>
-                        <div class="col-md-8">
-                            <div class="p-4 p-lg-5">
-                                <span class="text-xs-caps text-primary fw-bold mb-1 d-block">Ponente Invitado</span>
-                                <h3 class="fw-bold mb-1">{{ activity.speaker_name|default:"Ponente no asignado" }}</h3>
-                                <p class="text-muted fst-italic mb-4">{{ activity.speaker_email|default:"Email no disponible" }}</p>
-                                
-                                <p class="text-muted mb-4">
-                                    {% if activity.speaker_name %}Ponente asignado para esta actividad.{% else %}No hay ponente asignado para esta actividad.{% endif %}
-                                </p>
-                                
-                                <div class="d-flex gap-3">
-                                    <button class="btn btn-outline-secondary btn-sm px-3 fw-semibold d-flex align-items-center gap-2">
-                                        <span class="material-symbols-outlined fs-6">mail</span> Contacto
-                                    </button>
-                                    <button class="btn btn-outline-secondary btn-sm px-3 fw-semibold d-flex align-items-center gap-2">
-                                        <span class="material-symbols-outlined fs-6">share</span> Portafolio
-                                    </button>
-                                </div>
-                            </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">{{ activity.speaker_name }}</h5>
+                            <p class="text-muted mb-0">{{ activity.speaker_email|default:"" }}</p>
                         </div>
                     </div>
-                </section>
+                </div>
+                {% endif %}
             </div>
             
             <!-- Right Column (Sidebar Panel) -->
             <div class="col-lg-4">
-                <div class="stratos-card h-100 panel-operativo">
-                    <h4 class="fw-bold mb-4 d-flex align-items-center gap-2">
-                        <span class="material-symbols-outlined text-primary">settings_applications</span>
-                        Panel Operativo
-                    </h4>
+                <div class="content-card h-100 bg-white p-4 rounded-3 border shadow-sm">
+                    <h4 class="fw-bold mb-4">Información Adicional</h4>
                     
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-xs-caps text-muted fw-bold">Documentación</span>
-                            <span class="badge bg-white text-primary border rounded-pill">2 Archivos</span>
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <!-- Doc 1 -->
-                            <div class="bg-white p-3 rounded-3 border d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="bg-danger bg-opacity-10 p-2 rounded">
-                                        <span class="material-symbols-outlined text-danger">picture_as_pdf</span>
-                                    </div>
-                                    <div>
-                                        <p class="mb-0 fw-bold small text-truncate" style="max-width: 120px;">Guía_Técnica.pdf</p>
-                                        <small class="text-muted" style="font-size: 10px;">4.2 MB • PDF</small>
-                                    </div>
-                                </div>
-                                <button class="btn btn-link p-0 text-primary">
-                                    <span class="material-symbols-outlined">download</span>
-                                </button>
-                            </div>
-                            
-                            <!-- Doc 2 -->
-                            <div class="bg-white p-3 rounded-3 border d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="bg-primary bg-opacity-10 p-2 rounded">
-                                        <span class="material-symbols-outlined text-primary">present_to_all</span>
-                                    </div>
-                                    <div>
-                                        <p class="mb-0 fw-bold small text-truncate" style="max-width: 120px;">Sostenibilidad_V2.pptx</p>
-                                        <small class="text-muted" style="font-size: 10px;">12.8 MB • PPTX</small>
-                                    </div>
-                                </div>
-                                <button class="btn btn-link p-0 text-primary">
-                                    <span class="material-symbols-outlined">download</span>
-                                </button>
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <small class="text-muted fw-bold text-uppercase">Zona</small>
+                        <p class="mb-0">{{ activity.location|default:"No asignada" }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted fw-bold text-uppercase">Horario</small>
+                        <p class="mb-0">{{ activity.start_time|date:"H:i" }} - {{ activity.end_time|date:"H:i" }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted fw-bold text-uppercase">Duración</small>
+                        <p class="mb-0">{{ activity.get_duration }} minutos</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted fw-bold text-uppercase">Estado</small>
+                        <p class="mb-0">
+                            {% if activity.status == 'programada' %}<span class="badge bg-primary">Programada</span>
+                            {% elif activity.status == 'en_curso' %}<span class="badge bg-warning text-dark">En Curso</span>
+                            {% elif activity.status == 'completada' %}<span class="badge bg-success">Completada</span>
+                            {% elif activity.status == 'cancelada' %}<span class="badge bg-danger">Cancelada</span>
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-        
     </div>
+{% endwith %}
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static 'agenda/info_activity/js/main.js' %}"></script>
 {% endblock %}

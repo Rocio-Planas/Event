@@ -11,7 +11,7 @@
 body {
     background-color: var(--bg-surface);
     color: var(--text-main);
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     overflow-x: hidden;
 }
 
@@ -77,22 +77,58 @@ body {
     background: #ffffff;
     border-radius: 1rem;
     border: none;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
 }
 
 .activity-card {
-    border-left: 4px solid var(--primary-color);
     background-color: #ffffff;
-    padding: 1.25rem;
-    border-radius: 0.75rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    padding: 1.35rem 1.5rem;
+    border-radius: 1.25rem;
     margin-bottom: 1rem;
-    transition: transform 0.2s;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
 }
 
 .activity-card:hover {
-    transform: translateX(4px);
+    transform: translateY(-3px);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.11);
+}
+
+.activity-card .fw-bold.h6 {
+    margin-bottom: 0.85rem;
+    font-size: 1.05rem;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+}
+
+.activity-card p.text-muted {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #525f7f;
+    margin-bottom: 1rem;
+}
+
+.activity-card small {
+    font-size: 0.78rem;
+    color: #667085;
+}
+
+.activity-card .text-muted small {
+    font-size: 0.78rem;
+}
+
+.activity-card .material-symbols-outlined {
+    font-size: 1rem;
+}
+
+.activity-card .btn-link {
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
 }
 
 .btn-signature {
@@ -119,7 +155,7 @@ body {
 
 .progress-custom {
     height: 8px;
-    background-color: rgba(255,255,255,0.2);
+    background-color: rgba(255, 255, 255, 0.2);
     border-radius: 4px;
 }
 
@@ -156,12 +192,16 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .fs-edit-icon {
     font-size: 1.25rem !important;
 }
 
-.fs-7 { font-size: 0.8rem; }
-.hover-opacity-100:hover { opacity: 1 !important; }
+.fs-7 {
+    font-size: 0.8rem;
+}
+.hover-opacity-100:hover {
+    opacity: 1 !important;
+}

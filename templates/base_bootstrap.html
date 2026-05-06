@@ -37,6 +37,7 @@
     {% block extra_css %}{% endblock %}
   </head>
   <body>
+    {% block navbar %}
     <nav class="navbar-custom">
       <div class="menu-overlay" id="menuOverlay"></div>
       <div class="navbar-container">
@@ -213,9 +214,11 @@
         </div>
       </div>
     </nav>
+    {% endblock %}
 
     <main>{% block content %}{% endblock %}</main>
 
+    {% block footer %}
     <footer class="footer-custom">
       <div class="footer-container">
         <div class="footer-links">
@@ -235,6 +238,7 @@
         </div>
       </div>
     </footer>
+    {% endblock %}
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {

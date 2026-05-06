@@ -1,5 +1,7 @@
 from django.db import models
+from django.conf import settings
 from in_person_events.models import Event
+from django.db.models import Sum
 
 
 class Stand(models.Model):
@@ -41,32 +43,57 @@ class Stand(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_leaders(self):
+        """Retorna los nombres de los líderes separados por coma."""
+        # Filtrar por rol de líder (acepta ambos valores: LIDER_ZONA o Líder de Zona)
+        leaders = self.staff.filter(role__in=['LIDER_ZONA', 'Líder de Zona']).select_related('user')
+        if not leaders.exists():
+            return None
+        names = []
+        for s in leaders:
+            if s.user:
+                name = s.user.get_full_name()
+                if not name:
+                    name = s.user.email
+                if name:
+                    names.append(name)
+        if not names:
+            return None
+        return ', '.join(names)
+    
+    def get_resource_count(self):
+        """Retorna la cantidad total de recursos asignados."""
+        from django.apps import apps
+        try:
+            StandAssignment = apps.get_model('pe_inventory', 'StandAssignment')
+            return StandAssignment.objects.filter(stand=self).aggregate(
+                total=Sum('quantity')
+            )['total'] or 0
+        except:
+            return 0
 
 
 class StandStaff(models.Model):
     """
     Modelo para representar el personal asignado a un stand.
     """
-    class Role(models.TextChoices):
-        LIDER = 'Líder de Stand', 'Líder de Stand'
-        ESPECIALISTA_IT = 'Especialista IT', 'Especialista IT'
-        SOPORTE = 'Soporte Técnico', 'Soporte Técnico'
-        RECEPCION = 'Recepción', 'Recepción'
-        OTRO = 'Otro', 'Otro'
-
     stand = models.ForeignKey(
         Stand,
         on_delete=models.CASCADE,
         related_name='staff',
         verbose_name='Stand'
     )
-    # Referencia genérica a la app de usuarios (aún no existe)
-    user_id = models.PositiveIntegerField(
-        verbose_name='ID de Usuario'
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='stand_staff',
+        null=True,
+        blank=True,
+        verbose_name='Usuario'
     )
     role = models.CharField(
         max_length=50,
-        choices=Role.choices,
         verbose_name='Rol'
     )
     assigned_at = models.DateTimeField(
