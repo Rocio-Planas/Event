@@ -87,6 +87,10 @@ def home(request):
 
     # 3. Eventos presenciales (solo aprobados y públicos)
     presenciales_qs = EventoPresencial.objects.filter(status='aprobado', visibility='publico').order_by('-start_date')
+    presenciales_qs = presenciales_qs.annotate(
+    promedio_resenas=Avg('resenas__calificacion', filter=Q(resenas__aprobada=True)),
+    total_resenas=Count('resenas', filter=Q(resenas__aprobada=True))
+)
 
     # 4. Suscripciones
     suscripciones_virtuales_ids = []
@@ -138,8 +142,8 @@ def home(request):
             'fecha': ev.start_date.strftime('%Y-%m-%d'),
             'descripcion': ev.description,
             'creado_por': ev.organizer.id,
-            'promedio': 0,
-            'total_resenas': 0,
+            'promedio': round(ev.promedio_resenas or 0, 1),
+            'total_resenas': ev.total_resenas or 0,
             'ubicacion': ev.location,
             'esta_suscrito': ev.id in suscripciones_presenciales_ids,
             'es_favorito': ev.id in favoritos_presenciales_ids,
@@ -461,15 +465,36 @@ def admin_rechazar_evento(request, evento_id, tipo):
         evento = get_object_or_404(VirtualEvent, id=evento_id)
         evento.estado = 'rechazado'
         evento.save()
-        messages.success(request, f'Evento virtual "{evento.title}" rechazado.')
+        # Enviar correo de notificación al organizador
+        send_mail(
+            f'Tu evento "{evento.title}" ha sido rechazado',
+            f'Hola {evento.created_by.get_full_name()},\n\n'
+            f'Lamentamos informarte que tu evento virtual "{evento.title}" no ha sido aprobado.\n\n'
+            f'Si consideras que ha sido un error, puedes ponerte en contacto con nosotros.\n\n'
+            f'Saludos,\nEquipo EventPulse',
+            settings.DEFAULT_FROM_EMAIL,
+            [evento.created_by.email],
+            fail_silently=False,
+        )
+        messages.warning(request, f'Evento virtual "{evento.title}" rechazado. Se ha notificado al organizador.')
     else:
         evento = get_object_or_404(EventoPresencial, id=evento_id)
         evento.status = 'rechazado'
         evento.save()
-        messages.success(request, f'Evento presencial "{evento.title}" rechazado.')
+        # Enviar correo de notificación al organizador
+        send_mail(
+            f'Tu evento "{evento.title}" ha sido rechazado',
+            f'Hola {evento.organizer.get_full_name()},\n\n'
+            f'Lamentamos informarte que tu evento presencial "{evento.title}" no ha sido aprobado.\n\n'
+            f'Si consideras que ha sido un error, puedes ponerte en contacto con nosotros.\n\n'
+            f'Saludos,\nEquipo EventPulse',
+            settings.DEFAULT_FROM_EMAIL,
+            [evento.organizer.email],
+            fail_silently=False,
+        )
+        messages.warning(request, f'Evento presencial "{evento.title}" rechazado. Se ha notificado al organizador.')
     
     return redirect('core:admin_eventos')
-
 
 @login_required
 @role_required(['administrador'])
@@ -574,7 +599,7 @@ def admin_cambiar_rol(request, usuario_id):
     usuario = get_object_or_404(UsuarioModel, id=usuario_id)
     if request.method == 'POST':
         nuevo_rol = request.POST.get('rol')
-        if nuevo_rol in ['espectador', 'organizador', 'expositor', 'administrador']:
+        if nuevo_rol in ['espectador', 'organizador', 'staff', 'administrador']:
             usuario.rol = nuevo_rol
             usuario.save()
             messages.success(request, f'Rol de {usuario.email} cambiado a {nuevo_rol}.')

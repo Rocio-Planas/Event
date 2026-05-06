@@ -74,7 +74,7 @@
                                 <select name="rol" class="px-2 py-1.5 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface text-sm focus:ring-2 focus:ring-primary/30">
                                     <option value="espectador" {% if usuario.rol == 'espectador' %}selected{% endif %} data-i18n="spectator">Espectador</option>
                                     <option value="organizador" {% if usuario.rol == 'organizador' %}selected{% endif %} data-i18n="organizer">Organizador</option>
-                                    <option value="expositor" {% if usuario.rol == 'expositor' %}selected{% endif %} data-i18n="exhibitor">Expositor</option>
+                                    <option value="staff" {% if usuario.rol == 'staff' %}selected{% endif %} data-i18n="staff">Staff</option>
                                     <option value="administrador" {% if usuario.rol == 'administrador' %}selected{% endif %} data-i18n="admin">Administrador</option>
                                 </select>
                                 <button type="submit" class="text-primary hover:underline text-sm" data-i18n="admin_panel_save">Guardar</button>
