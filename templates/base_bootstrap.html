@@ -172,18 +172,20 @@
               {% endif %}
             </button>
             <div class="dropdown-menu-custom" id="user-menu">
-              <a href="{% url 'usuarios:dashboard' %}" data-i18n="my_dashboard"
+              <a href="{% url 'usuarios:dashboard' %}" style="display: block; padding: 0.5rem 1rem; font-size: 0.875rem;" data-i18n="my_dashboard"
                 >Mi Panel</a
               >
-              <a href="{% url 'usuarios:perfil' %}" data-i18n="my_profile"
+              <a href="{% url 'usuarios:perfil' %}" style="display: block; padding: 0.5rem 1rem; font-size: 0.875rem;" data-i18n="my_profile"
                 >Mi Perfil</a
               >
 
               {% if user.is_authenticated and user.rol == 'administrador' %}
-              <a href="{% url 'core:admin_panel' %}" data-i18n="admin_panel"
+              <a href="{% url 'core:admin_panel' %}" style="display: block; padding: 0.5rem 1rem; font-size: 0.875rem;" data-i18n="admin_panel"
                 >Panel de Administración</a
               >
               {% endif %}
+              <div style="border-top: 1px solid var(--border-outline-variant); margin: 0.25rem 0;"></div>
+              <a href="{% url 'usuarios:logout' %}" class="text-danger" style="display: block; padding: 0.5rem 1rem; font-size: 0.875rem;" data-i18n="logout">Cerrar Sesión</a>
             </div>
           </div>
           {% else %}
