@@ -11,13 +11,20 @@ from django.core.validators import validate_email
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.db.models import Count, Sum
+from django.utils import timezone
 from django.utils.text import slugify
 
 # Importamos tus modelos y el formulario
 from .models import Event
 from pe_registration.models import TicketType, Registration
+from pe_agenda.models import Activity
 from .forms import EventForm
 from pe_communication.views import send_event_invitation_email
+
+def _refresh_activity_status(activity):
+    if activity.status != Activity.Status.CANCELADA:
+        activity.status = activity.get_current_status()
+    return activity
 
 @login_required
 def create_event_form(request):
@@ -153,7 +160,9 @@ def dashboard_organizer(request, event_id):
 def dashboard_assistant(request, event_id):
     """Dashboard del asistente para un evento presencial inscrito."""
     event = get_object_or_404(Event, id=event_id)
-    activities = event.activities.order_by('start_time')[:5]
+    activities = list(event.activities.order_by('start_time')[:5])
+    for activity in activities:
+        _refresh_activity_status(activity)
     ticket_types = event.ticket_types.all()
     resources = event.resources.all()
     total_attendees = event.registrations.filter(status=Registration.Status.CONFIRMADA).count()
@@ -163,6 +172,19 @@ def dashboard_assistant(request, event_id):
         status__in=[Registration.Status.CONFIRMADA, Registration.Status.PENDIENTE]
     ).select_related('ticket_type').first()
     selected_ticket_type = user_registration.ticket_type if user_registration else None
+
+    current_time = timezone.now()
+    if event.status == Event.Status.APROBADO:
+        if event.start_date > current_time:
+            event_status_label = 'Programado'
+        elif event.start_date <= current_time <= event.end_date:
+            event_status_label = 'En curso'
+        else:
+            event_status_label = 'Finalizado'
+    elif event.status == Event.Status.PENDIENTE and event.start_date > current_time:
+        event_status_label = 'Pendiente de aprobación'
+    else:
+        event_status_label = event.get_status_display()
 
     ticket_holder_name = request.user.get_full_name() or request.user.email
     ticket_type_name = selected_ticket_type.name if selected_ticket_type else 'General'
@@ -202,6 +224,7 @@ def dashboard_assistant(request, event_id):
         'ticket_holder_name': ticket_holder_name,
         'ticket_type_name': ticket_type_name,
         'ticket_qr_data_url': ticket_qr_data_url,
+        'event_status_label': event_status_label,
     })
 
 

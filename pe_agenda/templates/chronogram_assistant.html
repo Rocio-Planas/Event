@@ -11,9 +11,10 @@
 
 {% block content %}
 
-    <main class="container py-5 mt-5">
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-10">
+    <main class="container pt-5 pb-5">
+        <div class="max-w-7xl mx-auto">
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-10">
                 
                 <!-- Back Link -->
                 <div class="mb-4">
@@ -38,7 +39,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-4 shadow-sm overflow-hidden mb-5">
+                <div class="bg-white rounded-4 shadow-sm overflow-hidden mb-5 p-4">
                     <div class="filter-panel p-4 border-bottom">
                         <div class="row g-3 align-items-end">
                             <div class="col-12 col-md-4">
@@ -72,7 +73,7 @@
                         </div>
                         <div class="agenda-content">
                             <div class="session-meta">
-                                <span class="badge badge-ai">{{ activity.status|title }}</span>
+                                <span class="badge badge-{{ activity.status }}">{{ activity.get_status_display }}</span>
                                 <span class="room-info">
                                     <span class="material-symbols-outlined room-icon">meeting_room</span>
                                     {{ activity.location }}

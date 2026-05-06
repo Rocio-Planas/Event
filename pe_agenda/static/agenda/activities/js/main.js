@@ -72,6 +72,23 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function updateSpeakerEmailField(selectId, hiddenId) {
+        const selectEl = document.getElementById(selectId);
+        const hiddenInput = document.getElementById(hiddenId);
+        if (!selectEl || !hiddenInput) return;
+
+        const updateValue = () => {
+            const option = selectEl.selectedOptions[0];
+            hiddenInput.value = option?.dataset?.email || "";
+        };
+
+        selectEl.addEventListener("change", updateValue);
+        updateValue();
+    }
+
+    updateSpeakerEmailField("createSpeakerName", "createSpeakerEmail");
+    updateSpeakerEmailField("editSpeakerName", "editSpeakerEmail");
+
     // Código para otros modales
     const editModal = document.getElementById("editActivityModal");
     const viewModal = document.getElementById("viewActivityModal");
@@ -120,31 +137,56 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (activity) {
                 // Título
-                document.getElementById("viewActivityTitle").textContent = activity.title;
-                
+                document.getElementById("viewActivityTitle").textContent =
+                    activity.title;
+
                 // Estado
                 const statusMap = {
-                    'programada': { text: 'Programada', class: 'bg-primary' },
-                    'en_curso': { text: 'En Curso', class: 'bg-warning text-dark' },
-                    'completada': { text: 'Completada', class: 'bg-success' },
-                    'cancelada': { text: 'Cancelada', class: 'bg-danger' }
+                    programada: { text: "Programada", class: "bg-primary" },
+                    en_curso: {
+                        text: "En Curso",
+                        class: "bg-warning text-dark",
+                    },
+                    completada: { text: "Completada", class: "bg-success" },
+                    cancelada: { text: "Cancelada", class: "bg-danger" },
                 };
-                const statusInfo = statusMap[activity.status] || { text: activity.status, class: 'bg-secondary' };
-                const statusBadge = document.getElementById("viewActivityStatus");
+                const statusInfo = statusMap[activity.status] || {
+                    text: activity.status,
+                    class: "bg-secondary",
+                };
+                const statusBadge =
+                    document.getElementById("viewActivityStatus");
                 statusBadge.textContent = statusInfo.text;
                 statusBadge.className = `badge ${statusInfo.class} mb-3`;
-                
+
                 // Descripción
-                document.getElementById("viewActivityDescription").textContent = activity.description || "Sin descripción";
-                
+                document.getElementById("viewActivityDescription").textContent =
+                    activity.description || "Sin descripción";
+
                 // Horario
                 const startDate = new Date(activity.start_time);
                 const endDate = new Date(activity.end_time);
-                document.getElementById("viewActivityStartDate").textContent = startDate.toLocaleDateString("es-ES", { day: 'numeric', month: 'long' });
-                document.getElementById("viewActivityStartTime").textContent = startDate.toLocaleTimeString("es-ES", { hour: 'numeric', minute: '2-digit' });
-                document.getElementById("viewActivityEndDate").textContent = endDate.toLocaleDateString("es-ES", { day: 'numeric', month: 'long' });
-                document.getElementById("viewActivityEndTime").textContent = endDate.toLocaleTimeString("es-ES", { hour: 'numeric', minute: '2-digit' });
-                
+                document.getElementById("viewActivityStartDate").textContent =
+                    startDate.toLocaleDateString("es-ES", {
+                        day: "numeric",
+                        month: "long",
+                    });
+                document.getElementById("viewActivityStartTime").textContent =
+                    startDate.toLocaleTimeString("es-ES", {
+                        hour: "numeric",
+                        minute: "2-digit",
+                    });
+                document.getElementById("viewActivityEndDate").textContent =
+                    endDate.toLocaleDateString("es-ES", {
+                        day: "numeric",
+                        month: "long",
+                    });
+                document.getElementById("viewActivityEndTime").textContent =
+                    endDate.toLocaleTimeString("es-ES", {
+                        hour: "numeric",
+                        minute: "2-digit",
+                    });
+
                 // Duración
                 const durationMs = endDate - startDate;
                 const durationMins = Math.round(durationMs / 60000);
@@ -152,37 +194,66 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (durationMins >= 60) {
                     const hours = Math.floor(durationMins / 60);
                     const mins = durationMins % 60;
-                    durationText = mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+                    durationText =
+                        mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
                 } else {
                     durationText = `${durationMins}min`;
                 }
-                document.getElementById("viewActivityDuration").textContent = `Duración: ${durationText}`;
-                
+                document.getElementById("viewActivityDuration").textContent =
+                    `Duración: ${durationText}`;
+
                 // Ubicación
-                document.getElementById("viewActivityLocation").textContent = activity.location || "No asignada";
-                
+                document.getElementById("viewActivityLocation").textContent =
+                    activity.location || "No asignada";
+
                 // Ponente
                 const speakerEmail = activity.speaker_email || "";
-                const speakerProfile = window.ponenteProfiles && window.ponenteProfiles[speakerEmail];
-                
+                const speakerProfile =
+                    window.ponenteProfiles &&
+                    window.ponenteProfiles[speakerEmail];
+
                 if (activity.speaker_name) {
-                    document.getElementById("viewSpeakerName").textContent = activity.speaker_name;
-                    document.getElementById("viewSpeakerEmail").textContent = speakerEmail || "Sin email";
-                    document.getElementById("viewSpeakerPhone").textContent = (speakerProfile && speakerProfile.phone) || "Sin teléfono";
-                    document.getElementById("viewSpeakerBio").textContent = (speakerProfile && speakerProfile.bio) || "Sin biografía";
-                    document.getElementById("viewSpeakerWebsite").textContent = (speakerProfile && speakerProfile.website) || "No disponible";
-                    document.getElementById("viewSpeakerTwitter").textContent = (speakerProfile && speakerProfile.twitter) || "No disponible";
-                    document.getElementById("viewSpeakerInstagram").textContent = (speakerProfile && speakerProfile.instagram) || "No disponible";
-                    document.getElementById("viewSpeakerLinkedin").textContent = (speakerProfile && speakerProfile.linkedin) || "No disponible";
+                    document.getElementById("viewSpeakerName").textContent =
+                        activity.speaker_name;
+                    document.getElementById("viewSpeakerEmail").textContent =
+                        speakerEmail || "Sin email";
+                    document.getElementById("viewSpeakerPhone").textContent =
+                        (speakerProfile && speakerProfile.phone) ||
+                        "Sin teléfono";
+                    document.getElementById("viewSpeakerBio").textContent =
+                        (speakerProfile && speakerProfile.bio) ||
+                        "Sin biografía";
+                    document.getElementById("viewSpeakerWebsite").textContent =
+                        (speakerProfile && speakerProfile.website) ||
+                        "No disponible";
+                    document.getElementById("viewSpeakerTwitter").textContent =
+                        (speakerProfile && speakerProfile.twitter) ||
+                        "No disponible";
+                    document.getElementById(
+                        "viewSpeakerInstagram",
+                    ).textContent =
+                        (speakerProfile && speakerProfile.instagram) ||
+                        "No disponible";
+                    document.getElementById("viewSpeakerLinkedin").textContent =
+                        (speakerProfile && speakerProfile.linkedin) ||
+                        "No disponible";
                 } else {
-                    document.getElementById("viewSpeakerName").textContent = "No asignado";
-                    document.getElementById("viewSpeakerEmail").textContent = "-";
-                    document.getElementById("viewSpeakerPhone").textContent = "-";
+                    document.getElementById("viewSpeakerName").textContent =
+                        "No asignado";
+                    document.getElementById("viewSpeakerEmail").textContent =
+                        "-";
+                    document.getElementById("viewSpeakerPhone").textContent =
+                        "-";
                     document.getElementById("viewSpeakerBio").textContent = "-";
-                    document.getElementById("viewSpeakerWebsite").textContent = "-";
-                    document.getElementById("viewSpeakerTwitter").textContent = "-";
-                    document.getElementById("viewSpeakerInstagram").textContent = "-";
-                    document.getElementById("viewSpeakerLinkedin").textContent = "-";
+                    document.getElementById("viewSpeakerWebsite").textContent =
+                        "-";
+                    document.getElementById("viewSpeakerTwitter").textContent =
+                        "-";
+                    document.getElementById(
+                        "viewSpeakerInstagram",
+                    ).textContent = "-";
+                    document.getElementById("viewSpeakerLinkedin").textContent =
+                        "-";
                 }
             }
         });
@@ -193,22 +264,24 @@ document.addEventListener("DOMContentLoaded", function () {
     if (deleteModal) {
         deleteModal.addEventListener("show.bs.modal", function (event) {
             const button = event.relatedTarget;
-            const activityId = 
-                button.getAttribute("data-bs-id") || 
+            const activityId =
+                button.getAttribute("data-bs-id") ||
                 button.getAttribute("data-activity-id");
-            
+
             const activity = window.activitiesData.find(
-                (a) => a.id == activityId
+                (a) => a.id == activityId,
             );
 
             if (activity) {
-                document.getElementById("deleteActivityTitle").textContent = activity.title;
+                document.getElementById("deleteActivityTitle").textContent =
+                    activity.title;
                 document.getElementById("deleteActivityId").value = activity.id;
 
-                const deleteForm = document.getElementById("deleteActivityForm");
-                
+                const deleteForm =
+                    document.getElementById("deleteActivityForm");
+
                 // CAMBIO EXACTO: Usar la variable global definida en el HTML
-                const baseUrl = window.activitiesBaseUrl; 
+                const baseUrl = window.activitiesBaseUrl;
                 deleteForm.action = `${baseUrl}delete/${activity.id}/`;
             }
         });
@@ -221,25 +294,27 @@ document.addEventListener("DOMContentLoaded", function () {
             const button = event.relatedTarget;
             const activityId = button.getAttribute("data-activity-id");
             const activity = window.activitiesData.find(
-                (a) => a.id == activityId
+                (a) => a.id == activityId,
             );
 
             if (activity) {
-                document.getElementById("cancelActivityTitle").textContent = activity.title;
+                document.getElementById("cancelActivityTitle").textContent =
+                    activity.title;
                 document.getElementById("cancelActivityId").value = activity.id;
 
-                const cancelForm = document.getElementById("cancelActivityForm");
+                const cancelForm =
+                    document.getElementById("cancelActivityForm");
                 const baseUrl = window.activitiesBaseUrl;
                 cancelForm.action = `${baseUrl}cancel/${activity.id}/`;
-                console.log('Cancel URL:', cancelForm.action);
+                console.log("Cancel URL:", cancelForm.action);
             }
         });
-        
+
         // Intercept submit to show loading state
         const cancelForm = document.getElementById("cancelActivityForm");
         if (cancelForm) {
-            cancelForm.addEventListener("submit", function(e) {
-                console.log('Cancel form submitted to:', this.action);
+            cancelForm.addEventListener("submit", function (e) {
+                console.log("Cancel form submitted to:", this.action);
             });
         }
     }

@@ -9,50 +9,47 @@
 {% endblock %}
 
 {% block content %}
-<div class="container pt-1 pb-5">
-    <div class="max-w-7xl mx-auto">
-        <div class="row mb-4">
-            <div class="col-12 d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <a href="{% url 'usuarios:dashboard_organizador' %}" class="text-decoration-none text-primary fw-bold d-flex align-items-center gap-1 mb-3">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span>
-                        Volver
-                    </a>
-                    <div class="d-flex align-items-center gap-3 mb-2">
-                        <span class="badge" style="background-color: var(--secondary-container); color: var(--secondary);">
-                            {% if event.status == 'approved' and event.start_date > now %}
-                                Programado
-                            {% else %}
-                                {{ event.status|title }}
-                            {% endif %}
-                        </span>
-                        <span class="text-primary fw-bold small">Faltan {{ event.start_date|timeuntil }}</span>
+<div class="position-relative" style="background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%), url('{% if event.image %}{{ event.image.url }}{% else %}https://picsum.photos/seed/event/1200/400{% endif %}') center/cover no-repeat; min-height: 400px; display: flex; align-items: flex-end; margin-top: -5rem; padding-top: 5rem;">
+    <div class="container pb-5">
+        <div class="max-w-7xl mx-auto">
+            <a href="{% url 'usuarios:dashboard_espectador' %}" class="text-decoration-none text-white fw-bold d-flex align-items-center gap-1 mb-4" style="width: fit-content;">
+                <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span>
+                Volver
+            </a>
+            <div class="text-white">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="badge" style="background-color: rgba(255, 255, 255, 0.25); color: white; backdrop-filter: blur(10px);">
+                        {{ event_status_label }}
+                    </span>
+                    <span class="fw-bold small">Faltan {{ event.start_date|timeuntil }}</span>
+                </div>
+                <h1 class="mb-3" style="font-size: 3rem; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">{{ event.title }}</h1>
+                <div class="d-flex flex-wrap gap-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">calendar_today</span>
+                        <span>{{ event.start_date|date:'j \d\e F \a \l\a\s H:i' }}</span>
                     </div>
-                    <h1 class="mb-2">{{ event.title }}</h1>
-                    <div class="mb-3">
-                        <div class="d-inline-flex align-items-center gap-2">
-                            <span class="badge bg-primary text-white">
-                                {% if selected_ticket_type %}
-                                    {{ selected_ticket_type.name }}
-                                {% else %}
-                                    General
-                                {% endif %}
-                            </span>
-                        </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">location_on</span>
+                        <span>{{ event.location }}</span>
                     </div>
-                    <div class="d-flex flex-wrap gap-3 text-muted">
-                        <span class="d-flex align-items-center gap-1">
-                            <span class="material-symbols-outlined text-primary" style="font-size: 18px;">calendar_today</span>
-                            {{ event.start_date|date:'j \d\e F' }}
-                        </span>
-                        <span class="d-flex align-items-center gap-1">
-                            <span class="material-symbols-outlined text-primary" style="font-size: 18px;">location_on</span>
-                            {{ event.location }}
-                        </span>
-                    </div>
+                </div>
+                <div class="mt-4">
+                    <span class="badge bg-primary text-white px-3 py-2 fs-6">
+                        {% if selected_ticket_type %}
+                            {{ selected_ticket_type.name }}
+                        {% else %}
+                            General
+                        {% endif %}
+                    </span>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="container pt-5 pb-5">
+    <div class="max-w-7xl mx-auto">
 
         <div class="grid-cols-12">
             <div class="col-span-8">
@@ -60,7 +57,6 @@
                     <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
                         <div>
                             <h2 class="mb-1">Cronograma del Evento</h2>
-                            <p class="text-muted small mb-0">Actividades destacadas para hoy</p>
                         </div>
                         <a href="{% url 'pe_agenda:chronogram_assistant' event.id %}" class="text-primary fw-bold text-decoration-none d-flex align-items-center gap-1 small">
                             Ver completo
@@ -72,32 +68,27 @@
                         {% for activity in activities %}
                         <div class="timeline-item mb-3">
                             <div class="timeline-content">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="badge bg-primary text-white">{{ activity.start_time|date:'H:i' }}</span>
+                                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                    <span class="badge badge-{{ activity.status }}">{{ activity.get_status_display }}</span>
+                                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                                        <span class="date-main small text-muted">{{ activity.start_time|date:"j M" }}</span>
+                                        <span class="fw-bold">{{ activity.start_time|date:'H:i' }}</span>
                                         <span class="text-muted small text-uppercase">{{ activity.start_time|date:'A' }}</span>
                                     </div>
-                                    <button class="btn btn-link text-muted p-0">
-                                        <span class="material-symbols-outlined">bookmark_add</span>
-                                    </button>
-                                </div>
-                                <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                                    <span class="badge badge-{% if activity.status == 'ai' %}ai{% elif activity.status == 'ux' %}ux{% else %}devops{% endif %}">{{ activity.status|title }}</span>
-                                    <span class="text-muted small d-flex align-items-center gap-1">
-                                        <span class="material-symbols-outlined" style="font-size: 14px;">meeting_room</span>
-                                        {{ activity.location }}
-                                    </span>
                                 </div>
                                 <h3 class="h5 fw-bold mb-2">{{ activity.title }}</h3>
-                                <p class="text-muted mb-2">{{ activity.description|default:'Sin descripción disponible.' }}</p>
                                 {% if activity.speaker_name %}
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="bg-primary bg-opacity-10 rounded-circle p-1">
-                                        <span class="material-symbols-outlined text-primary" style="font-size: 16px;">person</span>
+                                    <div class="bg-primary bg-opacity-10 speaker-badge">
+                                        <span class="material-symbols-outlined text-primary">person</span>
                                     </div>
                                     <span class="small fw-bold">{{ activity.speaker_name }}</span>
                                 </div>
                                 {% endif %}
+                                <a href="{% url 'pe_agenda:info_activity' event.id activity.id %}" class="btn btn-compact d-flex align-items-center gap-2 mt-auto align-self-end text-decoration-none">
+                                    <span class="material-symbols-outlined" style="font-size: 18px;">visibility</span>
+                                    Ver detalles
+                                </a>
                             </div>
                         </div>
                         {% endfor %}
@@ -132,22 +123,22 @@
                         <div class="d-flex justify-content-center gap-3">
                             {% if event.organizer.website %}
                                 <a href="{{ event.organizer.website }}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" title="Sitio web" style="width: 40px; height: 40px;">
-                                    <span class="material-symbols-outlined" style="font-size: 18px;">language</span>
+                                    <i class="fas fa-globe" style="font-size: 18px;"></i>
                                 </a>
                             {% endif %}
                             {% if event.organizer.twitter %}
                                 <a href="https://twitter.com/{{ event.organizer.twitter|urlencode }}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" title="Twitter" style="width: 40px; height: 40px;">
-                                    <span class="material-symbols-outlined" style="font-size: 18px;">share</span>
+                                    <i class="fab fa-twitter" style="font-size: 18px;"></i>
                                 </a>
                             {% endif %}
                             {% if event.organizer.instagram %}
                                 <a href="https://instagram.com/{{ event.organizer.instagram|urlencode }}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" title="Instagram" style="width: 40px; height: 40px;">
-                                    <span class="material-symbols-outlined" style="font-size: 18px;">photo_camera</span>
+                                    <i class="fab fa-instagram" style="font-size: 18px;"></i>
                                 </a>
                             {% endif %}
                             {% if event.organizer.linkedin %}
                                 <a href="{{ event.organizer.linkedin }}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" title="LinkedIn" style="width: 40px; height: 40px;">
-                                    <span class="material-symbols-outlined" style="font-size: 18px;">work</span>
+                                    <i class="fab fa-linkedin" style="font-size: 18px;"></i>
                                 </a>
                             {% endif %}
                         </div>
@@ -196,7 +187,7 @@
                                         </div>
                                     </label>
                                     {% endfor %}
-                                    <div class="d-flex justify-content-end mt-3">
+                                    <div class="d-flex justify-content-center mt-3">
                                         <button type="submit" class="btn btn-primary btn-sm">Guardar selección</button>
                                     </div>
                                 </form>
