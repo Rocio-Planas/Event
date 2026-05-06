@@ -186,9 +186,14 @@
                             </div>
                             {% endif %}
                         </button>
-                        <div class="dropdown-menu-custom" id="user-menu">
+                            <div class="dropdown-menu-custom" id="user-menu">
                             <a href="{% url 'usuarios:dashboard' %}" data-i18n="my_dashboard">Mi Panel</a>
                             <a href="{% url 'usuarios:perfil' %}" data-i18n="my_profile">Mi Perfil</a>
+                            {% if user.is_authenticated and user.rol == 'administrador' %}
+                            <a href="{% url 'core:admin_panel' %}" data-i18n="admin_panel">Panel de Administración</a>
+                            {% endif %}
+                            <div class="border-top my-1" style="border-color: var(--border-outline-variant) !important;"></div>
+                            <a href="{% url 'usuarios:logout' %}" data-i18n="logout" class="text-danger">Cerrar Sesión</a>
                         </div>
                     </div>
                     {% else %}

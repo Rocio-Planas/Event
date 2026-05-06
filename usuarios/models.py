@@ -26,7 +26,7 @@ class Usuario(AbstractUser):
     ROLES = (
         ('administrador', 'Administrador'),
         ('organizador', 'Organizador'),
-        ('expositor', 'Expositor'),
+        ('staff', 'Staff / Miembro del equipo'),   # antes era ('expositor', 'Expositor')
         ('espectador', 'Espectador'),
     )
 
