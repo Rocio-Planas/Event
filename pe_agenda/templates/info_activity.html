@@ -1,109 +1,117 @@
-{% extends "base_sidebar.html" %}
+{% extends "base_bootstrap.html" %}
 {% load static %}
 
 {% block title %}{{ activity.title }} - Detalle de Actividad{% endblock %}
 
 {% block extra_head %}
-    <link rel="stylesheet" href="{% static 'pe_inventory/inventory/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'agenda/info_activity/css/style.css' %}">
 {% endblock %}
 
 {% block content %}
-{% with active_page='actividades' %}
-    <div class="p-4">
-        <!-- Header Section -->
-        <div class="d-flex justify-content-between align-items-end mb-4">
-            <div>
-                <h2 class="fw-800 display-6">{{ activity.title }}</h2>
-                {% if activity.status == 'programada' %}
-                <span class="badge bg-primary">Programada</span>
-                {% elif activity.status == 'en_curso' %}
-                <span class="badge bg-warning text-dark">En Curso</span>
-                {% elif activity.status == 'completada' %}
-                <span class="badge bg-success">Completada</span>
-                {% elif activity.status == 'cancelada' %}
-                <span class="badge bg-danger">Cancelada</span>
-                {% endif %}
-                <div class="d-flex flex-wrap gap-3 mt-2">
-                    <span class="text-muted">
-                        <span class="material-symbols-outlined text-primary" style="font-size: 18px;">location_on</span>
-                        {{ activity.location|default:"No asignada" }}
-                    </span>
-                    <span class="text-muted">
-                        <span class="material-symbols-outlined text-primary" style="font-size: 18px;">schedule</span>
-                        {{ activity.start_time|date:"H:i" }} - {{ activity.end_time|date:"H:i" }} ({{ activity.get_duration }} min)
-                    </span>
+<div class="info-activity-page container py-5">
+    <div class="max-w-7xl mx-auto">
+        <!-- Back Link -->
+        <div class="mb-4">
+            <a href="{% url 'pe_agenda:activities' event.id %}" class="back-link d-inline-flex align-items-center gap-2 text-secondary text-decoration-none fw-medium small">
+                <span class="material-symbols-outlined fs-6">arrow_back</span>
+                Volver
+            </a>
+        </div>
+
+        <div class="info-activity-hero mb-5">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-4">
+                <div>
+                    <h1 class="display-5 fw-bold mb-3">{{ activity.title }}</h1>
+                    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                        <span class="badge bg-primary">{{ activity.get_status_display }}</span>
+                        <span class="text-muted">{{ activity.get_duration }} min</span>
+                    </div>
                 </div>
             </div>
-            <div>
-                <a href="{% url 'pe_agenda:activities' event.id %}" class="btn btn-outline-secondary px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver
-                </a>
-            </div>
         </div>
-        
+
         <div class="row g-4">
             <!-- Left Column -->
             <div class="col-lg-8">
                 <!-- Description -->
-                <div class="content-card mb-4 bg-white p-4 rounded-3 border shadow-sm">
-                    <h4 class="fw-bold mb-4">Descripción General</h4>
-                    <p class="text-muted">
-                        {{ activity.description|default:"No hay descripción disponible." }}
+                <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
+                    <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
+                        <span class="material-symbols-outlined text-primary">description</span>
+                        Descripción General
+                    </h4>
+                    <p class="text-muted lh-lg mb-0" style="font-size: 1rem; color: var(--text-on-surface-variant);">
+                        {{ activity.description|default:"No hay descripción disponible para esta actividad." }}
                     </p>
                 </div>
-                
+
                 <!-- Speaker -->
                 {% if activity.speaker_name %}
-                <div class="content-card mb-4 bg-white p-4 rounded-3 border shadow-sm">
-                    <h4 class="fw-bold mb-4">Ponente</h4>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                            <span class="material-symbols-outlined" style="font-size: 32px;">person</span>
+                <div class="card card-with-accent mb-4" style="border-radius: 1rem; padding: 0; overflow: hidden; --primary: #8b5cf6; --primary-variant: #6366f1;">
+                    <div class="row g-0 w-100">
+                        <div class="col-md-4">
+                            <div style="width: 100%; height: 100%; min-height: 280px; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); overflow: hidden;">
+                                {% if speaker_user and speaker_user.avatar %}
+                                    <img src="{{ speaker_user.avatar.url }}" alt="{{ activity.speaker_name }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                {% elif activity.speaker_image %}
+                                    <img src="{{ activity.speaker_image.url }}" alt="{{ activity.speaker_name }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                                {% else %}
+                                    <div class="d-flex align-items-center justify-content-center h-100">
+                                        <span class="material-symbols-outlined text-white" style="font-size: 100px;">person</span>
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
-                        <div>
-                            <h5 class="fw-bold mb-0">{{ activity.speaker_name }}</h5>
-                            <p class="text-muted mb-0">{{ activity.speaker_email|default:"" }}</p>
+                        <div class="col-md-8">
+                            <div class="p-4 p-lg-5">
+                                <span class="text-xs-caps text-primary fw-bold mb-2 d-block">Ponente Invitado</span>
+                                <h3 class="fw-bold mb-2" style="color: var(--text-on-surface);">{{ activity.speaker_name }}</h3>
+                                <p class="text-muted fst-italic mb-4" style="color: var(--text-on-surface-variant);">{{ activity.speaker_email|default:"Información de contacto no disponible" }}</p>
+
+                                <p class="text-muted mb-4" style="color: var(--text-on-surface-variant); line-height: 1.6;">
+                                    {{ speaker_user.biografia|default:"Especialista en esta área de conocimiento con amplia experiencia en eventos similares. Brindará una perspectiva única sobre los temas a tratar durante esta sesión." }}
+                                </p>
+
+                                <div class="d-flex gap-3">
+                                    {% if activity.speaker_email %}
+                                    <a href="mailto:{{ activity.speaker_email }}" class="btn btn-outline-secondary btn-sm px-3 fw-semibold d-flex align-items-center gap-2">
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">mail</span> Contacto
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 {% endif %}
             </div>
-            
+
             <!-- Right Column (Sidebar Panel) -->
             <div class="col-lg-4">
-                <div class="content-card h-100 bg-white p-4 rounded-3 border shadow-sm">
-                    <h4 class="fw-bold mb-4">Información Adicional</h4>
-                    
-                    <div class="mb-3">
-                        <small class="text-muted fw-bold text-uppercase">Zona</small>
-                        <p class="mb-0">{{ activity.location|default:"No asignada" }}</p>
+                <div class="card panel-operativo" style="padding: 2rem; border-radius: 1rem;">
+                    <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
+                        <span class="material-symbols-outlined text-primary">info</span>
+                        Detalles de Actividad
+                    </h4>
+
+                    <div class="mb-4">
+                        <span class="text-xs-caps fw-bold">Zona</span>
+                        <p class="mb-3" style="color: var(--text-on-surface); font-weight: 500;">{{ activity.location|default:"No asignada" }}</p>
                     </div>
-                    
-                    <div class="mb-3">
-                        <small class="text-muted fw-bold text-uppercase">Horario</small>
-                        <p class="mb-0">{{ activity.start_time|date:"H:i" }} - {{ activity.end_time|date:"H:i" }}</p>
+
+                    <div class="mb-4">
+                        <span class="text-xs-caps fw-bold">Horario</span>
+                        <p class="mb-3" style="color: var(--text-on-surface); font-weight: 500;">{{ activity.start_time|date:"d/m/Y H:i" }} - {{ activity.end_time|date:"d/m/Y H:i" }}</p>
                     </div>
-                    
-                    <div class="mb-3">
-                        <small class="text-muted fw-bold text-uppercase">Duración</small>
-                        <p class="mb-0">{{ activity.get_duration }} minutos</p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <small class="text-muted fw-bold text-uppercase">Estado</small>
-                        <p class="mb-0">
-                            {% if activity.status == 'programada' %}<span class="badge bg-primary">Programada</span>
-                            {% elif activity.status == 'en_curso' %}<span class="badge bg-warning text-dark">En Curso</span>
-                            {% elif activity.status == 'completada' %}<span class="badge bg-success">Completada</span>
-                            {% elif activity.status == 'cancelada' %}<span class="badge bg-danger">Cancelada</span>
-                            {% endif %}
-                        </p>
+
+                    <div class="mb-4">
+                        <span class="text-xs-caps fw-bold">Duración</span>
+                        <p class="mb-0" style="color: var(--text-on-surface); font-weight: 500;">{{ activity.get_duration }} minutos</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-{% endwith %}
+</div>
 {% endblock %}
 
 {% block extra_scripts %}

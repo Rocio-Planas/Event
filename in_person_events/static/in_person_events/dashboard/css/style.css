@@ -280,3 +280,30 @@ button.btn.btn-gradient {
         "GRAD" 0,
         "opsz" 24;
 }
+
+/* Badge Styles */
+.badge-privado {
+    background-color: #fff3cd;
+    color: #856404;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.badge-publico {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.badge-icon {
+    font-size: 14px !important;
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+.stat-card small {
+    font-size: 0.75rem;
+}

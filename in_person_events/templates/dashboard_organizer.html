@@ -27,12 +27,12 @@
                         <h1 class="fw-black mb-1 h2 d-flex align-items-center gap-2">
                             {{ event.title }}
                             {% if event.visibility == 'privado' %}
-                            <span class="badge" style="background-color: #fff3cd; color: #856404; font-size: 0.7rem; padding: 4px 10px; border-radius: 20px;">
-                                <span class="material-symbols-outlined" style="font-size: 14px !important; vertical-align: middle; margin-right: 2px;">lock</span> Privado
+                            <span class="badge badge-privado">
+                                <span class="material-symbols-outlined badge-icon">lock</span> Privado
                             </span>
                             {% else %}
-                            <span class="badge" style="background-color: #d1e7dd; color: #0f5132; font-size: 0.7rem; padding: 4px 10px; border-radius: 20px;">
-                                <span class="material-symbols-outlined" style="font-size: 14px !important; vertical-align: middle; margin-right: 2px;">public</span> Público
+                            <span class="badge badge-publico">
+                                <span class="material-symbols-outlined badge-icon">public</span> Público
                             </span>
                             {% endif %}
                         </h1>
@@ -71,7 +71,7 @@
                                 Total de Asistentes
                             </p>
                             <h3 class="display-5 fw-bold m-0">{{ total_attendees }}/{{ event.capacity }}</h3>
-                            <small class="text-muted d-block mt-2" style="font-size: 0.75rem;">
+                            <small class="text-muted d-block mt-2">
                                 {% if ticket_type_counts %}
                                     {% for ticket in ticket_type_counts %}
                                         {{ ticket.ticket_type__name|default:"General" }}: {{ ticket.count }}{% if not forloop.last %}, {% endif %}

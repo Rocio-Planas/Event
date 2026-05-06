@@ -202,14 +202,15 @@
                         <!-- Ponente -->
                         <div class="mb-3">
                             <label class="form-label fw-bold text-primary">Ponente</label>
-                            <select name="speaker_name" class="form-select">
-                                <option value="">Seleccionar Ponente (opcional)</option>
+                            <select name="speaker_name" id="createSpeakerName" class="form-select">
+                                <option value="" data-email="">Seleccionar Ponente (opcional)</option>
                                 {% for member in confirmed_ponentes %}
-                                    <option value="{{ member.user.get_full_name|default:member.user.email }}">
+                                    <option value="{{ member.user.get_full_name|default:member.user.email }}" data-email="{{ member.user.email }}">
                                         {{ member.user.get_full_name|default:member.user.email }}
                                     </option>
                                 {% endfor %}
                             </select>
+                            <input type="hidden" name="speaker_email" id="createSpeakerEmail" value="">
                         </div>
 
                         <!-- Botones -->
@@ -271,13 +272,14 @@
 <div class="mb-3">
                             <label class="form-label fw-bold text-primary">Ponente</label>
                             <select name="speaker_name" id="editSpeakerName" class="form-select">
-                                <option value="">Seleccionar Ponente (opcional)</option>
+                                <option value="" data-email="">Seleccionar Ponente (opcional)</option>
                                 {% for member in confirmed_ponentes %}
-                                <option value="{{ member.user.get_full_name|default:member.user.email }}">
+                                <option value="{{ member.user.get_full_name|default:member.user.email }}" data-email="{{ member.user.email }}">
                                     {{ member.user.get_full_name|default:member.user.email }}
                                 </option>
                                 {% endfor %}
                             </select>
+                            <input type="hidden" name="speaker_email" id="editSpeakerEmail" value="">
                         </div>
                         <div class="d-flex gap-2 justify-content-end mt-4">
                             <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>

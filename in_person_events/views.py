@@ -1,4 +1,7 @@
+import base64
+import io
 import json
+import qrcode
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -8,13 +11,20 @@ from django.core.validators import validate_email
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.db.models import Count, Sum
+from django.utils import timezone
 from django.utils.text import slugify
 
 # Importamos tus modelos y el formulario
 from .models import Event
 from pe_registration.models import TicketType, Registration
+from pe_agenda.models import Activity
 from .forms import EventForm
 from pe_communication.views import send_event_invitation_email
+
+def _refresh_activity_status(activity):
+    if activity.status != Activity.Status.CANCELADA:
+        activity.status = activity.get_current_status()
+    return activity
 
 @login_required
 def create_event_form(request):
@@ -150,17 +160,101 @@ def dashboard_organizer(request, event_id):
 def dashboard_assistant(request, event_id):
     """Dashboard del asistente para un evento presencial inscrito."""
     event = get_object_or_404(Event, id=event_id)
-    activities = event.activities.order_by('start_time')[:5]
+    activities = list(event.activities.order_by('start_time')[:5])
+    for activity in activities:
+        _refresh_activity_status(activity)
     ticket_types = event.ticket_types.all()
     resources = event.resources.all()
     total_attendees = event.registrations.filter(status=Registration.Status.CONFIRMADA).count()
+    user_registration = Registration.objects.filter(
+        event=event,
+        user=request.user,
+        status__in=[Registration.Status.CONFIRMADA, Registration.Status.PENDIENTE]
+    ).select_related('ticket_type').first()
+    selected_ticket_type = user_registration.ticket_type if user_registration else None
+
+    current_time = timezone.now()
+    if event.status == Event.Status.APROBADO:
+        if event.start_date > current_time:
+            event_status_label = 'Programado'
+        elif event.start_date <= current_time <= event.end_date:
+            event_status_label = 'En curso'
+        else:
+            event_status_label = 'Finalizado'
+    elif event.status == Event.Status.PENDIENTE and event.start_date > current_time:
+        event_status_label = 'Pendiente de aprobación'
+    else:
+        event_status_label = event.get_status_display()
+
+    ticket_holder_name = request.user.get_full_name() or request.user.email
+    ticket_type_name = selected_ticket_type.name if selected_ticket_type else 'General'
+    ticket_qr_data_url = None
+
+    if user_registration:
+        qr_payload = json.dumps({
+            'event_id': event.id,
+            'event_title': event.title,
+            'registration_id': user_registration.id,
+            'user_id': request.user.id,
+            'user_name': ticket_holder_name,
+            'ticket_type': ticket_type_name,
+        }, ensure_ascii=False)
+
+        qr = qrcode.QRCode(
+            version=2,
+            error_correction=qrcode.constants.ERROR_CORRECT_Q,
+            box_size=8,
+            border=3,
+        )
+        qr.add_data(qr_payload)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color='black', back_color='white')
+        buffer = io.BytesIO()
+        img.save(buffer, format='PNG')
+        ticket_qr_data_url = f"data:image/png;base64,{base64.b64encode(buffer.getvalue()).decode()}"
+
     return render(request, 'dashboard_assistant.html', {
         'event': event,
         'activities': activities,
         'ticket_types': ticket_types,
         'resources': resources,
         'total_attendees': total_attendees,
+        'user_registration': user_registration,
+        'selected_ticket_type': selected_ticket_type,
+        'ticket_holder_name': ticket_holder_name,
+        'ticket_type_name': ticket_type_name,
+        'ticket_qr_data_url': ticket_qr_data_url,
+        'event_status_label': event_status_label,
     })
+
+
+@login_required
+def select_ticket_type(request, event_id):
+    """Permite al asistente cambiar el tipo de ticket asignado."""
+    event = get_object_or_404(Event, id=event_id)
+    if request.method != 'POST':
+        return redirect('in_person_events:dashboard_assistant', event_id=event_id)
+
+    ticket_type_id = request.POST.get('ticket_type_id')
+    registration = Registration.objects.filter(
+        event=event,
+        user=request.user,
+        status__in=[Registration.Status.CONFIRMADA, Registration.Status.PENDIENTE]
+    ).select_related('ticket_type').first()
+
+    if not registration:
+        messages.error(request, 'No se encontró tu inscripción. No es posible cambiar el tipo de entrada.')
+        return redirect('in_person_events:dashboard_assistant', event_id=event_id)
+
+    ticket_type = event.ticket_types.filter(id=ticket_type_id).first()
+    if not ticket_type:
+        messages.error(request, 'Tipo de entrada inválido.')
+        return redirect('in_person_events:dashboard_assistant', event_id=event_id)
+
+    registration.ticket_type = ticket_type
+    registration.save(update_fields=['ticket_type'])
+    messages.success(request, 'Tu tipo de entrada se actualizó correctamente.')
+    return redirect('in_person_events:dashboard_assistant', event_id=event_id)
 
 
 @login_required

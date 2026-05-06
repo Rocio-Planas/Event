@@ -91,6 +91,7 @@ def create_activity(request, event_id):
         description = request.POST.get('description', '').strip()
         location = request.POST.get('location', '').strip()
         speaker_name = request.POST.get('speaker_name', '').strip()
+        speaker_email = request.POST.get('speaker_email', '').strip()
         
         start_time_str = request.POST.get('start_time', '')
         end_time_str = request.POST.get('end_time', '')
@@ -118,6 +119,7 @@ def create_activity(request, event_id):
             end_time=end_time,
             location=location,
             speaker_name=speaker_name,
+            speaker_email=speaker_email,
             status='programada'
         )
         
@@ -140,6 +142,7 @@ def edit_activity(request, event_id, activity_id):
         activity.description = request.POST.get('description', '').strip()
         activity.location = request.POST.get('location', '').strip()
         activity.speaker_name = request.POST.get('speaker_name', '').strip()
+        activity.speaker_email = request.POST.get('speaker_email', '').strip()
         
         start_time_str = request.POST.get('start_time', '')
         end_time_str = request.POST.get('end_time', '')
@@ -264,12 +267,19 @@ def info_activity(request, event_id, activity_id):
     
     activity = get_object_or_404(Activity, id=activity_id, event=event)
     _refresh_activity_status(activity)
-    
+
+    speaker_user = None
+    if activity.speaker_email:
+        speaker_member = event.staff_members.filter(user__email=activity.speaker_email).select_related('user').first()
+        if speaker_member:
+            speaker_user = speaker_member.user
+
     context = {
         'event': event,
         'activity': activity,
+        'speaker_user': speaker_user,
     }
-    
+
     return render(request, 'info_activity.html', context)
 
 

@@ -85,8 +85,8 @@ def home(request):
         total_resenas=Count('resenas', filter=Q(resenas__aprobada=True))
     )
 
-    # 3. Eventos presenciales (solo aprobados)
-    presenciales_qs = EventoPresencial.objects.filter(status='aprobado').order_by('-start_date')
+    # 3. Eventos presenciales (solo aprobados y públicos)
+    presenciales_qs = EventoPresencial.objects.filter(status='aprobado', visibility='publico').order_by('-start_date')
     presenciales_qs = presenciales_qs.annotate(
     promedio_resenas=Avg('resenas__calificacion', filter=Q(resenas__aprobada=True)),
     total_resenas=Count('resenas', filter=Q(resenas__aprobada=True))
@@ -186,9 +186,9 @@ def home(request):
     except EmptyPage:
         eventos_paginados = paginator.page(paginator.num_pages)
 
-    # 11. Lista de eventos presenciales para el mapa
+    # 11. Lista de eventos presenciales para el mapa (TODOS los eventos presenciales públicos, no solo paginados)
     eventos_presenciales_mapa = []
-    for evento in eventos_paginados:
+    for evento in eventos:  # Usar la lista completa de eventos, no solo los paginados
         if evento.get('tipo') == 'presencial' and evento.get('ubicacion'):
             eventos_presenciales_mapa.append({
                 'id': evento['id'],

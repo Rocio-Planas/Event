@@ -1550,7 +1550,7 @@
     </script>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     {% if user.is_authenticated %}
-    <script src="{% static 'js/notifications_stitch.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
     {% endif %}
     {% block extra_js %}
     {% if cookie_consent_required %}
@@ -1611,6 +1611,7 @@
     });
 
 </script>
+
 
 </script>
 

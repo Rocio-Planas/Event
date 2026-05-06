@@ -1,23 +1,38 @@
-{% extends "base_stitch.html" %}
+{% extends "base_bootstrap.html" %}
+{% load static %}
+
 {% block title %}Panel de Organizador - EventPulse{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_organizador.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="max-w-7xl mx-auto">
-    <h1 class="text-3xl font-bold text-on-surface mb-8" data-i18n="organizer_panel">Panel de Organizador</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
-            <h3 class="text-xl font-semibold mb-4" data-i18n="my_events_list">Mis Eventos</h3>
-            <p class="text-on-surface-variant" data-i18n="my_events_desc">Gestionar eventos que has creado.</p>
-            <a href="#" class="mt-4 inline-block text-primary hover:underline" onclick="alert('Funcionalidad pendiente')" data-i18n="view_my_events">Ver mis eventos</a>
-        </div>
-        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
-            <h3 class="text-xl font-semibold mb-4" data-i18n="create_event">Crear Evento</h3>
-            <p class="text-on-surface-variant" data-i18n="create_event_desc">Agregar un nuevo evento a la plataforma.</p>
-            <a href="#" class="mt-4 inline-block text-primary hover:underline" onclick="alert('Funcionalidad pendiente')" data-i18n="create_event_btn">Crear evento</a>
-        </div>
-        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-6">
-            <h3 class="text-xl font-semibold mb-4" data-i18n="manage_requests">Solicitudes</h3>
-            <p class="text-on-surface-variant" data-i18n="manage_requests_desc">Revisar solicitudes de expositores.</p>
-            <a href="#" class="mt-4 inline-block text-primary hover:underline" onclick="alert('Funcionalidad pendiente')" data-i18n="manage_requests_btn">Gestionar solicitudes</a>
+<div class="container pt-1 pb-5">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="display-4 fw-bold mb-4" data-i18n="organizer_panel">Panel de Organizador</h1>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4">
+                    <h3 class="h5 fw-bold mb-3" data-i18n="my_events_list">Mis Eventos</h3>
+                    <p class="text-muted" data-i18n="my_events_desc">Gestionar eventos que has creado.</p>
+                    <a href="#" class="mt-3 d-inline-block text-primary text-decoration-none" onclick="alert('Funcionalidad pendiente')" data-i18n="view_my_events">Ver mis eventos</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4">
+                    <h3 class="h5 fw-bold mb-3" data-i18n="create_event">Crear Evento</h3>
+                    <p class="text-muted" data-i18n="create_event_desc">Agregar un nuevo evento a la plataforma.</p>
+                    <a href="#" class="mt-3 d-inline-block text-primary text-decoration-none" onclick="alert('Funcionalidad pendiente')" data-i18n="create_event_btn">Crear evento</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4">
+                    <h3 class="h5 fw-bold mb-3" data-i18n="manage_requests">Solicitudes</h3>
+                    <p class="text-muted" data-i18n="manage_requests_desc">Revisar solicitudes de expositores.</p>
+                    <a href="#" class="mt-3 d-inline-block text-primary text-decoration-none" onclick="alert('Funcionalidad pendiente')" data-i18n="manage_requests_btn">Gestionar solicitudes</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
