@@ -1,7 +1,7 @@
 {% extends "base_sidebar.html" %}
 {% load static %}
 
-{% block title %}Gestión de Equipo - EventConcierge{% endblock %}
+{% block title %}Gestión de Equipo - {{ event.title }}{% endblock %}
 
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'pe_staff/css/style.css' %}">
@@ -120,9 +120,9 @@
                                 </div>
                             </div>
                         </td>
-                        <td><span class="badge bg-primary">{% if member.user_type == 'ponente' %}Ponente{% else %}Staff({{ member.get_role_display }}){% endif %}</span></td>
-                        <td>
-                            {% if member.zone %}<span class="badge bg-success">{{ member.zone }}</span>{% else %}<span class="text-muted">No asignada</span>{% endif %}
+                        <td>{% if member.user_type == 'ponente' %}Ponente{% else %}Staff({{ member.get_role_display }}){% endif %}</td>
+                        <td class="zone-cell" data-zone="{{ member.zone|default:'' }}" data-user-type="{{ member.user_type }}">
+                            {% if member.zone %}{{ member.zone }}{% else %}<span class="text-muted">No asignada</span>{% endif %}
                         </td>
                         <td><span class="badge bg-success">Confirmado</span></td>
                         <td class="px-4 text-center">
@@ -132,12 +132,13 @@
                                     data-member-name="{{ member.user.get_full_name|default:member.user.email }}"
                                     data-member-email="{{ member.user.email }}"
                                     data-member-type="{% if member.user_type == 'ponente' %}Ponente{% else %}Staff{% endif %}"
-                                    data-member-role="{{ member.get_role_display }}"
                                     data-member-zone="{{ member.zone|default:'Sin asignar' }}"
+                                    data-member-user-type="{{ member.user_type }}"
+                                    data-member-phone="{{ member.user.phone|default:'' }}"
                                     title="Ver">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignZoneModal" data-member-id="{{ member.id }}" title="Asignar Zona">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignZoneModal" data-member-id="{{ member.id }}" data-member-type="{{ member.user_type }}" title="Asignar">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">place</span>
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger remove-member-btn" title="Eliminar" data-member-id="{{ member.id }}">
@@ -164,9 +165,9 @@
                         </td>
                         <td class="py-3">
                             {% if invitation.user_type == 'ponente' %}
-                                <span class="badge bg-success">Ponente</span>
+                                Ponente
                             {% elif invitation.role %}
-                                <span class="badge bg-success">Staff({{ invitation.get_role_display }})</span>
+                                Staff({{ invitation.get_role_display }})
                             {% else %}
                                 <span class="text-muted">No asignada</span>
                             {% endif %}
@@ -285,7 +286,7 @@
             </table>
         </div>
         <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
-            <div class="small text-muted fw-bold" id="paginationInfo">Total: {{ members.count }} miembros | {{ pending_invitations }} pendientes | {{ accepted_invitations_list.count }} aceptadas | {{ rejected_invitations_list.count }} rechazadas</div>
+            <div class="small text-muted fw-bold" id="paginationInfo">Total: {{ members.count }} miembros</div>
         </div>
     </div>
     </div>
@@ -339,18 +340,27 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-bottom bg-light">
-                    <h5 class="modal-title fw-800" id="assignZoneModalLabel">Asignar Zona</h5>
+                    <h5 class="modal-title fw-800" id="assignZoneModalLabel">Asignar Zona/Stand</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <form id="assignZoneForm">
                         <input type="hidden" id="memberId">
-                        <div class="mb-3">
-                            <label for="zoneName" class="form-label small fw-bold text-uppercase text-primary">Nombre de Zona</label>
-                            <input type="text" class="form-control border-0 bg-light py-2" id="zoneName" required placeholder="Ej. Zona A - Entrada Principal">
+                        <input type="hidden" id="memberType">
+                        <div class="mb-3" id="zoneSelectContainer">
+                            <label for="standSelect" class="form-label small fw-bold text-uppercase text-primary">Selecciona una Zona/Stand</label>
+                            <select class="form-select border-0 bg-light py-2" id="standSelect">
+                                <option value="">Cargando zonas...</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="activitySelectContainer" style="display: none;">
+                            <label for="activitySelect" class="form-label small fw-bold text-uppercase text-primary">Selecciona una Actividad</label>
+                            <select class="form-select border-0 bg-light py-2" id="activitySelect">
+                                <option value="">Cargando actividades...</option>
+                            </select>
                         </div>
                         <div class="mt-4">
-                            <button type="submit" class="btn btn-gradient w-100 py-3 fw-bold rounded-2">Asignar Zona</button>
+                            <button type="submit" class="btn btn-gradient w-100 py-3 fw-bold rounded-2" id="assignZoneBtn">Asignar Zona</button>
                         </div>
                     </form>
                 </div>
@@ -381,9 +391,9 @@
                                     <small class="text-muted">Tipo de Usuario</small>
                                     <p id="viewMemberType" class="mb-2 fw-bold"></p>
                                 </div>
-                                <div class="col-12 col-md-6">
-                                    <small class="text-muted">Rol</small>
-                                    <p id="viewMemberRole" class="mb-2"></p>
+                                <div class="col-12 col-md-6" id="viewMemberPhoneContainer" style="display: none;">
+                                    <small class="text-muted">Teléfono</small>
+                                    <p id="viewMemberPhone" class="mb-2"></p>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <small class="text-muted">Zona Asignada</small>
@@ -517,6 +527,12 @@
     window.eventId = {{ event_id }};
     window.membersData = {{ members_json|safe }};
     window.invitationsData = {{ invitations_json|safe }};
+    window.activitiesData = {{ activities_json|safe|default:"[]" }};
+    window.activitiesMap = {};
+    try {
+        const acts = {{ activities_json|safe|default:"[]" }};
+        acts.forEach(function(a) { window.activitiesMap[a.id] = a.title; });
+    } catch(e) {}
 </script>
 <script src="{% static 'pe_staff/js/main.js' %}"></script>
 {% endblock %}

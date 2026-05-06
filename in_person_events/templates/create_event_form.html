@@ -52,7 +52,7 @@
                             <div class="ev-field-group mb-4">
                                 <label class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Imagen de Portada</label>
                                 <div class="ev-drop-zone position-relative rounded-4 border-2 border-dashed d-flex flex-column align-items-center justify-content-center">
-                                    <input type="file" name="image" id="evImageInput" class="ev-file-input position-absolute w-100 h-100 opacity-0 cursor-pointer" accept=".jpg,.png,.gif" required />
+                                    <input type="file" name="image" id="evImageInput" accept="image/*" style="position: absolute; inset: 0; opacity: 0; cursor: pointer;" />
                                     {% for error in form.image.errors %}
                                     <div class="invalid-feedback d-block position-relative mt-2">{{ error }}</div>
                                     {% endfor %}

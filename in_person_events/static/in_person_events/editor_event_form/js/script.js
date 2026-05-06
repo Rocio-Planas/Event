@@ -1,13 +1,10 @@
 /* Stratos Event Suite - Interactive Logic */
 
-console.log("Stratos Event Editor Ready");
-
 // Capacity Slider
 const capacitySlider = document.getElementById("capacitySlider");
 const capacityValue = document.getElementById("capacityValue");
 
 if (capacitySlider && capacityValue) {
-    // Initialize with current value
     capacityValue.textContent = capacitySlider.value;
 
     capacitySlider.addEventListener("input", (e) => {
@@ -33,9 +30,6 @@ const ticketsDataInput = document.getElementById("ticketsData");
 
 function updateTicketsData() {
     if (!ticketContainer || !ticketsDataInput) {
-        console.warn(
-            "updateTicketsData: ticketContainer o ticketsDataInput no encontrados",
-        );
         return;
     }
 
@@ -48,8 +42,13 @@ function updateTicketsData() {
 
         if (nameInput && priceInput) {
             const name = nameInput.value.trim();
-            const priceValue = priceInput.value;
-            const price = parseFloat(priceValue) || 0;
+            let priceValue = priceInput.value;
+            let price = parseFloat(priceValue) || 0;
+            
+            if (price < 0) {
+                price = 0;
+                priceInput.value = 0;
+            }
 
             if (name && price >= 0) {
                 tickets.push({
@@ -60,15 +59,13 @@ function updateTicketsData() {
         }
     });
 
-    const jsonValue = JSON.stringify(tickets);
-    ticketsDataInput.value = jsonValue;
-    console.log("Tickets actualizados:", jsonValue);
+    ticketsDataInput.value = JSON.stringify(tickets);
 }
 
 function createTicketItem(ticketId, name = "", price = 0) {
     return `
-        <div class="ticket-item d-flex flex-column flex-md-row align-items-center gap-3" id="ticket-${ticketId}">
-            <div class="flex-grow-1 w-100">
+        <div class="ticket-item" id="ticket-${ticketId}">
+            <div class="ticket-input">
                 <label class="form-label mb-1">Nombre del Ticket</label>
                 <input
                     type="text"
@@ -77,15 +74,15 @@ function createTicketItem(ticketId, name = "", price = 0) {
                     value="${name}"
                 />
             </div>
-            <div class="w-100 w-md-25">
+            <div class="ticket-price">
                 <label class="form-label mb-1">Precio</label>
                 <div class="d-flex align-items-center">
-                    <span class="fw-bold me-1">€</span>
                     <input
                         type="number"
                         class="form-control border-0 bg-transparent p-0 fw-bold shadow-none"
                         value="${price}"
                         min="0"
+                        step="0.01"
                     />
                 </div>
             </div>
@@ -98,25 +95,21 @@ function createTicketItem(ticketId, name = "", price = 0) {
 
 function initializeTicketItems() {
     if (!ticketContainer || !ticketsDataInput) {
-        console.warn("ticketContainer o ticketsDataInput no encontrados");
         return;
     }
 
     try {
         const jsonValue = ticketsDataInput.value || "[]";
-        console.log("JSON value:", jsonValue);
         const tickets = JSON.parse(jsonValue);
-        console.log("Parsed tickets:", tickets);
 
         if (!Array.isArray(tickets)) {
-            console.warn("tickets no es un array");
             return;
         }
 
         ticketContainer.innerHTML = "";
 
         if (tickets.length === 0) {
-            console.log("No hay tickets");
+            // No hay tickets
         } else {
             tickets.forEach((ticket) => {
                 const ticketId = Date.now() + Math.random();
@@ -128,7 +121,7 @@ function initializeTicketItems() {
         }
         updateTicketsData();
     } catch (error) {
-        console.error("Error al inicializar tickets desde JSON:", error);
+        // Error al inicializar tickets
     }
 }
 
@@ -159,7 +152,6 @@ if (ticketContainer) {
 }
 
 initializeTicketItems();
-updateTicketsData();
 
 // Handle Form Submission
 const eventForm = document.getElementById("eventForm");
@@ -169,7 +161,7 @@ if (eventForm) {
     });
 }
 
-// Image Upload Preview (Enhanced drag-and-drop)
+// Image Upload Preview
 const evImageInput = document.getElementById("evImageInput");
 const evDropZoneContent = document.getElementById("evDropZoneContent");
 const evPreviewContainer = document.getElementById("evPreviewContainer");
@@ -188,62 +180,24 @@ function hidePreview() {
     if (evDropZoneContent && evPreviewContainer) {
         evDropZoneContent.classList.remove("d-none");
         evPreviewContainer.classList.add("d-none");
-        evImagePreview.src = "";
+        if (evImagePreview) evImagePreview.src = "";
     }
-    if (evImageInput) {
-        evImageInput.value = "";
-    }
+    if (evImageInput) evImageInput.value = "";
 }
 
 if (evImageInput) {
-    evImageInput.addEventListener("change", (e) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
+    evImageInput.addEventListener("change", function(e) {
+        if (this.files && this.files[0]) {
             const reader = new FileReader();
-            reader.onload = (event) => {
-                showPreview(event.target.result);
-            };
-            reader.readAsDataURL(file);
+            reader.onload = function(evt) { showPreview(evt.target.result); };
+            reader.readAsDataURL(this.files[0]);
         }
     });
 }
 
 if (evRemoveImage) {
-    evRemoveImage.addEventListener("click", (e) => {
+    evRemoveImage.addEventListener("click", function(e) {
         e.preventDefault();
-        e.stopPropagation();
         hidePreview();
-    });
-}
-
-// Drag and drop functionality
-const evDropZone = document.querySelector(".ev-drop-zone");
-if (evDropZone && evImageInput) {
-    evDropZone.addEventListener("click", () => {
-        evImageInput.click();
-    });
-
-    evDropZone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        evDropZone.classList.add("border-primary");
-        evDropZone.classList.add("bg-light");
-    });
-
-    evDropZone.addEventListener("dragleave", () => {
-        evDropZone.classList.remove("border-primary");
-        evDropZone.classList.remove("bg-light");
-    });
-
-    evDropZone.addEventListener("drop", (e) => {
-        e.preventDefault();
-        evDropZone.classList.remove("border-primary");
-        evDropZone.classList.remove("bg-light");
-
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            evImageInput.files = files;
-            const changeEvent = new Event("change");
-            evImageInput.dispatchEvent(changeEvent);
-        }
     });
 }

@@ -567,6 +567,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 }
                 updateGlobalStats();
+                updatePaginationInfo();
             } else {
                 console.error("No success flag in response");
                 document.getElementById("inventoryTableBody").innerHTML =

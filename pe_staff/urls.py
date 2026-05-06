@@ -18,7 +18,9 @@ urlpatterns = [
     
     # Gestión de miembros
     path('staff/<int:event_id>/members/', views.get_members, name='get_members'),
+    path('staff/<int:event_id>/stands/', views.get_event_stands, name='get_stands'),
     path('staff/<int:event_id>/assign-zone/<int:member_id>/', views.assign_zone, name='assign_zone'),
+    path('staff/<int:event_id>/assign-activity/<int:member_id>/', views.assign_activity, name='assign_activity'),
     path('staff/<int:event_id>/remove-member/<int:member_id>/', views.remove_member, name='remove_member'),
     
     # Detalle por zona

@@ -144,6 +144,18 @@
           </div>
         </div>
 
+        {% if event.show_attendee_count %}
+        <div class="card attendance-card">
+          <div class="attendance-header">
+            <span class="material-symbols-outlined attendance-icon">group</span>
+            <div>
+              <p class="attendance-label">Asistentes Confirmados</p>
+              <p class="attendance-value">{{ total_attendees }}</p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
         <div class="card tickets-card">
           <div class="tickets-header">
             <span class="material-symbols-outlined confirmation-icon">confirmation_number</span>

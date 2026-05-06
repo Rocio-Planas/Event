@@ -1,7 +1,7 @@
 {% extends "base_sidebar.html" %}
 {% load static %}
 
-{% block title %}Analíticas - EventConcierge{% endblock %}
+{% block title %}Analíticas - {{ event.title }}{% endblock %}
 
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'pe_inventory/inventory/css/styles.css' %}">

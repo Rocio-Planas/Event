@@ -135,6 +135,43 @@ document.addEventListener('change', function(e) {
     }
 });
 
+function removeStaffFromStand(userId, userName) {
+    document.getElementById('removeStaffUserId').value = userId;
+    document.getElementById('removeStaffUserName').textContent = userName;
+    var modal = new bootstrap.Modal(document.getElementById('removeStaffModal'));
+    modal.show();
+}
+
+function confirmRemoveStaff() {
+    var userId = document.getElementById('removeStaffUserId').value;
+    
+    fetch('/stands/api/' + currentStandId + '/remove-staff/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ user_id: userId })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('removeStaffModal')).hide();
+            location.reload();
+        } else {
+            alert(data.error || 'Error al remover');
+        }
+    })
+    .catch(function(error) {
+        alert('Error de conexión');
+    });
+}
+
 function addSelectedActivities() {
     var selectedCheckboxes = document.querySelectorAll('.activity-checkbox:checked');
     var selectedActivities = Array.from(selectedCheckboxes).map(function(cb) {
@@ -674,6 +711,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                             <button class="btn btn-link p-0 text-primary" onclick="openNotificationModal('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')">
                                 <span class="material-symbols-outlined">chat</span>
+                            </button>
+                            <button class="btn btn-link p-0 text-danger" onclick="removeStaffFromStand('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')" title="Quitar de la zona">
+                                <span class="material-symbols-outlined">person_remove</span>
                             </button>
                         </div>
                     </div>
@@ -1249,6 +1289,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="modal-footer border-0 px-4 pb-4">
                     <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" id="sendNotificationBtn" class="btn btn-signature rounded-3 px-4" onclick="sendNotification()">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="removeStaffModal" tabindex="-1" aria-labelledby="removeStaffModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5 class="modal-title fw-bold" id="removeStaffModalLabel">Quitar de la zona</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <input type="hidden" id="removeStaffUserId">
+                    <p>¿Estás seguro de que deseas quitar a <strong id="removeStaffUserName"></strong> de esta zona? Quedará sin zona asignada.</p>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger rounded-3 px-4" onclick="confirmRemoveStaff()">Quitar</button>
                 </div>
             </div>
         </div>

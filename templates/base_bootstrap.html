@@ -34,6 +34,7 @@
     {% block extra_css %}{% endblock %}
   </head>
   <body>
+    {% block navbar %}
     <nav class="navbar-custom">
       <div class="navbar-container">
         <div class="flex items-center gap-8">
@@ -170,9 +171,11 @@
         </div>
       </div>
     </nav>
+    {% endblock %}
 
     <main>{% block content %}{% endblock %}</main>
 
+    {% block footer %}
     <footer class="footer-custom">
       <div class="footer-container">
         <div class="footer-links">
@@ -192,6 +195,7 @@
         </div>
       </div>
     </footer>
+    {% endblock %}
 
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/i18n.js' %}"></script>

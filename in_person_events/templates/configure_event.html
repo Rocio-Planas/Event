@@ -1,7 +1,7 @@
 {% extends "base_sidebar.html" %} 
 {% load static %}
 
-{% block title%}Configuración General - Stratos Event Suite{% endblock %} 
+{% block title%}Configuración General - {{ event.title }}{% endblock %} 
 
 {% block extra_head%}
 <link
@@ -29,17 +29,13 @@
                     <div class="col-md-8 vstack gap-3">
                         <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: var(--surface-container-lowest, #f8f9ff);">
                             <div>
-                                <p class="fw-bold mb-0">Activar Lista de Espera</p>
-                                <p class="small text-muted mb-0" style="font-size: 0.75rem">Abre automáticamente una lista de espera cuando se agoten las entradas.</p>
-                            </div>
-                            <div class="custom-switch active"></div>
-                        </div>
-                        <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: var(--surface-container-lowest, #f8f9ff);">
-                            <div>
                                 <p class="fw-bold mb-0">Mostrar recuento de asistentes públicamente</p>
-                                <p class="small text-muted mb-0" style="font-size: 0.75rem">Muestra el número actual de usuarios registrados en la página de inicio.</p>
+                                <p class="small text-muted mb-0" style="font-size: 0.75rem">Los asistentes verán el número total de inscritos en el dashboard.</p>
                             </div>
-                            <div class="custom-switch"></div>
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" id="showAttendeeCountSwitch" {% if event.show_attendee_count %}checked{% endif %}>
+                                <label class="form-check-label visually-hidden" for="showAttendeeCountSwitch">Mostrar recuento de asistentes</label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -88,6 +84,8 @@
         </div>
     </div>
 {% endwith %}
-{% endblock %} {% block extra_js %}
+{% endblock %}
+
+{% block extra_scripts %}
 <script src="{% static 'in_person_events/config_event/js/main.js' %}"></script>
 {% endblock %}

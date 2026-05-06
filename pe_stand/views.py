@@ -465,7 +465,7 @@ def add_staff_to_stand(request, stand_id):
                 errors.append(f'Usuario {user_id} ya está asignado')
                 continue
             
-            # Crear la asignación
+            # Crear la asignación en StandStaff
             staff_member = StandStaff(
                 stand=stand,
                 user=user,
@@ -475,6 +475,17 @@ def add_staff_to_stand(request, stand_id):
                 staff_member.full_clean()
                 staff_member.save()
                 added.append(user_id)
+                
+                # También actualizar el campo zone en StaffMember si existe
+                from pe_staff.models import StaffMember
+                staff_member_obj = StaffMember.objects.filter(
+                    event_id=stand.event_id,
+                    user_id=user_id
+                ).first()
+                if staff_member_obj:
+                    staff_member_obj.zone = stand.name
+                    staff_member_obj.save(update_fields=['zone'])
+                    
             except Exception as e:
                 errors.append(f'Error saving: {str(e)}')
                 continue
@@ -491,6 +502,54 @@ def add_staff_to_stand(request, stand_id):
     except Exception as e:
         import traceback
         return JsonResponse({'error': str(e), 'trace': traceback.format_exc()}, status=500)
+
+
+@login_required
+def remove_staff_from_stand(request, stand_id):
+    """
+    API para quitar personal de un stand.
+    DELETE /stands/api/<stand_id>/remove-staff/
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        
+        if not user_id:
+            return JsonResponse({'error': 'user_id requerido'}, status=400)
+        
+        stand = get_object_or_404(Stand, id=stand_id)
+        
+        staff_member = StandStaff.objects.filter(stand=stand, user_id=user_id).first()
+        if not staff_member:
+            return JsonResponse({'error': 'Personal no encontrado en este stand'}, status=404)
+        
+        staff_member.delete()
+        
+        try:
+            from pe_staff.models import StaffMember
+            staff_member_obj = StaffMember.objects.filter(
+                event_id=stand.event_id,
+                user_id=user_id
+            ).first()
+            if staff_member_obj:
+                staff_member_obj.zone = None
+                staff_member_obj.save(update_fields=['zone'])
+        except:
+            pass
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Personal removido correctamente'
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Datos inválidos'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 
 @login_required
 def move_activity_in_stand(request, stand_id):

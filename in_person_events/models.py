@@ -50,6 +50,7 @@ class Event(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    show_attendee_count = models.BooleanField(default=False, verbose_name="Mostrar recuento de asistentes")
 
     class Meta:
         verbose_name = "Evento"

@@ -24,8 +24,17 @@
                             class="text-primary fw-bold text-uppercase small tracking-wider"
                             >Vista General del Evento</span
                         >
-                        <h1 class="fw-black mb-1 h2">
+                        <h1 class="fw-black mb-1 h2 d-flex align-items-center gap-2">
                             {{ event.title }}
+                            {% if event.visibility == 'privado' %}
+                            <span class="badge" style="background-color: #fff3cd; color: #856404; font-size: 0.7rem; padding: 4px 10px; border-radius: 20px;">
+                                <span class="material-symbols-outlined" style="font-size: 14px !important; vertical-align: middle; margin-right: 2px;">lock</span> Privado
+                            </span>
+                            {% else %}
+                            <span class="badge" style="background-color: #d1e7dd; color: #0f5132; font-size: 0.7rem; padding: 4px 10px; border-radius: 20px;">
+                                <span class="material-symbols-outlined" style="font-size: 14px !important; vertical-align: middle; margin-right: 2px;">public</span> Público
+                            </span>
+                            {% endif %}
                         </h1>
                     </div>
                     <div class="d-flex align-items-center gap-2">
@@ -85,12 +94,9 @@
                                         >payments</span
                                     >
                                 </div>
-                                <span class="text-secondary small fw-bold"
-                                    >Moneda: USD</span
-                                >
                             </div>
                             <p class="text-secondary small fw-medium mb-1">
-                                Ingresos
+                                Ingresos Totales
                             </p>
                             <h3 class="display-5 fw-bold m-0">${{ total_revenue|floatformat:2 }}</h3>
                         </div>
@@ -220,14 +226,11 @@
                                             <p class="fw-bold mb-0">
                                                 {{ ticket.name }}
                                             </p>
-                                            <p class="small text-muted mb-0">
-                                                Tipo de entrada disponible
-                                            </p>
                                         </div>
                                         <p
                                             class="h4 fw-black text-primary mb-0"
                                         >
-                                            ${{ ticket.price|floatformat:"-1" }}
+                                            {% if ticket.price == 0 %}Gratis{% else %}${{ ticket.price|floatformat:"-1" }}{% endif %}
                                         </p>
                                     </div>
                                 </div>
@@ -237,9 +240,6 @@
                                         <div>
                                             <p class="fw-bold mb-0">
                                                 General
-                                            </p>
-                                            <p class="small text-muted mb-0">
-                                                Entrada gratis
                                             </p>
                                         </div>
                                         <p class="h4 fw-black text-primary mb-0">
@@ -252,50 +252,51 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Quick Actions -->
-                <div class="row g-4">
-                    <div class="col-12 col-md-6">
-                        <button class="quick-action-btn">
-                            <div class="quick-action-icon">
-                                <span class="material-symbols-outlined"
-                                    >campaign</span
-                                >
-                            </div>
-                            <div>
-                                <span class="d-block fw-bold"
-                                    >Enviar Anuncio</span
-                                >
-                                <span class="small text-muted"
-                                    >Notificar a los asistentes
-                                    registrados</span
-                                >
-                            </div>
-                        </button>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <button class="quick-action-btn">
-                            <div class="quick-action-icon">
-                                <span class="material-symbols-outlined"
-                                    >mail</span
-                                >
-                            </div>
-                            <div>
-                                <span class="d-block fw-bold"
-                                    >Invitar Ponentes</span
-                                >
-                                <span class="small text-muted"
-                                    >Gestionar lista de conferencistas</span
-                                >
-                            </div>
-                        </button>
-                    </div>
-                </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<button
+    class="floating-action-btn"
+    data-bs-toggle="modal"
+    data-bs-target="#announcementModal"
+    title="Enviar Anuncio"
+>
+    <span class="material-symbols-outlined">campaign</span>
+</button>
+
+<!-- Announcement Modal -->
+<div class="modal fade" id="announcementModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Enviar Anuncio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="announcementForm" method="post" action="{% url 'in_person_events:send_announcement' event.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Título del mensaje</label>
+                        <input type="text" class="form-control" name="title" placeholder="Título de la notificación" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Mensaje</label>
+                        <textarea class="form-control" name="message" rows="4" placeholder="Escribe tu mensaje para los asistentes..." required></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Enviar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endwith %}
 {% endblock %}
 
 {% block extra_scripts %}
-<!-- Custom JS -->
 <script src="{% static 'in_person_events/dashboard/js/script.js' %}"></script>
 {% endblock %}

@@ -8,6 +8,7 @@ urlpatterns = [
     path('<int:event_id>/<int:pk>/', views.StandDetailView.as_view(), name='detail'),
     path('api/<int:event_id>/create-stand/', views.create_stand, name='create_stand'),
     path('api/<int:stand_id>/add-staff/', views.add_staff_to_stand, name='add_staff'),
+    path('api/<int:stand_id>/remove-staff/', views.remove_staff_from_stand, name='remove_staff'),
     path('api/<int:stand_id>/add-activities/', views.add_activities_to_stand, name='add_activities'),
     path('api/<int:stand_id>/move-activity/', views.move_activity_in_stand, name='move_activity'),
     path('api/<int:stand_id>/remove-activity/', views.remove_activity_from_stand, name='remove_activity'),

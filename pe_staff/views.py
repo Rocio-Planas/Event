@@ -38,14 +38,17 @@ class StaffDashboardView(TemplateView):
         invitations = StaffInvitation.objects.filter(event_id=event_id)
         
         # Calcular estadísticas
-        total_members = invitations.exclude(status=InvitationStatus.RECHAZADA).count()
-        active_members = members.count()
-        
         member_emails = [m.user.email for m in members]
         accepted_without_user = invitations.filter(status=InvitationStatus.ACEPTADA).exclude(email__in=member_emails)
         
-        active_members = members.count() + accepted_without_user.count()
-        pending_invitations = invitations.filter(status=InvitationStatus.PENDIENTE).count()
+        # Confirmados: members (con usuario) + aceptados sin usuario
+        confirmed = members.count() + accepted_without_user.count()
+        # Pendientes: invitaciones pendientes
+        pending = invitations.filter(status=InvitationStatus.PENDIENTE).count()
+        # Total miembros = confirmados + pendientes
+        total_members = confirmed + pending
+        active_members = confirmed
+        pending_invitations = pending
         
         # Agrupar por rol
         members_by_role = {}
@@ -75,15 +78,32 @@ class StaffDashboardView(TemplateView):
         
         members_values = list(members.values(
             'id', 'user__email', 'user__first_name', 'user__last_name',
-            'role', 'zone', 'assigned_at'
+            'role', 'zone', 'assigned_at', 'user__telefono', 'user_type'
         ))
         invitations_values = list(invitations.values(
             'id', 'email', 'role', 'status', 'sent_at', 'accepted_at'
         ))
-
+        
+        # Obtener actividades del evento para ponentes
+        try:
+            Activity = apps.get_model('pe_agenda', 'Activity')
+            activities = list(Activity.objects.filter(
+                event_id=event_id
+            ).values('id', 'title', 'start_time', 'end_time', 'location'))
+            for activity in activities:
+                start = activity.get('start_time')
+                end = activity.get('end_time')
+                activity['start_time'] = start.isoformat() if start else None
+                activity['end_time'] = end.isoformat() if end else None
+        except LookupError:
+            activities = []
+        
+        context['activities_json'] = json.dumps(activities)
+        
         for member_data in members_values:
             assigned_at = member_data.get('assigned_at')
             member_data['assigned_at'] = assigned_at.isoformat() if assigned_at else None
+            member_data['phone'] = member_data.get('user__telefono', '')
 
         for invitation_data in invitations_values:
             sent_at = invitation_data.get('sent_at')
@@ -93,6 +113,7 @@ class StaffDashboardView(TemplateView):
 
         context['members_json'] = json.dumps(members_values)
         context['invitations_json'] = json.dumps(invitations_values)
+        context['activities_json'] = json.dumps(activities)
         context['members'] = members
         context['invitations'] = invitations
         context['pending_invitations_list'] = invitations.filter(status=InvitationStatus.PENDIENTE).order_by('-sent_at')
@@ -320,6 +341,28 @@ def get_members(request, event_id):
     return JsonResponse({'success': True, 'members': data})
 
 
+def get_event_stands(request, event_id):
+    """Obtiene los stands/zonas disponibles del evento (API)."""
+    try:
+        from pe_stand.models import Stand
+        from in_person_events.models import Event
+        
+        logger.info(f"Solicitando stands para evento {event_id}")
+        
+        event = get_object_or_404(Event, id=event_id)
+        stands = Stand.objects.filter(event=event).values('id', 'name', 'location', 'capacity')
+        
+        logger.info(f"Stands encontrados: {len(list(stands))}")
+        
+        return JsonResponse({
+            'success': True,
+            'stands': list(stands)
+        })
+    except Exception as e:
+        logger.error(f"Error en get_event_stands: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=400)
+
+
 @login_required
 def assign_zone(request, event_id, member_id):
     """Asigna una zona a un miembro."""
@@ -329,21 +372,36 @@ def assign_zone(request, event_id, member_id):
     member = get_object_or_404(StaffMember, id=member_id, event_id=event_id)
     
     try:
+        from pe_stand.models import Stand, StandStaff
+        
         data = json.loads(request.body)
-        zone_name = data.get('zone', '').strip()
+        stand_id = data.get('stand_id')
         
-        if not zone_name:
-            return JsonResponse({'error': 'Nombre de zona requerido'}, status=400)
+        if not stand_id:
+            return JsonResponse({'error': 'ID de stand requerido'}, status=400)
         
-        member.zone = zone_name
+        # Validar que el stand existe y pertenece al mismo evento
+        stand = get_object_or_404(Stand, id=stand_id, event_id=event_id)
+        
+        # Guardar el nombre del stand en el campo zone (para mantener compatibilidad)
+        member.zone = stand.name
         member.save()
         
+        # Also create StandStaff entry if not already assigned
+        if not StandStaff.objects.filter(stand=stand, user=member.user).exists():
+            stand_staff = StandStaff(
+                stand=stand,
+                user=member.user,
+                role=member.role
+            )
+            stand_staff.save()
+        
         # Enviar email de notificación
-        send_zone_assignment_email(member, zone_name)
+        send_zone_assignment_email(member, stand.name)
         
         return JsonResponse({
             'success': True,
-            'message': f'Zona "{zone_name}" asignada correctamente',
+            'message': f'Zona "{stand.name}" asignada correctamente',
             'member': {
                 'id': member.id,
                 'zone': member.zone,
@@ -352,6 +410,55 @@ def assign_zone(request, event_id, member_id):
         
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Datos inválidos'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+def assign_activity(request, event_id, member_id):
+    """Asigna una actividad a un ponente."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    
+    member = get_object_or_404(StaffMember, id=member_id, event_id=event_id)
+    
+    if member.user_type != StaffMember.UserType.PONENTE:
+        return JsonResponse({'error': 'Solo los ponentes pueden tener actividades asignadas'}, status=400)
+    
+    try:
+        Activity = apps.get_model('pe_agenda', 'Activity')
+        
+        data = json.loads(request.body)
+        activity_id = data.get('activity_id')
+        
+        if not activity_id:
+            return JsonResponse({'error': 'ID de actividad requerido'}, status=400)
+        
+        try:
+            activity_id = int(activity_id)
+        except (ValueError, TypeError):
+            return JsonResponse({'error': 'ID de actividad inválido'}, status=400)
+        
+        activity = get_object_or_404(Activity, id=activity_id, event_id=event_id)
+        
+        # Guardar la actividad en el campo zone (formato: "actividad:#id")
+        member.zone = f"actividad:{activity.id}"
+        member.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Actividad "{activity.title}" asignada correctamente',
+            'member': {
+                'id': member.id,
+                'zone': member.zone,
+            }
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Datos inválidos'}, status=400)
+    except Exception as e:
+        logger.error(f"Error assigning activity: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=400)
 
 
 @login_required
