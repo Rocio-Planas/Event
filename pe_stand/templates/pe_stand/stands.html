@@ -26,8 +26,8 @@
 <!-- Dashboard Stats -->
 <div class="row g-4 mb-4">
     <div class="col-md-4">
-        <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-4">
-            <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 d-flex align-items-center justify-content-center">
+        <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3 rounded-4">
+            <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);">
                 <span class="material-symbols-outlined">business_center</span>
             </div>
             <div>
@@ -37,8 +37,8 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-4">
-            <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 d-flex align-items-center justify-content-center">
+        <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3 rounded-4">
+            <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary);">
                 <span class="material-symbols-outlined">groups</span>
             </div>
             <div>
@@ -48,8 +48,8 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-4">
-            <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 d-flex align-items-center justify-content-center">
+        <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3 rounded-4">
+            <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(248, 169, 0, 0.1); color: var(--warning);">
                 <span class="material-symbols-outlined">warning</span>
             </div>
             <div>
@@ -101,7 +101,7 @@
                     </div>
                 {% empty %}
                     <div class="col-12">
-                        <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-light">
+                        <div class="card border-0 shadow-sm rounded-4 p-5 text-center" style="background-color: var(--surface-container-low);">
                             <div class="mb-4">
                                 <span class="material-symbols-outlined text-primary" style="font-size: 48px;">business_center</span>
                             </div>
@@ -119,7 +119,7 @@
 <div class="modal fade" id="createStandModal" tabindex="-1" aria-labelledby="createStandModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header border-bottom bg-light">
+            <div class="modal-header border-bottom">
                 <h5 class="modal-title fw-800" id="createStandModalLabel">Crear Nuevo Stand</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -129,15 +129,15 @@
                     <p class="text-muted small mb-4">Configura los detalles básicos del stand. Podrás asignar personal, actividades y recursos después.</p>
                     <div class="mb-3">
                         <label for="standName" class="form-label small fw-bold text-uppercase text-primary">Nombre del Stand</label>
-                        <input type="text" id="standName" name="name" class="form-control border-0 bg-light py-2" placeholder="Ej. Auditorio Principal" required>
+                        <input type="text" id="standName" name="name" class="form-control border-0 py-2" placeholder="Ej. Auditorio Principal" required>
                     </div>
                     <div class="mb-3">
                         <label for="standLocation" class="form-label small fw-bold text-uppercase text-primary">Ubicación</label>
-                        <input type="text" id="standLocation" name="location" class="form-control border-0 bg-light py-2" placeholder="Ej. Pabellón 1 - A01" required>
+                        <input type="text" id="standLocation" name="location" class="form-control border-0 py-2" placeholder="Ej. Pabellón 1 - A01" required>
                     </div>
                     <div class="mb-3">
                         <label for="standCapacity" class="form-label small fw-bold text-uppercase text-primary">Capacidad</label>
-                        <input type="number" id="standCapacity" name="capacity" class="form-control border-0 bg-light py-2" placeholder="Ej. 150" min="1" required>
+                        <input type="number" id="standCapacity" name="capacity" class="form-control border-0 py-2" placeholder="Ej. 150" min="1" required>
                     </div>
                     <div class="mt-4">
                         <button type="submit" class="btn btn-gradient w-100 py-3 fw-bold rounded-2">Crear Stand</button>

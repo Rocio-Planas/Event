@@ -28,8 +28,8 @@
     <!-- Stats -->
     <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="content-card rounded-4 border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card rounded-4 border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary);">
                     <span class="material-symbols-outlined">groups</span>
                 </div>
                 <div>
@@ -39,8 +39,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="content-card rounded-4 border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card rounded-4 border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);">
                     <span class="material-symbols-outlined">check_circle</span>
                 </div>
                 <div>
@@ -50,8 +50,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="content-card rounded-4 border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card rounded-4 border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(248, 169, 0, 0.1); color: var(--warning);">
                     <span class="material-symbols-outlined">mail</span>
                 </div>
                 <div>
@@ -63,18 +63,18 @@
     </div>
 
     <!-- Filters -->
-    <div class="content-card mb-4 bg-light p-4 rounded-3 border">
+    <div class="content-card mb-4 p-4 rounded-3 border">
         <div class="row g-3 align-items-center">
             <div class="col-md-4">
                 <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Miembro</label>
-                <div class="search-container shadow-sm rounded-2 w-100 bg-white position-relative">
-                    <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: #6c757d;">search</span>
+                <div class="search-container shadow-sm rounded-2 w-100 position-relative">
+                    <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: var(--text-on-surface-variant);">search</span>
                     <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Nombre o email..." id="searchMember">
                 </div>
             </div>
             <div class="col-md-4">
                 <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Tipo</label>
-                <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterRole">
+                <select class="form-select border-0 shadow-sm smaller fw-medium" id="filterRole">
                     <option value="">Todos los Tipos</option>
                     <option value="ponente">Ponente</option>
                     <option value="staff">Staff</option>
@@ -82,7 +82,7 @@
             </div>
             <div class="col-md-4">
                 <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Estado</label>
-                <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterStatus">
+                <select class="form-select border-0 shadow-sm smaller fw-medium" id="filterStatus">
                     <option value="">Todos los Estados</option>
                     {% for status in statuses %}
                     <option value="{{ status }}">{{ status|title }}</option>
@@ -93,10 +93,10 @@
     </div>
 
     <!-- Members and Pending Invitations Table -->
-    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white mb-4">
+    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 mb-4">
         <div class="table-responsive">
             <table class="table mb-0 align-middle">
-                <thead class="bg-light">
+                <thead style="background-color: var(--surface-container-high);">
                     <tr>
                         <th class="px-4 py-3">Miembro</th>
                         <th class="py-3">Rol</th>
@@ -111,7 +111,7 @@
                     <tr data-member-id="{{ member.id }}" data-type="member" data-status="confirmado" data-role="{% if member.user_type == 'ponente' %}ponente{% else %}staff{% endif %}">
                         <td class="px-4 py-3">
                             <div class="d-flex align-items-center">
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: var(--surface-container-high);">
                                     <span class="material-symbols-outlined">person</span>
                                 </div>
                                 <div>
@@ -124,7 +124,7 @@
                         <td class="zone-cell" data-zone="{{ member.zone|default:'' }}" data-user-type="{{ member.user_type }}">
                             {% if member.zone %}{{ member.zone }}{% else %}<span class="text-muted">No asignada</span>{% endif %}
                         </td>
-                        <td><span class="badge bg-success">Confirmado</span></td>
+                        <td><span class="badge" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);">Confirmado</span></td>
                         <td class="px-4 text-center">
                             <div class="btn-group">
                                 <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewMemberModal" 
@@ -154,7 +154,7 @@
                     <tr data-invitation-id="{{ invitation.id }}" data-type="invitation" data-status="confirmado" data-role="{% if invitation.user_type == 'ponente' %}ponente{% else %}staff{% endif %}">
                         <td class="px-4 py-3">
                             <div class="d-flex align-items-center">
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: var(--surface-container-high);">
                                     <span class="material-symbols-outlined">check_circle</span>
                                 </div>
                                 <div>
@@ -176,7 +176,7 @@
                             <span class="text-muted small">—</span>
                         </td>
                         <td class="py-3">
-                            <span class="badge bg-success">Confirmado</span>
+                            <span class="badge" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);">Confirmado</span>
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="btn-group">
@@ -201,7 +201,7 @@
                     <tr data-invitation-id="{{ invitation.id }}" data-type="invitation" data-status="rechazado" data-role="{% if invitation.user_type == 'ponente' %}ponente{% else %}staff{% endif %}">
                         <td class="px-4 py-3">
                             <div class="d-flex align-items-center">
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: var(--surface-container-high);">
                                     <span class="material-symbols-outlined">cancel</span>
                                 </div>
                                 <div>
@@ -212,9 +212,9 @@
                         </td>
                         <td class="py-3">
                             {% if invitation.user_type == 'ponente' %}
-                                <span class="badge bg-secondary">Ponente</span>
+                                <span class="badge" style="background-color: rgba(66, 92, 155, 0.1); color: var(--secondary);">Ponente</span>
                             {% elif invitation.role %}
-                                <span class="badge bg-secondary">Staff({{ invitation.get_role_display }})</span>
+                                <span class="badge" style="background-color: rgba(66, 92, 155, 0.1); color: var(--secondary);">Staff({{ invitation.get_role_display }})</span>
                             {% else %}
                                 <span class="text-muted">No asignada</span>
                             {% endif %}
@@ -223,7 +223,7 @@
                             <span class="text-muted small">—</span>
                         </td>
                         <td class="py-3">
-                            <span class="badge bg-danger">Rechazado</span>
+                            <span class="badge" style="background-color: rgba(220, 38, 38, 0.1); color: var(--error);">Rechazado</span>
                         </td>
                         <td class="px-4 py-3 text-center">
                             <button class="btn btn-sm btn-outline-danger delete-invitation-btn" title="Eliminar" data-invitation-id="{{ invitation.id }}">
@@ -238,7 +238,7 @@
                     <tr data-invitation-id="{{ invitation.id }}" data-type="invitation" data-status="pendiente" data-role="{% if invitation.user_type == 'ponente' %}ponente{% else %}staff{% endif %}">
                         <td class="px-4 py-3">
                             <div class="d-flex align-items-center">
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: var(--surface-container-high);">
                                     <span class="material-symbols-outlined">mail</span>
                                 </div>
                                 <div>
@@ -249,18 +249,18 @@
                         </td>
                         <td class="py-3">
                             {% if invitation.user_type == 'ponente' %}
-                                <span class="badge bg-primary">Ponente</span>
+                                <span class="badge" style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary);">Ponente</span>
                             {% elif invitation.role %}
-                                <span class="badge bg-primary">Staff({{ invitation.get_role_display }})</span>
+                                <span class="badge" style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary);">Staff({{ invitation.get_role_display }})</span>
                             {% else %}
-                                <span class="badge bg-secondary">No aplica</span>
+                                <span class="badge" style="background-color: rgba(66, 92, 155, 0.1); color: var(--secondary);">No aplica</span>
                             {% endif %}
                         </td>
                         <td class="py-3">
                             <span class="text-muted small">—</span>
                         </td>
                         <td class="py-3">
-                            <span class="badge bg-warning">Pendiente</span>
+                            <span class="badge" style="background-color: rgba(248, 169, 0, 0.1); color: var(--warning);">Pendiente</span>
                         </td>
                         <td class="px-4 py-3 text-center">
                             <button class="btn btn-sm btn-outline-danger cancel-invitation-btn" data-invitation-id="{{ invitation.id }}" title="Cancelar Invitación">
@@ -285,7 +285,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
+        <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-high);">
             <div class="small text-muted fw-bold" id="paginationInfo">Total: {{ members.count }} miembros</div>
         </div>
     </div>
@@ -295,7 +295,7 @@
     <div class="modal fade" id="inviteStaffModal" tabindex="-1" aria-labelledby="inviteStaffModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom bg-light">
+                <div class="modal-header border-bottom">
                     <h5 class="modal-title fw-800" id="inviteStaffModalLabel">Invitar al Equipo</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -303,19 +303,19 @@
                     <form id="inviteForm">
                         <div class="mb-3">
                             <label for="inviteEmail" class="form-label small fw-bold text-uppercase text-primary">Correo Electrónico</label>
-                            <input type="email" class="form-control border-0 bg-light py-2" id="inviteEmail" required placeholder="correo@ejemplo.com">
+                            <input type="email" class="form-control border-0 py-2" id="inviteEmail" required placeholder="correo@ejemplo.com">
                             <small class="text-muted">Debe estar registrado en la plataforma</small>
                         </div>
                         <div class="mb-3">
                             <label for="userType" class="form-label small fw-bold text-uppercase text-primary">Tipo de Invitado</label>
-                            <select class="form-select border-0 bg-light py-2" id="userType" required>
+                            <select class="form-select border-0 py-2" id="userType" required>
                                 <option value="ponente">Ponente</option>
                                 <option value="staff">Staff</option>
                             </select>
                         </div>
                         <div class="mb-3" id="roleSelectDiv" style="display: none;">
                             <label for="inviteRole" class="form-label small fw-bold text-uppercase text-primary">Rol de Staff</label>
-                            <select class="form-select border-0 bg-light py-2" id="inviteRole">
+                            <select class="form-select border-0 py-2" id="inviteRole">
                                 <option value="">Seleccionar rol</option>
                                 <option value="LIDER_ZONA">Líder de Zona</option>
                                 <option value="SOPORTE">Soporte Técnico</option>
@@ -339,7 +339,7 @@
     <div class="modal fade" id="assignZoneModal" tabindex="-1" aria-labelledby="assignZoneModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom bg-light">
+                <div class="modal-header border-bottom">
                     <h5 class="modal-title fw-800" id="assignZoneModalLabel">Asignar Zona/Stand</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -349,13 +349,13 @@
                         <input type="hidden" id="memberType">
                         <div class="mb-3" id="zoneSelectContainer">
                             <label for="standSelect" class="form-label small fw-bold text-uppercase text-primary">Selecciona una Zona/Stand</label>
-                            <select class="form-select border-0 bg-light py-2" id="standSelect">
+                            <select class="form-select border-0 py-2" id="standSelect">
                                 <option value="">Cargando zonas...</option>
                             </select>
                         </div>
                         <div class="mb-3" id="activitySelectContainer" style="display: none;">
                             <label for="activitySelect" class="form-label small fw-bold text-uppercase text-primary">Selecciona una Actividad</label>
-                            <select class="form-select border-0 bg-light py-2" id="activitySelect">
+                            <select class="form-select border-0 py-2" id="activitySelect">
                                 <option value="">Cargando actividades...</option>
                             </select>
                         </div>
@@ -372,14 +372,14 @@
     <div class="modal fade" id="viewMemberModal" tabindex="-1" aria-labelledby="viewMemberModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0">
-                <div class="modal-header border-bottom bg-light">
+                <div class="modal-header border-bottom">
                     <h5 class="modal-title fw-800" id="viewMemberModalLabel">Información del Miembro</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="row gy-3">
-                        <div class="col-md-4 text-center border-end">
-                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px;">
+                        <div class="col-md-4 text-center" style="border-right: 1px solid var(--border-outline-variant);">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px; background-color: var(--surface-container-high);">
                                 <span class="material-symbols-outlined" style="font-size: 48px;">person</span>
                             </div>
                             <h5 id="viewMemberName" class="fw-bold mb-1"></h5>
@@ -418,14 +418,14 @@
     <div class="modal fade" id="attendeeInfoModal" tabindex="-1" aria-labelledby="attendeeInfoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0">
-                <div class="modal-header border-bottom bg-light">
+                <div class="modal-header border-bottom">
                     <h5 class="modal-title fw-800" id="attendeeInfoModalLabel">Información de la Invitación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="row gy-3">
-                        <div class="col-md-4 text-center border-end">
-                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px;">
+                        <div class="col-md-4 text-center" style="border-right: 1px solid var(--border-outline-variant);">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px; background-color: var(--surface-container-high);">
                                 <span class="material-symbols-outlined" style="font-size: 48px;">mail</span>
                             </div>
                             <h5 id="modalName" class="fw-bold mb-1"></h5>

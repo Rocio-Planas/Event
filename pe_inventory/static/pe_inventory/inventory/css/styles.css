@@ -13,6 +13,97 @@ body {
     overflow-x: hidden;
 }
 
+/* =====================================================
+   VARIABLES DEL TEMA (compatible con base_bootstrap.css)
+   ===================================================== */
+:root {
+    --bg-surface: #f8f9ff;
+    --text-on-surface: #181c20;
+    --text-on-surface-variant: #424655;
+    --border-outline-variant: #c2c6d8;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #f1f4f9;
+    --surface-container-high: #e5e8ee;
+    --primary: #0057cd;
+    --primary-gradient: linear-gradient(135deg, #0057cd 0%, #2170e4 100%);
+    --secondary: #425c9b;
+    --success: #06a77d;
+    --warning: #f8a900;
+    --error: #dc2626;
+}
+
+.dark {
+    --bg-surface: #121212;
+    --text-on-surface: #eef1f6;
+    --text-on-surface-variant: #b0b3c0;
+    --border-outline-variant: #3a3e4a;
+    --surface-container-lowest: #1e1e2a;
+    --surface-container-low: #2a2a36;
+    --surface-container-high: #353542;
+    --primary: #7a9eff;
+    --primary-gradient: linear-gradient(135deg, #3a7bdd 0%, #5c9eff 100%);
+    --secondary: #8a9fd0;
+    --success: #10b981;
+    --warning: #fbbf24;
+    --error: #ef4444;
+}
+
+/* Dark mode support for modals and forms */
+.dark .modal-content {
+    background-color: var(--surface-container-lowest);
+    color: var(--text-on-surface);
+}
+
+.dark .modal-header {
+    border-bottom-color: var(--border-outline-variant);
+    background-color: var(--surface-container-high);
+}
+
+.dark .modal-footer {
+    border-top-color: var(--border-outline-variant);
+}
+
+.dark .form-control,
+.dark .form-select {
+    background-color: var(--surface-container-high);
+    border-color: var(--border-outline-variant);
+    color: var(--text-on-surface);
+}
+
+.dark .form-control::placeholder {
+    color: var(--text-on-surface-variant);
+}
+
+.dark .btn-close {
+    filter: invert(1);
+}
+
+/* Badge overrides for dark mode */
+.dark .badge,
+.dark span.badge {
+    background-color: var(--surface-container-high) !important;
+    color: var(--text-on-surface) !important;
+}
+
+/* Table dark mode */
+.dark .table {
+    color: var(--text-on-surface);
+}
+
+.dark .table > :not(caption) > * > * {
+    background-color: transparent;
+    border-bottom-color: var(--border-outline-variant);
+}
+
+.dark .table tbody tr:hover {
+    background-color: var(--surface-container-high) !important;
+}
+
+/* Tabla: texto consistente */
+.dark .table td {
+    color: var(--text-on-surface-variant);
+}
+
 /* Main Content Area */
 .main-content {
     margin-left: 260px;
@@ -118,6 +209,14 @@ body {
 .progress {
     background-color: var(--surface-container-low);
     border-radius: 10px;
+}
+
+.dark .progress-bar {
+    background-color: var(--primary);
+}
+
+.dark .progress-bar-success {
+    background-color: var(--success) !important;
 }
 
 .table thead th {

@@ -21,22 +21,22 @@
             </button>
         </div>
 
-        <div class="content-card mb-4 bg-light p-4 rounded-3 border">
+        <div class="content-card mb-4 p-4 rounded-3 border">
             <div class="row g-3 align-items-center">
                 <div class="col-md-12">
                     <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Encuesta</label>
-                    <div class="search-container shadow-sm rounded-2 w-100 bg-white position-relative">
-                        <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: #6c757d;">search</span>
+                    <div class="search-container shadow-sm rounded-2 w-100 position-relative">
+                        <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: var(--text-on-surface-variant);">search</span>
                         <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Buscar por título..." id="surveySearch">
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white mb-4">
+        <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 mb-4">
             <div class="table-responsive">
                 <table class="table mb-0 align-middle">
-                    <thead class="bg-light">
+                    <thead style="background-color: var(--surface-container-high);">
                         <tr>
                             <th class="px-4 py-3">Título</th>
                             <th class="py-3">Estado</th>
@@ -52,9 +52,9 @@
                                 </td>
                                 <td class="py-3">
                                     {% if survey.is_active %}
-                                        <span class="badge bg-success">Activa</span>
+                                        <span class="badge" style="background-color: rgba(var(--success), 0.1); color: var(--success);">Activa</span>
                                     {% else %}
-                                        <span class="badge bg-secondary">Inactiva</span>
+                                        <span class="badge" style="background-color: rgba(var(--secondary), 0.1); color: var(--secondary);">Inactiva</span>
                                     {% endif %}
                                 </td>
                                 <td class="py-3">
@@ -96,7 +96,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
+            <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-high);">
                 <div class="small text-muted fw-bold" id="paginationInfo">Mostrando <span id="surveyCount">{{ surveys|length }}</span> encuestas</div>
             </div>
         </div>
@@ -106,7 +106,7 @@
     <div class="modal fade" id="editSurveyModal" tabindex="-1" aria-labelledby="editSurveyModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom bg-light">
+                <div class="modal-header border-bottom">
                     <h5 class="modal-title fw-800" id="editSurveyModalLabel">Editar Encuesta</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -138,8 +138,8 @@
                         </div>
                     </div>
                     <div id="editOptionsSection">
-                        <hr class="my-4">
-                        <h4 class="fw-bold mb-3">Opciones</h4>
+                        <hr class="my-4" style="border-color: var(--border-outline-variant);">
+                        <h4 class="fw-bold mb-3" style="color: var(--text-on-surface);">Opciones</h4>
                         <div id="editOptionsContainer"></div>
                         <button type="button" class="btn btn-outline-secondary" id="editAddOptionBtn">
                             <span class="material-symbols-outlined me-1" style="font-size: 18px">add</span>
@@ -148,7 +148,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-primary rounded-3 px-4" onclick="saveSurveyEdit()">Guardar Cambios</button>
                 </div>
             </div>
@@ -157,7 +157,7 @@
     <div class="modal fade" id="createSurveyModal" tabindex="-1" aria-labelledby="createSurveyModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom bg-light">
+                <div class="modal-header border-bottom">
                     <h5 class="modal-title fw-800" id="createSurveyModalLabel">
                         {% if survey %}Editar{% else %}Nueva{% endif %} Encuesta
                     </h5>
@@ -198,16 +198,16 @@
                                 {{ form.scheduled_date }}
                             </div>
                         </div>
-                        <hr class="my-4" />
-                        <h4 class="fw-bold mb-3" id="options_title">Opciones</h4>
+                        <hr class="my-4" style="border-color: var(--border-outline-variant);" />
+                        <h4 class="fw-bold mb-3" id="options_title" style="color: var(--text-on-surface);">Opciones</h4>
                         {{ formset.management_form }}
-                        <div id="options_error" class="alert alert-danger" style="display: none;" role="alert">
+                        <div id="options_error" class="alert" style="display: none; background-color: rgba(var(--error), 0.1); color: var(--error); border: none;" role="alert">
                             <span class="material-symbols-outlined me-2" style="font-size: 18px">error</span>
                             <span id="options_error_text"></span>
                         </div>
                         <div id="options_container">
                             {% for option_form in formset %}
-                                <div class="option-block border rounded-3 p-3 mb-3">
+                                <div class="option-block rounded-3 p-3 mb-3" style="border: 1px solid var(--border-outline-variant);">
                                     <div class="row g-3 align-items-end">
                                         <div class="col-md-10">
                                             <label class="small text-muted">Opción</label>
@@ -226,7 +226,7 @@
                             <span class="material-symbols-outlined me-1" style="font-size: 18px">add</span>
                             Agregar Opción
                         </button>
-                        <hr class="my-4" />
+                        <hr class="my-4" style="border-color: var(--border-outline-variant);" />
                         <div class="d-flex gap-2 justify-content-between align-items-center">
                             <div>
                                 {% if survey.pk %}
@@ -252,10 +252,14 @@
 <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header border-bottom bg-light">
+            <div class="modal-header border-bottom">
                 <h6 class="modal-title fw-bold" id="cancelModalLabel">Confirmar Cancelación</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-3">
+                    <span class="material-symbols-outlined" style="font-size: 48px; color: var(--warning);">warning</span>
+                </div>
             <div class="modal-body text-center py-4">
                 <div class="mb-3">
                     <span class="material-symbols-outlined text-warning" style="font-size: 48px">warning</span>

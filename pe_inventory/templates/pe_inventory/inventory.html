@@ -31,8 +31,8 @@
 
         <div class="row g-4 mb-4">
             <div class="col-md-4">
-                <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                    <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 d-flex align-items-center justify-content-center">
+                <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);">
                         <span class="material-symbols-outlined">inventory</span>
                     </div>
                     <div>
@@ -42,8 +42,8 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                    <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 d-flex align-items-center justify-content-center">
+                <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(248, 169, 0, 0.1); color: var(--warning);">
                         <span class="material-symbols-outlined">warning</span>
                     </div>
                     <div>
@@ -53,8 +53,8 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                    <div class="bg-danger bg-opacity-10 text-danger p-3 rounded-3 d-flex align-items-center justify-content-center">
+                <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(220, 38, 38, 0.1); color: var(--error);">
                         <span class="material-symbols-outlined">error</span>
                     </div>
                     <div>
@@ -65,18 +65,18 @@
             </div>
         </div>
 
-        <div class="content-card mb-4 bg-light p-4 rounded-3 border">
+        <div class="content-card mb-4 p-4 rounded-3 border">
             <div class="row g-3 align-items-center">
                 <div class="col-md-4">
                     <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Artículo</label>
-                    <div class="search-container shadow-sm rounded-2 w-100 bg-white position-relative">
-                        <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: #6c757d;">search</span>
+                    <div class="search-container shadow-sm rounded-2 w-100 position-relative">
+                        <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: var(--text-on-surface-variant);">search</span>
                         <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Nombre o ID..." id="activitySearch">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Categoría</label>
-                    <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterCategory">
+                    <select class="form-select border-0 shadow-sm smaller fw-medium" id="filterCategory">
                         <option value="all">Todas las Categorías</option>
                         <option value="mobiliario">Mobiliario</option>
                         <option value="tecnología e informática">Tecnología e Informática</option>
@@ -92,7 +92,7 @@
                 </div>
                 <div class="col-md-4">
                     <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Estado</label>
-                    <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterStatus">
+                    <select class="form-select border-0 shadow-sm smaller fw-medium" id="filterStatus">
                         <option value="all">Todos los Estados</option>
                         <option value="stock">En Stock</option>
                         <option value="bajo">Stock Bajo</option>
@@ -102,10 +102,10 @@
             </div>
         </div>
 
-        <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white mb-4">
+        <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 mb-4">
             <div class="table-responsive">
                 <table class="table mb-0 align-middle">
-                    <thead class="bg-light">
+                    <thead style="background-color: var(--surface-container-high);">
                         <tr>
                             <th class="px-4 py-3">Detalle del Artículo</th>
                             <th class="py-3">Categoría</th>
@@ -120,7 +120,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
+            <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-high);">
                 <div class="small text-muted fw-bold" id="paginationInfo">Mostrando 1 artículos registrados</div>
             </div>
         </div>
@@ -129,7 +129,7 @@
     <div class="modal fade" id="inventoryModal" tabindex="-1" aria-labelledby="inventoryModalLabel" aria-hidden="true" data-event-id="{{ event.id }}">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom bg-light">
+                <div class="modal-header border-bottom">
                     <h5 class="modal-title fw-800" id="inventoryModalLabel">Añadir Nuevo Artículo</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -139,11 +139,11 @@
                         <input type="hidden" id="itemId">
                         <div class="mb-3">
                             <label for="itemName" class="form-label small fw-bold text-uppercase text-primary">Nombre del Artículo</label>
-                            <input type="text" class="form-control border-0 bg-light py-2" id="itemName" required placeholder="Ej. Silla Tolix">
+                            <input type="text" class="form-control border-0 py-2" id="itemName" required placeholder="Ej. Silla Tolix">
                         </div>
                         <div class="mb-3">
                             <label for="itemCategory" class="form-label small fw-bold text-uppercase text-primary">Categoría</label>
-                            <select class="form-select border-0 bg-light py-2" id="itemCategory" required>
+                            <select class="form-select border-0 py-2" id="itemCategory" required>
                                 <option value="Mobiliario">Mobiliario</option>
                                 <option value="Tecnología e Informática">Tecnología e Informática</option>
                                 <option value="Audiovisual (AV)">Audiovisual (AV)</option>
@@ -156,16 +156,16 @@
                         </div>
                         <div class="mb-3">
                             <label for="itemTotal" class="form-label small fw-bold text-uppercase text-primary">Stock Total</label>
-                            <input type="number" class="form-control border-0 bg-light py-2" id="itemTotal" required min="1">
+                            <input type="number" class="form-control border-0 py-2" id="itemTotal" required min="1">
                         </div>
                         <div class="mb-3">
                             <label for="itemImage" class="form-label small fw-bold text-uppercase text-primary">Subir Imagen</label>
-                            <input type="file" class="form-control border-0 bg-light py-2" id="itemImage" accept="image/*">
+                            <input type="file" class="form-control border-0 py-2" id="itemImage" accept="image/*">
                             <input type="hidden" id="itemImageData">
                         </div>
                         <div class="mb-3">
                             <label for="itemNotes" class="form-label small fw-bold text-uppercase text-primary">Observaciones</label>
-                            <textarea class="form-control border-0 bg-light" id="itemNotes" rows="3" placeholder="Detalles adicionales..."></textarea>
+                            <textarea class="form-control border-0" id="itemNotes" rows="3" placeholder="Detalles adicionales..."></textarea>
                         </div>
                         <div class="mt-4">
                             <button type="submit" id="saveItemButton" class="btn btn-gradient w-100 py-3 fw-bold rounded-2">Guardar Artículo</button>

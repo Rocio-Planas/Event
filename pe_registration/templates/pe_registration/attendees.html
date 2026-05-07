@@ -27,8 +27,8 @@
     <!-- Stats -->
     <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);">
                     <span class="material-symbols-outlined">check_circle</span>
                 </div>
                 <div>
@@ -38,8 +38,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(248, 169, 0, 0.1); color: var(--warning);">
                     <span class="material-symbols-outlined">hourglass_empty</span>
                 </div>
                 <div>
@@ -49,8 +49,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3" id="waitlistStatsCard">
-                <div class="bg-info bg-opacity-10 text-info p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3" id="waitlistStatsCard">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(14, 165, 233, 0.1); color: var(--info);">
                     <span class="material-symbols-outlined">queue</span>
                 </div>
                 <div>
@@ -62,18 +62,18 @@
     </div>
 
     <!-- Filters -->
-    <div class="content-card mb-4 bg-light p-4 rounded-3 border">
+    <div class="content-card mb-4 p-4 rounded-3 border">
         <div class="row g-3 align-items-center">
             <div class="col-md-6">
                 <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Asistente</label>
-                <div class="search-container shadow-sm rounded-2 w-100 bg-white position-relative">
-                    <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: #6c757d;">search</span>
+                <div class="search-container shadow-sm rounded-2 w-100 position-relative">
+                    <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: var(--text-on-surface-variant);">search</span>
                     <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Nombre o email..." id="searchAttendee">
                 </div>
             </div>
             <div class="col-md-6" id="statusFilterCol">
                 <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Estado</label>
-                <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterStatus">
+                <select class="form-select border-0 shadow-sm smaller fw-medium" id="filterStatus">
                     <option value="all">Todos los Estados</option>
                     <option value="confirmada">Confirmado</option>
                     <option value="pendiente">Pendiente</option>
@@ -84,10 +84,10 @@
     </div>
 
     <!-- Attendees Table -->
-    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white mb-4">
+    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 mb-4">
         <div class="table-responsive">
             <table class="table mb-0 align-middle" id="attendeesTable">
-                <thead class="bg-light">
+                <thead style="background-color: var(--surface-container-high);">
                     <tr>
                         <th class="px-4 py-3">Asistente</th>
                         <th class="py-3">Tipo de Ticket</th>
@@ -99,7 +99,7 @@
                 <tbody id="attendeesTableBody"></tbody>
             </table>
             <table class="table mb-0 align-middle" id="waitlistTable" style="display: none;">
-                <thead class="bg-light">
+                <thead style="background-color: var(--surface-container-high);">
                     <tr>
                         <th class="px-4 py-3">#</th>
                         <th class="py-3">Asistente</th>
@@ -110,7 +110,7 @@
                 <tbody id="waitlistTableBody"></tbody>
             </table>
         </div>
-        <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
+        <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-high);">
             <div class="small text-muted fw-bold" id="paginationInfo">Mostrando 0 de 0 asistentes</div>
             <nav aria-label="Page navigation">
             </nav>

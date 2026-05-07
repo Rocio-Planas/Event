@@ -1,21 +1,9 @@
 /* Stratos Event Suite - Custom Styles */
-:root {
-    --surface: #f8f9ff;
-    --surface-container-lowest: #ffffff;
-    --surface-container-low: #eff4ff;
-    --on-surface: #0b1c30;
-    --on-surface-variant: #424754;
-    --primary: #0058be;
-    --primary-container: #2170e4;
-    --on-primary: #ffffff;
-    --error: #ba1a1a;
-    --outline-variant: #c2c6d6;
-}
 
 body {
-    background-color: var(--surface);
-    color: var(--on-surface);
-    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-surface);
+    color: var(--text-on-surface);
+    font-family: "Inter", sans-serif;
 }
 
 .fw-800 {
@@ -26,7 +14,7 @@ body {
 .custom-card {
     background-color: var(--surface-container-lowest);
     border-radius: 1rem;
-    border: 1px solid rgba(194, 198, 214, 0.1);
+    border: 1px solid var(--border-outline-variant);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     padding: 2rem;
 }
@@ -37,15 +25,15 @@ body {
     background-color: var(--surface-container-low);
     border-radius: 0.5rem;
     overflow: hidden;
-    border: 1px solid rgba(194, 198, 214, 0.2);
+    border: 1px solid var(--border-outline-variant);
 }
 
 .input-prefix {
     padding: 0.75rem 1rem;
-    background-color: #f1f5f9;
-    color: #94a3b8;
+    background-color: var(--surface-container-low);
+    color: var(--text-on-surface-variant);
     font-size: 0.875rem;
-    border-right: 1px solid rgba(194, 198, 214, 0.1);
+    border-right: 1px solid var(--border-outline-variant);
 }
 
 .custom-input {
@@ -53,7 +41,7 @@ body {
     background: transparent;
     border: none;
     padding: 0.75rem;
-    color: var(--on-surface);
+    color: var(--text-on-surface);
 }
 
 .custom-input:focus {
@@ -62,10 +50,10 @@ body {
 
 /* Logo Upload Zone */
 .logo-upload-zone {
-    border: 2px dashed rgba(194, 198, 214, 0.2);
+    border: 2px dashed var(--border-outline-variant);
     border-radius: 0.75rem;
     padding: 1rem;
-    background-color: rgba(239, 244, 255, 0.5);
+    background-color: rgba(var(--primary-rgb, 0, 87, 205), 0.05);
     display: flex;
     align-items: center;
     gap: 1.5rem;
@@ -98,7 +86,9 @@ body {
     padding: 0.75rem 2rem;
     font-weight: 700;
     border-radius: 0.5rem;
-    transition: transform 0.2s, filter 0.2s;
+    transition:
+        transform 0.2s,
+        filter 0.2s;
 }
 
 .btn-primary-custom:active {
@@ -111,7 +101,7 @@ body {
 
 /* Cards */
 .content-card {
-    background-color: var(--surface-container-lowest, #ffffff);
+    background-color: var(--surface-container-lowest);
     border-radius: 12px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
@@ -120,7 +110,7 @@ body {
 .custom-switch {
     width: 2.75rem;
     height: 1.5rem;
-    background-color: #cbd5e1;
+    background-color: var(--border-outline-variant);
     border-radius: 9999px;
     position: relative;
     cursor: pointer;
@@ -138,7 +128,7 @@ body {
     top: 0.25rem;
     left: 0.25rem;
     transition: transform 0.2s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .custom-switch.active {
@@ -151,6 +141,40 @@ body {
 
 /* Danger Zone */
 .danger-card {
-    border: 2px dashed #fecaca;
-    background-color: #fef2f2;
+    border: 2px dashed rgba(220, 38, 38, 0.4);
+    background-color: rgba(220, 38, 38, 0.05);
+}
+
+.dark .danger-card {
+    border-color: rgba(239, 68, 68, 0.4);
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+/* Dark mode support */
+.dark .modal-content {
+    background-color: var(--surface-container-lowest);
+    color: var(--text-on-surface);
+}
+
+.dark .modal-header {
+    border-bottom-color: var(--border-outline-variant);
+}
+
+.dark .modal-footer {
+    border-top-color: var(--border-outline-variant);
+}
+
+.dark .btn-close {
+    filter: invert(1);
+}
+
+.dark .form-control,
+.dark .form-select {
+    background-color: var(--surface-container-high);
+    border-color: var(--border-outline-variant);
+    color: var(--text-on-surface);
+}
+
+.dark .form-control::placeholder {
+    color: var(--text-on-surface-variant);
 }
