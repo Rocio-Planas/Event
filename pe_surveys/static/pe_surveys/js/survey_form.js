@@ -9,6 +9,41 @@ document.addEventListener("DOMContentLoaded", function () {
     const deliveryTypeSelect = document.querySelector("#id_delivery_type");
     const scheduledDateField = document.querySelector("#scheduled_date_field");
 
+    // Always show options for texto type surveys
+    if (optionsContainer) {
+        multipleChoiceField.style.display = "block";
+        optionsContainer.style.display = "block";
+        optionsTitle.style.display = "block";
+        const addBtn = document.querySelector("#add_option_btn");
+        if (addBtn) addBtn.style.display = "block";
+    }
+
+    // Ensure exactly 2 options when opening create modal
+    const createModal = document.getElementById('createSurveyModal');
+    if (createModal && optionsContainer) {
+        createModal.addEventListener('shown.bs.modal', function () {
+            let optionBlocks = optionsContainer.querySelectorAll('.option-block');
+            if (optionBlocks.length < 2) {
+                // Add options until we have at least 2
+                for (let i = optionBlocks.length; i < 2; i++) {
+                    addOption();
+                }
+            }
+            // Re-check after potential additions
+            optionBlocks = optionsContainer.querySelectorAll('.option-block');
+            // If still less than 2, manually create them
+            if (optionBlocks.length < 2) {
+                for (let i = optionBlocks.length; i < 2; i++) {
+                    const newBlock = document.createElement('div');
+                    newBlock.className = 'option-block border rounded-3 p-3 mb-3';
+                    const idx = i;
+                    newBlock.innerHTML = '<div class="row g-3 align-items-end"><div class="col-md-10"><label class="small text-muted">Opción</label><input type="text" class="form-control" name="options-' + idx + '-text" id="id_options-' + idx + '-text" placeholder="Texto de la opción"></div><div class="col-md-2 text-end"><button type="button" class="btn btn-outline-danger btn-sm remove-option-btn" title="Eliminar opción"><span class="material-symbols-outlined" style="font-size: 16px">delete</span></button></div></div>';
+                    optionsContainer.appendChild(newBlock);
+                }
+            }
+        });
+    }
+
     // Usar event delegation para los botones de agregar y eliminar opción
     document.addEventListener("click", function (e) {
         if (e.target && e.target.id === "add_option_btn") {

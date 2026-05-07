@@ -15,6 +15,7 @@ from core.models import CategoriaEvento, FavoritoPresencial, Suscripcion, Consul
 from .decorators import role_required
 from core.models import Favorito
 from in_person_events.models import Event as EventoPresencial
+from pe_staff.models import StaffMember
 
 
 @login_required
@@ -249,10 +250,14 @@ def dashboard_unificado(request):
     suscripciones_virtuales = EventFollower.objects.filter(user=user).select_related('event')
     suscripciones_presenciales = Suscripcion.objects.filter(usuario=user).order_by('-fecha_suscripcion')
     
+    # Asignaciones de staff del usuario actual
+    asignaciones_staff = StaffMember.objects.filter(user=user).select_related('event')
+    
     context = {
         'user': user,
         'eventos_organizados': eventos_organizados,
         'suscripciones_virtuales': suscripciones_virtuales,
         'suscripciones_presenciales': suscripciones_presenciales,
+        'asignaciones_staff': asignaciones_staff,
     }
     return render(request, 'usuarios/dashboard_unificado.html', context)

@@ -1,7 +1,7 @@
 {% extends "base_bootstrap.html" %}
 {% load static %}
 
-{% block title %}{{ activity.title }} - Detalle de Actividad{% endblock %}
+{% block title %}Detalle de Actividad - {{ activity.title }}{% endblock %}
 
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'agenda/info_activity/css/style.css' %}">
@@ -12,7 +12,7 @@
     <div class="max-w-7xl mx-auto">
         <!-- Back Link -->
         <div class="mb-4">
-            <a href="{% url 'pe_agenda:activities' event.id %}" class="back-link d-inline-flex align-items-center gap-2 text-secondary text-decoration-none fw-medium small">
+            <a href="javascript:window.history.back()" class="back-link d-inline-flex align-items-center gap-2 text-secondary text-decoration-none fw-medium small" style="cursor: pointer;">
                 <span class="material-symbols-outlined fs-6">arrow_back</span>
                 Volver
             </a>

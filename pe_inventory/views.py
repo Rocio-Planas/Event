@@ -31,7 +31,7 @@ class InventoryDashboardView(TemplateView):
         event = get_object_or_404(Event, id=event_id)
         
         # Obtener todos los items con propiedades calculadas
-        items = Item.objects.all()
+        items = Item.objects.filter(event_id=event_id)
         
         items_data = []
         for item in items:
@@ -94,6 +94,7 @@ def create_item(request, event_id):
             return JsonResponse({'error': 'El stock total debe ser mayor a 0'}, status=400)
         
         item = Item(
+            event_id=event_id,
             name=name,
             category=category,
             total_stock=total_stock,
@@ -138,7 +139,7 @@ def update_item(request, event_id, item_id):
     if request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
     
-    item = get_object_or_404(Item, id=item_id)
+    item = get_object_or_404(Item, id=item_id, event_id=event_id)
     
     try:
         if 'name' in request.POST:
@@ -204,7 +205,7 @@ def delete_item(request, event_id, item_id):
     if request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
     
-    item = get_object_or_404(Item, id=item_id)
+    item = get_object_or_404(Item, id=item_id, event_id=event_id)
     
     try:
         item_name = item.name
@@ -231,7 +232,7 @@ def get_items(request, event_id):
         return JsonResponse({'error': 'Método no permitido'}, status=405)
     
     try:
-        items = Item.objects.all().order_by('name')
+        items = Item.objects.filter(event_id=event_id).order_by('name')
         items_data = []
         
         for item in items:
@@ -256,6 +257,33 @@ def get_items(request, event_id):
         import traceback
         traceback.print_exc()
         return JsonResponse({'error': f'Error al obtener los recursos: {str(e)}'}, status=500)
+
+
+@login_required
+def get_item(request, event_id, item_id):
+    """
+    API para obtener un recurso específico.
+    GET /inventario/<event_id>/item/<item_id>/
+    """
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    
+    item = get_object_or_404(Item, id=item_id, event_id=event_id)
+    
+    return JsonResponse({
+        'success': True,
+        'item': {
+            'id': item.id,
+            'name': item.name,
+            'category': item.category,
+            'total_stock': item.total_stock,
+            'used_stock': item.used_stock,
+            'available_stock': item.available_stock,
+            'status': item.status,
+            'image': item.image.url if item.image else None,
+            'notes': item.notes,
+        }
+    })
 
 
 @login_required
@@ -298,7 +326,7 @@ def export_excel(request, event_id):
             cell.border = border
         
         # Obtener items
-        items = Item.objects.all().order_by('name')
+        items = Item.objects.filter(event_id=event_id).order_by('name')
         
         # Agregar datos
         for item in items:
@@ -429,7 +457,7 @@ def import_excel(request, event_id):
                 
                 if item_id:
                     try:
-                        item = Item.objects.get(id=item_id)
+                        item = Item.objects.get(id=item_id, event_id=event_id)
                         item.name = name
                         item.category = category
                         item.total_stock = total_stock
@@ -438,6 +466,7 @@ def import_excel(request, event_id):
                         updated_count += 1
                     except Item.DoesNotExist:
                         item = Item(
+                            event_id=event_id,
                             name=name,
                             category=category,
                             total_stock=total_stock,
@@ -449,6 +478,7 @@ def import_excel(request, event_id):
                         warnings.append(f'Fila {row_idx}: El item con ID {row[0].value} no existe, se creó un nuevo registro')
                 else:
                     item = Item(
+                        event_id=event_id,
                         name=name,
                         category=category,
                         total_stock=total_stock,

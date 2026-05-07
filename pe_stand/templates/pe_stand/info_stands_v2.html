@@ -1,7 +1,21 @@
-{% extends "base_sidebar.html" %} {% load static %} {% block title %}Gestión de
-Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
+{% extends 'base_bootstrap.html' %} {% load static %} {% block title %}Gestión de Stand - {{ stand.name }}{% endblock %} {% block extra_css %}
 <link rel="stylesheet" href="{% static 'pe_stand/css/stands.css' %}">
+<style>
+.main-center {
+    min-height: calc(100vh - 180px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 2rem;
+}
+.content-center {
+    max-width: 1200px;
+    width: 100%;
+}
+</style>
 {% endblock %} {% block content %}
+<div class="main-center">
+    <div class="content-center">
 <script>
 var currentStandId = {{ stand.id }};
 
@@ -598,7 +612,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <div class="p-4" data-event-id="{{ event_id }}" data-stand-id="{{ stand.id }}">
-    <a href="{% url 'pe_stand:dashboard' event_id %}" class="btn btn-link text-primary text-decoration-none mb-3 d-flex align-items-center gap-1 p-0">
+    <a href="javascript:window.history.back()" class="btn btn-link text-primary text-decoration-none mb-3 d-flex align-items-center gap-1 p-0" style="cursor: pointer;">
         <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver
     </a>
 
@@ -628,69 +642,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 >
             </div>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-signature btn-sm px-3 d-flex align-items-center gap-2">
-                <span class="material-symbols-outlined">edit</span>
-                Editar Detalles
-            </button>
-        </div>
     </div>
 
     <div class="row g-4 mb-5">
         <div class="col-12">
             <div class="custom-card">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="h5 fw-bold mb-0">Equipo Asignado</h4>
-                    <button type="button" class="btn btn-signature btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addStaffModal">
-                        <span class="material-symbols-outlined fs-6 me-1">person_add</span>
-                        Añadir Personal
-                    </button>
-                </div>
-
-                <!-- Inline Add Staff Section -->
-                <div id="addStaffModal" class="modal fade" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true" inert>
-                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                        <div class="modal-content border-0 rounded-4 shadow">
-                            <div class="modal-header border-bottom bg-light">
-                                <h5 class="modal-title fw-bold" id="addStaffModalLabel">Seleccionar Personal</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
-                                {% if available_staff %}
-                                <div class="list-group list-group-flush">
-                                    {% for member in available_staff %}
-                                    {% if member.user %}
-                                    <label class="list-group-item d-flex align-items-center gap-3 p-3 cursor-pointer">
-                                        <input class="form-check-input me-2 staff-checkbox" type="checkbox" value="{{ member.user.id }}" data-role="{{ member.role }}">
-                                        {% if member.user.avatar %}
-                                        <img src="{{ member.user.avatar.url }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
-                                        {% else %}
-                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                            {{ member.user.first_name|default:"U"|first|upper }}
-                                        </div>
-                                        {% endif %}
-                                        <div class="flex-grow-1">
-                                            <p class="mb-0 fw-bold small">{{ member.user.get_full_name|default:member.user.email }}</p>
-                                            <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ member.role }}</p>
-                                        </div>
-                                    </label>
-                                    {% endif %}
-                                    {% endfor %}
-                                </div>
-                                {% else %}
-                                <div class="p-4 text-center text-muted">
-                                    <span class="material-symbols-outlined" style="font-size: 48px;">group</span>
-                                    <p class="mt-2">No hay personal disponible</p>
-                                </div>
-                                {% endif %}
-                            </div>
-                            <div class="modal-footer border-0 px-4 pb-4">
-                                <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="button" id="confirmAddStaffBtn" class="btn btn-signature rounded-3 px-4" disabled onclick="addSelectedStaff()">Aceptar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h4 class="h5 fw-bold mb-4">Equipo Asignado</h4>
 
                 <div id="assignedTeamList" class="row g-3">
                     {% if staff %}
@@ -709,12 +666,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <p class="mb-0 fw-bold small">{{ member.user.get_full_name|default:member.user.email }}</p>
                                 <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ member.role }}</p>
                             </div>
-                            <button class="btn btn-link p-0 text-primary" onclick="openNotificationModal('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')">
-                                <span class="material-symbols-outlined">chat</span>
-                            </button>
-                            <button class="btn btn-link p-0 text-danger" onclick="removeStaffFromStand('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')" title="Quitar de la zona">
-                                <span class="material-symbols-outlined">person_remove</span>
-                            </button>
                         </div>
                     </div>
                     {% endif %}
@@ -731,21 +682,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         <div class="col-12">
             <div class="custom-card">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="h5 fw-bold mb-0">Cronograma de Actividades</h4>
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="input-group input-group-sm w-auto" style="max-width: 200px">
-                            <span class="input-group-text bg-light border-0 ps-3">
-                                <span class="material-symbols-outlined fs-6 text-muted">search</span>
-                            </span>
-                            <input type="text" id="searchActivities" class="form-control bg-light border-0" placeholder="Buscar actividad..." onkeyup="filterActivities()">
-                        </div>
-                        <button class="btn btn-signature btn-sm fw-bold shadow-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#assignActivityModal">
-                            <span class="material-symbols-outlined fs-6 me-1">add_task</span>
-                            Asignar
-                        </button>
-                    </div>
-                </div>
+                <h4 class="h5 fw-bold mb-4">Cronograma de Actividades</h4>
 
                 {% if activities %}
                 {% for activity in activities %}
@@ -782,7 +719,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="text-center text-muted py-4">
                     <span class="material-symbols-outlined" style="font-size: 48px;">event_note</span>
                     <p class="mt-2">No hay actividades asignadas</p>
-                    <p class="small">Asigna actividades a este stand para mostrar el cronograma</p>
                 </div>
                 {% endif %}
             </div>
@@ -790,24 +726,13 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 
     <div class="custom-card shadow-sm border-0 overflow-hidden p-0">
-        <div
-            class="px-4 pt-4 pb-3 d-flex justify-content-between align-items-center"
-        >
+        <div class="px-4 pt-4 pb-3">
             <div>
                 <h4 class="h5 fw-bold mb-1">Inventario de Recursos</h4>
                 <p class="text-muted small mb-0">
                     Logística y despliegue técnico del stand.
                 </p>
             </div>
-            <button
-                id="addResourceBtn"
-                class="btn btn-signature btn-sm rounded-2 d-flex align-items-center gap-2 px-3 py-2"
-                data-bs-toggle="modal"
-                data-bs-target="#addResourceModal"
-            >
-                <span class="material-symbols-outlined fs-6">add_circle</span>
-                Añadir Recurso
-            </button>
         </div>
 
         <div class="table-responsive">
@@ -819,7 +744,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <th class="col-qty px-4 text-center">Asignados/Necesarios</th>
                         <th class="col-status px-4">Estado</th>
                         <th class="px-4">Detalles</th>
-                        <th class="px-4 text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="border-top-0">
@@ -828,17 +752,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         <tr data-assignment-id="{{ assignment.id }}">
                             <td class="px-4">
                                 <div class="d-flex align-items-center gap-3">
-                                    <div
-                                        class="bg-light rounded p-2 d-flex align-items-center justify-content-center"
-                                        style="width: 40px; height: 40px"
-                                    >
+                                    <div class="bg-light rounded p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px">
                                         {% if assignment.item.image %}
                                             <img src="{{ assignment.item.image.url }}" class="w-100 h-100 object-fit-cover rounded" alt="{{ assignment.item.name }}" referrerpolicy="no-referrer">
                                         {% else %}
-                                            <span
-                                                class="material-symbols-outlined text-muted fs-5"
-                                                >inventory_2</span
-                                            >
+                                            <span class="material-symbols-outlined text-muted fs-5">inventory_2</span>
                                         {% endif %}
                                     </div>
                                     <div class="fw-bold fs-7 text-nowrap">
@@ -849,12 +767,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td class="px-4">
                                 <span class="badge bg-light text-dark">{{ assignment.item.category }}</span>
                             </td>
-                            <td class="px-4">
-                                <div class="d-flex align-items-center justify-content-center gap-2">
-                                    <button class="btn btn-sm btn-outline-secondary" onclick="adjustQuantity('{{ assignment.id }}', -1, this)">-</button>
-                                    <span class="fw-bold">{{ assignment.quantity|default:0 }} / {{ assignment.required_quantity|default:0 }}</span>
-                                    <button class="btn btn-sm btn-outline-secondary" onclick="adjustQuantity('{{ assignment.id }}', 1, this)">+</button>
-                                </div>
+                            <td class="px-4 text-center">
+                                <span class="fw-bold">{{ assignment.quantity|default:0 }} / {{ assignment.required_quantity|default:0 }}</span>
                             </td>
                             <td class="px-4">
                                 {% if assignment.item.status == 'Sin Stock' %}
@@ -868,30 +782,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td class="px-4">
                                 <span class="small text-muted">{{ assignment.details|default:"-" }}</span>
                             </td>
-                            <td class="px-4 text-center">
-                                <div class="d-flex align-items-center justify-content-center gap-1">
-                                    <button
-                                        class="btn btn-link btn-sm p-0 text-muted"
-                                        title="Editar detalles"
-                                        onclick="openEditResourceModal('{{ assignment.id }}', '{{ assignment.item.name|escapejs }}', '{{ assignment.item.category|escapejs }}', '{{ assignment.details|default:""|escapejs }}', '{{ assignment.required_quantity|default:0 }}')"
-                                    >
-                                        <span class="material-symbols-outlined fs-6">edit</span>
-                                    </button>
-                                    <button
-                                        class="btn btn-link btn-sm p-0 text-danger"
-                                        title="Quitar recurso"
-                                        onclick="removeResource('{{ assignment.id }}')"
-                                    >
-                                        <span class="material-symbols-outlined fs-6">delete</span>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
                         </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
+                            <td colspan="5" class="text-center text-muted py-4">
                                 No hay recursos asignados a este stand.
                             </td>
                         </tr>
@@ -899,21 +794,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </tbody>
             </table>
         </div>
-        <div
-            class="p-3 border-top bg-light d-flex justify-content-between align-items-center px-4"
-        >
+        <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center px-4">
             <div class="small text-muted">Mostrando {{ assignments|length }} recurso{% if assignments|length != 1 %}s{% endif %}</div>
-            <nav aria-label="Page navigation">
-                <ul class="pagination pagination-sm mb-0">
-
-                </ul>
-            </nav>
         </div>
     </div>
-
-    <button class="fab btn-signature">
-        <span class="material-symbols-outlined">add</span>
-    </button>
 
     <div
         class="modal fade"
@@ -1090,7 +974,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="p-4 text-center text-muted">
                         <span class="material-symbols-outlined" style="font-size: 48px;">event_note</span>
                         <p class="mt-2">No hay actividades disponibles</p>
-                        <p class="small">Todas las actividades del evento ya están asignadas a otras zonas</p>
+                        <p class="small">Todas las actividades del evento ya están asignadas a este stand</p>
                     </div>
                     {% endif %}
                 </div>
@@ -1204,39 +1088,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 px-4 pb-4 gap-2 flex-column">
-                    <div class="d-flex w-100 gap-2">
-                        <button
-                            type="button"
-                            id="moveActivityBtn"
-                            class="btn btn-outline-primary flex-grow-1 rounded-3"
-                            onclick="openMoveModal()"
-                        >
-                            <span
-                                class="material-symbols-outlined fs-6 me-1 align-middle"
-                                >shortcut</span
-                            >
-                            Mover
-                        </button>
-                        <button
-                            type="button"
-                            id="deleteActivityBtn"
-                            class="btn btn-outline-danger flex-grow-1 rounded-3"
-                            onclick="deleteActivityFromStand()"
-                        >
-                            <span
-                                class="material-symbols-outlined fs-6 me-1 align-middle"
-                                >delete</span
-                            >
-                            Quitar
-                        </button>
-                    </div>
+                <div class="modal-footer border-0 px-4 pb-4">
                     <button
                         type="button"
                         class="btn btn-signature w-100 rounded-3"
                         data-bs-dismiss="modal"
                     >
-                        Cerrar Detalles
+                        Cerrar
                     </button>
                 </div>
             </div>
@@ -1316,6 +1174,8 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
     </div>
+</div>
+</div>
 
     
 {% endblock %}

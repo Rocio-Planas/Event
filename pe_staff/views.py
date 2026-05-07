@@ -156,6 +156,52 @@ class StaffDashboardView(TemplateView):
 
 
 @method_decorator(login_required, name='dispatch')
+class StaffDashboardReadOnlyView(TemplateView):
+    """Dashboard de solo lectura para staff - vista del miembro del equipo."""
+    template_name = 'pe_staff/dashboard_staff.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        event_id = self.kwargs.get('event_id')
+        
+        from in_person_events.models import Event
+        event = get_object_or_404(Event, id=event_id)
+        
+        my_assignment = get_object_or_404(
+            StaffMember,
+            event_id=event_id,
+            user=self.request.user
+        )
+        
+        try:
+            Activity = apps.get_model('pe_agenda', 'Activity')
+            activities = Activity.objects.filter(
+                event_id=event_id
+            ).order_by('start_time')
+        except LookupError:
+            activities = []
+        
+        zone_stand = None
+        if my_assignment.zone:
+            try:
+                Stand = apps.get_model('pe_stand', 'Stand')
+                zone_stand = Stand.objects.filter(
+                    event_id=event_id,
+                    name=my_assignment.zone
+                ).first()
+            except LookupError:
+                pass
+        
+        context['event'] = event
+        context['event_id'] = event_id
+        context['my_assignment'] = my_assignment
+        context['activities'] = activities
+        context['zone_stand'] = zone_stand
+        
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
 class ZoneDetailView(TemplateView):
     """Detalle de una zona específica."""
     template_name = 'pe_staff/zone_detail.html'
@@ -226,8 +272,35 @@ def invite_staff(request, event_id):
             expires_at=expiration,
         )
         
-        # Enviar email
-        send_staff_invitation_email(invitation)
+        # Enviar correo de invitación directamente
+        try:
+            from django.conf import settings
+            site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+            accept_url = f"{site_url}/equipo/accept/{invitation.token}/"
+            
+            if user_type == 'ponente':
+                role_text = 'Ponente'
+            elif role:
+                role_text = role
+            else:
+                role_text = 'Staff'
+            
+            from django.core.mail import send_mail
+            send_mail(
+                subject=f'Invitación como {role_text} - {invitation.event.title}',
+                message=f'Hola,\n\n'
+                       f'Has sido invitado a participar como {role_text} en el evento "{invitation.event.title}".\n\n'
+                       f'Fecha: {invitation.event.start_date}\n\n'
+                       f'Para confirmar tu participación, visita el siguiente enlace:\n'
+                       f'{accept_url}\n\n'
+                       f'El equipo de EventPulse',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=False,
+            )
+            logger.info(f'Email de invitación enviado a {email}')
+        except Exception as e:
+            logger.error(f'Error al enviar email de invitación: {e}')
         
         return JsonResponse({
             'success': True,
@@ -238,6 +311,7 @@ def invite_staff(request, event_id):
                 'user_type': invitation.user_type,
                 'role': invitation.role,
                 'status': invitation.status,
+                'token': str(invitation.token),
             }
         })
         
@@ -288,13 +362,41 @@ def delete_invitation(request, event_id, invitation_id):
 @login_required
 def accept_invitation(request, token):
     """Acepta una invitación (público)."""
-    invitation = get_object_or_404(StaffInvitation, token=token, status=InvitationStatus.PENDIENTE)
+    logger.info(f"Buscando invitación con token: {token}")
+    print(f"DEBUG: Buscando token = {token}")
+    
+    try:
+        invitation = StaffInvitation.objects.get(token=token)
+        logger.info(f"Invitación encontrada: {invitation.id}, status: {invitation.status}, email: {invitation.email}")
+        print(f"DEBUG: Invitación encontrada - ID: {invitation.id}, Status: {invitation.status}")
+    except StaffInvitation.DoesNotExist:
+        print(f"DEBUG: Token no encontrado, mostrando error")
+        print(f"DEBUG: Buscando en base de datos...")
+        from django.db import connection
+        print(f"DEBUG: Total invitaciones: {StaffInvitation.objects.count()}")
+        for inv in StaffInvitation.objects.all()[:5]:
+            print(f"  - ID: {inv.id}, Token: {inv.token}, Email: {inv.email}, Status: {inv.status}")
+        
+        logger.warning(f"No se encontró invitación con token: {token}")
+        return render(request, 'pe_staff/invitation_invalid.html', {'error': 'Invitación no encontrada. Puede que ya haya sido procesada o el enlace haya expirado.'})
+    
+    if invitation.status == InvitationStatus.ACEPTADA:
+        logger.info(f"Invitación ya aceptada, redirigiendo al dashboard: {invitation.event_id}")
+        return redirect('pe_staff:dashboard_staff', event_id=invitation.event_id)
+    
+    if invitation.status == InvitationStatus.RECHAZADA:
+        return render(request, 'pe_staff/invitation_invalid.html', {'error': 'Invitación rechazada'})
     
     if invitation.expires_at < timezone.now():
         return render(request, 'pe_staff/invitation_expired.html', {'invitation': invitation})
     
     if request.user.is_authenticated:
-        # Crear miembro directamente sin verificar email
+        if request.user.email.lower() != invitation.email.lower():
+            return render(request, 'pe_staff/invitation_invalid_email.html', {
+                'invitation': invitation,
+                'user_email': request.user.email
+            })
+        
         member, created = StaffMember.objects.get_or_create(
             event=invitation.event,
             user=request.user,
@@ -309,21 +411,21 @@ def accept_invitation(request, token):
             invitation.accepted_at = timezone.now()
             invitation.save()
             
-            # Enviar confirmación
             send_staff_confirmation_email(member)
             
-            return JsonResponse({
-                'success': True,
-                'message': '¡Bienvenido al equipo!',
-                'member': {
-                    'id': member.id,
-                    'role': member.role,
-                }
-            })
+            return redirect('pe_staff:dashboard_staff', event_id=invitation.event_id)
         else:
-            return JsonResponse({'error': 'Ya eres miembro del equipo'}, status=400)
+            return redirect('pe_staff:dashboard_staff', event_id=invitation.event_id)
     else:
-        return redirect(f'/usuarios/login/?next=/pe_staff/accept/{token}/')
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        try:
+            user = User.objects.get(email__iexact=invitation.email)
+            if user:
+                return redirect(f'/usuarios/login/?next=/pe_staff/accept/{token}/')
+        except User.DoesNotExist:
+            pass
+        return render(request, 'pe_staff/invitation_login_required.html', {'invitation': invitation})
 
 
 @login_required
@@ -396,8 +498,31 @@ def assign_zone(request, event_id, member_id):
             )
             stand_staff.save()
         
-        # Enviar email de notificación
-        send_zone_assignment_email(member, stand.name)
+        # Enviar notificación y email al staff
+        try:
+            from pe_communication.models import Notification
+            from django.conf import settings
+            from django.core.mail import send_mail
+            
+            Notification.objects.create(
+                user=member.user,
+                title=f'Zona asignada: {stand.name}',
+                message=f'Se te ha asignado la zona "{stand.name}" en el evento "{member.event.title}".',
+                notification_type=Notification.Type.MANUAL_ALERT
+            )
+            
+            send_mail(
+                subject=f'Zona asignada - {member.event.title}',
+                message=f'Hola {member.user.get_full_name() or member.user.email},\n\n'
+                       f'Se te ha asignado la zona "{stand.name}" en el evento "{member.event.title}".\n\n'
+                       f'El equipo de EventPulse',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[member.user.email],
+                fail_silently=False,
+            )
+            logger.info(f'Notificación de zona enviada a {member.user.email}')
+        except Exception as e:
+            logger.error(f'Error al enviar notificación de zona: {e}')
         
         return JsonResponse({
             'success': True,
@@ -431,8 +556,24 @@ def assign_activity(request, event_id, member_id):
         data = json.loads(request.body)
         activity_id = data.get('activity_id')
         
+        # Si activity_id es None o vacío, desasignar
         if not activity_id:
-            return JsonResponse({'error': 'ID de actividad requerido'}, status=400)
+            if member.activity:
+                # Limpiar el speaker de la actividad anterior
+                member.activity.speaker_name = None
+                member.activity.speaker_email = None
+                member.activity.save(update_fields=['speaker_name', 'speaker_email'])
+            member.activity = None
+            member.save(update_fields=['activity'])
+            return JsonResponse({
+                'success': True,
+                'message': 'Actividad desasignada correctamente',
+                'member': {
+                    'id': member.id,
+                    'activity': None,
+                    'zone': member.zone,
+                }
+            })
         
         try:
             activity_id = int(activity_id)
@@ -441,15 +582,55 @@ def assign_activity(request, event_id, member_id):
         
         activity = get_object_or_404(Activity, id=activity_id, event_id=event_id)
         
-        # Guardar la actividad en el campo zone (formato: "actividad:#id")
-        member.zone = f"actividad:{activity.id}"
-        member.save()
+        # Si hay una actividad anterior diferente, limpiar su speaker
+        if member.activity and member.activity != activity:
+            member.activity.speaker_name = None
+            member.activity.speaker_email = None
+            member.activity.save(update_fields=['speaker_name', 'speaker_email'])
+        
+        # Asignar la nueva actividad
+        member.activity = activity
+        member.save(update_fields=['activity'])
+        
+        # Actualizar el speaker de la actividad
+        activity.speaker_name = member.user.get_full_name() or member.user.email
+        activity.speaker_email = member.user.email
+        activity.save(update_fields=['speaker_name', 'speaker_email'])
+        
+        # Enviar notificación y email al ponente
+        try:
+            from pe_communication.models import Notification
+            from django.conf import settings
+            from django.core.mail import send_mail
+            
+            Notification.objects.create(
+                user=member.user,
+                title=f'Actividad asignada: {activity.title}',
+                message=f'Se te ha asignado la actividad "{activity.title}" en el evento "{member.event.title}". '
+                        f'Horario: {activity.start_time.strftime("%d/%m/%Y %H:%M")} - {activity.end_time.strftime("%H:%M")}.',
+                notification_type=Notification.Type.MANUAL_ALERT
+            )
+            
+            send_mail(
+                subject=f'Actividad asignada - {activity.title}',
+                message=f'Hola {member.user.get_full_name() or member.user.email},\n\n'
+                       f'Se te ha asignado la actividad "{activity.title}" en el evento "{member.event.title}".\n'
+                       f'Horario: {activity.start_time.strftime("%d/%m/%Y %H:%M")} - {activity.end_time.strftime("%H:%M")}\n\n'
+                       f'El equipo de EventPulse',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[member.user.email],
+                fail_silently=False,
+            )
+            logger.info(f'Notificación de asignación de actividad enviada a {member.user.email}')
+        except Exception as e:
+            logger.error(f'Error al enviar notificación de actividad: {e}')
         
         return JsonResponse({
             'success': True,
             'message': f'Actividad "{activity.title}" asignada correctamente',
             'member': {
                 'id': member.id,
+                'activity': activity.title,
                 'zone': member.zone,
             }
         })
@@ -462,12 +643,52 @@ def assign_activity(request, event_id, member_id):
 
 
 @login_required
+def send_message_to_organizer(request, event_id):
+    """Envía un mensaje al organizador del evento."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    
+    from in_person_events.models import Event
+    event = get_object_or_404(Event, id=event_id)
+    
+    # Verificar que el usuario sea staff del evento
+    if not StaffMember.objects.filter(event=event, user=request.user).exists():
+        return JsonResponse({'error': 'No tienes permisos para enviar mensajes en este evento'}, status=403)
+    
+    message = request.POST.get('message', '').strip()
+    if not message:
+        return JsonResponse({'error': 'El mensaje no puede estar vacío'}, status=400)
+    
+    # Crear notificación
+    Notification = apps.get_model('pe_communication', 'Notification')
+    notification = Notification.objects.create(
+        user=event.organizer,
+        sender=request.user,
+        title=f'Mensaje de staff: {request.user.get_full_name() or request.user.email}',
+        message=message,
+        notification_type=Notification.Type.MANUAL_ALERT
+    )
+    
+    return JsonResponse({
+        'success': True,
+        'message': 'Mensaje enviado correctamente al organizador'
+    })
+
+
+@login_required
 def remove_member(request, event_id, member_id):
     """Elimina un miembro del equipo."""
     if request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
     
     member = get_object_or_404(StaffMember, id=member_id, event_id=event_id)
+    
+    # Si el miembro tiene una actividad asignada, limpiar el speaker
+    if member.activity:
+        member.activity.speaker_name = None
+        member.activity.speaker_email = None
+        member.activity.save(update_fields=['speaker_name', 'speaker_email'])
+    
     member.delete()
     
     return JsonResponse({'success': True, 'message': 'Miembro eliminado del equipo'})

@@ -126,6 +126,14 @@ class StaffMember(models.Model):
         blank=True,
         verbose_name='Zona Asignada'
     )
+    activity = models.ForeignKey(
+        'pe_agenda.Activity',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='staff_assignments',
+        verbose_name='Actividad Asignada (Ponente)'
+    )
     assigned_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Fecha de Asignación'

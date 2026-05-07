@@ -123,17 +123,19 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Top Bar -->
-            <header class="top-bar d-flex justify-content-between align-items-center bg-white border-bottom px-4 py-2 sticky-top shadow-sm">
-                <div class="d-flex align-items-center gap-4">
+            <header class="top-bar d-flex justify-content-between align-items-center bg-white border-bottom px-3 py-2 sticky-top shadow-sm">
+                <div class="d-flex align-items-center">
+                    <button class="hamburger-btn me-2 d-lg-none" id="hamburger-btn" type="button">☰</button>
                     <h1 class="h5 fw-800 mb-0 text-primary">EventPulse</h1>
-                    <nav class="top-nav d-none d-md-flex gap-3">
-                        <a href="#" class="text-decoration-none text-muted small fw-medium">Resumen</a>
-                        <a href="#" class="text-decoration-none text-muted small fw-medium">Acciones Rápidas</a>
-                    </nav>
                 </div>
 
+                <nav class="top-nav d-none d-lg-flex gap-3">
+                    <a href="#" class="text-decoration-none text-muted small fw-medium">Resumen</a>
+                    <a href="#" class="text-decoration-none text-muted small fw-medium">Acciones Rápidas</a>
+                </nav>
+
                 <div class="d-flex align-items-center gap-3">
-                    <div class="lang-switch">
+                    <div class="lang-switch d-none d-md-flex">
                         <button class="lang-btn lang-active" id="lang-es">ES</button>
                         <button class="lang-btn" id="lang-en">EN</button>
                     </div>
@@ -148,7 +150,7 @@
                     {% endif %}
                     <!-- Notificaciones -->
                     {% if user.is_authenticated %}
-                    <div class="dropdown d-inline-block">
+                    <div class="dropdown d-inline-block me-2">
                         <button
                             class="btn p-0 position-relative"
                             id="notificationDropdown"
@@ -230,6 +232,9 @@
             {% block content %}{% endblock %}
         </main>
 
+        <!-- Sidebar Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
         {% block extra_scripts %}{% endblock %}
 
         {% if user.is_authenticated %}
@@ -244,5 +249,43 @@
         <!-- Bootstrap Bundle with Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script src="{% static 'js/i18n.js' %}"></script>
+        
+        <!-- Mobile sidebar toggle -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var hamburger = document.getElementById('hamburger-btn');
+                var sidebar = document.querySelector('.sidebar');
+                var overlay = document.getElementById('sidebar-overlay');
+                
+                function closeSidebar() {
+                    sidebar.classList.remove('show');
+                    if (overlay) {
+                        overlay.classList.remove('show');
+                    }
+                }
+                
+                if (hamburger && sidebar) {
+                    hamburger.addEventListener('click', function() {
+                        sidebar.classList.toggle('show');
+                        if (overlay) {
+                            overlay.classList.toggle('show');
+                        }
+                    });
+                    
+                    if (overlay) {
+                        overlay.addEventListener('click', closeSidebar);
+                    }
+                    
+                    // Close sidebar when clicking a nav link on mobile
+                    document.querySelectorAll('.nav-link').forEach(function(link) {
+                        link.addEventListener('click', function() {
+                            if (window.innerWidth < 992) {
+                                closeSidebar();
+                            }
+                        });
+                    });
+                }
+            });
+        </script>
     </body>
 </html>

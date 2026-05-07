@@ -10,15 +10,15 @@
 
 {% block content %}
 {% with active_page='zona' %}
-<div class="p-4">
+<div class="p-4" data-event-id="{{ event_id }}">
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
-            <h2 class="fw-800 display-6">Gestión de Zonas/Stands - {{ event.title }}</h2>
+            <h2 class="fw-800 display-6">Gestión de Zonas</h2>
             <p class="text-muted mb-0">Supervisa el estado operativo y recursos en tiempo real.</p>
         </div>
         <div class="d-flex gap-2">
             <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" data-bs-toggle="modal" data-bs-target="#createStandModal">
-                <span class="material-symbols-outlined" style="font-size: 18px;">add</span> Crear Zona/Stand
+                <span class="material-symbols-outlined" style="font-size: 18px;">add</span> Crear Zona
             </button>
         </div>
     </div>
@@ -31,7 +31,7 @@
                 <span class="material-symbols-outlined">business_center</span>
             </div>
             <div>
-                <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Total Stands</small>
+                <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Total Zonas</small>
                 <h3 class="fw-bold mb-0">{{ total_stands }}</h3>
             </div>
         </div>

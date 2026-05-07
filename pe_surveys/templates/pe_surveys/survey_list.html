@@ -27,7 +27,7 @@
                     <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Encuesta</label>
                     <div class="search-container shadow-sm rounded-2 w-100 bg-white position-relative">
                         <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: #6c757d;">search</span>
-                        <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Buscar por título..." id="surveySearch" onkeyup="filterSurveys()">
+                        <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Buscar por título..." id="surveySearch">
                     </div>
                 </div>
             </div>
@@ -117,13 +117,6 @@
                             <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Título de la Encuesta</label>
                             <input type="text" id="editSurveyTitle" class="form-control" placeholder="Título de la encuesta">
                         </div>
-                        <div class="col-md-6">
-                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Tipo de Encuesta</label>
-                            <select id="editSurveyType" class="form-select">
-                                <option value="escala">Escala 1-5</option>
-                                <option value="texto">Texto con Opciones</option>
-                            </select>
-                        </div>
                     </div>
                     <div class="row g-4 mb-4">
                         <div class="col-md-4">
@@ -144,7 +137,7 @@
                             <input type="datetime-local" id="editScheduledDate" class="form-control">
                         </div>
                     </div>
-                    <div id="editOptionsSection" style="display: none;">
+                    <div id="editOptionsSection">
                         <hr class="my-4">
                         <h4 class="fw-bold mb-3">Opciones</h4>
                         <div id="editOptionsContainer"></div>
@@ -178,10 +171,6 @@
                                 <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Título de la Encuesta</label>
                                 {{ form.title }}
                             </div>
-                            <div class="col-md-6">
-                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Tipo de Encuesta</label>
-                                {{ form.survey_type }}
-                            </div>
                         </div>
                         <div class="row g-4 mb-4">
                             <div class="col-md-4">
@@ -191,13 +180,13 @@
                                     <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Encuesta Activa</label>
                                 </div>
                             </div>
-                            <div class="col-md-4" id="multiple_choice_field" style="display: none;">
-                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Múltiples Opciones</label>
-                                <div class="form-check form-switch mt-2">
-                                    {{ form.is_multiple_choice }}
-                                    <label class="form-check-label" for="{{ form.is_multiple_choice.id_for_label }}">Permitir múltiples</label>
-                                </div>
+                            <div class="col-md-4" id="multiple_choice_field">
+                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Múltiples Opciones</label>
+                            <div class="form-check form-switch mt-2">
+                                {{ form.is_multiple_choice }}
+                                <label class="form-check-label" for="{{ form.is_multiple_choice.id_for_label }}">Permitir múltiples</label>
                             </div>
+                        </div>
                             <div class="col-md-4">
                                 <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Tipo de Entrega</label>
                                 {{ form.delivery_type }}
@@ -210,13 +199,13 @@
                             </div>
                         </div>
                         <hr class="my-4" />
-                        <h4 class="fw-bold mb-3" id="options_title" style="display: none;">Opciones</h4>
+                        <h4 class="fw-bold mb-3" id="options_title">Opciones</h4>
                         {{ formset.management_form }}
                         <div id="options_error" class="alert alert-danger" style="display: none;" role="alert">
                             <span class="material-symbols-outlined me-2" style="font-size: 18px">error</span>
                             <span id="options_error_text"></span>
                         </div>
-                        <div id="options_container" style="display: none;">
+                        <div id="options_container">
                             {% for option_form in formset %}
                                 <div class="option-block border rounded-3 p-3 mb-3">
                                     <div class="row g-3 align-items-end">
@@ -233,7 +222,7 @@
                                 </div>
                             {% endfor %}
                         </div>
-                        <button type="button" class="btn btn-outline-secondary mb-4" id="add_option_btn" style="display: none;">
+                        <button type="button" class="btn btn-outline-secondary mb-4" id="add_option_btn">
                             <span class="material-symbols-outlined me-1" style="font-size: 18px">add</span>
                             Agregar Opción
                         </button>
@@ -311,7 +300,6 @@
         function openEditSurveyModal(surveyId, title, surveyType, isMultipleChoice, deliveryType, scheduledDate, options) {
             document.getElementById('editSurveyId').value = surveyId;
             document.getElementById('editSurveyTitle').value = title;
-            document.getElementById('editSurveyType').value = surveyType;
             document.getElementById('editIsMultipleChoice').checked = isMultipleChoice;
             document.getElementById('editDeliveryType').value = deliveryType;
             
@@ -326,10 +314,13 @@
             var container = document.getElementById('editOptionsContainer');
             container.innerHTML = '';
             
-            if (surveyType === 'texto' && options.length > 0) {
+            if (options.length > 0) {
                 options.forEach(function(opt) {
                     addEditOption(opt);
                 });
+            } else {
+                addEditOption('');
+                addEditOption('');
             }
             
             var modal = new bootstrap.Modal(document.getElementById('editSurveyModal'));
@@ -337,10 +328,8 @@
         }
         
         function toggleEditFields() {
-            var surveyType = document.getElementById('editSurveyType').value;
             var deliveryType = document.getElementById('editDeliveryType').value;
             
-            document.getElementById('editOptionsSection').style.display = (surveyType === 'texto') ? 'block' : 'none';
             document.getElementById('editScheduledDateField').style.display = (deliveryType === 'programado') ? 'block' : 'none';
         }
         
@@ -353,14 +342,12 @@
             container.appendChild(div);
         }
         
-        document.getElementById('editSurveyType').addEventListener('change', toggleEditFields);
         document.getElementById('editDeliveryType').addEventListener('change', toggleEditFields);
         document.getElementById('editAddOptionBtn').addEventListener('click', function() { addEditOption(''); });
         
         function saveSurveyEdit() {
             var surveyId = document.getElementById('editSurveyId').value;
             var title = document.getElementById('editSurveyTitle').value;
-            var surveyType = document.getElementById('editSurveyType').value;
             var isMultipleChoice = document.getElementById('editIsMultipleChoice').checked;
             var deliveryType = document.getElementById('editDeliveryType').value;
             var scheduledDate = document.getElementById('editScheduledDate').value || null;
@@ -371,14 +358,12 @@
             }
             
             var options = [];
-            if (surveyType === 'texto') {
-                document.querySelectorAll('#editOptionsContainer .option-input').forEach(function(input) {
-                    if (input.value.trim()) {
-                        options.push(input.value.trim());
-                    }
-                });
-                console.log('Options collected:', options);
-            }
+            document.querySelectorAll('#editOptionsContainer .option-input').forEach(function(input) {
+                if (input.value.trim()) {
+                    options.push(input.value.trim());
+                }
+            });
+            console.log('Options collected:', options);
             
             var url = '/encuestas/' + eventId + '/api/update-survey/';
             console.log('Fetching URL:', url);
@@ -391,7 +376,6 @@
                 body: JSON.stringify({
                     survey_id: surveyId,
                     title: title,
-                    survey_type: surveyType,
                     is_multiple_choice: isMultipleChoice,
                     delivery_type: deliveryType,
                     scheduled_date: scheduledDate,
@@ -469,15 +453,8 @@
             });
         }
         
-        document.getElementById('surveySearch').addEventListener('keyup', function(e) {
-            if (e.key === 'Enter' || this.value.length >= 3) {
-                var searchUrl = window.location.pathname + '?search=' + encodeURIComponent(this.value);
-                window.location.href = searchUrl;
-            }
-        });
-        
-        function filterSurveys() {
-            var searchText = document.getElementById('surveySearch').value.toLowerCase();
+        document.getElementById('surveySearch').addEventListener('input', function() {
+            var searchText = this.value.toLowerCase();
             var rows = document.querySelectorAll('#surveyTableBody tr');
             var visibleCount = 0;
             
@@ -485,16 +462,16 @@
                 var title = row.querySelector('.fw-bold');
                 if (title) {
                     var titleText = title.textContent.toLowerCase();
-                    if (titleText.indexOf(searchText) === -1) {
-                        row.style.display = 'none';
-                    } else {
+                    if (titleText.indexOf(searchText) !== -1) {
                         row.style.display = '';
                         visibleCount++;
+                    } else {
+                        row.style.display = 'none';
                     }
                 }
             });
             
             document.getElementById('surveyCount').textContent = visibleCount;
-        }
+        });
     </script>
 {% endblock %}

@@ -43,6 +43,14 @@ class Item(models.Model):
         STOCK_BAJO = 'Stock Bajo', 'Stock Bajo'
         SIN_STOCK = 'Sin Stock', 'Sin Stock'
 
+    event = models.ForeignKey(
+        'in_person_events.Event',
+        on_delete=models.CASCADE,
+        related_name='inventory_items',
+        verbose_name='Evento',
+        null=True,
+        blank=True
+    )
     name = models.CharField(
         max_length=200,
         verbose_name='Nombre del Recurso'

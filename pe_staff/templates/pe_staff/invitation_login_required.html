@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Invitación - Requiere Login</title>
+</head>
+<body>
+    <h1>Iniciar sesión requerido</h1>
+    <p>Para aceptar esta invitación, necesitas iniciar sesión.</p>
+    <p>La invitación fue enviada a: <strong>{{ invitation.email }}</strong></p>
+    <p><a href="/usuarios/login/?next=/pe_staff/accept/{{ invitation.token }}/">Iniciar sesión</a></p>
+</body>
+</html>

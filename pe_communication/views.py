@@ -123,7 +123,7 @@ def send_event_invitation_email(recipient_email, event, organizer_name, custom_m
     from django.urls import reverse
 
     site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
-    event_url = f"{site_url}{reverse('core:detalle_evento', args=[event.id])}"
+    event_url = f"{site_url}{reverse('core:detalle_evento_presencial', args=[event.id])}"
 
     template = get_or_create_template(EmailTemplate.TemplateType.EVENT_INVITATION)
 

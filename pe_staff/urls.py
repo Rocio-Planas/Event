@@ -25,4 +25,10 @@ urlpatterns = [
     
     # Detalle por zona
     path('staff/<int:event_id>/zone/<str:zone_name>/', views.ZoneDetailView.as_view(), name='zone_detail'),
+    
+    # Alias para dashboard_staff (vista de solo lectura para staff)
+    path('staff/<int:event_id>/dashboard-staff/', views.StaffDashboardReadOnlyView.as_view(), name='dashboard_staff'),
+    
+    # Enviar mensaje al organizador
+    path('staff/<int:event_id>/send-message/', views.send_message_to_organizer, name='send_message_to_organizer'),
 ]
