@@ -1,0 +1,185 @@
+{% extends "base_sidebar.html" %} {% load static %} {% block title %}Mi Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
+<link rel="stylesheet" href="{% static 'pe_stand/css/stands.css' %}">
+{% endblock %} {% block content %}
+<div class="p-4" data-event-id="{{ event_id }}" data-stand-id="{{ stand.id }}">
+    <a href="{% url 'pe_staff:dashboard' event_id %}" class="btn btn-link text-primary text-decoration-none mb-3 d-flex align-items-center gap-1 p-0">
+        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver
+    </a>
+
+    <!-- Dashboard Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-5">
+        <div>
+            <p
+                class="text-primary fw-bold text-uppercase mb-1"
+                style="font-size: 0.75rem; letter-spacing: 0.05em"
+            >
+                <span class="material-symbols-outlined fs-6 me-1"
+                    >storefront</span
+                >
+                {{ event.title }}
+            </p>
+            <h3 class="fw-black h2 mb-2">{{ stand.name }}</h3>
+            <div class="d-flex gap-3 text-muted" style="font-size: 0.85rem">
+                <span class="d-flex align-items-center gap-1"
+                    ><span class="material-symbols-outlined fs-6"
+                        >location_on</span
+                    >
+                    {{ stand.location }}</span
+                >
+                <span class="d-flex align-items-center gap-1"
+                    ><span class="material-symbols-outlined fs-6">groups</span>
+                    Capacidad: {{ stand.capacity }}</span
+                >
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-12">
+            <div class="custom-card">
+                <h4 class="h5 fw-bold mb-4">Equipo Asignado</h4>
+
+                <div id="assignedTeamList" class="row g-3">
+                    {% if staff %}
+                    {% for member in staff %}
+                    {% if member.user %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3 h-100">
+                            {% if member.user.avatar %}
+                            <img src="{{ member.user.avatar.url }}" alt="{{ member.user.get_full_name }}" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;">
+                            {% else %}
+                            <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                {{ member.user.first_name|default:"U"|first|upper }}
+                            </div>
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <p class="mb-0 fw-bold small">{{ member.user.get_full_name|default:member.user.email }}</p>
+                                <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ member.role }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    <div class="col-12 text-center text-muted py-4">
+                        <span class="material-symbols-outlined" style="font-size: 48px;">group</span>
+                        <p class="mt-2">No hay personal asignado</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="custom-card">
+                <h4 class="h5 fw-bold mb-4">Cronograma de Actividades</h4>
+
+                {% if activities %}
+                {% for activity in activities %}
+                <div class="activity-card mb-3" data-activity-id="{{ activity.id }}" data-title="{{ activity.title|escapejs }}">
+                    <div class="d-flex justify-content-between mb-2">
+                        <div class="d-flex flex-column">
+                            <span class="{% if activity.status == 'en_curso' %}text-primary{% elif activity.status == 'completada' %}text-success{% elif activity.status == 'cancelada' %}text-danger{% else %}text-muted{% endif %} fw-bold text-uppercase" style="font-size: 0.75rem;">
+                                {% if activity.status == 'programada' %}Programada — {{ activity.start_time|date:"H:i" }}
+                                {% elif activity.status == 'en_curso' %}En curso — {{ activity.start_time|date:"H:i" }}
+                                {% elif activity.status == 'completada' %}Completada — {{ activity.start_time|date:"H:i" }}
+                                {% elif activity.status == 'cancelada' %}Cancelada — {{ activity.start_time|date:"H:i" }}
+                                {% else %}{{ activity.status|title }} — {{ activity.start_time|date:"H:i" }}
+                                {% endif %}
+                            </span>
+                            <small class="text-muted" style="font-size: 0.7rem">{{ activity.start_time|date:"d \d\e F, Y" }}</small>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold h6">{{ activity.title }}</h5>
+                    <p class="text-muted small mb-3">{{ activity.description|truncatechars:100 }}</p>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.7rem">
+                            <span class="d-flex align-items-center gap-1">
+                                <span class="material-symbols-outlined fs-6">schedule</span>
+                                {{ activity.get_duration }} min
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <span class="material-symbols-outlined" style="font-size: 48px;">event_note</span>
+                    <p class="mt-2">No hay actividades asignadas</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="custom-card shadow-sm border-0 overflow-hidden p-0">
+        <div class="px-4 pt-4 pb-3">
+            <div>
+                <h4 class="h5 fw-bold mb-1">Inventario de Recursos</h4>
+                <p class="text-muted small mb-0">
+                    Logística y despliegue técnico del stand.
+                </p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mb-0 align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="col-resource px-4">Recurso</th>
+                        <th class="col-cat px-4">Categoría</th>
+                        <th class="col-qty px-4 text-center">Asignados/Necesarios</th>
+                        <th class="col-status px-4">Estado</th>
+                        <th class="px-4">Detalles</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    {% if assignments %}
+                        {% for assignment in assignments %}
+                        <tr data-assignment-id="{{ assignment.id }}">
+                            <td class="px-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-light rounded p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px">
+                                        <span class="material-symbols-outlined text-muted fs-5">inventory_2</span>
+                                    </div>
+                                    <div class="fw-bold fs-7 text-nowrap">
+                                        {{ assignment.item.name }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4">
+                                <span class="badge bg-light text-dark">{{ assignment.item.category }}</span>
+                            </td>
+                            <td class="px-4 text-center">
+                                <span class="fw-bold">{{ assignment.quantity|default:0 }} / {{ assignment.required_quantity|default:0 }}</span>
+                            </td>
+                            <td class="px-4">
+                                {% if assignment.item.status == 'Sin Stock' %}
+                                    <span class="badge badge-custom bg-danger-subtle text-danger status-badge">{{ assignment.item.status }}</span>
+                                {% elif assignment.item.status == 'Stock Bajo' %}
+                                    <span class="badge badge-custom bg-warning-subtle text-warning status-badge">{{ assignment.item.status }}</span>
+                                {% else %}
+                                    <span class="badge badge-custom bg-success-subtle text-success status-badge">{{ assignment.item.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4">
+                                <span class="small text-muted">{{ assignment.details|default:"-" }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                No hay recursos asignados a este stand.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center px-4">
+            <div class="small text-muted">Mostrando {{ assignments|length }} recurso{% if assignments|length != 1 %}s{% endif %}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

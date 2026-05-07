@@ -189,7 +189,7 @@ class StandDetailView(TemplateView):
             ).select_related('item')
             
 # Cargar catálogo de recursos disponible para el evento
-            items = Item.objects.all().order_by('name')
+            items = Item.objects.filter(event_id=event_id).order_by('name')
             assignment_map = {assignment.item_id: assignment for assignment in assignments}
 
             resources_data = []
@@ -216,6 +216,170 @@ class StandDetailView(TemplateView):
             context['assignments'] = assignments
             context['available_resources'] = available_resources
             context['assigned_lookup'] = assigned_lookup
+            
+        except ImportError:
+            context['resources_json'] = json.dumps([])
+            context['assignments'] = []
+            context['available_resources'] = []
+            context['assigned_lookup'] = {}
+        
+        context['stand'] = stand
+        context['event'] = event
+        context['event_id'] = event_id
+        context['staff'] = staff
+        context['activities'] = activities
+        context['available_activities'] = available_activities
+        context['available_staff'] = not_assigned_staff
+        context['event_stands'] = event_stands
+        context['active_page'] = 'stands'
+        context['csrf_token'] = get_token(self.request)
+        
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class StandStaffDetailView(TemplateView):
+    """
+    Vista de detalle de un stand para staff (solo lectura).
+    Muestra el stand, su personal y sus actividades sin opciones de edición.
+    """
+    template_name = 'pe_stand/info_stands_staff.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        event_id = self.kwargs.get('event_id')
+        stand_id = self.kwargs.get('pk')
+        
+        event = get_object_or_404(Event, id=event_id)
+        stand = get_object_or_404(Stand, id=stand_id, event=event)
+        
+        staff = StandStaff.objects.filter(stand=stand).select_related('user')
+        
+        from pe_agenda.models import Activity
+        stand_activities_rel = StandActivity.objects.filter(stand=stand).values_list('activity_id', flat=True)
+        assigned_activity_ids = set(stand_activities_rel)
+        
+        activities = Activity.objects.filter(
+            event=event,
+            id__in=assigned_activity_ids
+        ).order_by('start_time')
+        
+        try:
+            StandAssignment = apps.get_model('pe_inventory', 'StandAssignment')
+            assignments = StandAssignment.objects.filter(
+                stand=stand
+            ).select_related('item')
+            assignments = list(assignments)
+        except ImportError:
+            assignments = []
+        
+        context['stand'] = stand
+        context['event'] = event
+        context['event_id'] = event_id
+        context['staff'] = staff
+        context['activities'] = activities
+        context['assignments'] = assignments
+        context['active_page'] = 'stands'
+        
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class StandDetailV2View(TemplateView):
+    """
+    Vista de detalle de stand con diseño centrado (base_bootstrap).
+    """
+    template_name = 'pe_stand/info_stands_v2.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        event_id = self.kwargs.get('event_id')
+        stand_id = self.kwargs.get('pk')
+        
+        event = get_object_or_404(Event, id=event_id)
+        stand = get_object_or_404(Stand, id=stand_id, event=event)
+        
+        staff = StandStaff.objects.filter(stand=stand).select_related('user')
+        
+        assigned_user_ids = set(staff.values_list('user_id', flat=True))
+        
+        all_event_staff = StaffMember.objects.filter(
+            event=event,
+            user_type='staff'
+        ).select_related('user').order_by('-role')
+        
+        leaders = []
+        others = []
+        for member in all_event_staff:
+            if member.role == 'LIDER_ZONA':
+                leaders.append(member)
+            else:
+                others.append(member)
+        
+        available_staff = leaders + others
+        
+        assigned_user_ids = set(s.user.id for s in staff if s.user)
+        
+        not_assigned_staff = [s for s in available_staff if s.user and s.user.id not in assigned_user_ids]
+        
+        from pe_agenda.models import Activity
+        stand_activities_rel = StandActivity.objects.filter(stand=stand).values_list('activity_id', flat=True)
+        assigned_activity_ids = set(stand_activities_rel)
+        
+        activities = Activity.objects.filter(
+            event=event,
+            id__in=assigned_activity_ids
+        ).order_by('start_time')
+        
+        event_activities = Activity.objects.filter(event=event).filter(
+            models.Q(location='') |
+            models.Q(location__isnull=True) |
+            models.Q(location__iexact='No asignada') |
+            models.Q(location__iexact='Sin asignar')
+        ).order_by('start_time')
+        available_activities = list(event_activities)
+        
+        event_stands = Stand.objects.filter(event=event).exclude(id=stand.id).order_by('name')
+        
+        try:
+            StandAssignment = apps.get_model('pe_inventory', 'StandAssignment')
+            Item = apps.get_model('pe_inventory', 'Item')
+            
+            assignments = StandAssignment.objects.filter(
+                stand=stand
+            ).select_related('item')
+            assignments = list(assignments)
+            
+            all_items = Item.objects.filter(event_id=event_id)
+            item_lookup = {item.id: item for item in all_items}
+            
+            assigned_item_ids = set(a.item_id for a in assignments)
+            available_resources = []
+            for item in all_items:
+                if item.id not in assigned_item_ids:
+                    available_stock = getattr(item, 'available_stock', 0) or 0
+                    available_resources.append({
+                        'item_id': item.id,
+                        'name': item.name,
+                        'category': item.category,
+                        'available_stock': available_stock,
+                        'image_url': item.image.url if item.image else None
+                    })
+            
+            resources_json = json.dumps([{
+                'id': r['item_id'],
+                'name': r['name'],
+                'category': r['category'],
+                'available_stock': r['available_stock'],
+                'image_url': r.get('image_url')
+            } for r in available_resources])
+            
+            context['resources_json'] = resources_json
+            context['assignments'] = assignments
+            context['available_resources'] = available_resources
+            context['assigned_lookup'] = {a.item_id: a for a in assignments}
             
         except ImportError:
             context['resources_json'] = json.dumps([])

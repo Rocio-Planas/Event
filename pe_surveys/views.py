@@ -86,8 +86,8 @@ class SurveyCreateUpdateView(TemplateView):
         form = SurveyForm(request.POST, instance=survey)
 
         if form.is_valid() and formset.is_valid():
-            # Validaciones adicionales
-            survey_type = form.cleaned_data.get('survey_type')
+            # Siempre crear encuestas de tipo texto
+            survey_type = 'texto'
             valid_options_count = 0
             if survey_type == 'texto':
                 # Contar opciones válidas (con texto y no eliminadas)
@@ -104,6 +104,7 @@ class SurveyCreateUpdateView(TemplateView):
             if not form.errors:
                 survey = form.save(commit=False)
                 survey.event_id = event_id
+                survey.survey_type = 'texto'
                 is_new = not survey.pk
                 survey.save()
                 
@@ -235,7 +236,6 @@ class UpdateSurveyAPIView(View):
         data = json.loads(request.body)
         survey_id = data.get('survey_id')
         title = data.get('title')
-        survey_type = data.get('survey_type')
         is_multiple_choice = data.get('is_multiple_choice', False)
         delivery_type = data.get('delivery_type')
         scheduled_date = data.get('scheduled_date')
@@ -246,7 +246,7 @@ class UpdateSurveyAPIView(View):
         
         survey = get_object_or_404(Survey, pk=survey_id)
         survey.title = title
-        survey.survey_type = survey_type
+        survey.survey_type = 'texto'
         survey.is_multiple_choice = is_multiple_choice
         survey.delivery_type = delivery_type
         
@@ -258,10 +258,9 @@ class UpdateSurveyAPIView(View):
         
         survey.save()
         
-        if survey_type == 'texto':
-            survey.options.all().delete()
-            for opt_text in options:
-                SurveyOption.objects.create(survey=survey, text=opt_text)
+        survey.options.all().delete()
+        for opt_text in options:
+            SurveyOption.objects.create(survey=survey, text=opt_text)
         
         return JsonResponse({'success': True, 'message': 'Encuesta actualizada correctamente'})
 

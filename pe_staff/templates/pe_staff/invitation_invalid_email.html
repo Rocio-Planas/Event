@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Invitación - Correo no coincide</title>
+</head>
+<body>
+    <h1>Correo no coincide</h1>
+    <p>La invitación fue enviada a: <strong>{{ invitation.email }}</strong></p>
+    <p>Pero tú estás logged como: <strong>{{ user_email }}</strong></p>
+    <p>Por favor, inicia sesión con la cuenta de correo correcta para aceptar esta invitación.</p>
+    <p><a href="/usuarios/login/">Iniciar sesión con otro usuario</a></p>
+</body>
+</html>

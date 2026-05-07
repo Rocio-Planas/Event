@@ -35,15 +35,6 @@ function setupEventListeners() {
     } else {
         console.error("Create stand form not found!");
     }
-
-    // "Asignar Stand" button
-    const assignButton = document.querySelector(".btn-premium");
-    if (assignButton) {
-        assignButton.addEventListener("click", function (e) {
-            e.preventDefault();
-            showAssignStandModal();
-        });
-    }
 }
 
 /**
@@ -71,8 +62,36 @@ function handleCreateStand(e) {
         capacity: parseInt(formData.get("capacity")),
     };
 
-    // Get event_id from data attribute
-    const eventId = document.querySelector("[data-event-id]").dataset.eventId;
+    // Get event_id from multiple possible sources
+    let eventId = null;
+    
+    // Try data attribute on body or html element
+    const bodyElement = document.querySelector("body[data-event-id]");
+    if (bodyElement) {
+        eventId = bodyElement.dataset.eventId;
+    }
+    
+    // Try specific element
+    if (!eventId) {
+        const eventIdElement = document.querySelector("[data-event-id]");
+        if (eventIdElement) {
+            eventId = eventIdElement.dataset.eventId;
+        }
+    }
+    
+    // Try URL path
+    if (!eventId) {
+        const pathMatch = window.location.pathname.match(/\/evento(\d+)\//);
+        if (pathMatch) {
+            eventId = pathMatch[1];
+        }
+    }
+    
+    if (!eventId) {
+        console.error("No se pudo obtener el ID del evento");
+        alert("Error: No se pudo obtener el ID del evento");
+        return;
+    }
     console.log("Event ID:", eventId);
 
     // Disable submit button
@@ -177,6 +196,5 @@ function updateResourceStatus(resourceName, available, total) {
 // Export functions for external use
 window.standsModule = {
     viewStandDetails,
-    showAssignStandModal,
     updateResourceStatus,
 };

@@ -6,10 +6,9 @@ from .models import Survey, SurveyOption
 class SurveyForm(forms.ModelForm):
     class Meta:
         model = Survey
-        fields = ['title', 'survey_type', 'is_multiple_choice', 'is_active', 'delivery_type', 'scheduled_date']
+        fields = ['title', 'is_multiple_choice', 'is_active', 'delivery_type', 'scheduled_date']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Título de la encuesta'}),
-            'survey_type': forms.Select(attrs={'class': 'form-select survey-type-select'}),
             'is_multiple_choice': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'delivery_type': forms.Select(attrs={'class': 'form-select'}),

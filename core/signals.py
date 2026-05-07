@@ -1,10 +1,11 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
 
 from virtualEvent.models import VirtualEvent
 from .models import Resena, Consulta, Suscripcion
+from pe_communication.models import Notification
 
 @receiver(post_save, sender=VirtualEvent)
 def promover_a_organizador(sender, instance, created, **kwargs):
@@ -119,6 +120,112 @@ def sincronizar_suscripcion_presencial(sender, instance, created, **kwargs):
             
             if created_reg:
                 print(f"✅ Registration creado para {instance.usuario.email} en evento {event.title}")
+                
+                Notification.objects.create(
+                    user=instance.usuario,
+                    title=f'Inscripción confirmada a {event.title}',
+                    message=f'Te has inscrio al evento "{event.title}". ¡Nos vemos allí!',
+                    notification_type=Notification.Type.MANUAL_ALERT
+                )
+                
+                send_mail(
+                    subject=f'Confirmación de inscripción - {event.title}',
+                    message=f'Hola {instance.usuario.get_full_name() or instance.usuario.email},\n\n'
+                           f'Te has inscrito al evento "{event.title}".\n'
+                           f'Fecha: {event.start_date}\n'
+                           f'Ubicación: {event.location}\n\n'
+                           f'¡Nos vemos allí!\n\n'
+                           f'El equipo de EventPulse',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[instance.usuario.email],
+                    fail_silently=False,
+                )
             
         except Exception as e:
             print(f"⚠️ Error sincronizando suscripción: {str(e)}")
+
+
+@receiver(post_delete, sender=Suscripcion)
+def notification_on_suscripcion_deleted(sender, instance, **kwargs):
+    """
+    Envía notificación cuando un usuario cancela su suscripción a un evento presencial.
+    """
+    try:
+        Notification.objects.create(
+            user=instance.usuario,
+            title=f'Suscripción cancelada a {instance.titulo_evento}',
+            message=f'Has cancelado tu suscripción a "{instance.titulo_evento}". Puedes volver a suscribirte cuando quieras.',
+            notification_type=Notification.Type.MANUAL_ALERT
+        )
+        
+        send_mail(
+            subject=f'Suscripción cancelada - {instance.titulo_evento}',
+            message=f'Hola {instance.usuario.get_full_name() or instance.usuario.email},\n\n'
+                   f'Has cancelado tu suscripción a "{instance.titulo_evento}".\n'
+                   f'Puedes volver a suscribirte cuando quieras.\n\n'
+                   f'El equipo de EventPulse',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[instance.usuario.email],
+            fail_silently=False,
+        )
+    except Exception:
+        pass
+
+
+@receiver(post_save, sender='ve_invitations.EventFollower')
+def notification_on_follow_created(sender, instance, created, **kwargs):
+    """
+    Envía notificación cuando un usuario se suscribe a un evento virtual.
+    """
+    if not created:
+        return
+    
+    try:
+        Notification.objects.create(
+            user=instance.user,
+            title=f'Suscripción a evento virtual',
+            message=f'Te has suscrito al evento virtual "{instance.event.title}".',
+            notification_type=Notification.Type.MANUAL_ALERT
+        )
+        
+        send_mail(
+            subject=f'Confirmación de suscripción - {instance.event.title}',
+            message=f'Hola {instance.user.get_full_name() or instance.user.email},\n\n'
+                   f'Te has suscrito al evento virtual "{instance.event.title}".\n\n'
+                   f'¡Nos vemos allí!\n\n'
+                   f'El equipo de EventPulse',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[instance.user.email],
+            fail_silently=False,
+        )
+    except Exception:
+        pass
+
+
+@receiver(post_delete, sender='ve_invitations.EventFollower')
+def notification_on_follow_deleted(sender, instance, **kwargs):
+    """
+    Envía notificación cuando un usuario cancela su suscripción a un evento virtual.
+    """
+    try:
+        event_title = instance.event.title
+        
+        Notification.objects.create(
+            user=instance.user,
+            title=f'Suscripción cancelada a evento virtual',
+            message=f'Has cancelado tu suscripción al evento virtual "{event_title}".',
+            notification_type=Notification.Type.MANUAL_ALERT
+        )
+        
+        send_mail(
+            subject=f'Suscripción cancelada - {event_title}',
+            message=f'Hola {instance.user.get_full_name() or instance.user.email},\n\n'
+                   f'Has cancelado tu suscripción al evento virtual "{event_title}".\n'
+                   f'Puedes volver a suscribirte cuando quieras.\n\n'
+                   f'El equipo de EventPulse',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[instance.user.email],
+            fail_silently=False,
+        )
+    except Exception:
+        pass

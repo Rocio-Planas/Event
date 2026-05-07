@@ -11,6 +11,7 @@ urlpatterns = [
     path('<int:event_id>/create/', views.create_item, name='create_item'),
     path('<int:event_id>/update/<int:item_id>/', views.update_item, name='update_item'),
     path('<int:event_id>/delete/<int:item_id>/', views.delete_item, name='delete_item'),
+    path('<int:event_id>/item/<int:item_id>/', views.get_item, name='get_item'),
     path('<int:event_id>/items/', views.get_items, name='get_items'),
     
     # Endpoints para Excel

@@ -136,6 +136,9 @@ document.addEventListener("DOMContentLoaded", () => {
             if (imageInput) imageInput.value = "";
             const imageDataInput = document.getElementById("itemImageData");
             if (imageDataInput) imageDataInput.value = "";
+            if (inventoryModal) {
+                inventoryModal.show();
+            }
         });
     }
     if (saveItemButton && inventoryForm) {
@@ -271,42 +274,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 const contentType = response.headers.get("content-type") || "";
                 if (contentType.includes("application/json")) {
                     data = await response.json();
-                } else {
-                    const text = await response.text();
-                    data = {
-                        error: text
-                            ? text.substring(0, 400)
-                            : "Error desconocido",
-                    };
                 }
-
                 if (response.ok) {
-                    let message = data.message || "Importación completada";
-                    if (data.warnings && data.warnings.length > 0) {
-                        message +=
-                            "\n\nAdvertencias:\n" +
-                            data.warnings.slice(0, 5).join("\n");
-                        if (data.warnings.length > 5) {
-                            message += `\n... y ${data.warnings.length - 5} advertencias más`;
-                        }
-                    }
-                    if (data.errors && data.errors.length > 0) {
-                        message +=
-                            "\n\nErrores encontrados:\n" +
-                            data.errors.slice(0, 5).join("\n");
-                        if (data.errors.length > 5) {
-                            message += `\n... y ${data.errors.length - 5} errores más`;
-                        }
-                    }
-                    alert(message);
                     await loadItems();
                     updateGlobalStats();
                 } else {
-                    alert("Error: " + (data.error || "Error desconocido"));
+                    console.error("Import error:", data?.error);
                 }
             } catch (error) {
                 console.error("Error:", error);
-                alert("Error al importar: " + error.message);
             } finally {
                 if (importExcelBtn) {
                     importExcelBtn.disabled = false;
@@ -328,28 +304,43 @@ document.addEventListener("DOMContentLoaded", () => {
         const deleteBtn = e.target.closest(".delete-btn");
 
         if (editBtn) {
+            const itemId = editBtn.dataset.itemId;
             editingRow = editBtn.closest("tr");
             modalTitle.textContent = "Editar Artículo";
 
-            document.getElementById("itemName").value = editingRow
-                .querySelector(".item-name")
-                .textContent.trim();
-            document.getElementById("itemCategory").value = editingRow
-                .querySelector(".item-category")
-                .textContent.trim();
-            document.getElementById("itemTotal").value = editingRow
-                .querySelector(".item-total")
-                .textContent.trim();
-            document.getElementById("itemNotes").value = editingRow
-                .querySelector(".item-notes")
-                .textContent.trim();
-            document.getElementById("itemId").value = editBtn.dataset.itemId;
+            // Fetch fresh data from server
+            fetch(`/inventario/${eventId}/item/${itemId}/`)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        const item = data.item;
+                        document.getElementById("itemName").value = item.name;
+                        document.getElementById("itemCategory").value =
+                            item.category;
+                        document.getElementById("itemTotal").value =
+                            item.total_stock;
+                        document.getElementById("itemNotes").value = item.notes;
+                        document.getElementById("itemId").value = item.id;
 
-            const currentImg = editingRow.querySelector(".item-img");
-            document.getElementById("itemImageData").value = currentImg
-                ? currentImg.src
-                : "";
-            document.getElementById("itemImage").value = "";
+                        const finalImageUrl =
+                            item.image ||
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=f8f9ff&color=0058be`;
+                        document.getElementById("itemImageData").value =
+                            finalImageUrl;
+                        document.getElementById("itemImage").value = "";
+
+                        if (inventoryModal) {
+                            inventoryModal.show();
+                        }
+                    } else {
+                        console.error("Error fetching item data:", data.error);
+                        alert("Error al cargar los datos del artículo");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("Error al cargar los datos del artículo");
+                });
         }
 
         if (deleteBtn) {
@@ -553,7 +544,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 </td>
                                 <td class="px-4 text-center">
                                     <div class="btn-group">
-                                        <button class="btn btn-sm btn-outline-primary edit-btn" title="Editar" data-bs-toggle="modal" data-bs-target="#inventoryModal" data-item-id="${item.id}">
+                                        <button class="btn btn-sm btn-outline-primary edit-btn" title="Editar" data-item-id="${item.id}">
                                             <span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
                                         </button>
                                         <button class="btn btn-sm btn-outline-danger delete-btn" title="Eliminar" data-item-id="${item.id}">

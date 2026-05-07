@@ -1,0 +1,243 @@
+{% extends 'base_bootstrap.html' %}
+{% load static %}
+
+{% block title %}Panel de Staff - {{ event.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/event-form.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_assistant.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="position-relative" style="background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%), url('{% if event.image %}{{ event.image.url }}{% else %}https://picsum.photos/seed/event/1200/400{% endif %}') center/cover no-repeat; min-height: 400px; display: flex; align-items: flex-end; margin-top: -5rem; padding-top: 5rem;">
+    <div class="container pb-5">
+        <div class="max-w-7xl mx-auto">
+            <a href="{% url 'usuarios:dashboard' %}" class="text-decoration-none text-white fw-bold d-flex align-items-center gap-1 mb-4" style="width: fit-content;">
+                <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span>
+                Volver
+            </a>
+            <div class="text-white">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="badge" style="background-color: rgba(255, 255, 255, 0.25); color: white; backdrop-filter: blur(10px);">
+                        {% if event.status == 'approved' %}
+                            PROGRAMADO
+                        {% else %}
+                            {{ event.get_status_display|default:"En curso" }}
+                        {% endif %}
+                    </span>
+                </div>
+                <h1 class="mb-3" style="font-size: 3rem; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">{{ event.title }}</h1>
+                <div class="d-flex flex-wrap gap-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">calendar_today</span>
+                        <span>{{ event.start_date|date:'j \d\e F \a \l\a\s H:i' }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">location_on</span>
+                        <span>{{ event.location }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pt-5 pb-5">
+    <div class="max-w-7xl mx-auto">
+
+        <div class="grid-cols-12">
+            <div class="col-span-8">
+                <!-- Mi Zona Asignada / Actividad -->
+                {% if my_assignment.zone or my_assignment.activity %}
+                <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
+                    <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
+                        <span class="material-symbols-outlined text-primary">{% if 'ponente' in my_assignment.get_user_type_display|lower %}mic{% else %}location_on{% endif %}</span>
+                        {% if 'ponente' in my_assignment.get_user_type_display|lower %}Actividad Asignada{% else %}Zona Asignada{% endif %}
+                    </h4>
+                    <div class="d-flex align-items-center gap-3 mt-3">
+                        <div>
+                            {% if 'ponente' in my_assignment.get_user_type_display|lower and my_assignment.activity %}
+                                <h3 class="h4 mb-1" style="color: var(--text-on-surface);">{{ my_assignment.activity.title }}</h3>
+                                <div class="mt-4">
+                                    <a href="{% url 'pe_agenda:info_activity' event.id my_assignment.activity.id %}" class="btn btn-compact d-flex align-items-center gap-2 text-decoration-none">
+                                        <span class="material-symbols-outlined fs-6">visibility</span>
+                                        Ver detalles
+                                    </a>
+                                </div>
+                            {% else %}
+                                <h3 class="h4 fw-bold mb-1" style="color: var(--text-on-surface);">{{ my_assignment.zone }}</h3>
+                                <div class="mt-4">
+                                    <a href="{% url 'pe_stand:detail_v2' event.id zone_stand.id %}" class="btn btn-compact d-flex align-items-center gap-2 text-decoration-none">
+                                        <span class="material-symbols-outlined fs-6">visibility</span>
+                                        Ver detalles
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Mensaje al Organizador -->
+                <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
+                    <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
+                        <span class="material-symbols-outlined text-primary">mail</span>
+                        Mensaje al Organizador
+                    </h4>
+                    <p class="text-muted mb-4" style="color: var(--text-on-surface-variant);">Envía un mensaje directo al organizador del evento</p>
+
+                    <form id="message-form" method="post" action="{% url 'pe_staff:send_message_to_organizer' event.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Mensaje</label>
+                            <textarea class="form-control" id="message" name="message" rows="4" placeholder="Escribe tu mensaje aquí..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                            <span class="material-symbols-outlined" style="font-size: 18px;">send</span>
+                            Enviar Mensaje
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-span-4">
+                <!-- Mi Información como Staff -->
+                <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
+                    <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
+                        <span class="material-symbols-outlined text-primary">person</span>
+                        Mi Rol
+                    </h4>
+                    <div class="d-flex align-items-center gap-3 mt-3">
+                        <div class="position-relative d-inline-block">
+                            <div style="width: 4rem; height: 4rem; border-radius: 50%; border: 3px solid var(--primary); overflow: hidden; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);">
+                                {% if request.user.avatar %}
+                                    <img src="{{ request.user.avatar.url }}" alt="{{ request.user.get_full_name }}" class="w-100 h-100" style="object-fit: cover;">
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{ request.user.get_full_name|urlencode }}&background=0058be&color=fff" alt="{{ request.user.get_full_name }}" class="w-100 h-100">
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="h5 mb-1 fw-bold" style="color: var(--text-on-surface);">{{ request.user.get_full_name|default:request.user.email }}</h3>
+                            <p class="mb-0">
+                                <span class="badge bg-primary">{{ my_assignment.get_user_type_display|default:"Staff" }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quién lo organiza -->
+                <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
+                    <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
+                        <span class="material-symbols-outlined text-primary">groups</span>
+                        Quién lo organiza
+                    </h4>
+                    <div class="text-center">
+                        <div class="position-relative d-inline-block mb-3">
+                            <div style="width: 6rem; height: 6rem; border-radius: 50%; border: 3px solid var(--primary); overflow: hidden; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);">
+                                {% if event.organizer.avatar %}
+                                    <img src="{{ event.organizer.avatar.url }}" alt="{{ event.organizer.get_full_name }}" class="w-100 h-100" style="object-fit: cover;">
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{ event.organizer.get_full_name|urlencode }}&background=0058be&color=fff" alt="{{ event.organizer.get_full_name }}" class="w-100 h-100">
+                                {% endif %}
+                            </div>
+                            <div style="position: absolute; bottom: 0; right: 0; width: 1.5rem; height: 1.5rem; background-color: #22c55e; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+                                <span class="material-symbols-outlined text-white" style="font-size: 12px;">verified</span>
+                            </div>
+                        </div>
+                        <h3 class="h5 mb-2 fw-bold" style="color: var(--text-on-surface);">{{ event.organizer.get_full_name|default:event.organizer.email }}</h3>
+                        <p class="text-muted small mb-4" style="color: var(--text-on-surface-variant);">{{ event.organizer.biografia|default:'Organizador del evento.' }}</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            {% if event.organizer.website %}
+                                <a href="{{ event.organizer.website }}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" title="Sitio web" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-globe" style="font-size: 18px;"></i>
+                                </a>
+                            {% endif %}
+                            {% if event.organizer.twitter %}
+                                <a href="https://twitter.com/{{ event.organizer.twitter|urlencode }}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" title="Twitter" style="width: 40px; height: 40px;">
+                                    <i class="fab fa-twitter" style="font-size: 18px;"></i>
+                                </a>
+                            {% endif %}
+                            {% if event.organizer.instagram %}
+                                <a href="https://instagram.com/{{ event.organizer.instagram|urlencode }}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" title="Instagram" style="width: 40px; height: 40px;">
+                                    <i class="fab fa-instagram" style="font-size: 18px;"></i>
+                                </a>
+                            {% endif %}
+                            {% if event.organizer.linkedin %}
+                                <a href="{{ event.organizer.linkedin }}" target="_blank" class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" title="LinkedIn" style="width: 40px; height: 40px;">
+                                    <i class="fab fa-linkedin" style="font-size: 18px;"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('message-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const form = this;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">hourglass_empty</span> Enviando...';
+    
+    const formData = new FormData(form);
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            submitBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">check_circle</span> Enviado';
+            submitBtn.classList.remove('btn-primary');
+            submitBtn.classList.add('btn-success');
+            
+            // Clear the textarea
+            form.querySelector('#message').value = '';
+            
+            // Reset after 3 seconds
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                submitBtn.classList.remove('btn-success');
+                submitBtn.classList.add('btn-primary');
+            }, 3000);
+        } else {
+            throw new Error(data.error || 'Error desconocido');
+        }
+    })
+    .catch(error => {
+        // Show error
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">error</span> Error';
+        submitBtn.classList.remove('btn-primary');
+        submitBtn.classList.add('btn-danger');
+        
+        alert('Error al enviar el mensaje: ' + error.message);
+        
+        // Reset after 3 seconds
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.classList.remove('btn-danger');
+            submitBtn.classList.add('btn-primary');
+        }, 3000);
+    });
+});
+</script>
+{% endblock %}

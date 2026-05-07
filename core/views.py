@@ -283,8 +283,20 @@ def suscribirse(request):
         evento_id = request.POST.get('evento_id')
         tipo_evento = request.POST.get('tipo_evento')
         titulo = request.POST.get('titulo')
-        fecha = request.POST.get('fecha') or None
+        fecha_str = request.POST.get('fecha') or None
         imagen = request.POST.get('imagen', '')
+        
+        fecha_evento = None
+        if fecha_str:
+            try:
+                from datetime import datetime
+                fecha_evento = datetime.strptime(fecha_str, '%Y-%m-%d %H:%M:%S%z')
+            except ValueError:
+                try:
+                    from django.utils.dateparse import parse_datetime
+                    fecha_evento = parse_datetime(fecha_str)
+                except Exception:
+                    fecha_evento = None
 
         if tipo_evento == 'virtual':
             try:
@@ -311,9 +323,9 @@ def suscribirse(request):
                     tipo_evento=tipo_evento,
                     defaults={
                         'titulo_evento': titulo,
-                        'fecha_evento': fecha,
+                        'fecha_evento': fecha_evento,
                         'imagen_evento': imagen,
-                    }
+}
                 )
                 if created:
                     messages.success(request, f'✅ Te has suscrito a "{titulo}"')
@@ -642,7 +654,31 @@ def politica_cookies_view(request):
 
 
 def detalle_evento_presencial(request, evento_id):
-    evento = get_object_or_404(EventoPresencial, id=evento_id, status='aprobado')
+    try:
+        evento = EventoPresencial.objects.get(id=evento_id, status='aprobado')
+    except EventoPresencial.DoesNotExist:
+        try:
+            evento = EventoPresencial.objects.get(id=evento_id)
+        except EventoPresencial.DoesNotExist:
+            from django.http import Http404
+            raise Http404("Evento no encontrado.")
+        
+        if not request.user.is_authenticated:
+            from django.http import Http404
+            raise Http404("Evento no encontrado. Debes iniciar sesión.")
+        
+        if request.user.is_authenticated:
+            from pe_staff.models import StaffMember
+            from pe_registration.models import Registration
+            es_staff = StaffMember.objects.filter(event_id=evento_id, user=request.user).exists()
+            tiene_registro = Registration.objects.filter(event_id=evento_id, user=request.user).exists()
+            esta_suscrito = Suscripcion.objects.filter(usuario=request.user, evento_id=evento_id, tipo_evento='presencial').exists()
+            es_organizador = (request.user == evento.organizer)
+            
+            if not (es_organizador or es_staff or tiene_registro or esta_suscrito):
+                from django.http import Http404
+                raise Http404("No tienes permiso para ver este evento.")
+    
     evento_data = {
         'id': evento.id,
         'titulo': evento.title,

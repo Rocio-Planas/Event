@@ -87,6 +87,48 @@
         {% endif %}
     </div>
 
+    {% if asignaciones_staff or user.rol == 'staff' %}
+    <div class="mb-12">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">badge</span>
+                <span>Mis asignaciones como Staff</span>
+            </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for asignacion in asignaciones_staff %}
+            <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition">
+                <div class="h-40 overflow-hidden">
+                    {% if asignacion.event.image %}
+                    <img src="{{ asignacion.event.image.url }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" alt="{{ asignacion.event.title }}" />
+                    {% else %}
+                    <div class="w-full h-full bg-surface-container-high flex items-center justify-center">
+                        <span class="material-symbols-outlined text-5xl text-outline">badge</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="p-4">
+                    <h3 class="font-bold text-on-surface">{{ asignacion.event.title }}</h3>
+                    {% if asignacion.get_user_type_display %}
+                    <p class="text-xs text-on-surface-variant mt-1 mb-1">
+                        Tipo de usuario: {{ asignacion.get_user_type_display }}
+                    </p>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <a href="{% url 'pe_staff:dashboard_staff' asignacion.event.id %}"
+                            class="block w-full text-center py-2 text-sm font-semibold border border-outline-variant rounded-lg hover:bg-surface-container-high" data-i18n="ver">
+                            Ver
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="mb-12">
         <h2 class="text-xl font-semibold text-on-surface mb-4 flex items-center gap-2">
             <span class="material-symbols-outlined text-primary">notifications_active</span>
