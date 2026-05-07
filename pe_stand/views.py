@@ -538,134 +538,155 @@ def add_resources(request, stand_id):
 
         return JsonResponse({
             'success': True,
-            'message': 'Recursos agregados correctamente',
-            'added_items': added_items,
+            'message': f'{len(added_items)} recurso(s) añadido(s) correctamente',
+            'added': added_items
         })
 
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Datos inválidos'}, status=400)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-@login_required
-def delete_resource(request, stand_id):
-    """
-    API para eliminar un recurso asignado.
-    POST /api/stands/<stand_id>/delete-resource/
-    """
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Método no permitido'}, status=405)
-    
-    try:
-        StandAssignment = apps.get_model('pe_inventory', 'StandAssignment')
-        
-        data = json.loads(request.body)
-        assignment_id = data.get('assignment_id')
-        
-        if not assignment_id:
-            return JsonResponse({'error': 'ID de asignación requerido'}, status=400)
-        
-        assignment = get_object_or_404(StandAssignment, id=assignment_id, stand_id=stand_id)
-        assignment.delete()
-        
-        return JsonResponse({
-            'success': True,
-            'message': 'Recurso eliminado correctamente'
-        })
-        
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Datos inválidos'}, status=400)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-@login_required
-def add_staff_to_stand(request, stand_id):
-    """
-    API para añadir personal del evento a un stand.
-    POST /api/stands/<stand_id>/add-staff/
-    """
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Método no permitido'}, status=405)
-    
-    # Mapeo de roles de pe_staff a nombres legibles
-    role_mapping = {
-        'LIDER_ZONA': 'Líder de Zona',
-        'SOPORTE': 'Soporte Técnico',
-        'RECEPCION': 'Recepción',
-        'SEGURIDAD': 'Seguridad',
-        'MONTAJE': 'Montaje',
-        'CATERING': 'Catering',
-        'ATENCION': 'Atención al Público',
-        'ponente': 'Ponente',
-        'staff': 'Staff',
-    }
-    
-    try:
-        data = json.loads(request.body)
-        users = data.get('users', [])
-        
-        if not users:
-            return JsonResponse({'error': 'Usuarios requeridos'}, status=400)
-        
-        stand = get_object_or_404(Stand, id=stand_id)
-        
-        added = []
-        errors = []
-        
-        for user_data in users:
-            user_id = int(user_data.get('user_id'))
-            pe_role = user_data.get('role', 'Otro')
-            
-            # Mapear rol de pe_staff a StandStaff
-            stand_role = role_mapping.get(pe_role, 'Otro')
-            
-            # Obtener el objeto User
-            user = get_object_or_404(User, id=user_id)
-            
-            # Verificar que no esté ya asignado
-            if StandStaff.objects.filter(stand=stand, user=user).exists():
-                errors.append(f'Usuario {user_id} ya está asignado')
-                continue
-            
-            # Crear la asignación en StandStaff
-            staff_member = StandStaff(
-                stand=stand,
-                user=user,
-                role=stand_role
-            )
-            try:
-                staff_member.full_clean()
-                staff_member.save()
-                added.append(user_id)
-                
-                # También actualizar el campo zone en StaffMember si existe
-                from pe_staff.models import StaffMember
-                staff_member_obj = StaffMember.objects.filter(
-                    event_id=stand.event_id,
-                    user_id=user_id
-                ).first()
-                if staff_member_obj:
-                    staff_member_obj.zone = stand.name
-                    staff_member_obj.save(update_fields=['zone'])
-                    
-            except Exception as e:
-                errors.append(f'Error saving: {str(e)}')
-                continue
-        
-        return JsonResponse({
-            'success': True,
-            'message': f'{len(added)} personal añadido correctamente',
-            'added': added,
-            'errors': errors
-        })
-        
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Datos inválidos'}, status=400)
     except Exception as e:
         import traceback
         return JsonResponse({'error': str(e), 'trace': traceback.format_exc()}, status=500)
+
+
+@login_required
+def update_stand(request, stand_id):
+    """
+    API para actualizar los datos de un stand.
+    POST /api/stands/<stand_id>/update/
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+    try:
+        stand = get_object_or_404(Stand, id=stand_id)
+        data = json.loads(request.body)
+
+        name = data.get('name')
+        location = data.get('location')
+        capacity = data.get('capacity')
+
+        if not name or not name.strip():
+            return JsonResponse({'error': 'El nombre es requerido'}, status=400)
+        if not location or not location.strip():
+            return JsonResponse({'error': 'La ubicación es requerida'}, status=400)
+        if capacity is None or capacity == '':
+            return JsonResponse({'error': 'La capacidad es requerida'}, status=400)
+        try:
+            capacity = int(capacity)
+            if capacity < 1:
+                return JsonResponse({'error': 'La capacidad debe ser mayor a 0'}, status=400)
+        except (ValueError, TypeError):
+            return JsonResponse({'error': 'La capacidad debe ser un número válido'}, status=400)
+
+        stand.name = name.strip()
+        stand.location = location.strip()
+        stand.capacity = capacity
+        stand.save()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Stand actualizado correctamente',
+            'stand': {
+                'id': stand.id,
+                'name': stand.name,
+                'location': stand.location,
+                'capacity': stand.capacity,
+            }
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Datos inválidos'}, status=400)
+    except Exception as e:
+        import traceback
+        return JsonResponse({'error': str(e), 'trace': traceback.format_exc()}, status=500)
+
+
+@login_required
+def add_staff_to_stand(request, stand_id):
+    """
+    API para agregar personal a un stand.
+    POST /api/stands/<stand_id>/add-staff/
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+    try:
+        stand = get_object_or_404(Stand, id=stand_id)
+        data = json.loads(request.body)
+        users = data.get('users', [])
+
+        if not users:
+            return JsonResponse({'error': 'Lista de usuarios requerida'}, status=400)
+
+        added = []
+        errors = []
+
+        for item in users:
+            user_id = item.get('user_id')
+            role = item.get('role', 'Staff')
+            if not user_id:
+                errors.append({'user_id': user_id, 'error': 'ID de usuario requerido'})
+                continue
+
+            user = get_object_or_404(User, id=user_id)
+
+            existing = StandStaff.objects.filter(stand=stand, user=user).first()
+            if existing:
+                errors.append({'user_id': user_id, 'error': 'Usuario ya asignado a este stand'})
+                continue
+
+            staff = StandStaff.objects.create(stand=stand, user=user, role=role)
+            added.append({
+                'user_id': user.id,
+                'name': user.get_full_name() or user.email,
+                'role': role
+            })
+
+        return JsonResponse({
+            'success': True,
+            'message': f'{len(added)} miembro(s) añadido(s) correctamente',
+            'added': added,
+            'errors': errors
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Datos inválidos'}, status=400)
+    except Exception as e:
+        import traceback
+        return JsonResponse({'error': str(e), 'trace': traceback.format_exc()}, status=500)
+
+
+@login_required
+def delete_resource(request, stand_id):
+    """
+    API para eliminar un recurso asignado a un stand.
+    POST /stands/<stand_id>/delete-resource/
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+    try:
+        StandAssignment = apps.get_model('pe_inventory', 'StandAssignment')
+
+        data = json.loads(request.body)
+        assignment_id = data.get('assignment_id')
+
+        if not assignment_id:
+            return JsonResponse({'error': 'ID de asignación requerido'}, status=400)
+
+        assignment = get_object_or_404(StandAssignment, id=assignment_id, stand_id=stand_id)
+        assignment.delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Recurso eliminado correctamente'
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Datos inválidos'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @login_required
@@ -864,6 +885,56 @@ def add_activities_to_stand(request, stand_id):
         
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Datos inválidos'}, status=400)
+    except Exception as e:
+        import traceback
+        return JsonResponse({'error': str(e), 'trace': traceback.format_exc()}, status=500)
+
+
+@login_required
+def delete_stand(request, stand_id):
+    """
+    API para eliminar un stand.
+    POST /api/stands/<stand_id>/delete/
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+    try:
+        stand = Stand.objects.get(id=stand_id)
+        event_id = stand.event.id
+        stand_name = stand.name
+
+        staff_members = list(stand.staff.all())
+        for sm in staff_members:
+            if sm.user_id:
+                from pe_staff.models import StaffMember
+                StaffMember.objects.filter(
+                    event_id=stand.event_id,
+                    user_id=sm.user_id,
+                    zone=stand.name
+                ).update(zone='')
+            sm.delete()
+
+        for sa in stand.activities.all():
+            try:
+                from pe_agenda.models import Activity
+                Activity.objects.filter(id=sa.activity_id).update(location='')
+            except Exception:
+                pass
+            sa.delete()
+
+        for sa in stand.item_assignments.all():
+            sa.delete()
+
+        stand.delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Stand "{stand_name}" eliminado correctamente',
+            'event_id': event_id
+        })
+    except Stand.DoesNotExist:
+        return JsonResponse({'error': 'Stand no encontrado'}, status=404)
     except Exception as e:
         import traceback
         return JsonResponse({'error': str(e), 'trace': traceback.format_exc()}, status=500)

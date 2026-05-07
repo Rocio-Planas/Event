@@ -536,7 +536,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 </td>
                                 <td><span class="badge bg-primary text-white item-category">${item.category}</span></td>
                                 <td>
-                                    <span class="fw-bold text-dark">${item.used_stock}/${item.total_stock}</span>
+                                    <span class="fw-bold" style="color: var(--text-on-surface-variant);">${item.used_stock}/${item.total_stock}</span>
                                 </td>
                                 <td><span class="badge ${statusBadgeClass} item-status">${item.status}</span></td>
                                 <td>

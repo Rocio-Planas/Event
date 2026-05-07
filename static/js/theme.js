@@ -58,21 +58,13 @@ function initUserMenu() {
     const userBtn = document.getElementById("user-menu-btn");
     const userMenu = document.getElementById("user-menu");
     if (userBtn && userMenu) {
-        // Eliminar event listeners anteriores para evitar duplicados
-        const newUserBtn = userBtn.cloneNode(true);
-        userBtn.parentNode.replaceChild(newUserBtn, userBtn);
-
-        newUserBtn.addEventListener("click", function (e) {
+        userBtn.addEventListener("click", function (e) {
             e.stopPropagation();
-            if (userMenu.style.display === "block") {
-                userMenu.style.display = "none";
-            } else {
-                userMenu.style.display = "block";
-            }
+            userMenu.classList.toggle("show");
         });
 
         document.addEventListener("click", function () {
-            userMenu.style.display = "none";
+            userMenu.classList.remove("show");
         });
     }
 }

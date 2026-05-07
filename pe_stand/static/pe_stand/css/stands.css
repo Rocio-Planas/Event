@@ -137,3 +137,41 @@
     border-color: var(--border-outline-variant);
     color: var(--text-on-surface);
 }
+
+.dark .form-control::placeholder {
+    color: var(--text-on-surface-variant);
+}
+
+.dark .form-select {
+    background-color: var(--surface-container-high);
+    border-color: var(--border-outline-variant);
+    color: var(--text-on-surface);
+}
+
+.dark .list-group-item {
+    background-color: transparent;
+    color: var(--text-on-surface);
+    border-color: var(--border-outline-variant);
+}
+
+.dark .list-group-item:hover {
+    background-color: var(--surface-container-high) !important;
+}
+
+.dark .badge,
+.dark span.badge {
+    background-color: var(--surface-container-high) !important;
+    color: var(--text-on-surface) !important;
+}
+
+.dark .btn-close {
+    filter: invert(1);
+}
+
+.dark .activity-card {
+    border: 1px solid var(--border-outline-variant);
+}
+
+.dark .activity-card:hover {
+    border-color: var(--primary);
+}

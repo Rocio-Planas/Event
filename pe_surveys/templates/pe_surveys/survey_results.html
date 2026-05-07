@@ -3,7 +3,7 @@
 
 {% block title %}Resultados de la encuesta - {{ survey.title }}{% endblock %}
 
-{% block extra_css %}
+{% block extra_head %}
 <link rel="stylesheet" href="{% static 'pe_inventory/inventory/css/styles.css' %}">
 {% endblock %}
 
@@ -65,9 +65,6 @@
                     <div class="progress" style="height: 24px;">
                         <div class="progress-bar progress-bar-success" style="width: {{ values|length|add:0 }}%; background-color: #06a77d;">
                         </div>
-                    </div>
-                    <div class="text-center mt-1">
-                        <span class="fw-bold">{{ values|length }}</span>
                     </div>
                 </div>
                 {% endfor %}

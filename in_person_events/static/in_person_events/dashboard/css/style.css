@@ -324,6 +324,10 @@ button.btn.btn-gradient {
     margin-right: 2px;
 }
 
+.dark .announcement-modal-header {
+    background-color: #2a2a3a;
+}
+
 .stat-card small {
     font-size: 0.75rem;
 }

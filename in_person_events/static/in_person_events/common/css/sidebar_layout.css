@@ -237,4 +237,25 @@ body {
         opacity: 1;
         pointer-events: auto;
     }
+
+/* User Menu Dropdown */
+.user-menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.user-menu-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+#user-menu {
+    display: none;
+}
+
+#user-menu.show {
+    display: block !important;
+}
 }
