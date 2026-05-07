@@ -19,7 +19,7 @@
                         </div>
                         <h1 class="ev-title h3 fw-extrabold mb-2">{{ survey.title }}</h1>
                         <p class="ev-subtitle text-muted small">
-                            Encuesta del evento: <strong>{{ survey.event.title }}</strong>
+                            <span data-i18n="survey_event_label">Encuesta del evento:</span> <strong>{{ survey.event.title }}</strong>
                         </p>
                     </header>
 
@@ -30,7 +30,7 @@
                         
                         {% if survey.survey_type == 'escala' %}
                             <div class="mb-5">
-                                <label class="ev-label small fw-bold text-uppercase tracking-wider mb-3 d-block">Tu valoración</label>
+                                <label class="ev-label small fw-bold text-uppercase tracking-wider mb-3 d-block" data-i18n="your_rating">Tu valoración</label>
                                 <div class="d-flex justify-content-between gap-2 mb-3">
                                     {% for i in "12345" %}
                                     <div class="text-center">
@@ -40,14 +40,14 @@
                                     {% endfor %}
                                 </div>
                                 <div class="d-flex justify-content-between">
-                                    <small class="text-muted">Muy insatisfecho</small>
-                                    <small class="text-muted">Muy satisfecho</small>
+                                    <small class="text-muted" data-i18n="very_dissatisfied">Muy insatisfecho</small>
+                                    <small class="text-muted" data-i18n="very_satisfied">Muy satisfecho</small>
                                 </div>
                             </div>
                         {% elif survey.survey_type == 'texto' %}
                             <div class="mb-5">
                                 <label class="ev-label small fw-bold text-uppercase tracking-wider mb-3 d-block">
-                                    {% if survey.is_multiple_choice %}Selecciona una o más opciones{% else %}Selecciona una opción{% endif %}
+                                    {% if survey.is_multiple_choice %}<span data-i18n="select_one_or_more">Selecciona una o más opciones</span>{% else %}<span data-i18n="select_one_option">Selecciona una opción</span>{% endif %}
                                 </label>
                                 <div class="d-grid gap-3">
                                     {% for option in survey.options.all %}
@@ -61,23 +61,23 @@
                         {% endif %}
 
                         <div class="mb-5">
-                            <label class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block">Comentarios adicionales (opcional)</label>
-                            <textarea class="form-control border-0 bg-light" id="comments" rows="3" placeholder="Tu opinión nos importa..."></textarea>
+                            <label class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="additional_comments">Comentarios adicionales (opcional)</label>
+                            <textarea class="form-control border-0 bg-light" id="comments" rows="3" placeholder="Tu opinión nos importa..." data-i18n-placeholder="comments_placeholder"></textarea>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
                             <button type="submit" class="btn btn-primary btn-lg py-3 rounded-4 fw-bold text-uppercase tracking-widest shadow-sm">
                                 <span class="material-symbols-outlined me-2">send</span>
-                                Enviar Respuesta
+                                <span data-i18n="send_response">Enviar Respuesta</span>
                             </button>
                         </div>
                     </form>
 
                     <div id="successMessage" class="text-center py-5 d-none">
                         <span class="material-symbols-outlined text-success" style="font-size: 80px;">check_circle</span>
-                        <h2 class="h3 fw-extrabold mt-4 mb-3">¡Gracias!</h2>
-                        <p class="text-muted">Tu respuesta ha sido enviada correctamente.</p>
-                        <p class="text-muted small">Puedes cerrar esta ventana.</p>
+                        <h2 class="h3 fw-extrabold mt-4 mb-3" data-i18n="thank_you">¡Gracias!</h2>
+                        <p class="text-muted" data-i18n="response_sent">Tu respuesta ha sido enviada correctamente.</p>
+                        <p class="text-muted small" data-i18n="close_window">Puedes cerrar esta ventana.</p>
                     </div>
                 </div>
             </div>
@@ -129,12 +129,12 @@ document.getElementById('surveyForm').addEventListener('submit', function(e) {
             document.getElementById('surveyForm').classList.add('d-none');
             document.getElementById('successMessage').classList.remove('d-none');
         } else {
-            alert(data.error || 'Error al enviar respuesta');
+            alert(data.error || translations.error_sending_response);
         }
     })
     .catch(function(err) {
         console.error(err);
-        alert('Error de conexión');
+        alert(translations.connection_error);
     });
 });
 

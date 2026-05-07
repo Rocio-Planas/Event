@@ -12,18 +12,18 @@
     <div class="p-4">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <h2 class="fw-800 display-6">Gestión de Inventario</h2>
-                <p class="text-muted mb-0">Supervisa el catálogo de recursos y activos logísticos en tiempo real.</p>
+                <h2 class="fw-800 display-6" data-i18n="inventory_management_title">Gestión de Inventario</h2>
+                <p class="text-muted mb-0" data-i18n="inventory_management_subtitle">Supervisa el catálogo de recursos y activos logísticos en tiempo real.</p>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" id="addItemBtn">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">add</span> Añadir Artículo
+                    <span class="material-symbols-outlined" style="font-size: 18px;">add</span> <span data-i18n="add_item">Añadir Artículo</span>
                 </button>
-                <button class="btn btn-outline-primary px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" id="exportExcelBtn" title="Descargar inventario en Excel">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">download</span> Exportar
+                <button class="btn btn-outline-primary px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" id="exportExcelBtn" data-i18n-title="export_inventory" title="Descargar inventario en Excel">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">download</span> <span data-i18n="export">Exportar</span>
                 </button>
-                <button class="btn btn-outline-primary px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" id="importExcelBtn" title="Cargar inventario desde Excel">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">upload</span> Importar
+                <button class="btn btn-outline-primary px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" id="importExcelBtn" data-i18n-title="import_inventory" title="Cargar inventario desde Excel">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">upload</span> <span data-i18n="import">Importar</span>
                 </button>
                 <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display: none;">
             </div>
@@ -36,7 +36,7 @@
                         <span class="material-symbols-outlined">inventory</span>
                     </div>
                     <div>
-                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">En Stock</small>
+                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="in_stock">En Stock</small>
                         <h3 class="fw-black mb-0" id="countInStock">{{ total_in_stock }}</h3>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
                         <span class="material-symbols-outlined">warning</span>
                     </div>
                     <div>
-                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Stock Bajo</small>
+                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="low_stock">Stock Bajo</small>
                         <h3 class="fw-black mb-0" id="countLowStock">{{ total_low_stock }}</h3>
                     </div>
                 </div>
@@ -58,7 +58,7 @@
                         <span class="material-symbols-outlined">error</span>
                     </div>
                     <div>
-                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Sin Stock</small>
+                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="no_stock">Sin Stock</small>
                         <h3 class="fw-black mb-0" id="countNoStock">{{ total_no_stock }}</h3>
                     </div>
                 </div>
@@ -68,16 +68,16 @@
         <div class="content-card mb-4 p-4 rounded-3 border">
             <div class="row g-3 align-items-center">
                 <div class="col-md-4">
-                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Artículo</label>
+                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="search_item">Buscar Artículo</label>
                     <div class="search-container shadow-sm rounded-2 w-100 position-relative">
                         <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: var(--text-on-surface-variant);">search</span>
-                        <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Nombre o ID..." id="activitySearch">
+                        <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" data-i18n-placeholder="search_item_placeholder" placeholder="Nombre o ID..." id="activitySearch">
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Categoría</label>
+                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="filter_by_category">Filtrar por Categoría</label>
                     <select class="form-select border-0 shadow-sm smaller fw-medium" id="filterCategory">
-                        <option value="all">Todas las Categorías</option>
+                        <option value="all" data-i18n="all_categories">Todas las Categorías</option>
                         <option value="mobiliario">Mobiliario</option>
                         <option value="tecnología e informática">Tecnología e Informática</option>
                         <option value="catering">Catering</option>
@@ -91,12 +91,12 @@
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Estado</label>
+                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="filter_by_status">Filtrar por Estado</label>
                     <select class="form-select border-0 shadow-sm smaller fw-medium" id="filterStatus">
-                        <option value="all">Todos los Estados</option>
-                        <option value="stock">En Stock</option>
-                        <option value="bajo">Stock Bajo</option>
-                        <option value="sin">Sin Stock</option>
+                        <option value="all" data-i18n="all_statuses">Todos los Estados</option>
+                        <option value="stock" data-i18n="in_stock_option">En Stock</option>
+                        <option value="bajo" data-i18n="low_stock_option">Stock Bajo</option>
+                        <option value="sin" data-i18n="no_stock_option">Sin Stock</option>
                     </select>
                 </div>
             </div>
@@ -107,12 +107,12 @@
                 <table class="table mb-0 align-middle">
                     <thead style="background-color: var(--surface-container-high);">
                         <tr>
-                            <th class="px-4 py-3">Detalle del Artículo</th>
-                            <th class="py-3">Categoría</th>
-                            <th class="py-3" style="min-width: 100px;">Uso (Usados/Total)</th>
-                            <th class="py-3">Estado</th>
-                            <th class="py-3">Observaciones</th>
-                            <th class="px-4 py-3 text-center">Acciones</th>
+                            <th class="px-4 py-3" data-i18n="item_detail">Detalle del Artículo</th>
+                            <th class="py-3" data-i18n="category_col">Categoría</th>
+                            <th class="py-3" style="min-width: 100px;" data-i18n="usage_col">Uso (Usados/Total)</th>
+                            <th class="py-3" data-i18n="status_col">Estado</th>
+                            <th class="py-3" data-i18n="observations_col">Observaciones</th>
+                            <th class="px-4 py-3 text-center" data-i18n="actions_col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="inventoryTableBody">
@@ -121,7 +121,7 @@
                 </table>
             </div>
             <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-high);">
-                <div class="small text-muted fw-bold" id="paginationInfo">Mostrando 1 artículos registrados</div>
+                <div class="small text-muted fw-bold" id="paginationInfo"><span data-i18n="showing_items">Mostrando</span> 1 <span data-i18n="items_registered">artículos registrados</span></div>
             </div>
         </div>
     </div>
@@ -130,7 +130,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-bottom">
-                    <h5 class="modal-title fw-800" id="inventoryModalLabel">Añadir Nuevo Artículo</h5>
+                    <h5 class="modal-title fw-800" id="inventoryModalLabel" data-i18n="add_new_item">Añadir Nuevo Artículo</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
@@ -138,11 +138,11 @@
                         {% csrf_token %}
                         <input type="hidden" id="itemId">
                         <div class="mb-3">
-                            <label for="itemName" class="form-label small fw-bold text-uppercase text-primary">Nombre del Artículo</label>
-                            <input type="text" class="form-control border-0 py-2" id="itemName" required placeholder="Ej. Silla Tolix">
+                            <label for="itemName" class="form-label small fw-bold text-uppercase text-primary" data-i18n="item_name_label">Nombre del Artículo</label>
+                            <input type="text" class="form-control border-0 py-2" id="itemName" required data-i18n-placeholder="item_name_placeholder" placeholder="Ej. Silla Tolix">
                         </div>
                         <div class="mb-3">
-                            <label for="itemCategory" class="form-label small fw-bold text-uppercase text-primary">Categoría</label>
+                            <label for="itemCategory" class="form-label small fw-bold text-uppercase text-primary" data-i18n="category_label">Categoría</label>
                             <select class="form-select border-0 py-2" id="itemCategory" required>
                                 <option value="Mobiliario">Mobiliario</option>
                                 <option value="Tecnología e Informática">Tecnología e Informática</option>
@@ -155,20 +155,20 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="itemTotal" class="form-label small fw-bold text-uppercase text-primary">Stock Total</label>
+                            <label for="itemTotal" class="form-label small fw-bold text-uppercase text-primary" data-i18n="total_stock_label">Stock Total</label>
                             <input type="number" class="form-control border-0 py-2" id="itemTotal" required min="1">
                         </div>
                         <div class="mb-3">
-                            <label for="itemImage" class="form-label small fw-bold text-uppercase text-primary">Subir Imagen</label>
+                            <label for="itemImage" class="form-label small fw-bold text-uppercase text-primary" data-i18n="upload_image_label">Subir Imagen</label>
                             <input type="file" class="form-control border-0 py-2" id="itemImage" accept="image/*">
                             <input type="hidden" id="itemImageData">
                         </div>
                         <div class="mb-3">
-                            <label for="itemNotes" class="form-label small fw-bold text-uppercase text-primary">Observaciones</label>
-                            <textarea class="form-control border-0" id="itemNotes" rows="3" placeholder="Detalles adicionales..."></textarea>
+                            <label for="itemNotes" class="form-label small fw-bold text-uppercase text-primary" data-i18n="observations_label">Observaciones</label>
+                            <textarea class="form-control border-0" id="itemNotes" rows="3" data-i18n-placeholder="observations_placeholder" placeholder="Detalles adicionales..."></textarea>
                         </div>
                         <div class="mt-4">
-                            <button type="submit" id="saveItemButton" class="btn btn-gradient w-100 py-3 fw-bold rounded-2">Guardar Artículo</button>
+                            <button type="submit" id="saveItemButton" class="btn btn-gradient w-100 py-3 fw-bold rounded-2" data-i18n="save_item">Guardar Artículo</button>
                         </div>
                     </form>
                 </div>
@@ -181,16 +181,16 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold text-danger" id="deleteItemModalLabel">Confirmar Eliminación</h5>
+                    <h5 class="modal-title fw-bold text-danger" id="deleteItemModalLabel" data-i18n="confirm_delete_title">Confirmar Eliminación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="mb-2">¿Estás seguro de que deseas eliminar el artículo <strong id="deleteItemName"></strong>?</p>
-                    <p class="text-muted small mb-0">Esta acción no se puede deshacer.</p>
+                    <p class="mb-2"><span data-i18n="delete_item_confirm">¿Estás seguro de que deseas eliminar el artículo</span> <strong id="deleteItemName"></strong>?</p>
+                    <p class="text-muted small mb-0" data-i18n="delete_warning">Esta acción no se puede deshacer.</p>
                 </div>
                 <div class="modal-footer border-top-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteBtn">Eliminar</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteBtn" data-i18n="delete">Eliminar</button>
                 </div>
             </div>
         </div>

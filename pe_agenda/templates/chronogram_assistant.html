@@ -20,21 +20,21 @@
                 <div class="mb-4">
                     <a href="{% url 'in_person_events:dashboard_assistant' event.id %}" class="back-link d-inline-flex align-items-center gap-2 text-secondary text-decoration-none fw-medium small">
                         <span class="material-symbols-outlined fs-6">arrow_back</span>
-                        Volver
+                        <span data-i18n="back">Volver</span>
                     </a>
                 </div>
 
                 <!-- Header Section -->
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-4 mb-5">
                     <div>
-                        <h1 class="display-5 fw-extrabold tracking-tight mb-1">Cronograma Completo</h1>
+                        <h1 class="display-5 fw-extrabold tracking-tight mb-1" data-i18n="full_schedule">Cronograma Completo</h1>
                         <p class="text-secondary fw-medium mb-0">{{ event.start_date|date:"l, j \d\e F \d\e Y" }}</p>
                     </div>
                     
                     <div class="d-flex align-items-center gap-2 ms-auto">
                         <div class="search-container" style="width: 280px;">
                             <span class="material-symbols-outlined search-icon fs-5">search</span>
-                            <input type="text" class="form-control search-input py-2" placeholder="Buscar sesiones..." id="search-input">
+                            <input type="text" class="form-control search-input py-2" data-i18n-placeholder="search_sessions" placeholder="Buscar sesiones..." id="search-input">
                         </div>
                     </div>
                 </div>
@@ -43,21 +43,21 @@
                     <div class="filter-panel p-4 border-bottom">
                         <div class="row g-3 align-items-end">
                             <div class="col-12 col-md-4">
-                                <label class="form-label text-secondary fw-semibold" for="filter-day">Filtrar por día</label>
+                                <label class="form-label text-secondary fw-semibold" for="filter-day" data-i18n="filter_by_day">Filtrar por día</label>
                                 <select id="filter-day" class="form-select">
-                                    <option value="all" selected>Todos los días</option>
+                                    <option value="all" selected data-i18n="all_days">Todos los días</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label text-secondary fw-semibold" for="filter-zone">Filtrar por zona</label>
+                                <label class="form-label text-secondary fw-semibold" for="filter-zone" data-i18n="filter_by_zone">Filtrar por zona</label>
                                 <select id="filter-zone" class="form-select">
-                                    <option value="all" selected>Todas las zonas</option>
+                                    <option value="all" selected data-i18n="all_zones">Todas las zonas</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label text-secondary fw-semibold" for="filter-speaker">Filtrar por ponente</label>
+                                <label class="form-label text-secondary fw-semibold" for="filter-speaker" data-i18n="filter_by_speaker">Filtrar por ponente</label>
                                 <select id="filter-speaker" class="form-select">
-                                    <option value="all" selected>Todos los ponentes</option>
+                                    <option value="all" selected data-i18n="all_speakers">Todos los ponentes</option>
                                 </select>
                             </div>
                         </div>
@@ -83,28 +83,28 @@
                             <p class="session-description">{{ activity.description|default:'Sin descripción disponible.' }}</p>
                             {% if activity.speaker_name %}
                             <p class="session-speaker">
-                                <strong>Ponente:</strong>
+                                <strong data-i18n="speaker_label">Ponente:</strong>
                                 {{ activity.speaker_name }}
                             </p>
                             {% endif %}
                         </div>
                         <a href="{% url 'pe_agenda:info_activity' event.id activity.id %}" class="btn btn-compact d-flex align-items-center gap-2 text-decoration-none">
                             <span class="material-symbols-outlined fs-6">visibility</span>
-                            Ver detalles
+                            <span data-i18n="view_details">Ver detalles</span>
                         </a>
                     </div>
                     {% empty %}
                     <div class="p-5 text-center">
                         <span class="material-symbols-outlined display-1 text-light mb-3">event_busy</span>
-                        <h4 class="fw-bold">No hay actividades programadas</h4>
-                        <p class="text-secondary">Este evento aún no tiene actividades definidas.</p>
+                        <h4 class="fw-bold" data-i18n="no_activities_scheduled">No hay actividades programadas</h4>
+                        <p class="text-secondary" data-i18n="no_activities_message">Este evento aún no tiene actividades definidas.</p>
                     </div>
                     {% endfor %}
 
                     <div id="empty-state" class="p-5 text-center d-none">
                         <span class="material-symbols-outlined display-1 text-light mb-3">search_off</span>
-                        <h4 class="fw-bold">No hay actividades que coincidan</h4>
-                        <p class="text-secondary">Ajusta los filtros o borra la búsqueda para ver más actividades.</p>
+                        <h4 class="fw-bold" data-i18n="no_matching_activities">No hay actividades que coincidan</h4>
+                        <p class="text-secondary" data-i18n="adjust_filters_message">Ajusta los filtros o borra la búsqueda para ver más actividades.</p>
                     </div>
 
                 </div>

@@ -130,12 +130,14 @@
     // Función para cerrar el dropdown de notificaciones (si está abierto)
     const closeNotificationDropdown = function () {
       // Usamos Bootstrap API para cerrar el dropdown
-      const instance = bootstrap.Dropdown.getInstance(notificationBtn);
-      if (
-        instance &&
-        notificationBtn.getAttribute("aria-expanded") === "true"
-      ) {
-        instance.hide();
+      if (typeof bootstrap !== 'undefined') {
+        const instance = bootstrap.Dropdown.getInstance(notificationBtn);
+        if (
+          instance &&
+          notificationBtn.getAttribute("aria-expanded") === "true"
+        ) {
+          instance.hide();
+        }
       }
     };
 

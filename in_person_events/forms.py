@@ -23,6 +23,7 @@ class EventForm(forms.ModelForm):
         widget=forms.Textarea(attrs={
             'class': 'form-control ev-input py-3 px-4 rounded-3',
             'rows': 3,
+            'data-i18n-placeholder': 'invite_placeholder_in_person',
             'placeholder': 'Ingresa direcciones de email separadas por comas...'
         }),
         required=False,
@@ -86,12 +87,14 @@ class EventForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control ev-input py-3 px-4 rounded-3',
+                'data-i18n-placeholder': 'title_placeholder',
                 'placeholder': 'Ej: Conferencia Tech 2024',
                 'required': 'required'
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control ev-input py-3 px-4 rounded-3',
                 'rows': 4,
+                'data-i18n-placeholder': 'description_placeholder',
                 'placeholder': 'Describe de qué trata tu evento...',
                 'required': 'required'
             }),
@@ -107,6 +110,7 @@ class EventForm(forms.ModelForm):
             }, format='%Y-%m-%dT%H:%M'),
             'location': forms.TextInput(attrs={
                 'class': 'form-control ev-input py-3 px-4 rounded-3',
+                'data-i18n-placeholder': 'location_placeholder',
                 'placeholder': 'Busca una ubicación o dirección...',
                 'required': 'required'
             }),
@@ -116,6 +120,7 @@ class EventForm(forms.ModelForm):
                 'min': 1,
                 'max': 2000,
                 'step': 1,
+                'data-i18n-placeholder': 'capacity_placeholder',
                 'placeholder': 'Capacidad máxima',
                 'required': 'required'
             }),

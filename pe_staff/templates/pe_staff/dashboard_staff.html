@@ -14,7 +14,7 @@
         <div class="max-w-7xl mx-auto">
             <a href="{% url 'usuarios:dashboard' %}" class="text-decoration-none text-white fw-bold d-flex align-items-center gap-1 mb-4" style="width: fit-content;">
                 <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span>
-                Volver
+                <span data-i18n="back">Volver</span>
             </a>
             <div class="text-white">
                 <div class="d-flex align-items-center gap-3 mb-3">
@@ -52,7 +52,7 @@
                 <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
                     <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
                         <span class="material-symbols-outlined text-primary">{% if 'ponente' in my_assignment.get_user_type_display|lower %}mic{% else %}location_on{% endif %}</span>
-                        {% if 'ponente' in my_assignment.get_user_type_display|lower %}Actividad Asignada{% else %}Zona Asignada{% endif %}
+                        {% if 'ponente' in my_assignment.get_user_type_display|lower %}<span data-i18n="assigned_activity">Actividad Asignada</span>{% else %}<span data-i18n="assigned_zone">Zona Asignada</span>{% endif %}
                     </h4>
                     <div class="d-flex align-items-center gap-3 mt-3">
                         <div>
@@ -61,7 +61,7 @@
                                 <div class="mt-4">
                                     <a href="{% url 'pe_agenda:info_activity' event.id my_assignment.activity.id %}" class="btn btn-compact d-flex align-items-center gap-2 text-decoration-none">
                                         <span class="material-symbols-outlined fs-6">visibility</span>
-                                        Ver detalles
+                                        <span data-i18n="view_details">Ver detalles</span>
                                     </a>
                                 </div>
                             {% else %}
@@ -69,7 +69,7 @@
                                 <div class="mt-4">
                                     <a href="{% url 'pe_stand:detail_v2' event.id zone_stand.id %}" class="btn btn-compact d-flex align-items-center gap-2 text-decoration-none">
                                         <span class="material-symbols-outlined fs-6">visibility</span>
-                                        Ver detalles
+                                        <span data-i18n="view_details">Ver detalles</span>
                                     </a>
                                 </div>
                             {% endif %}
@@ -82,19 +82,19 @@
                 <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
                     <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
                         <span class="material-symbols-outlined text-primary">mail</span>
-                        Mensaje al Organizador
+                        <span data-i18n="message_to_organizer">Mensaje al Organizador</span>
                     </h4>
-                    <p class="text-muted mb-4" style="color: var(--text-on-surface-variant);">Envía un mensaje directo al organizador del evento</p>
+                    <p class="text-muted mb-4" style="color: var(--text-on-surface-variant);" data-i18n="message_subtitle">Envía un mensaje directo al organizador del evento</p>
 
                     <form id="message-form" method="post" action="{% url 'pe_staff:send_message_to_organizer' event.id %}">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="message" class="form-label">Mensaje</label>
-                            <textarea class="form-control" id="message" name="message" rows="4" placeholder="Escribe tu mensaje aquí..." required></textarea>
+                            <label for="message" class="form-label" data-i18n="message_label">Mensaje</label>
+                            <textarea class="form-control" id="message" name="message" rows="4" data-i18n-placeholder="message_placeholder" placeholder="Escribe tu mensaje aquí..." required></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
                             <span class="material-symbols-outlined" style="font-size: 18px;">send</span>
-                            Enviar Mensaje
+                            <span data-i18n="send_message">Enviar Mensaje</span>
                         </button>
                     </form>
                 </div>
@@ -105,7 +105,7 @@
                 <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
                     <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
                         <span class="material-symbols-outlined text-primary">person</span>
-                        Mi Rol
+                        <span data-i18n="my_role">Mi Rol</span>
                     </h4>
                     <div class="d-flex align-items-center gap-3 mt-3">
                         <div class="position-relative d-inline-block">
@@ -130,7 +130,7 @@
                 <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
                     <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
                         <span class="material-symbols-outlined text-primary">groups</span>
-                        Quién lo organiza
+                        <span data-i18n="organized_by">Quién lo organiza</span>
                     </h4>
                     <div class="text-center">
                         <div class="position-relative d-inline-block mb-3">

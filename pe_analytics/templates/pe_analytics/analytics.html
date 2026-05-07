@@ -12,13 +12,13 @@
     <div class="p-4">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <h2 class="fw-800 display-6">Analíticas del Evento</h2>
-                <p class="text-muted mb-0">Resumen de rendimiento y estadísticas</p>
+                <h2 class="fw-800 display-6" data-i18n="event_analytics">Analíticas del Evento</h2>
+                <p class="text-muted mb-0" data-i18n="performance_summary">Resumen de rendimiento y estadísticas</p>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" onclick="exportReport()">
                     <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
-                    Exportar PDF
+                    <span data-i18n="export_pdf">Exportar PDF</span>
                 </button>
             </div>
         </div>
@@ -30,7 +30,7 @@
                         <span class="material-symbols-outlined">payments</span>
                     </div>
                     <div>
-                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Ingresos Totales</small>
+                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="total_revenue_label">Ingresos Totales</small>
                         <h3 class="fw-black mb-0">${{ total_revenue|floatformat:2 }}</h3>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
                         <span class="material-symbols-outlined">groups</span>
                     </div>
                     <div>
-                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Total Asistentes</small>
+                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="total_attendees_label">Total Asistentes</small>
                         <h3 class="fw-black mb-0">{{ total_attendance }}</h3>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                         <span class="material-symbols-outlined">confirmation_number</span>
                     </div>
                     <div>
-                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Precio Promedio</small>
+                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="average_price_label">Precio Promedio</small>
                         <h3 class="fw-black mb-0">${{ avg_ticket_price|floatformat:2 }}</h3>
                     </div>
                 </div>
@@ -64,8 +64,8 @@
                 <div class="content-card border-0 shadow-sm p-4 rounded-3 h-100">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h5 class="fw-bold mb-1" style="color: var(--text-on-surface);">Inscripciones por Fecha</h5>
-                            <p class="text-muted small mb-0">Número de inscripciones acumuladas</p>
+                            <h5 class="fw-bold mb-1" style="color: var(--text-on-surface);" data-i18n="registrations_by_date">Inscripciones por Fecha</h5>
+                            <p class="text-muted small mb-0" data-i18n="registrations_subtitle">Número de inscripciones acumuladas</p>
                         </div>
                     </div>
                     <div class="chart-container" style="height: 300px;">
@@ -75,8 +75,8 @@
             </div>
             <div class="col-lg-4">
                 <div class="content-card border-0 shadow-sm p-4 rounded-3 h-100">
-                    <h5 class="fw-bold mb-1" style="color: var(--text-on-surface);">Distribución por Tipo</h5>
-                    <p class="text-muted small mb-4">Desglose de tickets</p>
+                    <h5 class="fw-bold mb-1" style="color: var(--text-on-surface);" data-i18n="distribution_by_type">Distribución por Tipo</h5>
+                    <p class="text-muted small mb-4" data-i18n="ticket_breakdown">Desglose de tickets</p>
                     <div class="chart-container mx-auto mb-4" style="height: 180px; width: 180px;">
                         <canvas id="pieChart"></canvas>
                     </div>
@@ -90,8 +90,8 @@
                 <div class="content-card border-0 shadow-sm p-4 rounded-3 h-100">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h5 class="fw-bold mb-1" style="color: var(--text-on-surface);">Demografía por Edad</h5>
-                            <p class="text-muted small mb-0">Distribución de asistentes por grupo de edad</p>
+                            <h5 class="fw-bold mb-1" style="color: var(--text-on-surface);" data-i18n="age_demographics">Demografía por Edad</h5>
+                            <p class="text-muted small mb-0" data-i18n="age_demographics_subtitle">Distribución de asistentes por grupo de edad</p>
                         </div>
                     </div>
                     <div class="chart-container" style="height: 250px;">
@@ -103,8 +103,8 @@
                 <div class="content-card border-0 shadow-sm p-4 rounded-3 h-100">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h5 class="fw-bold mb-1" style="color: var(--text-on-surface);">Distribución por Género</h5>
-                            <p class="text-muted small mb-0">Datos demográficos autodeclarados</p>
+                            <h5 class="fw-bold mb-1" style="color: var(--text-on-surface);" data-i18n="gender_distribution">Distribución por Género</h5>
+                            <p class="text-muted small mb-0" data-i18n="gender_subtitle">Datos demográficos autodeclarados</p>
                         </div>
                     </div>
                     <div class="chart-container" style="height: 250px;">

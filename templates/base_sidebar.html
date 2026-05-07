@@ -51,63 +51,63 @@
                     class="nav-link {% if active_page == 'resumen' %}active{% endif %}"
                 >
                     <span class="material-symbols-outlined">dashboard</span>
-                    Resumen
+                    <span data-i18n="summary">Resumen</span>
                 </a>
                 <a
                     href="{% url 'pe_registration:attendees' event.id %}"
                     class="nav-link {% if active_page == 'asistentes' %}active{% endif %}"
                 >
                     <span class="material-symbols-outlined">groups</span>
-                    Asistentes
+                    <span data-i18n="attendees">Asistentes</span>
                 </a>
                 <a
                     href="{% url 'pe_stand:dashboard' event.id %}"
                     class="nav-link {% if active_page == 'zona' %}active{% endif %}"
                 >
                     <span class="material-symbols-outlined">location_on</span>
-                    Zona
+                    <span data-i18n="zone">Zona</span>
                 </a>
                 <a
                     href="{% url 'pe_inventory:dashboard' event.id %}"
                     class="nav-link {% if active_page == 'inventario' %}active{% endif %}"
                 >
                     <span class="material-symbols-outlined">inventory_2</span>
-                    Inventario
+                    <span data-i18n="inventory">Inventario</span>
                 </a>
                 <a
                     href="{% url 'pe_agenda:activities' event.id %}"
                     class="nav-link {% if active_page == 'actividades' %}active{% endif %}"
                 >
                     <span class="material-symbols-outlined">event_note</span>
-                    Actividades
+                    <span data-i18n="activities">Actividades</span>
                 </a>
                 <a
                     href="{% url 'pe_staff:dashboard' event.id %}"
                     class="nav-link {% if active_page == 'equipo' %}active{% endif %}"
                 >
                     <span class="material-symbols-outlined">badge</span>
-                    Equipo
+                    <span data-i18n="team">Equipo</span>
                 </a>
                 <a
                     href="{% url 'pe_analytics:dashboard' event.id %}"
                     class="nav-link {% if active_page == 'analiticas' %}active{% endif %}"
                 >
                     <span class="material-symbols-outlined">leaderboard</span>
-                    Analíticas
+                    <span data-i18n="analytics">Analíticas</span>
                 </a>
                 <a
                     href="{% url 'pe_surveys:survey_list' event.id %}"
                     class="nav-link {% if active_page == 'encuestas' %}active{% endif %}"
                 >
                     <span class="material-symbols-outlined">poll</span>
-                    Encuestas
+                    <span data-i18n="surveys">Encuestas</span>
                 </a>
                 <a
                     href="{% url 'in_person_events:configure_event' event.id %}"
                     class="nav-link {% if active_page == 'configuracion' %}active{% endif %}"
                 >
                     <span class="material-symbols-outlined" >settings</span>
-                    Configuración
+                    <span data-i18n="settings">Configuración</span>
                 </a>
             </nav>
 
@@ -115,7 +115,7 @@
             <div class="mt-auto pt-3 border-top">
                 <a href="{% url 'usuarios:dashboard' %}" class="btn btn-link text-primary text-decoration-none d-flex align-items-center justify-content-center gap-2">
                     <span class="material-symbols-outlined">arrow_back</span>
-                    Salir del Evento
+                    <span data-i18n="exit_event">Salir del Evento</span>
                 </a>
             </div>
         </aside>
@@ -135,9 +135,9 @@
                 </nav>
 
                 <div class="d-flex align-items-center gap-3">
-                    <div class="lang-switch d-none d-md-flex">
-                        <button class="lang-btn lang-active" id="lang-es">ES</button>
-                        <button class="lang-btn" id="lang-en">EN</button>
+                    <div class="lang-switch">
+                        <button class="lang-btn lang-active" id="lang-es" data-i18n-title="lang_es">ES</button>
+                        <button class="lang-btn" id="lang-en" data-i18n-title="lang_en">EN</button>
                     </div>
                     <button class="theme-btn theme-toggle-btn" id="theme-toggle" aria-label="Cambiar tema">
                         <i class="bi bi-brightness-high-fill theme-icon" id="theme-icon" style="font-size: 1.5rem"></i>
@@ -199,13 +199,13 @@
                             {% endif %}
                         </button>
                         <div class="dropdown-menu-custom" id="user-menu">
-                            <a href="{% url 'usuarios:dashboard' %}" style="display: block; padding: 0.5rem 1rem; font-size: 0.875rem;">Mi Panel</a>
-                            <a href="{% url 'usuarios:perfil' %}" style="display: block; padding: 0.5rem 1rem; font-size: 0.875rem;">Mi Perfil</a>
+                            <a href="{% url 'usuarios:dashboard' %}" style="display: block; padding: 0.5rem 1rem; font-size: 0.875rem;" data-i18n="my_dashboard">Mi Panel</a>
+                            <a href="{% url 'usuarios:perfil' %}" style="display: block; padding: 0.5rem 1rem; font-size: 0.875rem;" data-i18n="my_profile">Mi Perfil</a>
                             {% if user.is_authenticated and user.rol == 'administrador' %}
-                            <a href="{% url 'core:admin_panel' %}" style="display: block; padding: 0.5rem 1rem; font-size: 0.875rem;">Panel de Administración</a>
+                            <a href="{% url 'core:admin_panel' %}" style="display: block; padding: 0.5rem 1rem; font-size: 0.875rem;" data-i18n="admin_panel">Panel de Administración</a>
                             {% endif %}
                             <div style="border-top: 1px solid var(--border-outline-variant); margin: 0.25rem 0;"></div>
-                            <a href="{% url 'usuarios:logout' %}" class="text-danger" style="display: block; padding: 0.5rem 1rem; font-size: 0.875rem;">Cerrar Sesión</a>
+                            <a href="{% url 'usuarios:logout' %}" class="text-danger" style="display: block; padding: 0.5rem 1rem; font-size: 0.875rem;" data-i18n="logout">Cerrar Sesión</a>
                         </div>
                     </div>
                     {% else %}

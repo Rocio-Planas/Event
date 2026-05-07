@@ -12,15 +12,15 @@
     <div class="p-4" data-event-id="{{ event_id }}">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <h2 class="fw-800 display-6">Gestión de Asistentes</h2>
-                <p class="text-muted mb-0">Administra la base de datos de invitados y supervisa el estado de sus reservaciones.</p>
+                <h2 class="fw-800 display-6" data-i18n="attendees_management_title">Gestión de Asistentes</h2>
+                <p class="text-muted mb-0" data-i18n="attendees_management_subtitle">Administra la base de datos de invitados y supervisa el estado de sus reservaciones.</p>
             </div>
             <div class="d-flex align-items-center gap-3">
-                <span class="text-muted small">Asistentes</span>
+                <span class="text-muted small" data-i18n="attendees_tab">Asistentes</span>
                 <div class="form-check form-switch mb-0">
                     <input class="form-check-input" type="checkbox" id="waitlistSwitch" onchange="toggleWaitlistView(this.checked)">
                 </div>
-                <span class="text-muted small">Lista de Espera</span>
+                <span class="text-muted small" data-i18n="waitlist_tab">Lista de Espera</span>
             </div>
         </div>
 
@@ -32,7 +32,7 @@
                     <span class="material-symbols-outlined">check_circle</span>
                 </div>
                 <div>
-                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Confirmados</small>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="confirmed">Confirmados</small>
                     <h3 class="fw-black mb-0" id="totalConfirmed">{{ total_confirmed }}</h3>
                 </div>
             </div>
@@ -43,7 +43,7 @@
                     <span class="material-symbols-outlined">hourglass_empty</span>
                 </div>
                 <div>
-                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Pendientes</small>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="pending">Pendientes</small>
                     <h3 class="fw-black mb-0" id="totalPending">{{ total_pending }}</h3>
                 </div>
             </div>

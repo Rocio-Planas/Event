@@ -14,7 +14,7 @@
         <div class="mb-4">
             <a href="javascript:window.history.back()" class="back-link d-inline-flex align-items-center gap-2 text-secondary text-decoration-none fw-medium small" style="cursor: pointer;">
                 <span class="material-symbols-outlined fs-6">arrow_back</span>
-                Volver
+                <span data-i18n="back">Volver</span>
             </a>
         </div>
 
@@ -37,7 +37,7 @@
                 <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
                     <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
                         <span class="material-symbols-outlined text-primary">description</span>
-                        Descripción General
+                        <span data-i18n="general_description">Descripción General</span>
                     </h4>
                     <p class="text-muted lh-lg mb-0" style="font-size: 1rem; color: var(--text-on-surface-variant);">
                         {{ activity.description|default:"No hay descripción disponible para esta actividad." }}
@@ -63,7 +63,7 @@
                         </div>
                         <div class="col-md-8">
                             <div class="p-4 p-lg-5">
-                                <span class="text-xs-caps text-primary fw-bold mb-2 d-block">Ponente Invitado</span>
+                                <span class="text-xs-caps text-primary fw-bold mb-2 d-block" data-i18n="guest_speaker">Ponente Invitado</span>
                                 <h3 class="fw-bold mb-2" style="color: var(--text-on-surface);">{{ activity.speaker_name }}</h3>
                                 <p class="text-muted fst-italic mb-4" style="color: var(--text-on-surface-variant);">{{ activity.speaker_email|default:"Información de contacto no disponible" }}</p>
 
@@ -74,7 +74,7 @@
                                 <div class="d-flex gap-3">
                                     {% if activity.speaker_email %}
                                     <a href="mailto:{{ activity.speaker_email }}" class="btn btn-outline-secondary btn-sm px-3 fw-semibold d-flex align-items-center gap-2">
-                                        <span class="material-symbols-outlined" style="font-size: 18px;">mail</span> Contacto
+                                        <span class="material-symbols-outlined" style="font-size: 18px;">mail</span> <span data-i18n="contact">Contacto</span>
                                     </a>
                                     {% endif %}
                                 </div>
@@ -90,22 +90,22 @@
                 <div class="card panel-operativo" style="padding: 2rem; border-radius: 1rem;">
                     <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
                         <span class="material-symbols-outlined text-primary">info</span>
-                        Detalles de Actividad
+                        <span data-i18n="activity_details">Detalles de Actividad</span>
                     </h4>
 
                     <div class="mb-4">
-                        <span class="text-xs-caps fw-bold">Zona</span>
+                        <span class="text-xs-caps fw-bold" data-i18n="zone_label">Zona</span>
                         <p class="mb-3" style="color: var(--text-on-surface); font-weight: 500;">{{ activity.location|default:"No asignada" }}</p>
                     </div>
 
                     <div class="mb-4">
-                        <span class="text-xs-caps fw-bold">Horario</span>
+                        <span class="text-xs-caps fw-bold" data-i18n="schedule_label">Horario</span>
                         <p class="mb-3" style="color: var(--text-on-surface); font-weight: 500;">{{ activity.start_time|date:"d/m/Y H:i" }} - {{ activity.end_time|date:"d/m/Y H:i" }}</p>
                     </div>
 
                     <div class="mb-4">
-                        <span class="text-xs-caps fw-bold">Duración</span>
-                        <p class="mb-0" style="color: var(--text-on-surface); font-weight: 500;">{{ activity.get_duration }} minutos</p>
+                        <span class="text-xs-caps fw-bold" data-i18n="duration_label">Duración</span>
+                        <p class="mb-0" style="color: var(--text-on-surface); font-weight: 500;">{{ activity.get_duration }} <span data-i18n="minutes">minutos</span></p>
                     </div>
                 </div>
             </div>

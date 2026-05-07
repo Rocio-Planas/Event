@@ -608,17 +608,54 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function openEditStandModal() {
-    document.getElementById('editStandName').value = document.querySelector('h3.h2').textContent.trim();
-    document.getElementById('editStandLocation').value = document.querySelector('[data-stand-id] .d-flex.gap-3 .material-symbols-outlined')?.closest('span')?.nextSibling?.textContent?.trim() || '';
-    var locationSpan = document.querySelector('[data-stand-id] .d-flex.gap-3 span:nth-child(1)');
-    if (locationSpan) {
-        document.getElementById('editStandLocation').value = locationSpan.textContent.trim();
+    console.log('openEditStandModal called');
+    
+    // Try to get data from data attributes first (most reliable)
+    var standContainer = document.querySelector('.p-4[data-stand-id]');
+    if (standContainer) {
+        var name = standContainer.getAttribute('data-stand-name');
+        var location = standContainer.getAttribute('data-stand-location');
+        var capacity = standContainer.getAttribute('data-stand-capacity');
+        
+        console.log('From data attributes - name:', name, 'location:', location, 'capacity:', capacity);
+        
+        if (name) document.getElementById('editStandName').value = name;
+        if (location) document.getElementById('editStandLocation').value = location;
+        if (capacity) document.getElementById('editStandCapacity').value = capacity;
+        
+        // If we got data from attributes, we're done
+        if (name && location && capacity) {
+            console.log('Data loaded from data attributes');
+            return;
+        }
     }
-    var capacitySpan = document.querySelector('[data-stand-id] .d-flex.gap-3 span:nth-child(2)');
-    if (capacitySpan) {
-        var match = capacitySpan.textContent.match(/Capacidad:\s*(\d+)/);
-        if (match) document.getElementById('editStandCapacity').value = match[1];
+    
+    // Fallback: parse from DOM
+    var h2 = document.querySelector('h3.h2');
+    if (h2) {
+        document.getElementById('editStandName').value = h2.textContent.trim();
     }
+    
+    // Find location from container with location_on icon
+    var infoContainer = document.querySelector('.d-flex.gap-3');
+    if (infoContainer) {
+        var spans = infoContainer.querySelectorAll(':scope > span');
+        for (var i = 0; i < spans.length; i++) {
+            var spanText = spans[i].textContent;
+            if (spanText.includes('location_on')) {
+                var locText = spanText.replace('location_on', '').trim();
+                document.getElementById('editStandLocation').value = locText;
+            }
+            if (spanText.includes('groups') || spanText.includes('Capacidad')) {
+                var match = spanText.match(/(\d+)/);
+                if (match) {
+                    document.getElementById('editStandCapacity').value = match[1];
+                }
+            }
+        }
+    }
+    
+    console.log('Final values - Name:', document.getElementById('editStandName').value, 'Location:', document.getElementById('editStandLocation').value, 'Capacity:', document.getElementById('editStandCapacity').value);
 }
 
 function saveStandEdit() {
@@ -667,12 +704,23 @@ function saveStandEdit() {
     });
 }
 
-document.getElementById('editStandModal').addEventListener('shown.bs.modal', openEditStandModal);
+document.addEventListener('DOMContentLoaded', function() {
+    var editStandModalEl = document.getElementById('editStandModal');
+    if (editStandModalEl) {
+        editStandModalEl.addEventListener('shown.bs.modal', openEditStandModal);
+    }
+});
 
 function openDeleteStandModal() {
-    document.getElementById('deleteStandName').textContent = document.querySelector('h3.h2').textContent.trim();
-    var modal = new bootstrap.Modal(document.getElementById('deleteStandModal'));
-    modal.show();
+    var nameEl = document.getElementById('deleteStandName');
+    if (nameEl) {
+        nameEl.textContent = document.querySelector('h3.h2').textContent.trim();
+    }
+    var modalEl = document.getElementById('deleteStandModal');
+    if (modalEl) {
+        var modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    }
 }
 
 function confirmDeleteStand() {
@@ -704,9 +752,9 @@ function confirmDeleteStand() {
     });
 }
 </script>
-<div class="p-4" data-event-id="{{ event_id }}" data-stand-id="{{ stand.id }}">
+<div class="p-4" data-event-id="{{ event_id }}" data-stand-id="{{ stand.id }}" data-stand-name="{{ stand.name }}" data-stand-location="{{ stand.location }}" data-stand-capacity="{{ stand.capacity }}">
     <a href="{% url 'pe_stand:dashboard' event_id %}" class="btn btn-link text-primary text-decoration-none mb-3 d-flex align-items-center gap-1 p-0">
-        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver
+        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> <span data-i18n="back">Volver</span>
     </a>
 
     <!-- Dashboard Header -->
@@ -731,18 +779,18 @@ function confirmDeleteStand() {
                 >
                 <span class="d-flex align-items-center gap-1"
                     ><span class="material-symbols-outlined fs-6">groups</span>
-                    Capacidad: {{ stand.capacity }}</span
+                    <span data-i18n="capacity">Capacidad:</span> {{ stand.capacity }}</span
                 >
             </div>
         </div>
         <div class="d-flex gap-2">
             <button class="btn btn-signature btn-sm px-3 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#editStandModal">
                 <span class="material-symbols-outlined">edit</span>
-                Editar Detalles
+                <span data-i18n="edit_stand_details">Editar Detalles</span>
             </button>
             <button class="btn btn-danger btn-sm px-3 d-flex align-items-center gap-2" onclick="openDeleteStandModal()">
                 <span class="material-symbols-outlined">delete</span>
-                Eliminar
+                <span data-i18n="delete_stand">Eliminar</span>
             </button>
         </div>
     </div>
@@ -751,10 +799,10 @@ function confirmDeleteStand() {
         <div class="col-12">
             <div class="custom-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="h5 fw-bold mb-0">Equipo Asignado</h4>
+                    <h4 class="h5 fw-bold mb-0" data-i18n="assigned_team">Equipo Asignado</h4>
                     <button type="button" class="btn btn-signature btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addStaffModal">
                         <span class="material-symbols-outlined fs-6 me-1">person_add</span>
-                        Añadir Personal
+                        <span data-i18n="add_staff">Añadir Personal</span>
                     </button>
                 </div>
 
@@ -763,7 +811,7 @@ function confirmDeleteStand() {
                     <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content border-0 rounded-4 shadow">
                             <div class="modal-header border-bottom">
-                                <h5 class="modal-title fw-bold" id="addStaffModalLabel">Seleccionar Personal</h5>
+                                <h5 class="modal-title fw-bold" id="addStaffModalLabel" data-i18n="select_staff">Seleccionar Personal</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
@@ -791,13 +839,13 @@ function confirmDeleteStand() {
                                 {% else %}
                                 <div class="p-4 text-center text-muted">
                                     <span class="material-symbols-outlined" style="font-size: 48px;">group</span>
-                                    <p class="mt-2">No hay personal disponible</p>
+                                    <p class="mt-2" data-i18n="no_staff_available">No hay personal disponible</p>
                                 </div>
                                 {% endif %}
                             </div>
                             <div class="modal-footer border-0 px-4 pb-4">
-                                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="button" id="confirmAddStaffBtn" class="btn btn-signature px-4" disabled onclick="addSelectedStaff()">Aceptar</button>
+                                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                                <button type="button" id="confirmAddStaffBtn" class="btn btn-signature px-4" disabled onclick="addSelectedStaff()" data-i18n="accept">Aceptar</button>
                             </div>
                         </div>
                     </div>
@@ -824,7 +872,7 @@ function confirmDeleteStand() {
                                 <button class="btn btn-link p-0 text-primary" onclick="openNotificationModal('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')">
                                     <span class="material-symbols-outlined">chat</span>
                                 </button>
-                                <button class="btn btn-link p-0 text-danger" onclick="removeStaffFromStand('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')" title="Quitar de la zona">
+                                <button class="btn btn-link p-0 text-danger" onclick="removeStaffFromStand('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')" title="Quitar de la zona" data-i18n-title="remove_from_zone">
                                     <span class="material-symbols-outlined">person_remove</span>
                                 </button>
                             </div>
@@ -835,7 +883,7 @@ function confirmDeleteStand() {
                     </div>
                     <div class="col-12 text-center text-muted py-4" id="teamEmptyState"{% if not staff %} style="display: block;"{% else %} style="display: none;"{% endif %}>
                         <span class="material-symbols-outlined" style="font-size: 48px;">group</span>
-                        <p class="mt-2">No hay personal asignado</p>
+                        <p class="mt-2" data-i18n="no_staff_assigned">No hay personal asignado</p>
                     </div>
                 </div>
             </div>
@@ -844,17 +892,17 @@ function confirmDeleteStand() {
         <div class="col-12">
             <div class="custom-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="h5 fw-bold mb-0">Cronograma de Actividades</h4>
+                    <h4 class="h5 fw-bold mb-0" data-i18n="activity_schedule">Cronograma de Actividades</h4>
                     <div class="d-flex align-items-center gap-3">
                         <div class="input-group input-group-sm w-auto" style="max-width: 200px">
                             <span class="input-group-text border-0 ps-3" style="background-color: var(--surface-container-high);">
                                 <span class="material-symbols-outlined fs-6" style="color: var(--text-on-surface-variant);">search</span>
                             </span>
-                            <input type="text" id="searchActivities" class="form-control border-0" placeholder="Buscar actividad..." onkeyup="filterActivities()" style="background-color: var(--surface-container-high);">
+                            <input type="text" id="searchActivities" class="form-control border-0" placeholder="Buscar actividad..." data-i18n-placeholder="search_activity_placeholder" onkeyup="filterActivities()" style="background-color: var(--surface-container-high);">
                         </div>
                         <button class="btn btn-signature btn-sm fw-bold shadow-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#assignActivityModal">
                             <span class="material-symbols-outlined fs-6 me-1">add_task</span>
-                            Asignar
+                            <span data-i18n="assign_activity">Asignar</span>
                         </button>
                     </div>
                 </div>
@@ -886,7 +934,7 @@ function confirmDeleteStand() {
                                 </span>
                             </div>
                             <button class="btn btn-link btn-sm p-0 text-primary fw-bold text-decoration-none" style="font-size: 0.75rem" onclick="openActivityDetails({{ activity.id }}, '{{ activity.title|escapejs }}', '{{ activity.description|escapejs }}', '{{ activity.start_time|date:"d/m/Y H:i" }}', '{{ activity.end_time|date:"d/m/Y H:i" }}', '{{ activity.get_duration }}', '{{ activity.location|escapejs }}', '{{ activity.speaker_name|escapejs }}', '{{ activity.speaker_email|escapejs }}', '{{ activity.status }}')">
-                                Ver detalles
+                                <span data-i18n="view_details">Ver detalles</span>
                             </button>
                         </div>
                     </div>
@@ -895,8 +943,8 @@ function confirmDeleteStand() {
                 </div>
                 <div class="text-center text-muted py-4" id="activitiesEmptyState"{% if not activities %} style="display: block;"{% else %} style="display: none;"{% endif %}>
                     <span class="material-symbols-outlined" style="font-size: 48px;">event_note</span>
-                    <p class="mt-2">No hay actividades asignadas</p>
-                    <p class="small">Asigna actividades a este stand para mostrar el cronograma</p>
+                    <p class="mt-2" data-i18n="no_activities_assigned">No hay actividades asignadas</p>
+                    <p class="small" data-i18n="no_activities_message_alt">Asigna actividades a este stand para mostrar el cronograma</p>
                 </div>
             </div>
         </div>
@@ -907,8 +955,8 @@ function confirmDeleteStand() {
             class="px-4 pt-4 pb-3 d-flex justify-content-between align-items-center"
         >
             <div>
-                <h4 class="h5 fw-bold mb-1">Inventario de Recursos</h4>
-                <p class="text-muted small mb-0">
+                <h4 class="h5 fw-bold mb-1" data-i18n="resource_inventory">Inventario de Recursos</h4>
+                <p class="text-muted small mb-0" data-i18n="inventory_subtitle">
                     Logística y despliegue técnico del stand.
                 </p>
             </div>
@@ -919,7 +967,7 @@ function confirmDeleteStand() {
                 data-bs-target="#addResourceModal"
             >
                 <span class="material-symbols-outlined fs-6">add_circle</span>
-                Añadir Recurso
+                <span data-i18n="add_resource">Añadir Recurso</span>
             </button>
         </div>
 
@@ -927,12 +975,12 @@ function confirmDeleteStand() {
             <table class="table mb-0 align-middle">
                 <thead style="background-color: var(--surface-container-high);">
                     <tr>
-                        <th class="col-resource px-4">Recurso</th>
-                        <th class="col-cat px-4">Categoría</th>
-                        <th class="col-qty px-4 text-center">Asignados/Necesarios</th>
-                        <th class="col-status px-4">Estado</th>
-                        <th class="px-4">Detalles</th>
-                        <th class="px-4 text-center">Acciones</th>
+                        <th class="col-resource px-4" data-i18n="resource_col">Recurso</th>
+                        <th class="col-cat px-4" data-i18n="category_col">Categoría</th>
+                        <th class="col-qty px-4 text-center" data-i18n="assigned_needed_col">Asignados/Necesarios</th>
+                        <th class="col-status px-4" data-i18n="status_col">Estado</th>
+                        <th class="px-4" data-i18n="details_col">Detalles</th>
+                        <th class="px-4 text-center" data-i18n="actions_col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="border-top-0">
@@ -986,6 +1034,7 @@ function confirmDeleteStand() {
                                     <button
                                         class="btn btn-link btn-sm p-0 text-muted"
                                         title="Editar detalles"
+                                        data-i18n-title="edit_details_tooltip"
                                         onclick="openEditResourceModal('{{ assignment.id }}', '{{ assignment.item.name|escapejs }}', '{{ assignment.item.category|escapejs }}', '{{ assignment.details|default:""|escapejs }}', '{{ assignment.required_quantity|default:0 }}')"
                                     >
                                         <span class="material-symbols-outlined fs-6">edit</span>
@@ -993,6 +1042,7 @@ function confirmDeleteStand() {
                                     <button
                                         class="btn btn-link btn-sm p-0 text-danger"
                                         title="Quitar recurso"
+                                        data-i18n-title="remove_resource_tooltip"
                                         onclick="removeResource('{{ assignment.id }}')"
                                     >
                                         <span class="material-symbols-outlined fs-6">delete</span>
@@ -1004,9 +1054,7 @@ function confirmDeleteStand() {
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                No hay recursos asignados a este stand.
-                            </td>
+                            <td colspan="6" class="text-center text-muted py-4" data-i18n="no_resources_assigned">No hay recursos asignados a este stand.</td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -1016,7 +1064,7 @@ function confirmDeleteStand() {
             class="p-3 border-top d-flex justify-content-between align-items-center px-4"
             style="background-color: var(--surface-container-high);"
         >
-            <div class="small text-muted">Mostrando {{ assignments|length }} recurso{% if assignments|length != 1 %}s{% endif %}</div>
+            <div class="small text-muted"><span data-i18n="showing_resources">Mostrando</span> {{ assignments|length }} <span data-i18n="resources_count">recurso</span>{% if assignments|length != 1 %}s{% endif %}</div>
             <nav aria-label="Page navigation">
                 <ul class="pagination pagination-sm mb-0">
 
@@ -1040,7 +1088,7 @@ function confirmDeleteStand() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-0 px-4 pt-4">
-                    <h5 class="modal-title fw-bold" id="addResourceModalLabel">
+                    <h5 class="modal-title fw-bold" id="addResourceModalLabel" data-i18n="select_resources">
                         Seleccionar Recursos
                     </h5>
                     <button
@@ -1051,9 +1099,8 @@ function confirmDeleteStand() {
                     ></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="text-muted small mb-4">
-                        Selecciona los elementos que deseas asignar al stand
-                        desde el catálogo global.
+                    <p class="text-muted small mb-4" data-i18n="select_resources_desc">
+                        Selecciona los elementos que deseas asignar al stand desde el catálogo global.
                     </p>
                     <div
                         id="resourceCatalog"
@@ -1081,9 +1128,7 @@ function confirmDeleteStand() {
                             {% endfor %}
                         </div>
                     {% else %}
-                        <div class="p-4 text-center text-muted">
-                            No hay recursos disponibles para este evento.
-                        </div>
+                        <div class="p-4 text-center text-muted" data-i18n="no_resources_available_event">No hay recursos disponibles para este evento.</div>
                     {% endif %}
                     </div>
                 </div>
@@ -1092,6 +1137,7 @@ function confirmDeleteStand() {
                             type="button"
                             class="btn btn-outline-secondary px-4"
                             data-bs-dismiss="modal"
+                            data-i18n="cancel"
                         >
                             Cancelar
                         </button>
@@ -1101,6 +1147,7 @@ function confirmDeleteStand() {
                         class="btn btn-signature px-4"
                         disabled
                         onclick="addSelectedResources()"
+                        data-i18n="add_selected"
                     >
                         Añadir Seleccionados
                     </button>
@@ -1119,7 +1166,7 @@ function confirmDeleteStand() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-0 px-4 pt-4">
-                    <h5 class="modal-title fw-bold" id="editResourceModalLabel">
+                    <h5 class="modal-title fw-bold" id="editResourceModalLabel" data-i18n="edit_resource">
                         Editar Recurso
                     </h5>
                     <button
@@ -1137,7 +1184,7 @@ function confirmDeleteStand() {
                     <div class="mb-3">
                         <label class="form-label small fw-bold"
                             style="color: var(--text-on-surface-variant);"
-                            >CANTIDAD REQUERIDA</label
+                            data-i18n="required_qty_label">CANTIDAD REQUERIDA</label
                         >
                         <input
                             type="number"
@@ -1150,7 +1197,7 @@ function confirmDeleteStand() {
                     <div class="mb-3">
                         <label class="form-label small fw-bold"
                             style="color: var(--text-on-surface-variant);"
-                            >DETALLE (máx 100 caracteres)</label
+                            data-i18n="detail_label_max_chars">DETALLE (máx 100 caracteres)</label
                         >
                         <input
                             type="text"
@@ -1186,7 +1233,7 @@ function confirmDeleteStand() {
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-bottom">
-                    <h5 class="modal-title fw-bold" id="assignActivityModalLabel">Asignar Actividades</h5>
+                    <h5 class="modal-title fw-bold" id="assignActivityModalLabel" data-i18n="assign_activities_title">Asignar Actividades</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
@@ -1205,14 +1252,14 @@ function confirmDeleteStand() {
                     {% else %}
                     <div class="p-4 text-center text-muted">
                         <span class="material-symbols-outlined" style="font-size: 48px;">event_note</span>
-                        <p class="mt-2">No hay actividades disponibles</p>
-                        <p class="small">Todas las actividades del evento ya están asignadas a otras zonas</p>
+                        <p class="mt-2" data-i18n="no_activities_available">No hay actividades disponibles</p>
+                        <p class="small" data-i18n="all_activities_assigned">Todas las actividades del evento ya están asignadas a otras zonas</p>
                     </div>
                     {% endif %}
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="confirmAssignActivityBtn" class="btn btn-signature px-4" disabled onclick="addSelectedActivities()">Asignar</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" id="confirmAssignActivityBtn" class="btn btn-signature px-4" disabled onclick="addSelectedActivities()" data-i18n="assign_activity">Asignar</button>
                 </div>
             </div>
         </div>
@@ -1265,7 +1312,7 @@ function confirmDeleteStand() {
                     </div>
                     <div class="mb-4">
                         <label class="form-label small fw-bold text-muted mb-2"
-                            >DESCRIPCIÓN COMPLETA</label
+                            data-i18n="full_description_label">DESCRIPCIÓN COMPLETA</label
                         >
                         <p class="small" id="detailActivityDescription" style="color: var(--text-on-surface-variant);">
                             Descripción no disponible
@@ -1275,7 +1322,7 @@ function confirmDeleteStand() {
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >PONENTE</label
+                                data-i18n="speaker_label">PONENTE</label
                             >
                             <p class="small mb-0 fw-medium" id="detailActivitySpeaker">
                                 Sin asignar
@@ -1286,7 +1333,7 @@ function confirmDeleteStand() {
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >HORARIO</label
+                                data-i18n="schedule_label_2">HORARIO</label
                             >
                             <p class="small mb-0 fw-medium" id="detailActivityTime">
                                 --:-- - --:--
@@ -1304,7 +1351,7 @@ function confirmDeleteStand() {
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >DURACIÓN</label
+                                data-i18n="duration_label_2">DURACIÓN</label
                             >
                             <p class="small mb-0 fw-medium" id="detailActivityDuration">
                                 -- min
@@ -1313,7 +1360,7 @@ function confirmDeleteStand() {
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >UBICACIÓN</label
+                                data-i18n="location_label_2">UBICACIÓN</label
                             >
                             <p class="small mb-0 fw-medium" id="detailActivityLocation">
                                 --
@@ -1364,15 +1411,15 @@ function confirmDeleteStand() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-bottom">
-                    <h5 class="modal-title fw-bold" id="moveActivityModalLabel">Mover Actividad</h5>
+                    <h5 class="modal-title fw-bold" id="moveActivityModalLabel" data-i18n="move_activity_title">Mover Actividad</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="text-muted small mb-3">Selecciona el stand destino para esta actividad.</p>
+                    <p class="text-muted small mb-3" data-i18n="move_activity_desc">Selecciona el stand destino para esta actividad.</p>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">Stand destino</label>
+                        <label class="form-label small fw-bold text-muted" data-i18n="target_stand">Stand destino</label>
                         <select id="moveStandSelect" class="form-select">
-                            <option value="">Selecciona un stand</option>
+                            <option value="" data-i18n="select_stand">Selecciona un stand</option>
                             {% for event_stand in event_stands %}
                             <option value="{{ event_stand.id }}">{{ event_stand.name }} — {{ event_stand.location }}</option>
                             {% endfor %}
@@ -1380,8 +1427,8 @@ function confirmDeleteStand() {
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-signature px-4" onclick="moveActivityToStand()">Mover</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" class="btn btn-signature px-4" onclick="moveActivityToStand()" data-i18n="move_btn">Mover</button>
                 </div>
             </div>
         </div>
@@ -1392,24 +1439,24 @@ function confirmDeleteStand() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-bottom">
-                    <h5 class="modal-title fw-bold" id="notificationModalLabel">Enviar Notificación</h5>
+                    <h5 class="modal-title fw-bold" id="notificationModalLabel" data-i18n="send_notification_title">Enviar Notificación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <p class="text-muted small mb-3">Para: <span id="notificationUserName" class="fw-bold"></span></p>
+                    <p class="text-muted small mb-3"><span data-i18n="send_notification_for">Para:</span> <span id="notificationUserName" class="fw-bold"></span></p>
                     <input type="hidden" id="notificationUserId">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">ASUNTO</label>
-                        <input type="text" id="notificationTitle" class="form-control rounded-3" placeholder="Ej. Información importante">
+                        <label class="form-label small fw-bold text-muted" data-i18n="subject_label">ASUNTO</label>
+                        <input type="text" id="notificationTitle" class="form-control rounded-3" placeholder="Ej. Información importante" data-i18n-placeholder="subject_placeholder">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">MENSAJE</label>
-                        <textarea id="notificationMessage" class="form-control rounded-3" rows="4" placeholder="Escribe tu mensaje..."></textarea>
+                        <label class="form-label small fw-bold text-muted" data-i18n="message_label">MENSAJE</label>
+                        <textarea id="notificationMessage" class="form-control rounded-3" rows="4" placeholder="Escribe tu mensaje..." data-i18n-placeholder="message_placeholder"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="sendNotificationBtn" class="btn btn-signature px-4" onclick="sendNotification()">Enviar</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" id="sendNotificationBtn" class="btn btn-signature px-4" onclick="sendNotification()" data-i18n="send_btn">Enviar</button>
                 </div>
             </div>
         </div>
@@ -1419,16 +1466,16 @@ function confirmDeleteStand() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-0 px-4 pt-4">
-                    <h5 class="modal-title fw-bold" id="removeStaffModalLabel">Quitar de la zona</h5>
+                    <h5 class="modal-title fw-bold" id="removeStaffModalLabel" data-i18n="remove_staff_title">Quitar de la zona</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
                     <input type="hidden" id="removeStaffUserId">
-                    <p>¿Estás seguro de que deseas quitar a <strong id="removeStaffUserName"></strong> de esta zona? Quedará sin zona asignada.</p>
+                    <p data-i18n="remove_staff_confirm">¿Estás seguro de que deseas quitar a <strong id="removeStaffUserName"></strong> de esta zona? Quedará sin zona asignada.</p>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger rounded-3 px-4" onclick="confirmRemoveStaff()">Quitar</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" class="btn btn-danger rounded-3 px-4" onclick="confirmRemoveStaff()" data-i18n="remove">Quitar</button>
                 </div>
             </div>
         </div>
@@ -1438,26 +1485,26 @@ function confirmDeleteStand() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-bottom">
-                    <h5 class="modal-title fw-bold" id="editStandModalLabel">Editar Stand</h5>
+                    <h5 class="modal-title fw-bold" id="editStandModalLabel" data-i18n="edit_stand_title">Editar Stand</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4 pb-4">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold" style="color: var(--text-on-surface-variant);">NOMBRE DEL STAND</label>
-                        <input type="text" id="editStandName" class="form-control rounded-3" placeholder="Ej. Stand Principal" maxlength="200">
+                        <label class="form-label small fw-bold" style="color: var(--text-on-surface-variant);" data-i18n="stand_name_label">NOMBRE DEL STAND</label>
+                        <input type="text" id="editStandName" class="form-control rounded-3" placeholder="Ej. Stand Principal" data-i18n-placeholder="stand_name_placeholder" maxlength="200">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold" style="color: var(--text-on-surface-variant);">UBICACIÓN</label>
-                        <input type="text" id="editStandLocation" class="form-control rounded-3" placeholder="Ej. Zona A, Piso 1" maxlength="200">
+                        <label class="form-label small fw-bold" style="color: var(--text-on-surface-variant);" data-i18n="location_label">UBICACIÓN</label>
+                        <input type="text" id="editStandLocation" class="form-control rounded-3" placeholder="Ej. Zona A, Piso 1" data-i18n-placeholder="location_placeholder" maxlength="200">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold" style="color: var(--text-on-surface-variant);">CAPACIDAD</label>
-                        <input type="number" id="editStandCapacity" class="form-control rounded-3" placeholder="Ej. 50" min="1">
+                        <label class="form-label small fw-bold" style="color: var(--text-on-surface-variant);" data-i18n="capacity_label_form">CAPACIDAD</label>
+                        <input type="number" id="editStandCapacity" class="form-control rounded-3" placeholder="Ej. 50" data-i18n-placeholder="capacity_placeholder" min="1">
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="saveStandEditBtn" class="btn btn-signature px-4" onclick="saveStandEdit()">Guardar Cambios</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" id="saveStandEditBtn" class="btn btn-signature px-4" onclick="saveStandEdit()" data-i18n="save_changes">Guardar Cambios</button>
                 </div>
             </div>
         </div>
@@ -1468,16 +1515,16 @@ function confirmDeleteStand() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold text-danger" id="deleteStandModalLabel">Eliminar Stand</h5>
+                    <h5 class="modal-title fw-bold text-danger" id="deleteStandModalLabel" data-i18n="delete_stand_title">Eliminar Stand</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="mb-2">¿Estás seguro de que deseas eliminar el stand <strong id="deleteStandName"></strong>?</p>
-                    <p class="text-muted small mb-0">Esta acción eliminará el stand y todas sus asignaciones. No se pueden deshacer los cambios.</p>
+                    <p class="mb-2" data-i18n="delete_stand_confirm">¿Estás seguro de que deseas eliminar el stand <strong id="deleteStandName"></strong>?</p>
+                    <p class="text-muted small mb-0" data-i18n="delete_stand_warning">Esta acción eliminará el stand y todas sus asignaciones. No se pueden deshacer los cambios.</p>
                 </div>
                 <div class="modal-footer border-top-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteStandBtn" onclick="confirmDeleteStand()">Sí, eliminar</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteStandBtn" onclick="confirmDeleteStand()" data-i18n="yes_delete">Sí, eliminar</button>
                 </div>
             </div>
         </div>

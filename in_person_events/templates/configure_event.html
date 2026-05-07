@@ -13,8 +13,8 @@
     <div class="p-4">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <h2 class="fw-800 display-6">Configuración General</h2>
-                <p class="text-muted mb-0">Configura las reglas operativas globales.</p>
+                <h2 class="fw-800 display-6" data-i18n="configuration_title_page">Configuración General</h2>
+                <p class="text-muted mb-0" data-i18n="general_settings_subtitle">Configura las reglas operativas globales.</p>
             </div>
         </div>
 
@@ -23,18 +23,18 @@
             <div class="content-card border-0 shadow-sm p-4">
                 <div class="row g-4">
                     <div class="col-md-4">
-                        <h3 class="h6 fw-bold mb-1">Opciones Avanzadas</h3>
-                        <p class="small text-muted mb-0">Ajusta la lógica de registro y operativa de tu evento.</p>
+                        <h3 class="h6 fw-bold mb-1" data-i18n="advanced_options">Opciones Avanzadas</h3>
+                        <p class="small text-muted mb-0" data-i18n="advanced_options_desc">Ajusta la lógica de registro y operativa de tu evento.</p>
                     </div>
                     <div class="col-md-8 vstack gap-3">
                         <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: var(--surface-container-lowest, #f8f9ff);">
                             <div>
-                                <p class="fw-bold mb-0">Mostrar recuento de asistentes públicamente</p>
-                                <p class="small text-muted mb-0" style="font-size: 0.75rem">Los asistentes verán el número total de inscritos en el dashboard.</p>
+                                <p class="fw-bold mb-0" data-i18n="show_attendee_count">Mostrar recuento de asistentes públicamente</p>
+                                <p class="small text-muted mb-0" style="font-size: 0.75rem" data-i18n="show_attendee_count_desc">Los asistentes verán el número total de inscritos en el dashboard.</p>
                             </div>
                             <div class="form-check form-switch mb-0">
                                 <input class="form-check-input" type="checkbox" id="showAttendeeCountSwitch" {% if event.show_attendee_count %}checked{% endif %}>
-                                <label class="form-check-label visually-hidden" for="showAttendeeCountSwitch">Mostrar recuento de asistentes</label>
+                                <label class="form-check-label visually-hidden" for="showAttendeeCountSwitch" data-i18n="show_attendee_count_label">Mostrar recuento de asistentes</label>
                             </div>
                         </div>
                     </div>
@@ -45,34 +45,34 @@
             <div class="content-card border-0 shadow-sm p-4">
                 <div class="row g-4">
                     <div class="col-md-4">
-                        <h3 class="h6 fw-bold text-danger mb-1">Zona de Peligro</h3>
-                        <p class="small text-muted mb-0">Acciones destructivas para este evento.</p>
+                        <h3 class="h6 fw-bold text-danger mb-1" data-i18n="danger_zone">Zona de Peligro</h3>
+                        <p class="small text-muted mb-0" data-i18n="danger_zone_desc">Acciones destructivas para este evento.</p>
                     </div>
                     <div class="col-md-8 vstack gap-3">
                         <div class="p-4 rounded-3 d-flex justify-content-between align-items-center shadow-sm danger-card">
                             <div>
-                                <p class="fw-bold text-danger mb-0">Eliminar Evento</p>
-                                <p class="small text-danger mb-0" style="font-size: 0.75rem">Elimina permanentemente todos los datos.</p>
+                                <p class="fw-bold text-danger mb-0" data-i18n="delete_event_option">Eliminar Evento</p>
+                                <p class="small text-danger mb-0" style="font-size: 0.75rem" data-i18n="delete_event_option_desc">Elimina permanentemente todos los datos.</p>
                             </div>
-                            <button type="button" class="btn btn-danger px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Eliminar para Siempre</button>
+                            <button type="button" class="btn btn-danger px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-i18n="delete_permanently_btn">Eliminar para Siempre</button>
                         </div>
 
                         <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content border-0 rounded-4">
                                     <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                                        <h5 class="modal-title fw-bold text-danger" id="confirmDeleteModalLabel">¿Confirmar eliminación?</h5>
+                                        <h5 class="modal-title fw-bold text-danger" id="confirmDeleteModalLabel" data-i18n="confirm_delete_title">¿Confirmar eliminación?</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body px-4">
-                                        <p class="mb-2">Esta acción es <strong>permanente</strong> y no se puede deshacer. Se eliminarán todos los asistentes y tickets asociados a <strong>{{ event.title }}</strong>.</p>
-                                        <p class="text-muted small mb-0">Esta acción no se puede deshacer.</p>
+                                        <p class="mb-2" data-i18n="delete_confirm_message">Esta acción es <strong>permanente</strong> y no se puede deshacer. Se eliminarán todos los asistentes y tickets asociados a <strong>{{ event.title }}</strong>.</p>
+                                        <p class="text-muted small mb-0" data-i18n="delete_confirm_warning">Esta acción no se puede deshacer.</p>
                                     </div>
                                     <div class="modal-footer border-top-0 px-4 pb-4">
-                                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
                                         <form action="{% url 'in_person_events:delete_event' event.id %}" method="POST">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger px-4 fw-bold">Sí, eliminar permanentemente</button>
+                                            <button type="submit" class="btn btn-danger px-4 fw-bold" data-i18n="confirm_delete">Sí, eliminar permanentemente</button>
                                         </form>
                                     </div>
                                 </div>
