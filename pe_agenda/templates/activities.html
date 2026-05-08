@@ -12,57 +12,57 @@
     <div class="p-4">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <h2 class="fw-800 display-6">Gestión de Actividades</h2>
-                <p class="text-muted mb-0">Supervisa la agenda y gestiona horarios.</p>
+                <h2 class="fw-800 display-6" data-i18n="activity_management_title">Gestión de Actividades</h2>
+                <p class="text-muted mb-0" data-i18n="activity_management_subtitle">Supervisa la agenda y gestiona horarios.</p>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" data-bs-toggle="modal" data-bs-target="#createActivityModal" id="addItemBtn">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">add</span> Crear Actividad
+                    <span class="material-symbols-outlined" style="font-size: 18px;">add</span> <span data-i18n="create_activity_btn">Crear Actividad</span>
                 </button>
             </div>
         </div>
 
-        <div class="content-card mb-4 bg-light p-4 rounded-3 border">
+        <div class="content-card mb-4 p-4 rounded-3 border">
             <div class="row g-3 align-items-center">
                 <div class="col-md-4">
-                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Actividad</label>
-                    <div class="search-container shadow-sm rounded-2 w-100 bg-white position-relative">
-                        <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: #6c757d;">search</span>
-                        <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Nombre o descripción..." id="activitySearch" onkeyup="filterActivities()">
+                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="search_activity">Buscar Actividad</label>
+                    <div class="search-container shadow-sm rounded-2 w-100 position-relative">
+                        <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: var(--text-on-surface-variant);">search</span>
+                        <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" data-i18n-placeholder="search_activity_placeholder" placeholder="Nombre o descripción..." id="activitySearch" onkeyup="filterActivities()">
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Zona</label>
-                    <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterZone">
-                        <option value="all">Todas las Zonas</option>
-                        <option value="">No asignadas</option>
+                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="filter_by_zone">Filtrar por Zona</label>
+                    <select class="form-select border-0 shadow-sm smaller fw-medium" id="filterZone">
+                        <option value="all" data-i18n="all_zones">Todas las Zonas</option>
+                        <option value="" data-i18n="not_assigned">No asignadas</option>
                         {% for a in activities %}{% if a.location %}<option value="{{ a.location }}">{{ a.location }}</option>{% endif %}{% endfor %}
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Estado</label>
-                    <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterStatus">
-                        <option value="all">Todos los Estados</option>
-                        <option value="programada">Programada</option>
-                        <option value="en_curso">En Curso</option>
-                        <option value="completada">Completada</option>
-                        <option value="cancelada">Cancelada</option>
+                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="filter_by_status">Filtrar por Estado</label>
+                    <select class="form-select border-0 shadow-sm smaller fw-medium" id="filterStatus">
+                        <option value="all" data-i18n="all_statuses">Todos los Estados</option>
+                        <option value="programada" data-i18n="status_scheduled">Programada</option>
+                        <option value="en_curso" data-i18n="status_in_progress">En Curso</option>
+                        <option value="completada" data-i18n="status_completed">Completada</option>
+                        <option value="cancelada" data-i18n="status_cancelled">Cancelada</option>
                     </select>
                 </div>
             </div>
         </div>
 
-        <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white mb-4">
+        <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 mb-4">
             <div class="table-responsive">
                 <table class="table mb-0 align-middle">
-                    <thead class="bg-light">
+                    <thead style="background-color: var(--surface-container-high);">
                         <tr>
-                            <th class="px-4 py-3">Horario</th>
-                            <th class="py-3">Actividad</th>
-                            <th class="py-3">Zona</th>
-                            <th class="py-3">Ponente</th>
-                            <th class="py-3">Estado</th>
-                            <th class="px-4 py-3 text-center">Acciones</th>
+                            <th class="px-4 py-3" data-i18n="schedule_col">Horario</th>
+                            <th class="py-3" data-i18n="activity_col">Actividad</th>
+                            <th class="py-3" data-i18n="zone_col">Zona</th>
+                            <th class="py-3" data-i18n="speaker_col">Ponente</th>
+                            <th class="py-3" data-i18n="status_col">Estado</th>
+                            <th class="px-4 py-3 text-center" data-i18n="actions_col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="activitiesTableBody">
@@ -78,20 +78,20 @@
                                 <small class="text-muted text-truncate d-block" style="max-width: 200px;">{{ activity.description|truncatechars:50 }}</small>
                                 {% endif %}
                             </td>
-                            <td class="py-3">{% if activity.location %}{{ activity.location }}{% else %}<span class="text-muted">No asignada</span>{% endif %}</td>
+                            <td class="py-3">{% if activity.location %}{{ activity.location }}{% else %}<span class="text-muted" data-i18n="not_assigned">No asignada</span>{% endif %}</td>
                             <td class="py-3">
                                 {% if activity.speaker_name %}{{ activity.speaker_name }}
                                 {% else %}<span class="text-muted">-</span>{% endif %}
                             </td>
                             <td class="py-3">
                                 {% if activity.status == 'programada' %}
-                                <span class="badge bg-primary">Programada</span>
+                                <span class="badge" style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary);" data-i18n="status_scheduled">Programada</span>
                                 {% elif activity.status == 'en_curso' %}
-                                <span class="badge bg-warning text-dark">En Curso</span>
+                                <span class="badge" style="background-color: rgba(248, 169, 0, 0.1); color: var(--warning);" data-i18n="status_in_progress">En Curso</span>
                                 {% elif activity.status == 'completada' %}
-                                <span class="badge bg-success">Completada</span>
+                                <span class="badge" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);" data-i18n="status_completed">Completada</span>
                                 {% elif activity.status == 'cancelada' %}
-                                <span class="badge bg-danger">Cancelada</span>
+                                <span class="badge" style="background-color: rgba(220, 38, 38, 0.1); color: var(--error);" data-i18n="status_cancelled">Cancelada</span>
                                 {% endif %}
                             </td>
                             <td class="px-4 py-3 text-center">
@@ -120,7 +120,7 @@
                             <td colspan="6" class="text-center py-4">
                                 <div class="text-muted">
                                     <span class="material-symbols-outlined" style="font-size: 48px;" class="mb-2">calendar_month</span>
-                                    <p>No hay actividades programadas</p>
+                                    <p data-i18n="no_activities_scheduled">No hay actividades programadas</p>
                                 </div>
                             </td>
                         </tr>
@@ -128,13 +128,9 @@
                     </tbody>
                 </table>
             </div>
-            <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
-                <div class="small text-muted fw-bold" id="paginationInfo">Mostrando <span id="activityCount">{{ activities|length }}</span> actividad{% if activities|length != 1 %}es{% endif %}</div>
+            <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-high);">
+                <div class="small text-muted fw-bold" id="paginationInfo"><span data-i18n="showing_activities">Mostrando</span> <span id="activityCount">{{ activities|length }}</span> <span data-i18n="activities_count">actividad{% if activities|length != 1 %}es{% endif %}</span></div>
                 <nav aria-label="Page navigation">
-                    <ul class="pagination pagination-sm mb-0 gap-2" id="paginationControls">
-                        <li class="page-item"><button class="btn btn-sm btn-white border px-3 fw-bold small">Anterior</button></li>
-                        <li class="page-item"><button class="btn btn-sm btn-primary px-3 fw-bold small">Siguiente</button></li>
-                    </ul>
                 </nav>
             </div>
         </div>
@@ -145,54 +141,42 @@
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold" id="createActivityModalLabel">Crear Nueva Actividad</h5>
+                    <h5 class="modal-title fw-bold" id="createActivityModalLabel" data-i18n="create_new_activity">Crear Nueva Actividad</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
                     <form method="post" id="createActivityForm" action="{% url 'pe_agenda:create_activity' event.id %}">
                         {% csrf_token %}
 
-                        <!-- Messages -->
-                        {% if messages %}
-                            <div class="mb-3">
-                                {% for message in messages %}
-                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
                         <!-- Título -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-primary">Nombre de la Actividad</label>
-                            <input type="text" name="title" class="form-control" placeholder="Ej. Masterclass de Arquitectura Cloud" required>
+                            <label class="form-label fw-bold text-primary" data-i18n="activity_name_label">Nombre de la Actividad</label>
+                            <input type="text" name="title" class="form-control" data-i18n-placeholder="activity_name_placeholder" placeholder="Ej. Masterclass de Arquitectura Cloud" required>
                         </div>
 
                         <!-- Descripción -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-primary">Descripción</label>
-                            <textarea name="description" class="form-control" rows="3" placeholder="Describe brevemente los objetivos y el contenido..."></textarea>
+                            <label class="form-label fw-bold text-primary" data-i18n="description_label">Descripción</label>
+                            <textarea name="description" class="form-control" rows="3" data-i18n-placeholder="description_activity_placeholder" placeholder="Describe brevemente los objetivos y el contenido..."></textarea>
                         </div>
 
                         <!-- Horario - Fila -->
                         <div class="row mb-3">
                             <div class="col-12 col-md-6">
-                                <label class="form-label fw-bold text-primary">Hora de Inicio</label>
+                                <label class="form-label fw-bold text-primary" data-i18n="start_time_label">Hora de Inicio</label>
                                 <input type="datetime-local" name="start_time" class="form-control" required min="{{ event.start_date|date:'Y-m-d\\TH:i' }}" max="{{ event.end_date|date:'Y-m-d\\T23:59' }}">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label fw-bold text-primary">Hora de Finalización</label>
+                                <label class="form-label fw-bold text-primary" data-i18n="end_time_label">Hora de Finalización</label>
                                 <input type="datetime-local" name="end_time" class="form-control" required min="{{ event.start_date|date:'Y-m-d\\T00:00' }}" max="{{ event.end_date|date:'Y-m-d\\T23:59' }}">
                             </div>
                         </div>
 
                         <!-- Ubicación -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-primary">Zona/Ubicación</label>
+                            <label class="form-label fw-bold text-primary" data-i18n="zone_location_label">Zona/Ubicación</label>
                             <select name="location" class="form-select">
-                                <option value="">Seleccionar Zona (opcional)</option>
+                                <option value="" data-i18n="select_zone_optional">Seleccionar Zona (opcional)</option>
                                 {% for zone in event_zones %}
                                     <option value="{{ zone }}">{{ zone }}</option>
                                 {% endfor %}
@@ -201,9 +185,9 @@
 
                         <!-- Ponente -->
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-primary">Ponente</label>
+                            <label class="form-label fw-bold text-primary" data-i18n="speaker_label">Ponente</label>
                             <select name="speaker_name" id="createSpeakerName" class="form-select">
-                                <option value="" data-email="">Seleccionar Ponente (opcional)</option>
+                                <option value="" data-email="" data-i18n="select_speaker_optional">Seleccionar Ponente (opcional)</option>
                                 {% for member in confirmed_ponentes %}
                                     <option value="{{ member.user.get_full_name|default:member.user.email }}" data-email="{{ member.user.email }}">
                                         {{ member.user.get_full_name|default:member.user.email }}
@@ -217,11 +201,11 @@
                         <div class="d-flex gap-3 justify-content-end mt-4">
                             <button type="button" class="btn btn-outline-secondary px-5 py-2 fw-bold rounded-2" data-bs-dismiss="modal">
                                 <span class="material-symbols-outlined me-2">close</span>
-                                Cancelar
+                                <span data-i18n="cancel_btn">Cancelar</span>
                             </button>
                             <button type="submit" class="btn btn-gradient px-5 py-2 fw-bold rounded-2">
                                 <span class="material-symbols-outlined me-2">save</span>
-                                Crear Actividad
+                                <span data-i18n="create_activity_btn">Crear Actividad</span>
                             </button>
                         </div>
                     </form>
@@ -235,7 +219,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold" id="editActivityModalLabel">Editar Actividad</h5>
+                    <h5 class="modal-title fw-bold" id="editActivityModalLabel" data-i18n="edit_activity">Editar Actividad</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
@@ -243,36 +227,36 @@
                         {% csrf_token %}
                         <input type="hidden" name="activity_id" id="editActivityId">
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-primary">Nombre de la Actividad</label>
+                            <label class="form-label fw-bold text-primary" data-i18n="activity_name_label">Nombre de la Actividad</label>
                             <input type="text" name="title" id="editTitle" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-primary">Descripción</label>
+                            <label class="form-label fw-bold text-primary" data-i18n="description_label">Descripción</label>
                             <textarea name="description" id="editDescription" class="form-control" rows="3"></textarea>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-bold text-primary">Hora de Inicio</label>
+                                <label class="form-label fw-bold text-primary" data-i18n="start_time_label">Hora de Inicio</label>
                                 <input type="datetime-local" name="start_time" id="editStartTime" class="form-control" required min="{{ event.start_date|date:'Y-m-d\\TH:i' }}" max="{{ event.end_date|date:'Y-m-d\\T23:59' }}">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold text-primary">Hora de Finalización</label>
+                                <label class="form-label fw-bold text-primary" data-i18n="end_time_label">Hora de Finalización</label>
                                 <input type="datetime-local" name="end_time" id="editEndTime" class="form-control" required min="{{ event.start_date|date:'Y-m-d\\T00:00' }}" max="{{ event.end_date|date:'Y-m-d\\T23:59' }}">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold text-primary">Zona/Ubicación</label>
+                            <label class="form-label fw-bold text-primary" data-i18n="zone_location_label">Zona/Ubicación</label>
                             <select name="location" id="editLocation" class="form-select">
-                                <option value="">Seleccionar Zona (opcional)</option>
+                                <option value="" data-i18n="select_zone_optional">Seleccionar Zona (opcional)</option>
                                 {% for zone in event_zones %}
                                     <option value="{{ zone }}">{{ zone }}</option>
                                 {% endfor %}
                             </select>
                         </div>
 <div class="mb-3">
-                            <label class="form-label fw-bold text-primary">Ponente</label>
+                            <label class="form-label fw-bold text-primary" data-i18n="speaker_label">Ponente</label>
                             <select name="speaker_name" id="editSpeakerName" class="form-select">
-                                <option value="" data-email="">Seleccionar Ponente (opcional)</option>
+                                <option value="" data-email="" data-i18n="select_speaker_optional">Seleccionar Ponente (opcional)</option>
                                 {% for member in confirmed_ponentes %}
                                 <option value="{{ member.user.get_full_name|default:member.user.email }}" data-email="{{ member.user.email }}">
                                     {{ member.user.get_full_name|default:member.user.email }}
@@ -282,8 +266,8 @@
                             <input type="hidden" name="speaker_email" id="editSpeakerEmail" value="">
                         </div>
                         <div class="d-flex gap-2 justify-content-end mt-4">
-                            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-gradient px-4 fw-bold">Guardar Cambios</button>
+                            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
+                            <button type="submit" class="btn btn-gradient px-4 fw-bold" data-i18n="save_changes">Guardar Cambios</button>
                         </div>
                     </form>
                 </div>
@@ -296,20 +280,19 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold text-danger" id="cancelActivityModalLabel">Cancelar Actividad</h5>
+                    <h5 class="modal-title fw-bold text-danger" id="cancelActivityModalLabel" data-i18n="cancel_activity_title">Cancelar Actividad</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="mb-2">¿Estás seguro de que deseas cancelar la actividad <strong id="cancelActivityTitle"></strong>?</p>
-                    <p class="text-muted small mb-0">Puedes recuperarla editando la actividad luego.</p>
+                    <p class="mb-2"><span data-i18n="cancel_activity_confirm">¿Estás seguro de que deseas cancelar la actividad</span> <strong id="cancelActivityTitle"></strong>?</p>
                 </div>
                 <div class="modal-footer border-top-0 px-4 pb-4">
                     <form method="post" id="cancelActivityForm" action="{% url 'pe_agenda:cancel_activity' event.id 0 %}">
                         {% csrf_token %}
                         <input type="hidden" name="activity_id" id="cancelActivityId">
                         <input type="hidden" name="status" value="cancelada">
-                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">No, mantener</button>
-                        <button type="submit" class="btn btn-danger px-4">Sí, cancelar</button>
+                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="no_keep">No, mantener</button>
+                        <button type="submit" class="btn btn-danger px-4" data-i18n="yes_cancel">Sí, cancelar</button>
                     </form>
                 </div>
             </div>
@@ -321,19 +304,18 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold text-danger" id="deleteActivityModalLabel">Confirmar Eliminación</h5>
+                    <h5 class="modal-title fw-bold text-danger" id="deleteActivityModalLabel" data-i18n="confirm_delete_title">Confirmar Eliminación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="mb-2">¿Estás seguro de que deseas eliminar la actividad <strong id="deleteActivityTitle"></strong>?</p>
-                    <p class="text-muted small mb-0">Esta acción no se puede deshacer.</p>
+                    <p class="mb-2"><span data-i18n="delete_activity_confirm">¿Estás seguro de que deseas eliminar la actividad</span> <strong id="deleteActivityTitle"></strong>?</p>
                 </div>
                 <div class="modal-footer border-top-0 px-4 pb-4">
                     <form method="post" id="deleteActivityForm">
                         {% csrf_token %}
                         <input type="hidden" name="activity_id" id="deleteActivityId">
-                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-danger px-4">Eliminar</button>
+                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
+                        <button type="submit" class="btn btn-danger px-4" data-i18n="delete_btn">Eliminar</button>
                     </form>
                 </div>
             </div>
@@ -345,7 +327,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold" id="viewActivityModalLabel">Detalles de la Actividad</h5>
+                    <h5 class="modal-title fw-bold" id="viewActivityModalLabel" data-i18n="activity_details">Detalles de la Actividad</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
@@ -355,12 +337,12 @@
                             <span id="viewActivityStatus" class="badge mb-3"></span>
                             
                             <div class="mb-3">
-                                <small class="text-muted fw-bold text-uppercase">Descripción</small>
+                                <small class="text-muted fw-bold text-uppercase" data-i18n="description_label">Descripción</small>
                                 <p id="viewActivityDescription" class="mb-0 text-muted"></p>
                             </div>
                             
                             <div class="mb-3">
-                                <small class="text-muted fw-bold text-uppercase">Horario</small>
+                                <small class="text-muted fw-bold text-uppercase" data-i18n="schedule_label">Horario</small>
                                 <p class="mb-0">
                                     <span id="viewActivityStartDate"></span> <span id="viewActivityStartTime"></span>
                                 </p>
@@ -371,14 +353,14 @@
                             </div>
                             
                             <div class="mb-3">
-                                <small class="text-muted fw-bold text-uppercase">Zona/Ubicación</small>
+                                <small class="text-muted fw-bold text-uppercase" data-i18n="zone_location_label">Zona/Ubicación</small>
                                 <p id="viewActivityLocation" class="mb-0"></p>
                             </div>
                         </div>
                         
-                        <div class="col-md-4 text-center border-start">
-                            <small class="text-muted fw-bold text-uppercase">Ponente</small>
-                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto my-3" style="width: 80px; height: 80px;">
+                        <div class="col-md-4 text-center" style="border-left: 1px solid var(--border-outline-variant);">
+                            <small class="text-muted fw-bold text-uppercase" data-i18n="speaker_label">Ponente</small>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto my-3" style="width: 80px; height: 80px; background-color: var(--surface-container-high);">
                                 <span class="material-symbols-outlined" style="font-size: 40px;">person</span>
                             </div>
                             <h6 id="viewSpeakerName" class="fw-bold mb-0"></h6>
@@ -387,7 +369,7 @@
                             
                             <div id="viewSpeakerDetails" class="text-start mt-3">
                                 <div class="mb-2">
-                                    <small class="text-muted fw-bold text-uppercase">Biografía</small>
+                                    <small class="text-muted fw-bold text-uppercase" data-i18n="biography_label">Biografía</small>
                                     <p id="viewSpeakerBio" class="mb-0 small text-muted"></p>
                                 </div>
                                 <div class="mb-2">
@@ -411,7 +393,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-top-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="close">Cerrar</button>
                 </div>
             </div>
         </div>

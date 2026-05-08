@@ -73,6 +73,18 @@ class Stand(models.Model):
         except:
             return 0
 
+    def get_activity_count(self):
+        """Retorna la cantidad de actividades válidas asignadas al stand."""
+        from django.apps import apps
+        try:
+            Activity = apps.get_model('pe_agenda', 'Activity')
+            activity_ids = list(self.activities.values_list('activity_id', flat=True))
+            if not activity_ids:
+                return 0
+            return Activity.objects.filter(id__in=activity_ids, event=self.event).count()
+        except:
+            return self.activities.count()
+
 
 class StandStaff(models.Model):
     """

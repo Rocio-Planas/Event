@@ -22,17 +22,17 @@
                     <div>
                         <span
                             class="text-primary fw-bold text-uppercase small tracking-wider"
-                            >Vista General del Evento</span
+                            data-i18n="event_overview">Vista General del Evento</span
                         >
                         <h1 class="fw-black mb-1 h2 d-flex align-items-center gap-2">
                             {{ event.title }}
                             {% if event.visibility == 'privado' %}
                             <span class="badge badge-privado">
-                                <span class="material-symbols-outlined badge-icon">lock</span> Privado
+                                <span class="material-symbols-outlined badge-icon">lock</span> <span data-i18n="private_option">Privado</span>
                             </span>
                             {% else %}
                             <span class="badge badge-publico">
-                                <span class="material-symbols-outlined badge-icon">public</span> Público
+                                <span class="material-symbols-outlined badge-icon">public</span> <span data-i18n="public_option">Público</span>
                             </span>
                             {% endif %}
                         </h1>
@@ -46,7 +46,7 @@
                                 <span class="material-symbols-outlined fs-5"
                                     >edit</span
                                 >
-                                Editar Evento
+                                <span data-i18n="edit_event_btn">Editar Evento</span>
                             </span>
                         </a>
                     </div>
@@ -67,7 +67,7 @@
                                     >
                                 </div>
                             </div>
-                            <p class="text-secondary small fw-medium mb-1">
+                            <p class="text-secondary small fw-medium mb-1" data-i18n="total_attendees_label">
                                 Total de Asistentes
                             </p>
                             <h3 class="display-5 fw-bold m-0">{{ total_attendees }}/{{ event.capacity }}</h3>
@@ -77,7 +77,7 @@
                                         {{ ticket.ticket_type__name|default:"General" }}: {{ ticket.count }}{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
                                 {% else %}
-                                    Sin asistentes registrados
+                                    <span data-i18n="no_attendees_yet">Sin asistentes registrados</span>
                                 {% endif %}
                             </small>
                         </div>
@@ -95,7 +95,7 @@
                                     >
                                 </div>
                             </div>
-                            <p class="text-secondary small fw-medium mb-1">
+                            <p class="text-secondary small fw-medium mb-1" data-i18n="total_revenue_label">
                                 Ingresos Totales
                             </p>
                             <h3 class="display-5 fw-bold m-0">${{ total_revenue|floatformat:2 }}</h3>
@@ -106,6 +106,7 @@
                 <!-- Event Details Card -->
                 <div
                     class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5"
+                    style="background-color: var(--surface-container-lowest);"
                 >
                     <div class="hero-image-container">
                         <img
@@ -114,12 +115,12 @@
                             referrerpolicy="no-referrer"
                         />
                         <div class="hero-overlay">
-                            <h3>Detalles del Evento</h3>
+                            <h3 data-i18n="event_details">Detalles del Evento</h3>
                         </div>
                     </div>
 
-                    <div class="card-body p-4 p-md-5">
-                        <div class="row g-5 border-bottom pb-5 mb-5">
+                    <div class="card-body p-4 p-md-5" style="background-color: var(--surface-container-lowest); margin-top: 0;">
+                        <div class="row g-5 pb-5 mb-5" style="border-bottom: 1px solid var(--border-outline-variant);">
                             <div class="col-12 col-lg-7">
                                 <div class="row g-4">
                                     <div class="col-12">
@@ -131,9 +132,10 @@
                                                 >
                                             </div>
                                             <div class="row flex-grow-1">
-                                                <div class="col-6 border-end">
+                                                <div class="col-6" style="border-right: 1px solid var(--border-outline-variant);">
                                                     <p
                                                         class="text-uppercase small fw-bold text-muted mb-1"
+                                                        data-i18n="event_start"
                                                     >
                                                         Inicio del Evento
                                                     </p>
@@ -147,6 +149,7 @@
                                                 <div class="col-6 ps-4">
                                                     <p
                                                         class="text-uppercase small fw-bold text-muted mb-1"
+                                                        data-i18n="event_end"
                                                     >
                                                         Fin del Evento
                                                     </p>
@@ -171,6 +174,7 @@
                                             <div>
                                                 <p
                                                     class="text-uppercase small fw-bold text-muted mb-1"
+                                                    data-i18n="location_label"
                                                 >
                                                     Ubicación
                                                 </p>
@@ -192,6 +196,7 @@
                                     <div>
                                         <p
                                             class="text-uppercase small fw-bold text-muted mb-1"
+                                            data-i18n="general_description"
                                         >
                                             Descripción General
                                         </p>
@@ -214,7 +219,7 @@
                                     class="material-symbols-outlined text-primary"
                                     >confirmation_number</span
                                 >
-                                Tipos de Entrada
+                                <span data-i18n="ticket_types_label">Tipos de Entrada</span>
                             </h4>
                             <div class="row g-3">
                                 {% for ticket in ticket_types %}
@@ -230,7 +235,7 @@
                                         <p
                                             class="h4 fw-black text-primary mb-0"
                                         >
-                                            {% if ticket.price == 0 %}Gratis{% else %}${{ ticket.price|floatformat:"-1" }}{% endif %}
+                                            {% if ticket.price == 0 %}<span data-i18n="free">Gratis</span>{% else %}${{ ticket.price|floatformat:"-1" }}{% endif %}
                                         </p>
                                     </div>
                                 </div>
@@ -239,11 +244,11 @@
                                     <div class="ticket-card featured">
                                         <div>
                                             <p class="fw-bold mb-0">
-                                                General
+                                                <span data-i18n="general_ticket">General</span>
                                             </p>
                                         </div>
                                         <p class="h4 fw-black text-primary mb-0">
-                                            Gratis
+                                            <span data-i18n="free">Gratis</span>
                                         </p>
                                     </div>
                                 </div>
@@ -261,33 +266,34 @@
     class="floating-action-btn"
     data-bs-toggle="modal"
     data-bs-target="#announcementModal"
+    data-i18n-title="send_announcement"
     title="Enviar Anuncio"
 >
     <span class="material-symbols-outlined">campaign</span>
 </button>
 
 <!-- Announcement Modal -->
-<div class="modal fade" id="announcementModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="announcementModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold">Enviar Anuncio</h5>
+            <div class="modal-header announcement-modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" data-i18n="send_announcement">Enviar Anuncio</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="announcementForm" method="post" action="{% url 'in_person_events:send_announcement' event.id %}">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label fw-medium">Título del mensaje</label>
-                        <input type="text" class="form-control" name="title" placeholder="Título de la notificación" required>
+                        <label class="form-label fw-medium" data-i18n="announcement_title_label">Título del mensaje</label>
+                        <input type="text" class="form-control" name="title" data-i18n-placeholder="announcement_title_placeholder" placeholder="Título de la notificación" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-medium">Mensaje</label>
-                        <textarea class="form-control" name="message" rows="4" placeholder="Escribe tu mensaje para los asistentes..." required></textarea>
+                        <label class="form-label fw-medium" data-i18n="message_label">Mensaje</label>
+                        <textarea class="form-control" name="message" rows="4" data-i18n-placeholder="message_placeholder" placeholder="Escribe tu mensaje para los asistentes..." required></textarea>
                     </div>
                     <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Enviar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" data-i18n="send_btn">Enviar</button>
                     </div>
                 </form>
             </div>

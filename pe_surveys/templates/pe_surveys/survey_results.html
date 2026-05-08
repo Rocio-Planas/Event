@@ -3,7 +3,7 @@
 
 {% block title %}Resultados de la encuesta - {{ survey.title }}{% endblock %}
 
-{% block extra_css %}
+{% block extra_head %}
 <link rel="stylesheet" href="{% static 'pe_inventory/inventory/css/styles.css' %}">
 {% endblock %}
 
@@ -14,40 +14,40 @@
         <div>
             <a href="{% url 'pe_surveys:survey_list' event.id %}" class="btn btn-link text-primary text-decoration-none d-flex align-items-center gap-1 mb-2 p-0">
                 <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span>
-                Volver
+                <span data-i18n="back">Volver</span>
             </a>
-            <h2 class="fw-800 display-6">Resultados: {{ survey.title }}</h2>
-            <p class="text-muted mb-0">Respuestas de la encuesta</p>
+            <h2 class="fw-800 display-6"><span data-i18n="survey_results_title">Resultados:</span> {{ survey.title }}</h2>
+            <p class="text-muted mb-0" data-i18n="survey_responses_desc">Respuestas de la encuesta</p>
         </div>
     </div>
 
     <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-3">
-                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3 rounded-3">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary);">
                     <span class="material-symbols-outlined">how_to_vote</span>
                 </div>
                 <div>
-                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Total Respuestas</small>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="total_responses">Total Respuestas</small>
                     <h3 class="fw-black mb-0">{{ responses|length }}</h3>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white">
+    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3">
         <div class="p-4">
-            <h5 class="fw-bold mb-4">Distribución de Respuestas</h5>
-            
+            <h5 class="fw-bold mb-4" style="color: var(--text-on-surface);" data-i18n="response_distribution">Distribución de Respuestas</h5>
+
             {% if survey.survey_type == 'escala' %}
                 {% for key, values in results.items %}
                 <div class="mb-4">
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="fw-medium">Puntuación</span>
-                        <span class="badge bg-primary">{{ values|length }} respuestas</span>
+                        <span class="fw-medium" data-i18n="score_label">Puntuación</span>
+                        <span class="badge" style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary);">{{ values|length }} <span data-i18n="responses_count">respuestas</span></span>
                     </div>
                     <div class="progress" style="height: 24px;">
-                        <div class="progress-bar bg-primary" style="width: {{ values|length|add:0 }}%;">
+                        <div class="progress-bar" style="width: {{ values|length|add:0 }}%;">
                         </div>
                     </div>
                     <div class="text-center mt-1">
@@ -60,14 +60,11 @@
                 <div class="mb-4">
                     <div class="d-flex justify-content-between mb-2">
                         <span class="fw-medium">{{ key }}</span>
-                        <span class="badge bg-success">{{ values|length }} votos</span>
+                        <span class="badge" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);">{{ values|length }} <span data-i18n="votes_count">votos</span></span>
                     </div>
                     <div class="progress" style="height: 24px;">
-                        <div class="progress-bar bg-success" style="width: {{ values|length|add:0 }}%;">
+                        <div class="progress-bar progress-bar-success" style="width: {{ values|length|add:0 }}%; background-color: #06a77d;">
                         </div>
-                    </div>
-                    <div class="text-center mt-1">
-                        <span class="fw-bold">{{ values|length }}</span>
                     </div>
                 </div>
                 {% endfor %}
@@ -75,17 +72,17 @@
         </div>
     </div>
 
-    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white mt-4">
+    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 mt-4">
         <div class="p-4">
-            <h5 class="fw-bold mb-4">Detalle de Respuestas</h5>
+            <h5 class="fw-bold mb-4" style="color: var(--text-on-surface);" data-i18n="response_detail">Detalle de Respuestas</h5>
             {% if responses %}
                 <div class="table-responsive">
                     <table class="table mb-0">
-                        <thead class="bg-light">
+                        <thead style="background-color: var(--surface-container-high);">
                             <tr>
-                                <th class="px-3 py-2">Fecha</th>
-                                <th class="px-3 py-2">Respuesta</th>
-                                <th class="px-3 py-2">Comentarios</th>
+                                <th class="px-3 py-2" data-i18n="date_col">Fecha</th>
+                                <th class="px-3 py-2" data-i18n="answer_col">Respuesta</th>
+                                <th class="px-3 py-2" data-i18n="comments_col">Comentarios</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -100,7 +97,7 @@
                     </table>
                 </div>
             {% else %}
-                <p class="text-muted mb-0 text-center py-4">Aún no hay respuestas</p>
+                <p class="text-muted mb-0 text-center py-4" data-i18n="no_responses_yet">Aún no hay respuestas</p>
             {% endif %}
         </div>
     </div>

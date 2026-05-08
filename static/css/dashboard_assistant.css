@@ -7,6 +7,23 @@
     --text-on-surface: #181c20;
     --text-on-surface-variant: #424655;
     --border-outline-variant: #c2c6d8;
+    --success: #06a77d;
+    --warning: #f8a900;
+    --error: #dc2626;
+}
+
+.dark {
+    --primary: #7a9eff;
+    --primary-variant: #3a7bdd;
+    --secondary: #8a9fd0;
+    --surface-container-low: #2a2a36;
+    --surface-container-lowest: #1e1e2a;
+    --text-on-surface: #eef1f6;
+    --text-on-surface-variant: #b0b3c0;
+    --border-outline-variant: #3a3e4a;
+    --success: #10b981;
+    --warning: #fbbf24;
+    --error: #ef4444;
 }
 .max-w-7xl {
     max-width: 80rem;
@@ -22,10 +39,12 @@
 }
 .card {
     background-color: var(--surface-container-lowest);
-    border-radius: 1rem;
+    border-radius: 1.5rem;
     padding: 1.5rem;
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(225, 228, 237, 0.5);
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(203, 213, 225, 1);
 }
 h1 {
     font-size: 2rem;
@@ -41,6 +60,21 @@ h2 {
 h3 {
     font-size: 1.25rem;
     font-weight: 700;
+}
+.card.panel-operativo {
+    background-color: var(--surface-container-lowest) !important;
+    border-radius: 12px !important;
+    padding: 2rem !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+}
+.speaker-surface {
+    background-color: var(--surface-container-lowest) !important;
+    background: var(--surface-container-lowest) !important;
+    border: none !important;
+}
+.panel-operativo {
+    background-color: var(--surface-container-lowest);
 }
 .btn-primary {
     background: linear-gradient(
@@ -217,6 +251,199 @@ h3 {
         grid-column: span 4;
     }
 }
+/* ========== DARK MODE ========== */
+.hero-banner {
+    position: relative;
+    overflow: hidden;
+    background-position: center;
+    background-size: cover;
+}
+
+.hero-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.45) 0%,
+        rgba(0, 0, 0, 0.25) 100%
+    );
+    z-index: 0;
+}
+
+.hero-banner > .container,
+.hero-banner .max-w-7xl {
+    position: relative;
+    z-index: 1;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.hero-banner .text-white,
+.hero-banner .text-white *,
+.hero-banner .material-symbols-outlined,
+.hero-banner .btn-compact,
+.hero-banner span,
+.hero-banner h1,
+.hero-banner p,
+.hero-banner small {
+    color: white !important;
+}
+
+.hero-banner .text-muted {
+    color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.hero-banner .badge {
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    color: white !important;
+}
+
+.hero-banner .btn-compact:hover {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.hero-banner .text-primary {
+    color: white !important;
+}
+
+.dark .card {
+    background-color: var(--surface-container-lowest);
+    border-color: var(--border-outline-variant);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
+}
+
+.dark .card.panel-operativo {
+    background-color: var(--surface-container-lowest) !important;
+    border-radius: 12px !important;
+    padding: 2rem !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+}
+
+.dark .panel-operativo .badge.bg-primary {
+    background-color: var(--surface-container-high) !important;
+    color: var(--primary) !important;
+}
+
+.dark .panel-operativo .form-control {
+    background-color: var(--surface-container-high) !important;
+    border-color: var(--border-outline-variant) !important;
+    color: var(--text-on-surface) !important;
+}
+
+.dark .panel-operativo .form-control::placeholder {
+    color: var(--text-on-surface-variant) !important;
+}
+
+.dark .panel-operativo .btn-primary {
+    background: linear-gradient(
+        135deg,
+        var(--primary) 0%,
+        var(--primary-variant) 100%
+    ) !important;
+    color: white !important;
+}
+
+.dark .panel-operativo .text-primary {
+    color: var(--primary) !important;
+}
+
+.dark .panel-operativo .btn-outline-secondary {
+    border-color: var(--border-outline-variant) !important;
+    color: var(--text-on-surface-variant) !important;
+}
+
+.dark .panel-operativo .btn-outline-secondary:hover {
+    background-color: var(--surface-container-high) !important;
+    color: var(--text-on-surface) !important;
+}
+
+.dark .panel-operativo .btn-outline-secondary {
+    border-color: var(--border-outline-variant) !important;
+    color: var(--text-on-surface-variant) !important;
+}
+
+.dark .panel-operativo .btn-outline-secondary:hover {
+    background-color: var(--surface-container-high) !important;
+    color: var(--text-on-surface) !important;
+}
+
+.dark .panel-operativo [style*="background-color: #22c55e"] {
+    background-color: var(--success) !important;
+}
+
+.dark .panel-operativo [style*="rgba(0, 0, 0, 0.1)"] {
+    box-shadow: 0 4px 14px rgba(122, 158, 255, 0.25) !important;
+}
+
+.dark .badge[style*="rgba(255, 255, 255, 0.25)"] {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
+}
+
+.dark .btn-compact {
+    color: var(--primary) !important;
+}
+
+.dark .btn-compact:hover {
+    color: var(--primary) !important;
+}
+
+.dark .timeline-content {
+    background-color: var(--surface-container-low);
+    border-color: var(--border-outline-variant);
+}
+
+.dark .badge {
+    background-color: var(--surface-container-high) !important;
+    color: var(--text-on-surface) !important;
+}
+
+.dark .badge.bg-primary {
+    background-color: var(--primary) !important;
+    color: white !important;
+}
+
+.dark .badge-ai {
+    background-color: rgba(122, 158, 255, 0.2) !important;
+    color: #7a9eff !important;
+}
+
+.dark .badge-en_curso {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: #10b981 !important;
+}
+
+.dark .badge-completada {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: #10b981 !important;
+}
+
+.dark .badge-programada {
+    background-color: rgba(122, 158, 255, 0.2) !important;
+    color: #7a9eff !important;
+}
+
+.dark .badge-cancelada {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: #ef4444 !important;
+}
+
+.dark .badge-ux {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: #10b981 !important;
+}
+
+.dark .badge-devops {
+    background-color: rgba(251, 191, 36, 0.2) !important;
+    color: #fbbf24 !important;
+}
+
+.dark .timeline-content .btn-compact {
+    color: var(--primary) !important;
+}
+
 @media (max-width: 1023px) {
     .grid-cols-12 {
         display: flex;

@@ -12,49 +12,49 @@
     <div class="p-4" data-event-id="{{ event_id }}">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <h2 class="fw-800 display-6">Gestión de Asistentes</h2>
-                <p class="text-muted mb-0">Administra la base de datos de invitados y supervisa el estado de sus reservaciones.</p>
+                <h2 class="fw-800 display-6" data-i18n="attendees_management_title">Gestión de Asistentes</h2>
+                <p class="text-muted mb-0" data-i18n="attendees_management_subtitle">Administra la base de datos de invitados y supervisa el estado de sus reservaciones.</p>
             </div>
             <div class="d-flex align-items-center gap-3">
-                <span class="text-muted small">Asistentes</span>
+                <span class="text-muted small" data-i18n="attendees_tab">Asistentes</span>
                 <div class="form-check form-switch mb-0">
                     <input class="form-check-input" type="checkbox" id="waitlistSwitch" onchange="toggleWaitlistView(this.checked)">
                 </div>
-                <span class="text-muted small">Lista de Espera</span>
+                <span class="text-muted small" data-i18n="waitlist_tab">Lista de Espera</span>
             </div>
         </div>
 
     <!-- Stats -->
     <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);">
                     <span class="material-symbols-outlined">check_circle</span>
                 </div>
                 <div>
-                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Confirmados</small>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="confirmed">Confirmados</small>
                     <h3 class="fw-black mb-0" id="totalConfirmed">{{ total_confirmed }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(248, 169, 0, 0.1); color: var(--warning);">
                     <span class="material-symbols-outlined">hourglass_empty</span>
                 </div>
                 <div>
-                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Pendientes</small>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="pending">Pendientes</small>
                     <h3 class="fw-black mb-0" id="totalPending">{{ total_pending }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3" id="waitlistStatsCard">
-                <div class="bg-info bg-opacity-10 text-info p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3" id="waitlistStatsCard">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(14, 165, 233, 0.1); color: var(--info);">
                     <span class="material-symbols-outlined">queue</span>
                 </div>
                 <div>
-                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">En Espera</small>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="on_waitlist">En Espera</small>
                     <h3 class="fw-black mb-0" id="totalWaitlist">0</h3>
                 </div>
             </div>
@@ -62,56 +62,56 @@
     </div>
 
     <!-- Filters -->
-    <div class="content-card mb-4 bg-light p-4 rounded-3 border">
+    <div class="content-card mb-4 p-4 rounded-3 border">
         <div class="row g-3 align-items-center">
             <div class="col-md-6">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Asistente</label>
-                <div class="search-container shadow-sm rounded-2 w-100 bg-white position-relative">
-                    <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: #6c757d;">search</span>
-                    <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Nombre o email..." id="searchAttendee">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="search_attendee">Buscar Asistente</label>
+                <div class="search-container shadow-sm rounded-2 w-100 position-relative">
+                    <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: var(--text-on-surface-variant);">search</span>
+                    <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Nombre o email..." data-i18n-placeholder="search_attendee_placeholder" id="searchAttendee">
                 </div>
             </div>
             <div class="col-md-6" id="statusFilterCol">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Estado</label>
-                <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterStatus">
-                    <option value="all">Todos los Estados</option>
-                    <option value="confirmada">Confirmado</option>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="cancelada">Cancelado</option>
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="filter_by_status">Filtrar por Estado</label>
+                <select class="form-select border-0 shadow-sm smaller fw-medium" id="filterStatus">
+                    <option value="all" data-i18n="all_statuses">Todos los Estados</option>
+                    <option value="confirmada" data-i18n="confirmed_status">Confirmado</option>
+                    <option value="pendiente" data-i18n="pending_status">Pendiente</option>
+                    <option value="cancelada" data-i18n="cancelled_status">Cancelado</option>
                 </select>
             </div>
         </div>
     </div>
 
     <!-- Attendees Table -->
-    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white mb-4">
+    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 mb-4">
         <div class="table-responsive">
             <table class="table mb-0 align-middle" id="attendeesTable">
-                <thead class="bg-light">
+                <thead style="background-color: var(--surface-container-high);">
                     <tr>
-                        <th class="px-4 py-3">Asistente</th>
-                        <th class="py-3">Tipo de Ticket</th>
-                        <th class="py-3">Estado</th>
-                        <th class="py-3">Fecha de Inscripción</th>
-                        <th class="px-4 py-3 text-center">Acciones</th>
+                        <th class="px-4 py-3" data-i18n="attendee_col">Asistente</th>
+                        <th class="py-3" data-i18n="ticket_type_col">Tipo de Ticket</th>
+                        <th class="py-3" data-i18n="status_col">Estado</th>
+                        <th class="py-3" data-i18n="registration_date_col">Fecha de Inscripción</th>
+                        <th class="px-4 py-3 text-center" data-i18n="actions_col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="attendeesTableBody"></tbody>
             </table>
             <table class="table mb-0 align-middle" id="waitlistTable" style="display: none;">
-                <thead class="bg-light">
+                <thead style="background-color: var(--surface-container-high);">
                     <tr>
                         <th class="px-4 py-3">#</th>
-                        <th class="py-3">Asistente</th>
-                        <th class="py-3">Fecha de Inscripción</th>
-                        <th class="px-4 py-3 text-center">Acciones</th>
+                        <th class="py-3" data-i18n="attendee_col">Asistente</th>
+                        <th class="py-3" data-i18n="registration_date_col">Fecha de Inscripción</th>
+                        <th class="px-4 py-3 text-center" data-i18n="actions_col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="waitlistTableBody"></tbody>
             </table>
         </div>
-        <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
-            <div class="small text-muted fw-bold" id="paginationInfo">Mostrando 0 de 0 asistentes</div>
+        <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-high);">
+            <div class="small text-muted fw-bold" id="paginationInfo"><span data-i18n="showing_attendees">Mostrando</span> 0 <span data-i18n="of_attendees">de</span> 0 <span data-i18n="attendees_count">asistentes</span></div>
             <nav aria-label="Page navigation">
             </nav>
         </div>
@@ -122,7 +122,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="attendeeInfoModalLabel">Información del asistente</h5>
+                    <h5 class="modal-title" id="attendeeInfoModalLabel" data-i18n="attendee_info_title">Información del asistente</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
@@ -135,33 +135,33 @@
                         <div class="col-md-8">
                             <div class="row g-3">
                                 <div class="col-12 col-md-6">
-                                    <small class="text-muted">Teléfono</small>
+                                    <small class="text-muted" data-i18n="phone_label">Teléfono</small>
                                     <p id="modalPhone" class="mb-2"></p>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <small class="text-muted">Última actividad</small>
+                                    <small class="text-muted" data-i18n="last_activity_label">Última actividad</small>
                                     <p id="modalLastActivity" class="mb-2"></p>
                                 </div>
                                 <div class="col-12">
-                                    <small class="text-muted">Biografía</small>
+                                    <small class="text-muted" data-i18n="bio_label">Biografía</small>
                                     <p id="modalBio" class="mb-2"></p>
                                 </div>
                                 <div class="col-12">
                                     <div class="row row-cols-1 row-cols-md-2 g-3">
                                         <div class="col">
-                                            <small class="text-muted">Sitio web</small>
+                                            <small class="text-muted" data-i18n="website_label">Sitio web</small>
                                             <p id="modalWebsite" class="mb-2"></p>
                                         </div>
                                         <div class="col">
-                                            <small class="text-muted">Twitter</small>
+                                            <small class="text-muted" data-i18n="twitter_label">Twitter</small>
                                             <p id="modalTwitter" class="mb-2"></p>
                                         </div>
                                         <div class="col">
-                                            <small class="text-muted">Instagram</small>
+                                            <small class="text-muted" data-i18n="instagram_label">Instagram</small>
                                             <p id="modalInstagram" class="mb-2"></p>
                                         </div>
                                         <div class="col">
-                                            <small class="text-muted">LinkedIn</small>
+                                            <small class="text-muted" data-i18n="linkedin_label">LinkedIn</small>
                                             <p id="modalLinkedin" class="mb-2"></p>
                                         </div>
                                     </div>
@@ -171,7 +171,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="close_btn">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -182,15 +182,15 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteAttendeeModalLabel">Eliminar inscripción</h5>
+                    <h5 class="modal-title" id="deleteAttendeeModalLabel" data-i18n="delete_registration_title">Eliminar inscripción</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    <p>¿Estás seguro de que deseas quitar a <strong id="deleteAttendeeName"></strong> del evento? Esta acción también eliminará la suscripción relacionada si existe.</p>
+                    <p><span data-i18n="delete_attendee_confirm">¿Estás seguro de que deseas quitar a</span> <strong id="deleteAttendeeName"></strong> <span data-i18n="from_event_suffix">del evento</span>? <span data-i18n="delete_attendee_warning">Esta acción también eliminará la suscripción relacionada si existe.</span></p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteAttendeeBtn">Eliminar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteAttendeeBtn" data-i18n="delete_btn">Eliminar</button>
                 </div>
             </div>
         </div>
@@ -200,15 +200,15 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteWaitlistModalLabel">Eliminar de lista de espera</h5>
+                    <h5 class="modal-title" id="deleteWaitlistModalLabel" data-i18n="remove_from_waitlist_title">Eliminar de lista de espera</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    <p>¿Estás seguro de que deseas eliminar a <strong id="deleteWaitlistName"></strong> de la lista de espera?</p>
+                    <p><span data-i18n="delete_waitlist_confirm">¿Estás seguro de que deseas eliminar a</span> <strong id="deleteWaitlistName"></strong> <span data-i18n="from_waitlist_suffix">de la lista de espera</span>?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteWaitlistBtn">Eliminar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteWaitlistBtn" data-i18n="delete_btn">Eliminar</button>
                 </div>
             </div>
         </div>

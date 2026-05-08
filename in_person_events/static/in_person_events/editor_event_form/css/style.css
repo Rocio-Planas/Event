@@ -1,13 +1,28 @@
 
 :root {
-    --primary-color: #0058be;
-    --primary-gradient: linear-gradient(135deg, #0058be 0%, #2170e4 100%);
+    --primary-color: #0057cd;
+    --primary-gradient: linear-gradient(135deg, #0057cd 0%, #2170e4 100%);
     --surface-bg: #f8f9ff;
-    --card-bg: #ffffff;
     --text-main: #0b1c30;
     --text-muted: #424754;
-    --border-color: rgba(114, 119, 133, 0.1);
+    --border-outline-variant: #c2c6d8;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #f1f4f9;
+    --surface-container-high: #e5e8ee;
     --input-bg: #eff4ff;
+}
+
+.dark {
+    --primary-color: #7a9eff;
+    --primary-gradient: linear-gradient(135deg, #3a7bdd 0%, #5c9eff 100%);
+    --surface-bg: #121212;
+    --text-main: #eef1f6;
+    --text-muted: #b0b3c0;
+    --border-outline-variant: #3a3e4a;
+    --surface-container-lowest: #1e1e2a;
+    --surface-container-low: #2a2a36;
+    --surface-container-high: #353542;
+    --input-bg: #2a2a36;
 }
 
 body {
@@ -24,9 +39,9 @@ main {
 
 /* Header */
 .app-header {
-    background: rgba(248, 249, 255, 0.95);
+    background: var(--surface-container-lowest);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-outline-variant);
     height: 64px;
     display: flex;
     align-items: center;
@@ -56,11 +71,11 @@ main {
 
 /* Cards */
 .event-card {
-    background: var(--card-bg);
+    background-color: var(--surface-container-lowest);
     border-radius: 16px;
     padding: 32px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    border: 1px solid var(--border-outline-variant);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     margin-bottom: 24px;
 }
 
@@ -104,14 +119,14 @@ main {
 
 .form-control-custom {
     background-color: var(--input-bg);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-outline-variant);
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     transition: all 0.2s;
 }
 
 .form-control-custom:focus {
-    background-color: white;
+    background-color: var(--surface-container-lowest);
     border-color: var(--primary-color);
     box-shadow: 0 0 0 4px rgba(0, 88, 190, 0.1);
     outline: none;
@@ -178,7 +193,7 @@ main {
 
 /* Upload Zone */
 .upload-zone {
-    border: 2px dashed var(--border-color);
+    border: 2px dashed var(--border-outline-variant);
     border-radius: 12px;
     padding: 40px;
     text-align: center;
@@ -188,7 +203,7 @@ main {
 }
 
 .upload-zone:hover {
-    background: #e5eeff;
+    background: var(--surface-container-high);
     border-color: var(--primary-color);
 }
 
@@ -220,7 +235,7 @@ main {
 }
 
 .privacy-option.active {
-    background: rgba(0, 88, 190, 0.05);
+    background: var(--surface-container-high);
 }
 
 /* Status Badge */

@@ -178,6 +178,19 @@ class StaffDashboardReadOnlyView(TemplateView):
             activities = Activity.objects.filter(
                 event_id=event_id
             ).order_by('start_time')
+
+            if my_assignment.user_type == StaffMember.UserType.PONENTE and not my_assignment.activity:
+                fallback_activity = Activity.objects.filter(
+                    event_id=event_id,
+                    speaker_email__iexact=self.request.user.email
+                ).order_by('start_time').first()
+                if not fallback_activity:
+                    fallback_activity = Activity.objects.filter(
+                        event_id=event_id,
+                        speaker_name__iexact=self.request.user.get_full_name() or self.request.user.email
+                    ).order_by('start_time').first()
+                if fallback_activity:
+                    my_assignment.activity = fallback_activity
         except LookupError:
             activities = []
         

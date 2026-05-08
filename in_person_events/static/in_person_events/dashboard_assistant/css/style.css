@@ -3,21 +3,6 @@
    Based on "The Digital Concierge" North Star
 */
 
-:root {
-    --primary: #0058be;
-    --primary-variant: #2170e4;
-    --secondary: #006c49;
-    --secondary-container: #e8f5f0;
-    --surface: #fcfdfe;
-    --surface-container-low: #f1f3f9;
-    --surface-container-lowest: #ffffff;
-    --on-surface: #1a1c1e;
-    --on-surface-variant: #44474e;
-    --outline-variant: #e1e4ed;
-    --error: #ba1a1a;
-    --font-sans: "Inter", sans-serif;
-}
-
 * {
     margin: 0;
     padding: 0;
@@ -25,14 +10,9 @@
 }
 
 body {
-    font-family: var(--font-sans);
-    background-color: var(--surface);
-    color: var(--on-surface);
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-}
-
-/* Layout */
+    font-family: "Inter", sans-serif;
+    background-color: var(--bg-surface);
+    color: var(--text-on-surface);
 .max-w-7xl {
     max-width: 80rem;
     margin-left: auto;
@@ -93,7 +73,7 @@ h2 {
     background: linear-gradient(
         135deg,
         var(--primary) 0%,
-        var(--primary-variant) 100%
+        var(--secondary) 100%
     );
     color: white;
     padding: 1rem 2rem;
@@ -137,7 +117,7 @@ h2 {
 .agenda-item:hover {
     background-color: var(--surface-container-lowest);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border-color: var(--outline-variant);
+    border-color: var(--border-outline-variant);
 }
 
 .time-col {
@@ -162,7 +142,7 @@ h2 {
 .time-period {
     font-size: 0.625rem;
     font-weight: 700;
-    color: var(--on-surface-variant);
+    color: var(--text-on-surface-variant);
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
@@ -207,7 +187,7 @@ h2 {
     background: linear-gradient(
         135deg,
         var(--primary) 0%,
-        var(--primary-variant) 100%
+        var(--secondary) 100%
     );
 }
 
@@ -323,7 +303,7 @@ h2 {
 .notifications-btn {
     background: none;
     border: none;
-    color: var(--on-surface-variant);
+    color: var(--text-on-surface-variant);
     cursor: pointer;
 }
 
@@ -331,7 +311,7 @@ h2 {
     width: 2.25rem;
     height: 2.25rem;
     border-radius: 50%;
-    border: 1px solid var(--outline-variant);
+    border: 1px solid var(--border-outline-variant);
     padding: 2px;
 }
 
@@ -385,7 +365,7 @@ h2 {
     display: flex;
     flex-wrap: wrap;
     gap: 1.5rem;
-    color: var(--on-surface-variant);
+    color: var(--text-on-surface-variant);
     font-weight: 500;
 }
 
@@ -457,7 +437,7 @@ h2 {
 
 .agenda-subtitle {
     font-size: 0.875rem;
-    color: var(--on-surface-variant);
+    color: var(--text-on-surface-variant);
     font-weight: 500;
     margin-top: 0.25rem;
 }
@@ -496,7 +476,7 @@ h2 {
 .room-info {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--on-surface-variant);
+    color: var(--text-on-surface-variant);
     display: flex;
     align-items: center;
     gap: 0.25rem;
@@ -513,7 +493,7 @@ h2 {
 
 .session-description {
     font-size: 0.875rem;
-    color: var(--on-surface-variant);
+    color: var(--text-on-surface-variant);
     font-weight: 500;
     margin-top: 0.5rem;
 }
@@ -521,7 +501,7 @@ h2 {
 .bookmark-btn {
     background: none;
     border: none;
-    color: var(--outline-variant);
+    color: var(--border-outline-variant);
     cursor: pointer;
     align-self: flex-start;
     margin-top: 0.5rem;
@@ -623,12 +603,12 @@ h2 {
 .resource-meta {
     font-size: 0.625rem;
     font-weight: 700;
-    color: var(--on-surface-variant);
+    color: var(--text-on-surface-variant);
     text-transform: uppercase;
 }
 
 .resource-action {
-    color: var(--on-surface-variant);
+    color: var(--text-on-surface-variant);
     cursor: pointer;
 }
 
@@ -661,7 +641,7 @@ h2 {
 
 .organizer-bio {
     font-size: 0.875rem;
-    color: var(--on-surface-variant);
+    color: var(--text-on-surface-variant);
     font-weight: 500;
     margin-top: 1.25rem;
     line-height: 1.6;
@@ -734,13 +714,13 @@ h2 {
     justify-content: space-between;
     align-items: center;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--outline-variant);
+    border-bottom: 1px solid var(--border-outline-variant);
 }
 
 .ticket-name {
     font-size: 0.875rem;
     font-weight: 700;
-    color: var(--on-surface-variant);
+    color: var(--text-on-surface-variant);
 }
 
 .ticket-price {

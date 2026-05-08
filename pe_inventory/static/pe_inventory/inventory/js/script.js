@@ -105,7 +105,10 @@ document.addEventListener("DOMContentLoaded", () => {
         ).filter((r) => r.style.display !== "none").length;
         const info = document.getElementById("paginationInfo");
         if (info) {
-            info.textContent = `Mostrando ${visibleRows} artículo${visibleRows !== 1 ? "s" : ""} registrado${visibleRows !== 1 ? "s" : ""}`;
+            const t = window.translations && window.translations[window.currentLang] ? window.translations[window.currentLang] : window.translations.es;
+            const showingItems = t.showing_items || "Mostrando";
+            const itemsRegistered = t.items_registered || "artículos registrados";
+            info.textContent = `${showingItems} ${visibleRows} ${visibleRows !== 1 ? itemsRegistered.replace("artículos", "artículo").replace("registrados", "registrado") : itemsRegistered}`;
         }
     };
 
@@ -502,8 +505,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const tbody = document.getElementById("inventoryTableBody");
                 tbody.innerHTML = "";
                 if (items.length === 0) {
+                    const t = window.translations && window.translations[window.currentLang] ? window.translations[window.currentLang] : window.translations.es;
+                    const noItems = t.no_inventory_items || "No hay artículos registrados";
                     tbody.innerHTML =
-                        '<tr><td colspan="6" class="text-center py-4 text-muted">No hay artículos registrados</td></tr>';
+                        `<tr><td colspan="6" class="text-center py-4 text-muted">${noItems}</td></tr>`;
                 } else {
                     items.forEach((item) => {
                         const statusBadgeClass =
@@ -536,7 +541,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 </td>
                                 <td><span class="badge bg-primary text-white item-category">${item.category}</span></td>
                                 <td>
-                                    <span class="fw-bold text-dark">${item.used_stock}/${item.total_stock}</span>
+                                    <span class="fw-bold" style="color: var(--text-on-surface-variant);">${item.used_stock}/${item.total_stock}</span>
                                 </td>
                                 <td><span class="badge ${statusBadgeClass} item-status">${item.status}</span></td>
                                 <td>

@@ -2,6 +2,37 @@
    Utility Classes - Common utilities for all templates
    ===================================================== */
 
+/* =====================================================
+   COLORES DEL TEMA (compatible con base_bootstrap.css)
+   ===================================================== */
+:root {
+    --primary: #0057cd;
+    --secondary: #425c9b;
+    --error: #dc2626;
+    --success: #06a77d;
+    --warning: #f8a900;
+    --text-on-surface: #181c20;
+    --text-on-surface-variant: #424655;
+    --border-outline-variant: #c2c6d8;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #f1f4f9;
+    --surface-container-high: #e5e8ee;
+}
+
+.dark {
+    --primary: #7a9eff;
+    --secondary: #8a9fd0;
+    --error: #ef4444;
+    --success: #10b981;
+    --warning: #fbbf24;
+    --text-on-surface: #eef1f6;
+    --text-on-surface-variant: #b0b3c0;
+    --border-outline-variant: #3a3e4a;
+    --surface-container-lowest: #1e1e2a;
+    --surface-container-low: #2a2a36;
+    --surface-container-high: #353542;
+}
+
 /* Display utilities */
 .d-block {
     display: block;
@@ -227,39 +258,39 @@
 
 /* Colors - Text */
 .text-primary {
-    color: #0058be;
+    color: var(--primary);
 }
 .text-secondary {
-    color: #006c49;
+    color: var(--secondary);
 }
 .text-muted {
-    color: #424754;
+    color: var(--text-on-surface-variant);
 }
 .text-light {
-    color: #e1e4ed;
+    color: var(--surface-container-high);
 }
 .text-error {
-    color: #ba1a1a;
+    color: var(--error);
 }
 .text-success {
-    color: #06a77d;
+    color: var(--success);
 }
 .text-warning {
-    color: #f8a900;
+    color: var(--warning);
 }
 
 /* Background utilities */
 .bg-primary {
-    background-color: #0058be;
+    background-color: var(--primary);
 }
 .bg-secondary {
-    background-color: #006c49;
+    background-color: var(--secondary);
 }
 .bg-light {
-    background-color: #f8f9ff;
+    background-color: var(--surface-container-high);
 }
 .bg-white {
-    background-color: white;
+    background-color: var(--surface-container-lowest);
 }
 .bg-transparent {
     background-color: transparent;
@@ -267,19 +298,19 @@
 
 /* Border utilities */
 .border {
-    border: 1px solid #d3e4fe;
+    border: 1px solid var(--border-outline-variant);
 }
 .border-0 {
     border: none;
 }
 .border-top {
-    border-top: 1px solid #d3e4fe;
+    border-top: 1px solid var(--border-outline-variant);
 }
 .border-bottom {
-    border-bottom: 1px solid #d3e4fe;
+    border-bottom: 1px solid var(--border-outline-variant);
 }
 .border-light {
-    border-color: #e5eeff;
+    border-color: var(--border-outline-variant);
 }
 
 .rounded {

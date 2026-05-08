@@ -20,44 +20,44 @@
                 <div class="mb-4">
                     <a href="{% url 'in_person_events:dashboard_assistant' event.id %}" class="back-link d-inline-flex align-items-center gap-2 text-secondary text-decoration-none fw-medium small">
                         <span class="material-symbols-outlined fs-6">arrow_back</span>
-                        Volver
+                        <span data-i18n="back">Volver</span>
                     </a>
                 </div>
 
                 <!-- Header Section -->
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-4 mb-5">
                     <div>
-                        <h1 class="display-5 fw-extrabold tracking-tight mb-1">Cronograma Completo</h1>
-                        <p class="text-secondary fw-medium mb-0">{{ event.start_date|date:"l, j \d\e F \d\e Y" }}</p>
+                        <h1 class="display-5 fw-extrabold tracking-tight mb-1" style="color: var(--on-surface);" data-i18n="full_schedule">Cronograma Completo</h1>
+                        <p class="text-secondary fw-medium mb-0" style="color: var(--on-surface-variant);">{{ event.start_date|date:"l, j \d\e F \d\e Y" }}</p>
                     </div>
                     
                     <div class="d-flex align-items-center gap-2 ms-auto">
                         <div class="search-container" style="width: 280px;">
-                            <span class="material-symbols-outlined search-icon fs-5">search</span>
-                            <input type="text" class="form-control search-input py-2" placeholder="Buscar sesiones..." id="search-input">
+                            <span class="material-symbols-outlined search-icon fs-5" style="color: var(--on-surface-variant);">search</span>
+                            <input type="text" class="form-control search-input py-2" style="background-color: var(--surface-container-lowest); border-color: var(--outline-variant); color: var(--on-surface);" data-i18n-placeholder="search_sessions" placeholder="Buscar sesiones..." id="search-input">
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-4 shadow-sm overflow-hidden mb-5 p-4">
-                    <div class="filter-panel p-4 border-bottom">
+                <div class="content-card mb-4 p-4 rounded-3 border">
+                    <div class="content-card filter-panel p-4" style="border-color: var(--outline-variant) !important;">
                         <div class="row g-3 align-items-end">
                             <div class="col-12 col-md-4">
-                                <label class="form-label text-secondary fw-semibold" for="filter-day">Filtrar por día</label>
-                                <select id="filter-day" class="form-select">
-                                    <option value="all" selected>Todos los días</option>
+                                <label class="form-label text-secondary fw-semibold" for="filter-day" style="color: var(--on-surface-variant);" data-i18n="filter_by_day">Filtrar por día</label>
+                                <select id="filter-day" class="form-select" style="background-color: var(--surface-container-lowest); border-color: var(--outline-variant); color: var(--on-surface);">
+                                    <option value="all" selected data-i18n="all_days">Todos los días</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label text-secondary fw-semibold" for="filter-zone">Filtrar por zona</label>
-                                <select id="filter-zone" class="form-select">
-                                    <option value="all" selected>Todas las zonas</option>
+                                <label class="form-label text-secondary fw-semibold" for="filter-zone" style="color: var(--on-surface-variant);" data-i18n="filter_by_zone">Filtrar por zona</label>
+                                <select id="filter-zone" class="form-select" style="background-color: var(--surface-container-lowest); border-color: var(--outline-variant); color: var(--on-surface);">
+                                    <option value="all" selected data-i18n="all_zones">Todas las zonas</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <label class="form-label text-secondary fw-semibold" for="filter-speaker">Filtrar por ponente</label>
-                                <select id="filter-speaker" class="form-select">
-                                    <option value="all" selected>Todos los ponentes</option>
+                                <label class="form-label text-secondary fw-semibold" for="filter-speaker" style="color: var(--on-surface-variant);" data-i18n="filter_by_speaker">Filtrar por ponente</label>
+                                <select id="filter-speaker" class="form-select" style="background-color: var(--surface-container-lowest); border-color: var(--outline-variant); color: var(--on-surface);">
+                                    <option value="all" selected data-i18n="all_speakers">Todos los ponentes</option>
                                 </select>
                             </div>
                         </div>
@@ -67,44 +67,44 @@
                     <!-- Session -->
                     <div class="agenda-item" data-inscribed="{% if activity.user_inscribed %}true{% else %}false{% endif %}" data-category="{{ activity.status }}" data-day="{{ activity.start_time|date:'Y-m-d' }}" data-zone="{{ activity.location|default:'Sin zona' }}" data-speaker="{{ activity.speaker_name|default:'Sin ponente' }}">
                         <div class="time-col">
-                            <span class="date-main small text-muted">{{ activity.start_time|date:"j M" }}</span>
-                            <span class="time-main">{{ activity.start_time|date:"H:i" }}</span>
-                            <span class="time-period">{{ activity.start_time|date:"A" }}</span>
+                            <span class="date-main small text-muted" style="color: var(--on-surface-variant);">{{ activity.start_time|date:"j M" }}</span>
+                            <span class="time-main" style="color: var(--on-surface);">{{ activity.start_time|date:"H:i" }}</span>
+                            <span class="time-period" style="color: var(--on-surface-variant);">{{ activity.start_time|date:"A" }}</span>
                         </div>
                         <div class="agenda-content">
                             <div class="session-meta">
                                 <span class="badge badge-{{ activity.status }}">{{ activity.get_status_display }}</span>
-                                <span class="room-info">
-                                    <span class="material-symbols-outlined room-icon">meeting_room</span>
+                                <span class="room-info" style="color: var(--on-surface-variant);">
+                                    <span class="material-symbols-outlined room-icon" style="color: var(--on-surface-variant);">meeting_room</span>
                                     {{ activity.location }}
                                 </span>
                             </div>
-                            <h3 class="session-title">{{ activity.title }}</h3>
-                            <p class="session-description">{{ activity.description|default:'Sin descripción disponible.' }}</p>
+                            <h3 class="session-title" style="color: var(--on-surface);">{{ activity.title }}</h3>
+                            <p class="session-description" style="color: var(--on-surface-variant);">{{ activity.description|default:'Sin descripción disponible.' }}</p>
                             {% if activity.speaker_name %}
-                            <p class="session-speaker">
-                                <strong>Ponente:</strong>
+                            <p class="session-speaker" style="color: var(--on-surface-variant);">
+                                <strong data-i18n="speaker_label" style="color: var(--on-surface);">Ponente:</strong>
                                 {{ activity.speaker_name }}
                             </p>
                             {% endif %}
                         </div>
                         <a href="{% url 'pe_agenda:info_activity' event.id activity.id %}" class="btn btn-compact d-flex align-items-center gap-2 text-decoration-none">
                             <span class="material-symbols-outlined fs-6">visibility</span>
-                            Ver detalles
+                            <span data-i18n="view_details">Ver detalles</span>
                         </a>
                     </div>
                     {% empty %}
                     <div class="p-5 text-center">
-                        <span class="material-symbols-outlined display-1 text-light mb-3">event_busy</span>
-                        <h4 class="fw-bold">No hay actividades programadas</h4>
-                        <p class="text-secondary">Este evento aún no tiene actividades definidas.</p>
+                        <span class="material-symbols-outlined display-1 text-light mb-3" style="color: var(--on-surface-variant);">event_busy</span>
+                        <h4 class="fw-bold" style="color: var(--on-surface);" data-i18n="no_activities_scheduled">No hay actividades programadas</h4>
+                        <p class="text-secondary" style="color: var(--on-surface-variant);" data-i18n="no_activities_message">Este evento aún no tiene actividades definidas.</p>
                     </div>
                     {% endfor %}
 
                     <div id="empty-state" class="p-5 text-center d-none">
-                        <span class="material-symbols-outlined display-1 text-light mb-3">search_off</span>
-                        <h4 class="fw-bold">No hay actividades que coincidan</h4>
-                        <p class="text-secondary">Ajusta los filtros o borra la búsqueda para ver más actividades.</p>
+                        <span class="material-symbols-outlined display-1 text-light mb-3" style="color: var(--on-surface-variant);">search_off</span>
+                        <h4 class="fw-bold" style="color: var(--on-surface);" data-i18n="no_matching_activities">No hay actividades que coincidan</h4>
+                        <p class="text-secondary" style="color: var(--on-surface-variant);" data-i18n="adjust_filters_message">Ajusta los filtros o borra la búsqueda para ver más actividades.</p>
                     </div>
 
                 </div>

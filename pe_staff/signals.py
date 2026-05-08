@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 from django.apps import apps
 from django.core.mail import send_mail
@@ -196,3 +196,14 @@ def clear_activity_speaker_on_delete(sender, instance, **kwargs):
         instance.activity.speaker_name = None
         instance.activity.speaker_email = None
         instance.activity.save(update_fields=['speaker_name', 'speaker_email'])
+
+
+@receiver(pre_delete, sender=StaffMember)
+def delete_related_invitation_on_member_delete(sender, instance, **kwargs):
+    """Elimina la invitación relacionada cuando se elimina un StaffMember."""
+    from .models import StaffInvitation
+    StaffInvitation.objects.filter(
+        event=instance.event,
+        email=instance.user.email,
+        status=InvitationStatus.ACEPTADA
+    ).delete()

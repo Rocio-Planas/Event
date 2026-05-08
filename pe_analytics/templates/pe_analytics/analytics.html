@@ -12,47 +12,47 @@
     <div class="p-4">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <h2 class="fw-800 display-6">Analíticas del Evento</h2>
-                <p class="text-muted mb-0">Resumen de rendimiento y estadísticas</p>
+                <h2 class="fw-800 display-6" data-i18n="event_analytics">Analíticas del Evento</h2>
+                <p class="text-muted mb-0" data-i18n="performance_summary">Resumen de rendimiento y estadísticas</p>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" onclick="exportReport()">
                     <span class="material-symbols-outlined" style="font-size: 18px;">download</span>
-                    Exportar PDF
+                    <span data-i18n="export_pdf">Exportar PDF</span>
                 </button>
             </div>
         </div>
 
         <div class="row g-4 mb-4">
             <div class="col-md-4">
-                <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-3">
-                    <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 d-flex align-items-center justify-content-center">
+                <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3 rounded-3">
+                    <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary);">
                         <span class="material-symbols-outlined">payments</span>
                     </div>
                     <div>
-                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Ingresos Totales</small>
+                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="total_revenue_label">Ingresos Totales</small>
                         <h3 class="fw-black mb-0">${{ total_revenue|floatformat:2 }}</h3>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-3">
-                    <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 d-flex align-items-center justify-content-center">
+                <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3 rounded-3">
+                    <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);">
                         <span class="material-symbols-outlined">groups</span>
                     </div>
                     <div>
-                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Total Asistentes</small>
+                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="total_attendees_label">Total Asistentes</small>
                         <h3 class="fw-black mb-0">{{ total_attendance }}</h3>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="content-card border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3 rounded-3">
-                    <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 d-flex align-items-center justify-content-center">
+                <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center gap-3 rounded-3">
+                    <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(248, 169, 0, 0.1); color: var(--warning);">
                         <span class="material-symbols-outlined">confirmation_number</span>
                     </div>
                     <div>
-                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Precio Promedio</small>
+                        <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="average_price_label">Precio Promedio</small>
                         <h3 class="fw-black mb-0">${{ avg_ticket_price|floatformat:2 }}</h3>
                     </div>
                 </div>
@@ -61,11 +61,11 @@
 
         <div class="row g-4 mb-4">
             <div class="col-lg-8">
-                <div class="content-card border-0 shadow-sm p-4 bg-white rounded-3 h-100">
+                <div class="content-card border-0 shadow-sm p-4 rounded-3 h-100">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h5 class="fw-bold text-dark mb-1">Inscripciones por Fecha</h5>
-                            <p class="text-muted small mb-0">Número de inscripciones acumuladas</p>
+                            <h5 class="fw-bold mb-1" style="color: var(--text-on-surface);" data-i18n="registrations_by_date">Inscripciones por Fecha</h5>
+                            <p class="text-muted small mb-0" data-i18n="registrations_subtitle">Número de inscripciones acumuladas</p>
                         </div>
                     </div>
                     <div class="chart-container" style="height: 300px;">
@@ -74,9 +74,9 @@
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="content-card border-0 shadow-sm p-4 bg-white rounded-3 h-100">
-                    <h5 class="fw-bold text-dark mb-1">Distribución por Tipo</h5>
-                    <p class="text-muted small mb-4">Desglose de tickets</p>
+                <div class="content-card border-0 shadow-sm p-4 rounded-3 h-100">
+                    <h5 class="fw-bold mb-1" style="color: var(--text-on-surface);" data-i18n="distribution_by_type">Distribución por Tipo</h5>
+                    <p class="text-muted small mb-4" data-i18n="ticket_breakdown">Desglose de tickets</p>
                     <div class="chart-container mx-auto mb-4" style="height: 180px; width: 180px;">
                         <canvas id="pieChart"></canvas>
                     </div>
@@ -87,11 +87,11 @@
 
         <div class="row g-4 mb-4">
             <div class="col-lg-6">
-                <div class="content-card border-0 shadow-sm p-4 bg-white rounded-3 h-100">
+                <div class="content-card border-0 shadow-sm p-4 rounded-3 h-100">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h5 class="fw-bold text-dark mb-1">Demografía por Edad</h5>
-                            <p class="text-muted small mb-0">Distribución de asistentes por grupo de edad</p>
+                            <h5 class="fw-bold mb-1" style="color: var(--text-on-surface);" data-i18n="age_demographics">Demografía por Edad</h5>
+                            <p class="text-muted small mb-0" data-i18n="age_demographics_subtitle">Distribución de asistentes por grupo de edad</p>
                         </div>
                     </div>
                     <div class="chart-container" style="height: 250px;">
@@ -100,11 +100,11 @@
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="content-card border-0 shadow-sm p-4 bg-white rounded-3 h-100">
+                <div class="content-card border-0 shadow-sm p-4 rounded-3 h-100">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h5 class="fw-bold text-dark mb-1">Distribución por Género</h5>
-                            <p class="text-muted small mb-0">Datos demográficos autodeclarados</p>
+                            <h5 class="fw-bold mb-1" style="color: var(--text-on-surface);" data-i18n="gender_distribution">Distribución por Género</h5>
+                            <p class="text-muted small mb-0" data-i18n="gender_subtitle">Datos demográficos autodeclarados</p>
                         </div>
                     </div>
                     <div class="chart-container" style="height: 250px;">
@@ -133,23 +133,38 @@
     function initCharts() {
         const ageLabels = Object.keys(ageData);
         const ageValues = Object.values(ageData);
-        
+
         const genderLabels = Object.keys(genderData);
         const genderValues = Object.values(genderData);
-        
+
         const ticketLabels = Object.keys(ticketData);
         const ticketValues = Object.values(ticketData);
-        
+
         const timelineLabels = Object.keys(registrationsTimeline);
         const timelineValues = Object.values(registrationsTimeline);
 
+        const rootStyles = getComputedStyle(document.documentElement);
+        const isDark = document.documentElement.classList.contains('dark');
+        const textColor = rootStyles.getPropertyValue('--text-on-surface-variant').trim() || (isDark ? '#b0b3c0' : '#424655');
+        const gridColor = rootStyles.getPropertyValue('--border-outline-variant').trim() || (isDark ? '#3a3e4a' : '#c2c6d8');
+
         const colors = {
-            primary: '#0d6efd',
-            success: '#198754',
-            warning: '#ffc107',
-            danger: '#dc3545',
-            info: '#0dcaf0',
+            primary: rootStyles.getPropertyValue('--primary').trim() || '#0057cd',
+            success: rootStyles.getPropertyValue('--success').trim() || '#06a77d',
+            warning: rootStyles.getPropertyValue('--warning').trim() || '#f8a900',
+            danger: rootStyles.getPropertyValue('--error').trim() || '#dc2626',
+            info: rootStyles.getPropertyValue('--primary').trim() || '#0057cd',
             purples: ['#6610f2', '#6f42c1', '#d63384', '#a2d9ff', '#ce907d']
+        };
+
+        const chartDefaults = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                y: { beginAtZero: true, ticks: { color: textColor }, grid: { color: gridColor } }
+            }
         };
 
         document.getElementById('ageChart').getContext('2d');
@@ -164,16 +179,7 @@
                     borderRadius: 4
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
+            options: chartDefaults
         });
 
         genderChart = new Chart(document.getElementById('genderChart'), {
@@ -187,16 +193,7 @@
                     borderRadius: 4
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
+            options: chartDefaults
         });
 
         distributionChart = new Chart(document.getElementById('distributionChart'), {
@@ -213,16 +210,7 @@
                     borderWidth: 2
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
+            options: chartDefaults
         });
 
         pieChart = new Chart(document.getElementById('pieChart'), {
@@ -234,13 +222,7 @@
                     backgroundColor: [colors.primary, colors.success, colors.warning, colors.info, colors.purples[0], colors.purples[1]]
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
 
         renderLegend(ticketLabels, ticketValues);
@@ -249,15 +231,22 @@
     function renderLegend(labels, values) {
         const legend = document.getElementById('ticketLegend');
         const total = values.reduce((a, b) => a + b, 0);
-        const colors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-danger'];
-        
+        const rootStyles = getComputedStyle(document.documentElement);
+        const colorVals = [
+            rootStyles.getPropertyValue('--primary').trim() || '#0057cd',
+            rootStyles.getPropertyValue('--success').trim() || '#06a77d',
+            rootStyles.getPropertyValue('--warning').trim() || '#f8a900',
+            rootStyles.getPropertyValue('--primary').trim() || '#0057cd',
+            rootStyles.getPropertyValue('--error').trim() || '#dc2626'
+        ];
+
         legend.innerHTML = labels.map((label, i) => {
             const count = values[i];
             const percent = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
             return `
-                <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color: var(--border-outline-variant);">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge ${colors[i % colors.length]} rounded-circle" style="width: 10px; height: 10px; padding: 0;"></span>
+                        <span class="badge rounded-circle" style="width: 10px; height: 10px; padding: 0; background-color: ${colorVals[i % colorVals.length]};"></span>
                         <span class="small fw-medium">${label}</span>
                     </div>
                     <span class="small fw-bold">${percent}%</span>
@@ -347,5 +336,14 @@
     }
 
     document.addEventListener('DOMContentLoaded', initCharts);
+
+    const themeObserver = new MutationObserver(() => {
+        if (ageChart) { ageChart.destroy(); }
+        if (genderChart) { genderChart.destroy(); }
+        if (distributionChart) { distributionChart.destroy(); }
+        if (pieChart) { pieChart.destroy(); }
+        initCharts();
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>
 {% endblock %}

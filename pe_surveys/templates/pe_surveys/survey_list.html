@@ -12,36 +12,36 @@
     <div class="p-4">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <h2 class="fw-800 display-6">Encuestas</h2>
-                <p class="text-muted mb-0">Gestiona las encuestas de tus eventos</p>
+                <h2 class="fw-800 display-6" data-i18n="surveys_title">Encuestas</h2>
+                <p class="text-muted mb-0" data-i18n="surveys_desc">Gestiona las encuestas de tus eventos</p>
             </div>
             <button type="button" class="btn btn-primary fw-semibold d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createSurveyModal">
                 <span class="material-symbols-outlined" style="font-size: 18px">add</span>
-                Nueva Encuesta
+                <span data-i18n="new_survey">Nueva Encuesta</span>
             </button>
         </div>
 
-        <div class="content-card mb-4 bg-light p-4 rounded-3 border">
+        <div class="content-card mb-4 p-4 rounded-3 border">
             <div class="row g-3 align-items-center">
                 <div class="col-md-12">
-                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Encuesta</label>
-                    <div class="search-container shadow-sm rounded-2 w-100 bg-white position-relative">
-                        <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: #6c757d;">search</span>
-                        <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Buscar por título..." id="surveySearch">
+                    <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="search_survey">Buscar Encuesta</label>
+                    <div class="search-container shadow-sm rounded-2 w-100 position-relative">
+                        <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: var(--text-on-surface-variant);">search</span>
+                        <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Buscar por título..." data-i18n-placeholder="search_placeholder_2" id="surveySearch">
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white mb-4">
+        <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 mb-4">
             <div class="table-responsive">
                 <table class="table mb-0 align-middle">
-                    <thead class="bg-light">
+                    <thead style="background-color: var(--surface-container-high);">
                         <tr>
-                            <th class="px-4 py-3">Título</th>
-                            <th class="py-3">Estado</th>
-                            <th class="py-3">Envío</th>
-                            <th class="px-4 py-3 text-center">Acciones</th>
+                            <th class="px-4 py-3" data-i18n="title_col">Título</th>
+                            <th class="py-3" data-i18n="status_col_survey">Estado</th>
+                            <th class="py-3" data-i18n="delivery_col">Envío</th>
+                            <th class="px-4 py-3 text-center" data-i18n="actions_col_survey">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="surveyTableBody">
@@ -52,19 +52,19 @@
                                 </td>
                                 <td class="py-3">
                                     {% if survey.is_active %}
-                                        <span class="badge bg-success">Activa</span>
+                                        <span class="badge" style="background-color: rgba(var(--success), 0.1); color: var(--success);" data-i18n="active_status">Activa</span>
                                     {% else %}
-                                        <span class="badge bg-secondary">Inactiva</span>
+                                        <span class="badge" style="background-color: rgba(var(--secondary), 0.1); color: var(--secondary);" data-i18n="inactive_status">Inactiva</span>
                                     {% endif %}
                                 </td>
                                 <td class="py-3">
                                     {% if survey.delivery_type == 'inmediato' %}
-                                        Enviado el {{ survey.created_at|date:'d/m/Y H:i' }}
+                                        <span data-i18n="sent_on">Enviado el</span> {{ survey.created_at|date:'d/m/Y H:i' }}
                                     {% elif survey.delivery_type == 'programado' and survey.scheduled_date %}
                                         {% if survey.scheduled_date < now %}
-                                            Enviado el {{ survey.scheduled_date|date:'d/m/Y H:i' }}
+                                            <span data-i18n="sent_on">Enviado el</span> {{ survey.scheduled_date|date:'d/m/Y H:i' }}
                                         {% else %}
-                                            Programada para {{ survey.scheduled_date|date:'d/m/Y H:i' }}
+                                            <span data-i18n="scheduled_for">Programada para</span> {{ survey.scheduled_date|date:'d/m/Y H:i' }}
                                         {% endif %}
                                     {% else %}
                                         -
@@ -72,14 +72,14 @@
                                 </td>
                                 <td class="px-4 text-center">
                                     <div class="btn-group">
-                                        <button class="btn btn-sm btn-outline-primary" title="Editar" onclick="openEditSurveyModal('{{ survey.pk }}', '{{ survey.title|escapejs }}', '{{ survey.survey_type }}', {% if survey.is_multiple_choice %}true{% else %}false{% endif %}, '{{ survey.delivery_type }}', '{% if survey.scheduled_date %}{{ survey.scheduled_date|date:"Y-m-d H:i:s" }}{% else %}{% endif %}', [{% for opt in survey.options.all %}'{{ opt.text|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
+                                        <button class="btn btn-sm btn-outline-primary" title="Editar" data-i18n-title="edit_btn_title" onclick="openEditSurveyModal('{{ survey.pk }}', '{{ survey.title|escapejs }}', '{{ survey.survey_type }}', {% if survey.is_multiple_choice %}true{% else %}false{% endif %}, '{{ survey.delivery_type }}', '{% if survey.scheduled_date %}{{ survey.scheduled_date|date:"Y-m-d H:i:s" }}{% else %}{% endif %}', [{% for opt in survey.options.all %}'{{ opt.text|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
                                             <span class="material-symbols-outlined" style="font-size: 16px">edit</span>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="openDeleteSurveyModal('{{ survey.pk }}', '{{ survey.title|escapejs }}')" title="Eliminar">
+                                        <button class="btn btn-sm btn-outline-danger" onclick="openDeleteSurveyModal('{{ survey.pk }}', '{{ survey.title|escapejs }}')" title="Eliminar" data-i18n-title="delete_btn_title">
                                             <span class="material-symbols-outlined" style="font-size: 16px">delete</span>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-info" onclick="sendSurvey({{ survey.pk }}, {{ event.id }})" title="Enviar"><span class="material-symbols-outlined" style="font-size: 16px">send</span></button>
-                                        <a href="{% url 'pe_surveys:survey_results' event.id survey.pk %}" class="btn btn-sm btn-outline-secondary" title="Ver Resultados"><span class="material-symbols-outlined" style="font-size: 16px">analytics</span></a>
+                                        <button class="btn btn-sm btn-outline-info" onclick="sendSurvey({{ survey.pk }}, {{ event.id }})" title="Enviar" data-i18n-title="send_survey_title"><span class="material-symbols-outlined" style="font-size: 16px">send</span></button>
+                                        <a href="{% url 'pe_surveys:survey_results' event.id survey.pk %}" class="btn btn-sm btn-outline-secondary" title="Ver Resultados" data-i18n-title="view_results_title"><span class="material-symbols-outlined" style="font-size: 16px">analytics</span></a>
                                     </div>
                                 </td>
                             </tr>
@@ -88,7 +88,7 @@
                                 <td colspan="4" class="text-center py-4">
                                     <div class="text-muted">
                                         <span class="material-symbols-outlined" style="width: 48px; height: 48px">poll</span>
-                                        <p>No hay encuestas creadas</p>
+                                        <p data-i18n="no_surveys_created">No hay encuestas creadas</p>
                                     </div>
                                 </td>
                             </tr>
@@ -96,8 +96,8 @@
                     </tbody>
                 </table>
             </div>
-            <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
-                <div class="small text-muted fw-bold" id="paginationInfo">Mostrando <span id="surveyCount">{{ surveys|length }}</span> encuestas</div>
+            <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-high);">
+                <div class="small text-muted fw-bold" id="paginationInfo"><span data-i18n="showing_surveys">Mostrando</span> <span id="surveyCount">{{ surveys|length }}</span> <span data-i18n="surveys_count_label">encuestas</span></div>
             </div>
         </div>
     </div>
@@ -106,50 +106,50 @@
     <div class="modal fade" id="editSurveyModal" tabindex="-1" aria-labelledby="editSurveyModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom bg-light">
-                    <h5 class="modal-title fw-800" id="editSurveyModalLabel">Editar Encuesta</h5>
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-800" id="editSurveyModalLabel" data-i18n="edit_survey">Editar Encuesta</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <input type="hidden" id="editSurveyId">
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
-                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Título de la Encuesta</label>
-                            <input type="text" id="editSurveyTitle" class="form-control" placeholder="Título de la encuesta">
+                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="survey_title_label">Título de la Encuesta</label>
+                            <input type="text" id="editSurveyTitle" class="form-control" placeholder="Título de la encuesta" data-i18n-placeholder="survey_title_placeholder">
                         </div>
                     </div>
                     <div class="row g-4 mb-4">
                         <div class="col-md-4">
                             <div class="form-check form-switch mt-2">
                                 <input type="checkbox" id="editIsMultipleChoice" class="form-check-input">
-                                <label class="form-check-label" for="editIsMultipleChoice">Múltiples Opciones</label>
+                                <label class="form-check-label" for="editIsMultipleChoice" data-i18n="multiple_options">Múltiples Opciones</label>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Tipo de Entrega</label>
+                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="delivery_type_label">Tipo de Entrega</label>
                             <select id="editDeliveryType" class="form-select">
-                                <option value="inmediato">Inmediato</option>
-                                <option value="programado">Programado</option>
+                                <option value="inmediato" data-i18n="immediate_option">Inmediato</option>
+                                <option value="programado" data-i18n="scheduled_option">Programado</option>
                             </select>
                         </div>
                         <div class="col-md-4" id="editScheduledDateField" style="display: none;">
-                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Fecha Programada</label>
+                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="scheduled_date_label">Fecha Programada</label>
                             <input type="datetime-local" id="editScheduledDate" class="form-control">
                         </div>
                     </div>
                     <div id="editOptionsSection">
-                        <hr class="my-4">
-                        <h4 class="fw-bold mb-3">Opciones</h4>
+                        <hr class="my-4" style="border-color: var(--border-outline-variant);">
+                        <h4 class="fw-bold mb-3" style="color: var(--text-on-surface);" data-i18n="options_label">Opciones</h4>
                         <div id="editOptionsContainer"></div>
                         <button type="button" class="btn btn-outline-secondary" id="editAddOptionBtn">
                             <span class="material-symbols-outlined me-1" style="font-size: 18px">add</span>
-                            Agregar Opción
+                            <span data-i18n="add_option">Agregar Opción</span>
                         </button>
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary rounded-3 px-4" onclick="saveSurveyEdit()">Guardar Cambios</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
+                    <button type="button" class="btn btn-primary rounded-3 px-4" onclick="saveSurveyEdit()" data-i18n="save_changes">Guardar Cambios</button>
                 </div>
             </div>
         </div>
@@ -157,9 +157,9 @@
     <div class="modal fade" id="createSurveyModal" tabindex="-1" aria-labelledby="createSurveyModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom bg-light">
+                <div class="modal-header border-bottom">
                     <h5 class="modal-title fw-800" id="createSurveyModalLabel">
-                        {% if survey %}Editar{% else %}Nueva{% endif %} Encuesta
+                        {% if survey %}<span data-i18n="edit_survey_header">Editar</span>{% else %}<span data-i18n="new_survey_header">Nueva</span>{% endif %} <span data-i18n="surveys_title">Encuesta</span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -168,53 +168,53 @@
                         {% csrf_token %}
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
-                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Título de la Encuesta</label>
+                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="survey_title_label">Título de la Encuesta</label>
                                 {{ form.title }}
                             </div>
                         </div>
                         <div class="row g-4 mb-4">
                             <div class="col-md-4">
-                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Estado</label>
+                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="status_label">Estado</label>
                                 <div class="form-check form-switch mt-2">
                                     {{ form.is_active }}
-                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Encuesta Activa</label>
+                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}" data-i18n="active_survey_label">Encuesta Activa</label>
                                 </div>
                             </div>
                             <div class="col-md-4" id="multiple_choice_field">
-                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Múltiples Opciones</label>
+                            <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="multiple_options">Múltiples Opciones</label>
                             <div class="form-check form-switch mt-2">
                                 {{ form.is_multiple_choice }}
-                                <label class="form-check-label" for="{{ form.is_multiple_choice.id_for_label }}">Permitir múltiples</label>
+                                <label class="form-check-label" for="{{ form.is_multiple_choice.id_for_label }}" data-i18n="allow_multiple">Permitir múltiples</label>
                             </div>
                         </div>
                             <div class="col-md-4">
-                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Tipo de Entrega</label>
+                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="delivery_type_label">Tipo de Entrega</label>
                                 {{ form.delivery_type }}
                             </div>
                         </div>
                         <div class="row g-4 mb-4">
                             <div class="col-md-6" id="scheduled_date_field" style="display: {% if form.delivery_type.value == 'programado' %}block{% else %}none{% endif %};">
-                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Fecha Programada</label>
+                                <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="scheduled_date_label">Fecha Programada</label>
                                 {{ form.scheduled_date }}
                             </div>
                         </div>
-                        <hr class="my-4" />
-                        <h4 class="fw-bold mb-3" id="options_title">Opciones</h4>
+                        <hr class="my-4" style="border-color: var(--border-outline-variant);" />
+                        <h4 class="fw-bold mb-3" id="options_title" style="color: var(--text-on-surface);" data-i18n="options_label">Opciones</h4>
                         {{ formset.management_form }}
-                        <div id="options_error" class="alert alert-danger" style="display: none;" role="alert">
+                        <div id="options_error" class="alert" style="display: none; background-color: rgba(var(--error), 0.1); color: var(--error); border: none;" role="alert">
                             <span class="material-symbols-outlined me-2" style="font-size: 18px">error</span>
                             <span id="options_error_text"></span>
                         </div>
                         <div id="options_container">
                             {% for option_form in formset %}
-                                <div class="option-block border rounded-3 p-3 mb-3">
+                                <div class="option-block rounded-3 p-3 mb-3" style="border: 1px solid var(--border-outline-variant);">
                                     <div class="row g-3 align-items-end">
                                         <div class="col-md-10">
-                                            <label class="small text-muted">Opción</label>
+                                            <label class="small text-muted" data-i18n="option_label">Opción</label>
                                             {{ option_form.text }}
                                         </div>
                                         <div class="col-md-2 text-end">
-                                            <button type="button" class="btn btn-outline-danger btn-sm remove-option-btn" title="Eliminar opción">
+                                            <button type="button" class="btn btn-outline-danger btn-sm remove-option-btn" title="Eliminar opción" data-i18n-title="delete_option_title">
                                                 <span class="material-symbols-outlined" style="font-size: 16px">delete</span>
                                             </button>
                                         </div>
@@ -224,21 +224,21 @@
                         </div>
                         <button type="button" class="btn btn-outline-secondary mb-4" id="add_option_btn">
                             <span class="material-symbols-outlined me-1" style="font-size: 18px">add</span>
-                            Agregar Opción
+                            <span data-i18n="add_option">Agregar Opción</span>
                         </button>
-                        <hr class="my-4" />
+                        <hr class="my-4" style="border-color: var(--border-outline-variant);" />
                         <div class="d-flex gap-2 justify-content-between align-items-center">
                             <div>
                                 {% if survey.pk %}
                                     <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSurveyModal">
                                         <span class="material-symbols-outlined me-1" style="font-size: 16px">delete</span>
-                                        Eliminar
+                                        <span data-i18n="delete_survey_btn">Eliminar</span>
                                     </button>
                                 {% endif %}
                             </div>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#cancelModal">Cancelar</button>
-                                <button type="submit" class="btn btn-primary">Guardar Encuesta</button>
+                                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#cancelModal" data-i18n="cancel_btn">Cancelar</button>
+                                <button type="submit" class="btn btn-primary" data-i18n="save_survey">Guardar Encuesta</button>
                             </div>
                         </div>
                     </form>
@@ -252,19 +252,19 @@
 <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header border-bottom bg-light">
-                <h6 class="modal-title fw-bold" id="cancelModalLabel">Confirmar Cancelación</h6>
+            <div class="modal-header border-bottom">
+                <h6 class="modal-title fw-bold" id="cancelModalLabel" data-i18n="confirm_cancel">Confirmar Cancelación</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center py-4">
                 <div class="mb-3">
                     <span class="material-symbols-outlined text-warning" style="font-size: 48px">warning</span>
                 </div>
-                <p class="mb-0">¿Estás seguro de que quieres cancelar? Los cambios no guardados se perderán.</p>
+                <p class="mb-0" data-i18n="cancel_confirmation">¿Estás seguro de que quieres cancelar? Los cambios no guardados se perderán.</p>
             </div>
             <div class="modal-footer border-top justify-content-center">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, continuar editando</button>
-                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal" onclick="window.location.href='{% url 'pe_surveys:survey_list' event.id %}'">Sí, cancelar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="no_continue_editing">No, continuar editando</button>
+                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal" onclick="window.location.href='{% url 'pe_surveys:survey_list' event.id %}'" data-i18n="yes_cancel">Sí, cancelar</button>
             </div>
         </div>
     </div>
@@ -275,16 +275,16 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4">
             <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                <h5 class="modal-title fw-bold text-danger" id="surveyDeleteModalLabel">Confirmar Eliminación</h5>
+                <h5 class="modal-title fw-bold text-danger" id="surveyDeleteModalLabel" data-i18n="confirm_delete">Confirmar Eliminación</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body px-4">
-                <p class="mb-2">¿Estás seguro de que deseas eliminar la encuesta <strong id="surveyTitleToDelete"></strong>?</p>
-                <p class="text-muted small mb-0">Esta acción no se puede deshacer.</p>
+                <p class="mb-2"><span data-i18n="delete_survey_confirm">¿Estás seguro de que deseas eliminar la encuesta</span> <strong id="surveyTitleToDelete"></strong>?</p>
+                <p class="text-muted small mb-0" data-i18n="delete_warning">Esta acción no se puede deshacer.</p>
             </div>
             <div class="modal-footer border-top-0 px-4 pb-4">
-                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger px-4" onclick="confirmDeleteSurvey()">Eliminar</button>
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
+                <button type="button" class="btn btn-danger px-4" onclick="confirmDeleteSurvey()" data-i18n="delete_btn">Eliminar</button>
             </div>
         </div>
     </div>
@@ -353,7 +353,7 @@
             var scheduledDate = document.getElementById('editScheduledDate').value || null;
             
             if (!title) {
-                alert('El título es requerido');
+                alert(translations.title_required);
                 return;
             }
             
@@ -387,12 +387,12 @@
                 if (data.success) {
                     location.reload();
                 } else {
-                    alert(data.error || 'Error al guardar');
+                    alert(data.error || translations.error_saving);
                 }
             })
             .catch(function(error) {
                 console.error('Error:', error);
-                alert('Error de conexión');
+                alert(translations.connection_error);
             });
         }
         

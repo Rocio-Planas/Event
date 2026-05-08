@@ -1,6 +1,6 @@
 {% extends "base_sidebar.html" %} {% load static %} {% block title %}Gestión de
 Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
-<link rel="stylesheet" href="{% static 'pe_stand/css/stands.css' %}">
+<link rel="stylesheet" href="{% static 'pe_stand/info_stands/css/styles.css' %}">
 {% endblock %} {% block content %}
 <script>
 var currentStandId = {{ stand.id }};
@@ -144,7 +144,7 @@ function removeStaffFromStand(userId, userName) {
 
 function confirmRemoveStaff() {
     var userId = document.getElementById('removeStaffUserId').value;
-    
+
     fetch('/stands/api/' + currentStandId + '/remove-staff/', {
         method: 'POST',
         headers: {
@@ -153,16 +153,18 @@ function confirmRemoveStaff() {
         },
         body: JSON.stringify({ user_id: userId })
     })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
+    .then(function(response) { return response.json(); })
     .then(function(data) {
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('removeStaffModal')).hide();
-            location.reload();
+            var row = document.querySelector('[data-staff-id="' + userId + '"]');
+            if (row) row.remove();
+            var container = document.getElementById('teamContainer');
+            if (container && container.querySelectorAll('[data-staff-id]').length === 0) {
+                container.style.display = 'none';
+                var emptyState = document.getElementById('teamEmptyState');
+                if (emptyState) emptyState.style.display = 'block';
+            }
         } else {
             alert(data.error || 'Error al remover');
         }
@@ -299,20 +301,21 @@ function openActivityDetails(activityId, title, description, startDate, endDate,
     document.getElementById('detailActivityLocation').textContent = location || 'Sin ubicación';
 
     var statusLabel = 'Programada';
-    var statusClass = 'bg-primary text-white';
+    var statusStyle = 'background-color: rgba(0, 87, 205, 0.1); color: var(--primary);';
     if (status === 'en_curso') {
         statusLabel = 'En curso';
-        statusClass = 'bg-warning text-dark';
+        statusStyle = 'background-color: rgba(248, 169, 0, 0.1); color: var(--warning);';
     } else if (status === 'completada') {
         statusLabel = 'Completada';
-        statusClass = 'bg-success text-white';
+        statusStyle = 'background-color: rgba(6, 167, 125, 0.1); color: var(--success);';
     } else if (status === 'cancelada') {
         statusLabel = 'Cancelada';
-        statusClass = 'bg-danger text-white';
+        statusStyle = 'background-color: rgba(220, 38, 38, 0.1); color: var(--error);';
     }
     var statusElement = document.getElementById('detailActivityStatus');
     statusElement.textContent = statusLabel;
-    statusElement.className = 'badge fw-bold ' + statusClass;
+    statusElement.className = 'badge fw-bold';
+    statusElement.style.cssText = statusStyle;
 
     if (speakerName) {
         document.getElementById('detailActivitySpeaker').textContent = speakerName;
@@ -437,10 +440,9 @@ function adjustQuantity(assignmentId, delta, button) {
     })
     .then(function(data) {
         if (data.success) {
-            // Update the display
-            span.textContent = newQty + ' / ' + requiredQty;
+            location.reload();
         } else {
-            console.warn('No se pudo actualizar cantidad:', data.error);
+            alert(data.error || 'Error al actualizar cantidad');
         }
     })
     .catch(function(error) {
@@ -559,6 +561,14 @@ function removeActivityCard(activityId) {
     if (card) {
         card.remove();
     }
+    var container = document.getElementById('activitiesContainer');
+    if (container && container.querySelectorAll('.activity-card').length === 0) {
+        container.style.display = 'none';
+        var emptyDiv = document.getElementById('activitiesEmptyState');
+        if (emptyDiv) {
+            emptyDiv.style.display = 'block';
+        }
+    }
 }
 
 function filterActivities() {
@@ -596,10 +606,155 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function openEditStandModal() {
+    console.log('openEditStandModal called');
+    
+    // Try to get data from data attributes first (most reliable)
+    var standContainer = document.querySelector('.p-4[data-stand-id]');
+    if (standContainer) {
+        var name = standContainer.getAttribute('data-stand-name');
+        var location = standContainer.getAttribute('data-stand-location');
+        var capacity = standContainer.getAttribute('data-stand-capacity');
+        
+        console.log('From data attributes - name:', name, 'location:', location, 'capacity:', capacity);
+        
+        if (name) document.getElementById('editStandName').value = name;
+        if (location) document.getElementById('editStandLocation').value = location;
+        if (capacity) document.getElementById('editStandCapacity').value = capacity;
+        
+        // If we got data from attributes, we're done
+        if (name && location && capacity) {
+            console.log('Data loaded from data attributes');
+            return;
+        }
+    }
+    
+    // Fallback: parse from DOM
+    var h2 = document.querySelector('h3.h2');
+    if (h2) {
+        document.getElementById('editStandName').value = h2.textContent.trim();
+    }
+    
+    // Find location from container with location_on icon
+    var infoContainer = document.querySelector('.d-flex.gap-3');
+    if (infoContainer) {
+        var spans = infoContainer.querySelectorAll(':scope > span');
+        for (var i = 0; i < spans.length; i++) {
+            var spanText = spans[i].textContent;
+            if (spanText.includes('location_on')) {
+                var locText = spanText.replace('location_on', '').trim();
+                document.getElementById('editStandLocation').value = locText;
+            }
+            if (spanText.includes('groups') || spanText.includes('Capacidad')) {
+                var match = spanText.match(/(\d+)/);
+                if (match) {
+                    document.getElementById('editStandCapacity').value = match[1];
+                }
+            }
+        }
+    }
+    
+    console.log('Final values - Name:', document.getElementById('editStandName').value, 'Location:', document.getElementById('editStandLocation').value, 'Capacity:', document.getElementById('editStandCapacity').value);
+}
+
+function saveStandEdit() {
+    var name = document.getElementById('editStandName').value.trim();
+    var location = document.getElementById('editStandLocation').value.trim();
+    var capacity = document.getElementById('editStandCapacity').value.trim();
+
+    if (!name || !location || !capacity) {
+        alert('Completa todos los campos.');
+        return;
+    }
+
+    var btn = document.getElementById('saveStandEditBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
+
+    fetch('/stands/api/stands/' + currentStandId + '/update/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ name: name, location: location, capacity: parseInt(capacity) })
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.success) {
+            document.querySelector('h3.h2').textContent = data.stand.name;
+            var standDiv = document.querySelector('[data-stand-id]');
+            if (standDiv) {
+                var spans = standDiv.querySelectorAll('.d-flex.gap-3 span');
+                if (spans[0]) spans[0].innerHTML = '<span class="material-symbols-outlined fs-6">location_on</span> ' + data.stand.location;
+                if (spans[1]) spans[1].innerHTML = '<span class="material-symbols-outlined fs-6">groups</span> Capacidad: ' + data.stand.capacity;
+            }
+            bootstrap.Modal.getInstance(document.getElementById('editStandModal')).hide();
+        } else {
+            alert(data.error || 'Error al guardar');
+        }
+    })
+    .catch(function(error) {
+        alert('Error de conexión');
+    })
+    .finally(function() {
+        btn.disabled = false;
+        btn.textContent = 'Guardar Cambios';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var editStandModalEl = document.getElementById('editStandModal');
+    if (editStandModalEl) {
+        editStandModalEl.addEventListener('shown.bs.modal', openEditStandModal);
+    }
+});
+
+function openDeleteStandModal() {
+    var nameEl = document.getElementById('deleteStandName');
+    if (nameEl) {
+        nameEl.textContent = document.querySelector('h3.h2').textContent.trim();
+    }
+    var modalEl = document.getElementById('deleteStandModal');
+    if (modalEl) {
+        var modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    }
+}
+
+function confirmDeleteStand() {
+    var btn = document.getElementById('confirmDeleteStandBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Eliminando...';
+
+    fetch('/stands/api/stands/' + currentStandId + '/delete/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.success) {
+            window.location.href = '/stands/' + data.event_id + '/';
+        } else {
+            alert(data.error || 'Error al eliminar');
+            btn.disabled = false;
+            btn.innerHTML = 'Sí, eliminar';
+        }
+    })
+    .catch(function(error) {
+        alert('Error de conexión');
+        btn.disabled = false;
+        btn.innerHTML = 'Sí, eliminar';
+    });
+}
 </script>
-<div class="p-4" data-event-id="{{ event_id }}" data-stand-id="{{ stand.id }}">
+<div class="p-4" data-event-id="{{ event_id }}" data-stand-id="{{ stand.id }}" data-stand-name="{{ stand.name }}" data-stand-location="{{ stand.location }}" data-stand-capacity="{{ stand.capacity }}">
     <a href="{% url 'pe_stand:dashboard' event_id %}" class="btn btn-link text-primary text-decoration-none mb-3 d-flex align-items-center gap-1 p-0">
-        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver
+        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> <span data-i18n="back">Volver</span>
     </a>
 
     <!-- Dashboard Header -->
@@ -624,14 +779,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 >
                 <span class="d-flex align-items-center gap-1"
                     ><span class="material-symbols-outlined fs-6">groups</span>
-                    Capacidad: {{ stand.capacity }}</span
+                    <span data-i18n="capacity">Capacidad:</span> {{ stand.capacity }}</span
                 >
             </div>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn btn-signature btn-sm px-3 d-flex align-items-center gap-2">
+            <button class="btn btn-signature btn-sm px-3 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#editStandModal">
                 <span class="material-symbols-outlined">edit</span>
-                Editar Detalles
+                <span data-i18n="edit_stand_details">Editar Detalles</span>
+            </button>
+            <button class="btn btn-danger btn-sm px-3 d-flex align-items-center gap-2" onclick="openDeleteStandModal()">
+                <span class="material-symbols-outlined">delete</span>
+                <span data-i18n="delete_stand">Eliminar</span>
             </button>
         </div>
     </div>
@@ -640,10 +799,10 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="col-12">
             <div class="custom-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="h5 fw-bold mb-0">Equipo Asignado</h4>
+                    <h4 class="h5 fw-bold mb-0" data-i18n="assigned_team">Equipo Asignado</h4>
                     <button type="button" class="btn btn-signature btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addStaffModal">
                         <span class="material-symbols-outlined fs-6 me-1">person_add</span>
-                        Añadir Personal
+                        <span data-i18n="add_staff">Añadir Personal</span>
                     </button>
                 </div>
 
@@ -651,8 +810,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div id="addStaffModal" class="modal fade" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true" inert>
                     <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content border-0 rounded-4 shadow">
-                            <div class="modal-header border-bottom bg-light">
-                                <h5 class="modal-title fw-bold" id="addStaffModalLabel">Seleccionar Personal</h5>
+                            <div class="modal-header border-bottom">
+                                <h5 class="modal-title fw-bold" id="addStaffModalLabel" data-i18n="select_staff">Seleccionar Personal</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
@@ -665,7 +824,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         {% if member.user.avatar %}
                                         <img src="{{ member.user.avatar.url }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
                                         {% else %}
-                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: var(--surface-container-high); color: var(--primary);">
                                             {{ member.user.first_name|default:"U"|first|upper }}
                                         </div>
                                         {% endif %}
@@ -680,51 +839,52 @@ document.addEventListener('DOMContentLoaded', function() {
                                 {% else %}
                                 <div class="p-4 text-center text-muted">
                                     <span class="material-symbols-outlined" style="font-size: 48px;">group</span>
-                                    <p class="mt-2">No hay personal disponible</p>
+                                    <p class="mt-2" data-i18n="no_staff_available">No hay personal disponible</p>
                                 </div>
                                 {% endif %}
                             </div>
                             <div class="modal-footer border-0 px-4 pb-4">
-                                <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="button" id="confirmAddStaffBtn" class="btn btn-signature rounded-3 px-4" disabled onclick="addSelectedStaff()">Aceptar</button>
+                                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                                <button type="button" id="confirmAddStaffBtn" class="btn btn-signature px-4" disabled onclick="addSelectedStaff()" data-i18n="accept">Aceptar</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div id="assignedTeamList" class="row g-3">
-                    {% if staff %}
-                    {% for member in staff %}
-                    {% if member.user %}
-                    <div class="col-md-6 col-lg-4">
-                        <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3 h-100">
-                            {% if member.user.avatar %}
-                            <img src="{{ member.user.avatar.url }}" alt="{{ member.user.get_full_name }}" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;">
-                            {% else %}
-                            <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                                {{ member.user.first_name|default:"U"|first|upper }}
+                    <div id="teamContainer">
+                        {% if staff %}
+                        {% for member in staff %}
+                        {% if member.user %}
+                        <div class="col-md-6 col-lg-4" data-staff-id="{{ member.user.id }}">
+                            <div class="d-flex align-items-center gap-3 p-2 rounded-3 h-100" style="background-color: var(--surface-container-high);">
+                                {% if member.user.avatar %}
+                                <img src="{{ member.user.avatar.url }}" alt="{{ member.user.get_full_name }}" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;">
+                                {% else %}
+                                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: var(--surface-container-high); color: var(--primary);">
+                                    {{ member.user.first_name|default:"U"|first|upper }}
+                                </div>
+                                {% endif %}
+                                <div class="flex-grow-1">
+                                    <p class="mb-0 fw-bold small">{{ member.user.get_full_name|default:member.user.email }}</p>
+                                    <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ member.role }}</p>
+                                </div>
+                                <button class="btn btn-link p-0 text-primary" onclick="openNotificationModal('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')">
+                                    <span class="material-symbols-outlined">chat</span>
+                                </button>
+                                <button class="btn btn-link p-0 text-danger" onclick="removeStaffFromStand('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')" title="Quitar de la zona" data-i18n-title="remove_from_zone">
+                                    <span class="material-symbols-outlined">person_remove</span>
+                                </button>
                             </div>
-                            {% endif %}
-                            <div class="flex-grow-1">
-                                <p class="mb-0 fw-bold small">{{ member.user.get_full_name|default:member.user.email }}</p>
-                                <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ member.role }}</p>
-                            </div>
-                            <button class="btn btn-link p-0 text-primary" onclick="openNotificationModal('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')">
-                                <span class="material-symbols-outlined">chat</span>
-                            </button>
-                            <button class="btn btn-link p-0 text-danger" onclick="removeStaffFromStand('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')" title="Quitar de la zona">
-                                <span class="material-symbols-outlined">person_remove</span>
-                            </button>
                         </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
                     </div>
-                    {% endif %}
-                    {% endfor %}
-                    {% else %}
-                    <div class="col-12 text-center text-muted py-4">
+                    <div class="col-12 text-center text-muted py-4" id="teamEmptyState"{% if not staff %} style="display: block;"{% else %} style="display: none;"{% endif %}>
                         <span class="material-symbols-outlined" style="font-size: 48px;">group</span>
-                        <p class="mt-2">No hay personal asignado</p>
+                        <p class="mt-2" data-i18n="no_staff_assigned">No hay personal asignado</p>
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -732,59 +892,60 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="col-12">
             <div class="custom-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="h5 fw-bold mb-0">Cronograma de Actividades</h4>
+                    <h4 class="h5 fw-bold mb-0" data-i18n="activity_schedule">Cronograma de Actividades</h4>
                     <div class="d-flex align-items-center gap-3">
                         <div class="input-group input-group-sm w-auto" style="max-width: 200px">
-                            <span class="input-group-text bg-light border-0 ps-3">
-                                <span class="material-symbols-outlined fs-6 text-muted">search</span>
+                            <span class="input-group-text border-0 ps-3" style="background-color: var(--surface-container-high);">
+                                <span class="material-symbols-outlined fs-6" style="color: var(--text-on-surface-variant);">search</span>
                             </span>
-                            <input type="text" id="searchActivities" class="form-control bg-light border-0" placeholder="Buscar actividad..." onkeyup="filterActivities()">
+                            <input type="text" id="searchActivities" class="form-control border-0" placeholder="Buscar actividad..." data-i18n-placeholder="search_activity_placeholder" onkeyup="filterActivities()" style="background-color: var(--surface-container-high);">
                         </div>
                         <button class="btn btn-signature btn-sm fw-bold shadow-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#assignActivityModal">
                             <span class="material-symbols-outlined fs-6 me-1">add_task</span>
-                            Asignar
+                            <span data-i18n="assign_activity">Asignar</span>
                         </button>
                     </div>
                 </div>
 
-                {% if activities %}
-                {% for activity in activities %}
-                <div class="activity-card mb-3" data-activity-id="{{ activity.id }}" data-title="{{ activity.title|escapejs }}">
-                    <div class="d-flex justify-content-between mb-2">
-                        <div class="d-flex flex-column">
-                            <span class="{% if activity.status == 'en_curso' %}text-primary{% elif activity.status == 'completada' %}text-success{% elif activity.status == 'cancelada' %}text-danger{% else %}text-muted{% endif %} fw-bold text-uppercase" style="font-size: 0.75rem;">
-                                {% if activity.status == 'programada' %}Programada — {{ activity.start_time|date:"H:i" }}
-                                {% elif activity.status == 'en_curso' %}En curso — {{ activity.start_time|date:"H:i" }}
-                                {% elif activity.status == 'completada' %}Completada — {{ activity.start_time|date:"H:i" }}
-                                {% elif activity.status == 'cancelada' %}Cancelada — {{ activity.start_time|date:"H:i" }}
-                                {% else %}{{ activity.status|title }} — {{ activity.start_time|date:"H:i" }}
-                                {% endif %}
-                            </span>
-                            <small class="text-muted" style="font-size: 0.7rem">{{ activity.start_time|date:"d \d\e F, Y" }}</small>
+                <div id="activitiesContainer">
+                    {% if activities %}
+                    {% for activity in activities %}
+                    <div class="activity-card mb-3" data-activity-id="{{ activity.id }}" data-title="{{ activity.title|escapejs }}">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="d-flex flex-column">
+                                <span class="{% if activity.status == 'en_curso' %}text-primary{% elif activity.status == 'completada' %}text-success{% elif activity.status == 'cancelada' %}text-danger{% else %}text-muted{% endif %} fw-bold text-uppercase" style="font-size: 0.75rem;">
+                                    {% if activity.status == 'programada' %}Programada — {{ activity.start_time|date:"H:i" }}
+                                    {% elif activity.status == 'en_curso' %}En curso — {{ activity.start_time|date:"H:i" }}
+                                    {% elif activity.status == 'completada' %}Completada — {{ activity.start_time|date:"H:i" }}
+                                    {% elif activity.status == 'cancelada' %}Cancelada — {{ activity.start_time|date:"H:i" }}
+                                    {% else %}{{ activity.status|title }} — {{ activity.start_time|date:"H:i" }}
+                                    {% endif %}
+                                </span>
+                                <small class="text-muted" style="font-size: 0.7rem">{{ activity.start_time|date:"d \d\e F, Y" }}</small>
+                            </div>
+                        </div>
+                        <h5 class="fw-bold h6">{{ activity.title }}</h5>
+                        <p class="text-muted small mb-3">{{ activity.description|truncatechars:100 }}</p>
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.7rem">
+                                <span class="d-flex align-items-center gap-1">
+                                    <span class="material-symbols-outlined fs-6">schedule</span>
+                                    {{ activity.get_duration }} min
+                                </span>
+                            </div>
+                            <button class="btn btn-link btn-sm p-0 text-primary fw-bold text-decoration-none" style="font-size: 0.75rem" onclick="openActivityDetails({{ activity.id }}, '{{ activity.title|escapejs }}', '{{ activity.description|escapejs }}', '{{ activity.start_time|date:"d/m/Y H:i" }}', '{{ activity.end_time|date:"d/m/Y H:i" }}', '{{ activity.get_duration }}', '{{ activity.location|escapejs }}', '{{ activity.speaker_name|escapejs }}', '{{ activity.speaker_email|escapejs }}', '{{ activity.status }}')">
+                                <span data-i18n="view_details">Ver detalles</span>
+                            </button>
                         </div>
                     </div>
-                    <h5 class="fw-bold h6">{{ activity.title }}</h5>
-                    <p class="text-muted small mb-3">{{ activity.description|truncatechars:100 }}</p>
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.7rem">
-                            <span class="d-flex align-items-center gap-1">
-                                <span class="material-symbols-outlined fs-6">schedule</span>
-                                {{ activity.get_duration }} min
-                            </span>
-                        </div>
-                        <button class="btn btn-link btn-sm p-0 text-primary fw-bold text-decoration-none" style="font-size: 0.75rem" onclick="openActivityDetails({{ activity.id }}, '{{ activity.title|escapejs }}', '{{ activity.description|escapejs }}', '{{ activity.start_time|date:"d/m/Y H:i" }}', '{{ activity.end_time|date:"d/m/Y H:i" }}', '{{ activity.get_duration }}', '{{ activity.location|escapejs }}', '{{ activity.speaker_name|escapejs }}', '{{ activity.speaker_email|escapejs }}', '{{ activity.status }}')">
-                            Ver detalles
-                        </button>
-                    </div>
+                    {% endfor %}
+                    {% endif %}
                 </div>
-                {% endfor %}
-                {% else %}
-                <div class="text-center text-muted py-4">
+                <div class="text-center text-muted py-4" id="activitiesEmptyState"{% if not activities %} style="display: block;"{% else %} style="display: none;"{% endif %}>
                     <span class="material-symbols-outlined" style="font-size: 48px;">event_note</span>
-                    <p class="mt-2">No hay actividades asignadas</p>
-                    <p class="small">Asigna actividades a este stand para mostrar el cronograma</p>
+                    <p class="mt-2" data-i18n="no_activities_assigned">No hay actividades asignadas</p>
+                    <p class="small" data-i18n="no_activities_message_alt">Asigna actividades a este stand para mostrar el cronograma</p>
                 </div>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -794,32 +955,32 @@ document.addEventListener('DOMContentLoaded', function() {
             class="px-4 pt-4 pb-3 d-flex justify-content-between align-items-center"
         >
             <div>
-                <h4 class="h5 fw-bold mb-1">Inventario de Recursos</h4>
-                <p class="text-muted small mb-0">
+                <h4 class="h5 fw-bold mb-1" data-i18n="resource_inventory">Inventario de Recursos</h4>
+                <p class="text-muted small mb-0" data-i18n="inventory_subtitle">
                     Logística y despliegue técnico del stand.
                 </p>
             </div>
             <button
                 id="addResourceBtn"
-                class="btn btn-signature btn-sm rounded-2 d-flex align-items-center gap-2 px-3 py-2"
+                class="btn btn-signature btn-sm px-3 d-flex align-items-center gap-2 py-2"
                 data-bs-toggle="modal"
                 data-bs-target="#addResourceModal"
             >
                 <span class="material-symbols-outlined fs-6">add_circle</span>
-                Añadir Recurso
+                <span data-i18n="add_resource">Añadir Recurso</span>
             </button>
         </div>
 
         <div class="table-responsive">
             <table class="table mb-0 align-middle">
-                <thead class="bg-light">
+                <thead style="background-color: var(--surface-container-high);">
                     <tr>
-                        <th class="col-resource px-4">Recurso</th>
-                        <th class="col-cat px-4">Categoría</th>
-                        <th class="col-qty px-4 text-center">Asignados/Necesarios</th>
-                        <th class="col-status px-4">Estado</th>
-                        <th class="px-4">Detalles</th>
-                        <th class="px-4 text-center">Acciones</th>
+                        <th class="col-resource px-4" data-i18n="resource_col">Recurso</th>
+                        <th class="col-cat px-4" data-i18n="category_col">Categoría</th>
+                        <th class="col-qty px-4 text-center" data-i18n="assigned_needed_col">Asignados/Necesarios</th>
+                        <th class="col-status px-4" data-i18n="status_col">Estado</th>
+                        <th class="px-4" data-i18n="details_col">Detalles</th>
+                        <th class="px-4 text-center" data-i18n="actions_col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="border-top-0">
@@ -829,8 +990,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td class="px-4">
                                 <div class="d-flex align-items-center gap-3">
                                     <div
-                                        class="bg-light rounded p-2 d-flex align-items-center justify-content-center"
-                                        style="width: 40px; height: 40px"
+                                        class="rounded p-2 d-flex align-items-center justify-content-center"
+                                        style="width: 40px; height: 40px; background-color: var(--surface-container-high);"
                                     >
                                         {% if assignment.item.image %}
                                             <img src="{{ assignment.item.image.url }}" class="w-100 h-100 object-fit-cover rounded" alt="{{ assignment.item.name }}" referrerpolicy="no-referrer">
@@ -847,7 +1008,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </td>
                             <td class="px-4">
-                                <span class="badge bg-light text-dark">{{ assignment.item.category }}</span>
+                                <span class="badge" style="background-color: rgba(var(--secondary), 0.1); color: var(--secondary);">{{ assignment.item.category }}</span>
                             </td>
                             <td class="px-4">
                                 <div class="d-flex align-items-center justify-content-center gap-2">
@@ -858,11 +1019,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             </td>
                             <td class="px-4">
                                 {% if assignment.item.status == 'Sin Stock' %}
-                                    <span class="badge badge-custom bg-danger-subtle text-danger status-badge">{{ assignment.item.status }}</span>
+                                    <span class="badge bg-danger text-white badge-custom status-badge">{{ assignment.item.status }}</span>
                                 {% elif assignment.item.status == 'Stock Bajo' %}
-                                    <span class="badge badge-custom bg-warning-subtle text-warning status-badge">{{ assignment.item.status }}</span>
+                                    <span class="badge bg-warning text-dark badge-custom status-badge">{{ assignment.item.status }}</span>
                                 {% else %}
-                                    <span class="badge badge-custom bg-success-subtle text-success status-badge">{{ assignment.item.status }}</span>
+                                    <span class="badge bg-success text-white badge-custom status-badge">{{ assignment.item.status }}</span>
                                 {% endif %}
                             </td>
                             <td class="px-4">
@@ -873,6 +1034,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <button
                                         class="btn btn-link btn-sm p-0 text-muted"
                                         title="Editar detalles"
+                                        data-i18n-title="edit_details_tooltip"
                                         onclick="openEditResourceModal('{{ assignment.id }}', '{{ assignment.item.name|escapejs }}', '{{ assignment.item.category|escapejs }}', '{{ assignment.details|default:""|escapejs }}', '{{ assignment.required_quantity|default:0 }}')"
                                     >
                                         <span class="material-symbols-outlined fs-6">edit</span>
@@ -880,6 +1042,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <button
                                         class="btn btn-link btn-sm p-0 text-danger"
                                         title="Quitar recurso"
+                                        data-i18n-title="remove_resource_tooltip"
                                         onclick="removeResource('{{ assignment.id }}')"
                                     >
                                         <span class="material-symbols-outlined fs-6">delete</span>
@@ -891,18 +1054,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                No hay recursos asignados a este stand.
-                            </td>
+                            <td colspan="6" class="text-center text-muted py-4" data-i18n="no_resources_assigned">No hay recursos asignados a este stand.</td>
                         </tr>
                     {% endif %}
                 </tbody>
             </table>
         </div>
         <div
-            class="p-3 border-top bg-light d-flex justify-content-between align-items-center px-4"
+            class="p-3 border-top d-flex justify-content-between align-items-center px-4"
+            style="background-color: var(--surface-container-high);"
         >
-            <div class="small text-muted">Mostrando {{ assignments|length }} recurso{% if assignments|length != 1 %}s{% endif %}</div>
+            <div class="small text-muted"><span data-i18n="showing_resources">Mostrando</span> {{ assignments|length }} <span data-i18n="resources_count">recurso</span>{% if assignments|length != 1 %}s{% endif %}</div>
             <nav aria-label="Page navigation">
                 <ul class="pagination pagination-sm mb-0">
 
@@ -910,10 +1072,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </nav>
         </div>
     </div>
-
-    <button class="fab btn-signature">
-        <span class="material-symbols-outlined">add</span>
-    </button>
 
     <div
         class="modal fade"
@@ -926,7 +1084,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-0 px-4 pt-4">
-                    <h5 class="modal-title fw-bold" id="addResourceModalLabel">
+                    <h5 class="modal-title fw-bold" id="addResourceModalLabel" data-i18n="select_resources">
                         Seleccionar Recursos
                     </h5>
                     <button
@@ -937,9 +1095,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     ></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="text-muted small mb-4">
-                        Selecciona los elementos que deseas asignar al stand
-                        desde el catálogo global.
+                    <p class="text-muted small mb-4" data-i18n="select_resources_desc">
+                        Selecciona los elementos que deseas asignar al stand desde el catálogo global.
                     </p>
                     <div
                         id="resourceCatalog"
@@ -950,7 +1107,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             {% for item in available_resources %}
                             <label class="list-group-item d-flex align-items-center gap-3 p-3 cursor-pointer">
                                 <input class="form-check-input me-2 resource-checkbox" type="checkbox" value="{{ item.item_id }}" {% if item.available_stock == 0 %}disabled{% endif %}>
-                                <div class="bg-light rounded overflow-hidden d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <div class="rounded overflow-hidden d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: var(--surface-container-high);">
                                     {% if item.image_url %}
                                         <img src="{{ item.image_url }}" alt="{{ item.name }}" class="img-fluid" style="max-width: 100%; max-height: 100%;" />
                                     {% else %}
@@ -967,26 +1124,26 @@ document.addEventListener('DOMContentLoaded', function() {
                             {% endfor %}
                         </div>
                     {% else %}
-                        <div class="p-4 text-center text-muted">
-                            No hay recursos disponibles para este evento.
-                        </div>
+                        <div class="p-4 text-center text-muted" data-i18n="no_resources_available_event">No hay recursos disponibles para este evento.</div>
                     {% endif %}
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button
-                        type="button"
-                        class="btn btn-light rounded-3 px-4"
-                        data-bs-dismiss="modal"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="button"
-                        id="confirmAddBtn"
-                        class="btn btn-signature rounded-3 px-4"
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary px-4"
+                            data-bs-dismiss="modal"
+                            data-i18n="cancel"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="button"
+                            id="confirmAddBtn"
+                        class="btn btn-signature px-4"
                         disabled
                         onclick="addSelectedResources()"
+                        data-i18n="add_selected"
                     >
                         Añadir Seleccionados
                     </button>
@@ -1005,7 +1162,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-0 px-4 pt-4">
-                    <h5 class="modal-title fw-bold" id="editResourceModalLabel">
+                    <h5 class="modal-title fw-bold" id="editResourceModalLabel" data-i18n="edit_resource">
                         Editar Recurso
                     </h5>
                     <button
@@ -1021,8 +1178,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         Ajusta los detalles para este elemento.
                     </p>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted"
-                            >CANTIDAD REQUERIDA</label
+                        <label class="form-label small fw-bold"
+                            style="color: var(--text-on-surface-variant);"
+                            data-i18n="required_qty_label">CANTIDAD REQUERIDA</label
                         >
                         <input
                             type="number"
@@ -1033,8 +1191,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted"
-                            >DETALLE (máx 100 caracteres)</label
+                        <label class="form-label small fw-bold"
+                            style="color: var(--text-on-surface-variant);"
+                            data-i18n="detail_label_max_chars">DETALLE (máx 100 caracteres)</label
                         >
                         <input
                             type="text"
@@ -1048,7 +1207,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="modal-footer border-0 px-4 pb-4">
                     <button
                         type="button"
-                        class="btn btn-light rounded-3 px-4"
+                        class="btn btn-outline-secondary px-4"
                         data-bs-dismiss="modal"
                     >
                         Cancelar
@@ -1056,7 +1215,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <button
                         type="button"
                         id="saveResourceEditBtn"
-                        class="btn btn-signature rounded-3 px-4"
+                        class="btn btn-signature px-4"
                         onclick="saveResourceEdit()"
                     >
                         Guardar Cambios
@@ -1069,8 +1228,8 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="modal fade" id="assignActivityModal" tabindex="-1" aria-labelledby="assignActivityModalLabel" aria-hidden="true" inert>
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-header border-bottom bg-light">
-                    <h5 class="modal-title fw-bold" id="assignActivityModalLabel">Asignar Actividades</h5>
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold" id="assignActivityModalLabel" data-i18n="assign_activities_title">Asignar Actividades</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
@@ -1089,14 +1248,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     {% else %}
                     <div class="p-4 text-center text-muted">
                         <span class="material-symbols-outlined" style="font-size: 48px;">event_note</span>
-                        <p class="mt-2">No hay actividades disponibles</p>
-                        <p class="small">Todas las actividades del evento ya están asignadas a otras zonas</p>
+                        <p class="mt-2" data-i18n="no_activities_available">No hay actividades disponibles</p>
+                        <p class="small" data-i18n="all_activities_assigned">Todas las actividades del evento ya están asignadas a otras zonas</p>
                     </div>
                     {% endif %}
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="confirmAssignActivityBtn" class="btn btn-signature rounded-3 px-4" disabled onclick="addSelectedActivities()">Asignar</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" id="confirmAssignActivityBtn" class="btn btn-signature px-4" disabled onclick="addSelectedActivities()" data-i18n="assign_activity">Asignar</button>
                 </div>
             </div>
         </div>
@@ -1129,9 +1288,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="hidden" id="detailActivityId">
                 <div class="modal-body px-4 pb-4">
                     <div class="d-flex align-items-center gap-3 mb-4">
-                        <div class="bg-primary-subtle rounded-3 p-3">
+                        <div class="rounded-3 p-3" style="background-color: rgba(0, 87, 205, 0.1);">
                             <span
-                                class="material-symbols-outlined text-primary fs-2"
+                                class="material-symbols-outlined fs-2"
+                                style="color: var(--primary);"
                                 >event</span
                             >
                         </div>
@@ -1141,16 +1301,16 @@ document.addEventListener('DOMContentLoaded', function() {
                             </h4>
                             <span
                                 id="detailActivityStatus"
-                                class="badge bg-primary-subtle text-primary fw-bold"
-                                style="font-size: 0.65rem"
+                                class="badge fw-bold"
+                                style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary); font-size: 0.65rem"
                             >PROGRAMADA</span>
                         </div>
                     </div>
                     <div class="mb-4">
                         <label class="form-label small fw-bold text-muted mb-2"
-                            >DESCRIPCIÓN COMPLETA</label
+                            data-i18n="full_description_label">DESCRIPCIÓN COMPLETA</label
                         >
-                        <p class="text-secondary small" id="detailActivityDescription">
+                        <p class="small" id="detailActivityDescription" style="color: var(--text-on-surface-variant);">
                             Descripción no disponible
                         </p>
                     </div>
@@ -1158,7 +1318,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >PONENTE</label
+                                data-i18n="speaker_label">PONENTE</label
                             >
                             <p class="small mb-0 fw-medium" id="detailActivitySpeaker">
                                 Sin asignar
@@ -1169,7 +1329,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >HORARIO</label
+                                data-i18n="schedule_label_2">HORARIO</label
                             >
                             <p class="small mb-0 fw-medium" id="detailActivityTime">
                                 --:-- - --:--
@@ -1187,7 +1347,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >DURACIÓN</label
+                                data-i18n="duration_label_2">DURACIÓN</label
                             >
                             <p class="small mb-0 fw-medium" id="detailActivityDuration">
                                 -- min
@@ -1196,7 +1356,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >UBICACIÓN</label
+                                data-i18n="location_label_2">UBICACIÓN</label
                             >
                             <p class="small mb-0 fw-medium" id="detailActivityLocation">
                                 --
@@ -1233,7 +1393,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <button
                         type="button"
-                        class="btn btn-signature w-100 rounded-3"
+                        class="btn btn-signature w-100"
                         data-bs-dismiss="modal"
                     >
                         Cerrar Detalles
@@ -1246,16 +1406,16 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="modal fade" id="moveActivityModal" tabindex="-1" aria-labelledby="moveActivityModalLabel" aria-hidden="true" inert>
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-header border-bottom bg-light">
-                    <h5 class="modal-title fw-bold" id="moveActivityModalLabel">Mover Actividad</h5>
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold" id="moveActivityModalLabel" data-i18n="move_activity_title">Mover Actividad</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="text-muted small mb-3">Selecciona el stand destino para esta actividad.</p>
+                    <p class="text-muted small mb-3" data-i18n="move_activity_desc">Selecciona el stand destino para esta actividad.</p>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">Stand destino</label>
+                        <label class="form-label small fw-bold text-muted" data-i18n="target_stand">Stand destino</label>
                         <select id="moveStandSelect" class="form-select">
-                            <option value="">Selecciona un stand</option>
+                            <option value="" data-i18n="select_stand">Selecciona un stand</option>
                             {% for event_stand in event_stands %}
                             <option value="{{ event_stand.id }}">{{ event_stand.name }} — {{ event_stand.location }}</option>
                             {% endfor %}
@@ -1263,8 +1423,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-signature rounded-3 px-4" onclick="moveActivityToStand()">Mover</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" class="btn btn-signature px-4" onclick="moveActivityToStand()" data-i18n="move_btn">Mover</button>
                 </div>
             </div>
         </div>
@@ -1274,25 +1434,25 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true" inert>
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-header border-bottom bg-light">
-                    <h5 class="modal-title fw-bold" id="notificationModalLabel">Enviar Notificación</h5>
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold" id="notificationModalLabel" data-i18n="send_notification_title">Enviar Notificación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <p class="text-muted small mb-3">Para: <span id="notificationUserName" class="fw-bold"></span></p>
+                    <p class="text-muted small mb-3"><span data-i18n="send_notification_for">Para:</span> <span id="notificationUserName" class="fw-bold"></span></p>
                     <input type="hidden" id="notificationUserId">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">ASUNTO</label>
-                        <input type="text" id="notificationTitle" class="form-control rounded-3" placeholder="Ej. Información importante">
+                        <label class="form-label small fw-bold text-muted" data-i18n="subject_label">ASUNTO</label>
+                        <input type="text" id="notificationTitle" class="form-control rounded-3" placeholder="Ej. Información importante" data-i18n-placeholder="subject_placeholder">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">MENSAJE</label>
-                        <textarea id="notificationMessage" class="form-control rounded-3" rows="4" placeholder="Escribe tu mensaje..."></textarea>
+                        <label class="form-label small fw-bold text-muted" data-i18n="message_label">MENSAJE</label>
+                        <textarea id="notificationMessage" class="form-control rounded-3" rows="4" placeholder="Escribe tu mensaje..." data-i18n-placeholder="message_placeholder"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="sendNotificationBtn" class="btn btn-signature rounded-3 px-4" onclick="sendNotification()">Enviar</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" id="sendNotificationBtn" class="btn btn-signature px-4" onclick="sendNotification()" data-i18n="send_btn">Enviar</button>
                 </div>
             </div>
         </div>
@@ -1302,20 +1462,68 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-0 px-4 pt-4">
-                    <h5 class="modal-title fw-bold" id="removeStaffModalLabel">Quitar de la zona</h5>
+                    <h5 class="modal-title fw-bold" id="removeStaffModalLabel" data-i18n="remove_staff_title">Quitar de la zona</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
                     <input type="hidden" id="removeStaffUserId">
-                    <p>¿Estás seguro de que deseas quitar a <strong id="removeStaffUserName"></strong> de esta zona? Quedará sin zona asignada.</p>
+                    <p data-i18n="remove_staff_confirm">¿Estás seguro de que deseas quitar a <strong id="removeStaffUserName"></strong> de esta zona? Quedará sin zona asignada.</p>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger rounded-3 px-4" onclick="confirmRemoveStaff()">Quitar</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" class="btn btn-danger rounded-3 px-4" onclick="confirmRemoveStaff()" data-i18n="remove">Quitar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    
+    <div class="modal fade" id="editStandModal" tabindex="-1" aria-labelledby="editStandModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold" id="editStandModalLabel" data-i18n="edit_stand_title">Editar Stand</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 pb-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold" style="color: var(--text-on-surface-variant);" data-i18n="stand_name_label">NOMBRE DEL STAND</label>
+                        <input type="text" id="editStandName" class="form-control rounded-3" placeholder="Ej. Stand Principal" data-i18n-placeholder="stand_name_placeholder" maxlength="200">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold" style="color: var(--text-on-surface-variant);" data-i18n="location_label">UBICACIÓN</label>
+                        <input type="text" id="editStandLocation" class="form-control rounded-3" placeholder="Ej. Zona A, Piso 1" data-i18n-placeholder="location_placeholder" maxlength="200">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold" style="color: var(--text-on-surface-variant);" data-i18n="capacity_label_form">CAPACIDAD</label>
+                        <input type="number" id="editStandCapacity" class="form-control rounded-3" placeholder="Ej. 50" data-i18n-placeholder="capacity_placeholder" min="1">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" id="saveStandEditBtn" class="btn btn-signature px-4" onclick="saveStandEdit()" data-i18n="save_changes">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Eliminar Stand -->
+    <div class="modal fade" id="deleteStandModal" tabindex="-1" aria-labelledby="deleteStandModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold text-danger" id="deleteStandModalLabel" data-i18n="delete_stand_title">Eliminar Stand</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <p class="mb-2" data-i18n="delete_stand_confirm">¿Estás seguro de que deseas eliminar el stand <strong id="deleteStandName"></strong>?</p>
+                    <p class="text-muted small mb-0" data-i18n="delete_stand_warning">Esta acción eliminará el stand y todas sus asignaciones. No se pueden deshacer los cambios.</p>
+                </div>
+                <div class="modal-footer border-top-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteStandBtn" onclick="confirmDeleteStand()" data-i18n="yes_delete">Sí, eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

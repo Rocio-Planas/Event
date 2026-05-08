@@ -2,28 +2,45 @@ h2 {
     font-weight: 800;
 }
 
-.light {
-    --background: #f8f9ff;
-    --surface: #ffffff;
-    --surface-container-low: #eff4ff;
-    --on-surface: #0b1c30;
-    --on-surface-variant: #424754;
-    --outline-variant: rgba(194, 198, 214, 0.2);
+/* =====================================================
+   VARIABLES DEL TEMA (compatible con base_bootstrap.css)
+   ===================================================== */
+:root {
+    --bg-surface: #f8f9ff;
+    --text-on-surface: #181c20;
+    --text-on-surface-variant: #424655;
+    --border-outline-variant: #c2c6d8;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #f1f4f9;
+    --surface-container-high: #e5e8ee;
+    --primary: #0057cd;
+    --secondary: #425c9b;
+    --error: #dc2626;
+    --success: #06a77d;
+    --warning: #f8a900;
+    --primary-gradient: linear-gradient(135deg, #0057cd 0%, #2170e4 100%);
 }
 
 .dark {
-    --background: #101724;
-    --surface: #161d2f;
-    --surface-container-low: #1f293f;
-    --on-surface: #f3f4f8;
-    --on-surface-variant: #a8b1cd;
-    --outline-variant: rgba(92, 100, 145, 0.35);
+    --bg-surface: #121212;
+    --text-on-surface: #eef1f6;
+    --text-on-surface-variant: #b0b3c0;
+    --border-outline-variant: #3a3e4a;
+    --surface-container-lowest: #1e1e2a;
+    --surface-container-low: #2a2a36;
+    --surface-container-high: #353542;
+    --primary: #7a9eff;
+    --secondary: #8a9fd0;
+    --error: #ef4444;
+    --success: #10b981;
+    --warning: #fbbf24;
+    --primary-gradient: linear-gradient(135deg, #3a7bdd 0%, #5c9eff 100%);
 }
 
 body {
     font-family: "Inter", sans-serif;
-    background-color: var(--background);
-    color: var(--on-surface);
+    background-color: var(--bg-surface);
+    color: var(--text-on-surface);
     overflow-x: hidden;
     transition:
         background-color 0.3s ease,
@@ -40,9 +57,9 @@ body {
 .top-bar {
     position: sticky;
     top: 0;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: var(--surface-container-lowest);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--outline-variant);
+    border-bottom: 1px solid var(--border-outline-variant);
     padding: 0.75rem 2rem;
     display: flex;
     justify-content: space-between;
@@ -54,6 +71,7 @@ body {
     font-size: 1.25rem;
     font-weight: 700;
     margin: 0;
+    color: var(--primary);
 }
 
 .top-nav {
@@ -64,7 +82,7 @@ body {
 .top-nav a {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--on-surface-variant);
+    color: var(--text-on-surface-variant);
     text-decoration: none;
 }
 
@@ -117,9 +135,9 @@ button.btn.btn-gradient {
     transform: scale(0.95);
 }
 .theme-toggle-btn {
-    background: var(--surface);
-    color: var(--on-surface);
-    border: 1px solid var(--outline-variant);
+    background: var(--surface-container-lowest);
+    color: var(--text-on-surface);
+    border: 1px solid var(--border-outline-variant);
     padding: 0.75rem 1rem;
     border-radius: 0.75rem;
     display: inline-flex;
@@ -129,14 +147,14 @@ button.btn.btn-gradient {
 }
 
 .theme-toggle-btn:hover {
-    background: var(--surface-container-low);
+    background: var(--surface-container-high);
 }
 
 .theme-toggle-btn .theme-icon {
     font-size: 1rem;
 }
 .stat-card {
-    background: var(--surface);
+    background: var(--surface-container-lowest);
     padding: 1.5rem;
     border-radius: 1rem;
     border-bottom: 4px solid var(--primary);
@@ -144,7 +162,7 @@ button.btn.btn-gradient {
 }
 
 .stat-card:hover {
-    box-shadow: 0 12px 40px rgba(11, 28, 48, 0.06);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
 }
 
 .stat-card.tertiary {
@@ -154,9 +172,9 @@ button.btn.btn-gradient {
 .hero-image-container {
     height: 300px;
     position: relative;
-    border-radius: 1.25rem;
+    border-radius: 1.25rem 1.25rem 0 0;
     overflow: hidden;
-    margin-bottom: 2rem;
+    margin-bottom: 0;
 }
 
 .hero-image-container img {
@@ -210,7 +228,9 @@ button.btn.btn-gradient {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .ticket-card:hover {
@@ -224,21 +244,21 @@ button.btn.btn-gradient {
     padding: 1.5rem;
     background: var(--surface-container-low);
     border-radius: 1rem;
-    border: 1px solid var(--outline-variant);
+    border: 1px solid var(--border-outline-variant);
     width: 100%;
     text-align: left;
     transition: all 0.2s ease;
 }
 
 .quick-action-btn:hover {
-    background: #e5eeff;
+    background: var(--surface-container-high);
     transform: translateY(-2px);
 }
 
 .quick-action-icon {
     width: 48px;
     height: 48px;
-    background: white;
+    background: var(--surface-container-lowest);
     border-radius: 0.5rem;
     display: flex;
     align-items: center;
@@ -283,16 +303,16 @@ button.btn.btn-gradient {
 
 /* Badge Styles */
 .badge-privado {
-    background-color: #fff3cd;
-    color: #856404;
+    background-color: rgba(248, 169, 0, 0.15);
+    color: var(--warning);
     font-size: 0.7rem;
     padding: 4px 10px;
     border-radius: 20px;
 }
 
 .badge-publico {
-    background-color: #d1e7dd;
-    color: #0f5132;
+    background-color: rgba(6, 167, 125, 0.15);
+    color: var(--success);
     font-size: 0.7rem;
     padding: 4px 10px;
     border-radius: 20px;
@@ -302,6 +322,10 @@ button.btn.btn-gradient {
     font-size: 14px !important;
     vertical-align: middle;
     margin-right: 2px;
+}
+
+.dark .announcement-modal-header {
+    background-color: #2a2a3a;
 }
 
 .stat-card small {

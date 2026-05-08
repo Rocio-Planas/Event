@@ -1,12 +1,4 @@
 /* Custom styles for Success Page */
-:root {
-    --primary-color: #0058be;
-    --primary-hover: #004395;
-    --bg-light: #f8f9ff;
-    --text-main: #0b1c30;
-    --text-secondary: #424754;
-    --surface-white: #ffffff;
-}
 
 /* Material Symbols CSS Override */
 .material-symbols-outlined {
@@ -64,7 +56,7 @@
 
 .check-icon-circle .material-symbols-outlined {
     font-size: 48px;
-    color: var(--primary-color);
+    color: var(--primary);
 }
 
 .success-title {
@@ -76,7 +68,7 @@
 
 .success-subtitle {
     font-size: 1.125rem;
-    color: var(--text-secondary);
+    color: var(--text-on-surface-variant);
     max-width: 500px;
     margin-bottom: 3rem;
     line-height: 1.6;
@@ -147,7 +139,7 @@
 .event-id {
     font-size: 10px;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: var(--text-on-surface-variant);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-left: 8px;
@@ -158,7 +150,7 @@
     font-weight: 800;
     margin: 0;
     line-height: 1.2;
-    color: var(--text-main);
+    color: var(--text-on-surface);
     text-align: left;
 }
 

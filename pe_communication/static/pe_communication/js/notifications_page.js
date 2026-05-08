@@ -335,6 +335,17 @@ function updateNotificationCounters() {
         readCountEl.textContent = readItems.length;
     }
 
+    // Update total count
+    const totalCountEl = document.querySelector(
+        "#total-notifications-count",
+    );
+    const totalSmall = document.querySelector(
+        "#notifications-page .text-muted",
+    );
+    if (totalSmall) {
+        totalSmall.childNodes[0].textContent = unreadItems.length + readItems.length + " ";
+    }
+
     // Show/hide empty states
     const unreadSection = document.getElementById("unread-notifications");
     const readSection = document.getElementById("read-notifications");

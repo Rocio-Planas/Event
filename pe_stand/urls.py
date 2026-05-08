@@ -5,6 +5,8 @@ app_name = 'pe_stand'
 
 urlpatterns = [
     path('<int:event_id>/', views.StandDashboardView.as_view(), name='dashboard'),
+    path('api/stands/<int:stand_id>/update/', views.update_stand, name='update_stand'),
+    path('api/stands/<int:stand_id>/delete/', views.delete_stand, name='delete_stand'),
     path('<int:event_id>/<int:pk>/', views.StandDetailView.as_view(), name='detail'),
     path('<int:event_id>/<int:pk>/staff/', views.StandStaffDetailView.as_view(), name='staff_detail'),
     path('<int:event_id>/<int:pk>/v2/', views.StandDetailV2View.as_view(), name='detail_v2'),

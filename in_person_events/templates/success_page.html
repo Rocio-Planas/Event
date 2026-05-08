@@ -31,8 +31,8 @@ Enviado - EventPulse{% endblock %} {% block extra_css %}
         </div>
     </div>
 
-    <h1 class="success-title">¡Enviado a revisión!</h1>
-    <p class="success-subtitle">
+    <h1 class="success-title" data-i18n="event_submitted_title">¡Enviado a revisión!</h1>
+    <p class="success-subtitle" data-i18n="event_submitted_message">
         Tu evento ha sido enviado correctamente y está esperando aprobación.
     </p>
 
@@ -53,7 +53,7 @@ Enviado - EventPulse{% endblock %} {% block extra_css %}
                             style="font-size: 14px"
                             >hourglass_empty</span
                         >
-                        En Revisión
+                        <span data-i18n="under_review">En Revisión</span>
                     </span>
                     <span class="event-id"
                         >ID: EV-{{ event.id|stringformat:"04d" }}</span
@@ -67,7 +67,7 @@ Enviado - EventPulse{% endblock %} {% block extra_css %}
     <!-- Action Button -->
     <a href="{% url 'usuarios:dashboard' %}" class="btn btn-primary-custom">
         <span class="material-symbols-outlined">dashboard</span>
-        Ir a Mi Panel
+        <span data-i18n="go_to_dashboard">Ir a Mi Panel</span>
     </a>
 </main>
 {% endblock %} {% block extra_js %}

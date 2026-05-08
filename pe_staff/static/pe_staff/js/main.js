@@ -258,9 +258,12 @@ document
             zoneSelectContainer.style.display = "block";
             activitySelectContainer.style.display = "none";
             
-            // Cambiar label de zona
-            document.querySelector('label[for="standSelect"]').textContent = "Selecciona una Zona/Stand";
-            
+            // Cambiar label de zona usando traducciones
+            const t = (window.translations && window.translations[window.currentLang]) || window.translations.es;
+            if (t && t.select_zone_stand) {
+                document.querySelector('label[for="standSelect"]').textContent = t.select_zone_stand;
+            }
+
             // Cargar los stands disponibles
             const url = `/equipo/staff/${eventId}/stands/`;
             console.log("Intentando cargar stands desde:", url);
@@ -282,8 +285,9 @@ document
 
                 if (data.success && data.stands) {
                     const selectElement = document.getElementById("standSelect");
+                    const t = (window.translations && window.translations[window.currentLang]) || window.translations.es;
                     selectElement.innerHTML =
-                        '<option value="">Selecciona una zona/stand</option>';
+                        `<option value="">${t.select_zone_stand || "Selecciona una zona/stand"}</option>`;
 
                     console.log("Stands recibidos:", data.stands.length);
 
@@ -296,15 +300,17 @@ document
                     });
                 } else {
                     const selectElement = document.getElementById("standSelect");
+                    const t = (window.translations && window.translations[window.currentLang]) || window.translations.es;
                     selectElement.innerHTML =
-                        '<option value="">No hay zonas disponibles</option>';
+                        `<option value="">${t.no_zones_available || "No hay zonas disponibles"}</option>`;
                     console.warn("Sin stands o error:", data);
                 }
             } catch (error) {
                 console.error("Error cargando stands:", error);
                 const selectElement = document.getElementById("standSelect");
+                const t = (window.translations && window.translations[window.currentLang]) || window.translations.es;
                 selectElement.innerHTML =
-                    '<option value="">Error al cargar zonas</option>';
+                    `<option value="">${t.error_loading_zones || "Error al cargar zonas"}</option>`;
             }
         }
     });
@@ -344,8 +350,7 @@ document.addEventListener("click", async function (event) {
 
     const cancelModalEl = document.getElementById("cancelInvitationModal");
     const cancelModal = new bootstrap.Modal(cancelModalEl);
-    document.getElementById("cancelInvitationName").textContent =
-        invitationName;
+    document.getElementById("cancelInvitationName").textContent = invitationName;
     document.getElementById("confirmCancelInvitationBtn").dataset.invitationId =
         invitationId;
     cancelModal.show();
@@ -641,7 +646,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const paginationInfo = document.getElementById("paginationInfo");
 
         if (paginationInfo) {
-            paginationInfo.textContent = `Mostrando ${totalMembers} de ${rows.length} miembros`;
+            console.log('window.translations:', window.translations);
+            const t = window.translations?.es || window.translations;
+            console.log('t:', t);
+            console.log('t.showing_members:', t?.showing_members);
+            console.log('t.member_singular:', t?.member_singular);
+            const showingText = t?.showing_members || 'Mostrando';
+            const membersText = totalMembers === 1 ? (t?.member_singular || 'miembro') : (t?.members_count || 'miembros');
+            paginationInfo.textContent = `${showingText} ${totalMembers} ${membersText}`;
+            console.log('Final text:', paginationInfo.textContent);
         }
     }
 

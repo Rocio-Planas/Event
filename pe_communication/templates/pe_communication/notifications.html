@@ -3,16 +3,99 @@
 
 {% block title %}Mis Notificaciones - EventPulse{% endblock %}
 
+{% block extra_css %}
+<style>
+.dark .card {
+    background-color: var(--surface-container-lowest);
+    border-color: var(--border-outline-variant);
+}
+.dark .card-body.text-center.py-5 {
+    background-color: var(--surface-container-lowest);
+}
+.dark .card-header[style*="background-color: #fff3cd"] {
+    background-color: rgba(251, 191, 36, 0.2) !important;
+    color: #fbbf24 !important;
+}
+.dark .card-header[style*="background-color: #e7f1ff"] {
+    background-color: rgba(122, 158, 255, 0.2) !important;
+    color: #7a9eff !important;
+}
+.dark .notification-item,
+.dark .list-group-item {
+    background-color: var(--surface-container-lowest) !important;
+    border-color: var(--border-outline-variant) !important;
+}
+.dark .notification-item.opacity-85 {
+    opacity: 0.7 !important;
+}
+.dark .notification-title {
+    color: var(--text-on-surface);
+}
+.dark .notification-body {
+    color: var(--text-on-surface-variant) !important;
+}
+.dark .notification-date {
+    color: var(--text-on-surface-variant) !important;
+}
+.dark .btn-outline-success {
+    border-color: #10b981 !important;
+    color: #10b981 !important;
+}
+.dark .btn-outline-success:hover {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    color: #10b981 !important;
+}
+.dark .btn-outline-danger {
+    border-color: var(--border-outline-variant) !important;
+    color: #ef4444 !important;
+}
+.dark .btn-outline-danger:hover {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    color: #ef4444 !important;
+}
+.dark .badge.bg-light {
+    background-color: var(--surface-container-high) !important;
+    color: var(--text-on-surface) !important;
+}
+.dark .modal-content {
+    background-color: var(--surface-container-lowest);
+    color: var(--text-on-surface);
+}
+.dark .modal-header {
+    background-color: var(--surface-container-high);
+    border-bottom-color: var(--border-outline-variant);
+    color: var(--text-on-surface);
+}
+.dark .modal-body {
+    background-color: var(--surface-container-lowest);
+    color: var(--text-on-surface-variant);
+}
+.dark .modal-footer {
+    background-color: var(--surface-container-lowest);
+    border-top-color: var(--border-outline-variant);
+}
+.dark .modal-body .border {
+    border-color: var(--border-outline-variant) !important;
+}
+.dark .modal-body .bg-light {
+    background-color: var(--surface-container-high) !important;
+}
+.dark .btn-close {
+    filter: invert(1);
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
     <div class="row">
         <div class="col-12">
             <a href="javascript:window.history.back()" class="btn btn-link text-primary text-decoration-none mb-3 d-flex align-items-center gap-1 p-0" style="cursor: pointer;">
-                <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver
+                <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> <span data-i18n="back">Volver</span>
             </a>
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">Mis Notificaciones</h1>
-                <small class="text-muted">{{ total_count }} total</small>
+                <h1 class="h3 mb-0" data-i18n="my_notifications">Mis Notificaciones</h1>
+                <small class="text-muted">{{ total_count }} <span data-i18n="total_label">total</span></small>
             </div>
 
             {% if unread_notifications or read_notifications %}
@@ -22,7 +105,7 @@
                     <div class="card-header" style="background-color: #fff3cd; color: #856404;">
                         <h5 class="mb-0">
                             <i class="bi bi-bell-fill me-2"></i>
-                            No Leídas ({{ unread_notifications|length }})
+                            <span class="notification-count" data-i18n="unread_notifications">No Leídas</span> ({{ unread_notifications|length }})
                         </h5>
                     </div>
                     <div class="list-group">
@@ -49,7 +132,7 @@
                                 <div>
                                     <button type="button" class="btn btn-outline-success px-3 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2 mark-read-notification-btn"
                                             data-id="{{ notification.id }}">
-                                        <i class="bi bi-check2"></i> Marcar como leída
+                                        <i class="bi bi-check2"></i> <span data-i18n="mark_as_read">Marcar como leída</span>
                                     </button>
                                 </div>
                             </div>
@@ -65,7 +148,7 @@
                     <div class="card-header" style="background-color: #e7f1ff; color: #0d6efd;">
                         <h5 class="mb-0">
                             <i class="bi bi-check-circle me-2"></i>
-                            Leídas ({{ read_notifications|length }})
+                            <span class="notification-count" data-i18n="read_notifications">Leídas</span> ({{ read_notifications|length }})
                         </h5>
                     </div>
                     <div class="list-group">
@@ -93,7 +176,7 @@
                                     <button type="button" class="btn btn-outline-danger px-3 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2 delete-notification-btn"
                                             data-id="{{ notification.id }}"
                                             data-title="{{ notification.title }}">
-                                        <i class="bi bi-trash"></i> Eliminar
+                                        <i class="bi bi-trash"></i> <span data-i18n="delete">Eliminar</span>
                                     </button>
                                 </div>
                             </div>
@@ -108,8 +191,8 @@
                 <div class="card">
                     <div class="card-body text-center py-5">
                         <i class="bi bi-bell-slash display-1 text-muted mb-3"></i>
-                        <h5 class="text-muted">No tienes notificaciones</h5>
-                        <p class="text-muted">Cuando recibas notificaciones, aparecerán aquí.</p>
+                        <h5 class="text-muted" data-i18n="no_notifications">No tienes notificaciones</h5>
+                        <p class="text-muted" data-i18n="no_notifications_message">Cuando recibas notificaciones, aparecerán aquí.</p>
                     </div>
                 </div>
             {% endif %}
@@ -122,7 +205,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="notificationModalLabel">
-                        <i class="bi bi-bell me-2"></i>Detalles de Notificación
+                        <i class="bi bi-bell me-2"></i><span data-i18n="notification_details">Detalles de Notificación</span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -130,7 +213,7 @@
                     <div class="mb-3">
                         <div class="row">
                             <div class="col-sm-3">
-                                <strong class="text-muted">De:</strong>
+                                <strong class="text-muted" data-i18n="from_label">De:</strong>
                             </div>
                             <div class="col-sm-9">
                                 <span id="modal-sender">Sistema</span>
@@ -140,7 +223,7 @@
                     <div class="mb-3">
                         <div class="row">
                             <div class="col-sm-3">
-                                <strong class="text-muted">Tipo:</strong>
+                                <strong class="text-muted" data-i18n="type_label">Tipo:</strong>
                             </div>
                             <div class="col-sm-9">
                                 <span class="badge bg-secondary" id="modal-type">Manual</span>
@@ -150,7 +233,7 @@
                     <div class="mb-3">
                         <div class="row">
                             <div class="col-sm-3">
-                                <strong class="text-muted">Fecha:</strong>
+                                <strong class="text-muted" data-i18n="date_label">Fecha:</strong>
                             </div>
                             <div class="col-sm-9">
                                 <span id="modal-date">01/01/2024 12:00</span>
@@ -166,9 +249,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="close">Cerrar</button>
                     <button type="button" class="btn btn-primary" id="mark-read-modal-btn">
-                        <i class="bi bi-check2"></i> Marcar como leída
+                        <i class="bi bi-check2"></i> <span data-i18n="mark_as_read">Marcar como leída</span>
                     </button>
                 </div>
             </div>
@@ -181,18 +264,18 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="deleteNotificationModalLabel">
-                        <i class="bi bi-exclamation-triangle text-warning me-2"></i>Eliminar Notificación
+                        <i class="bi bi-exclamation-triangle text-warning me-2"></i><span data-i18n="delete_notification_title">Eliminar Notificación</span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>¿Estás seguro de que quieres eliminar esta notificación?</p>
+                    <p data-i18n="delete_notification_confirm">¿Estás seguro de que quieres eliminar esta notificación?</p>
                     <p class="text-muted mb-0" id="delete-notification-title">Título de la notificación</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
                     <button type="button" class="btn btn-danger" id="confirm-delete-btn">
-                        <i class="bi bi-trash"></i> Eliminar
+                        <i class="bi bi-trash"></i> <span data-i18n="delete">Eliminar</span>
                     </button>
                 </div>
             </div>

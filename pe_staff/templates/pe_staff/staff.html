@@ -15,12 +15,12 @@
         <!-- Page Header -->
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <h2 class="fw-black display-6">Gestión de Equipo</h2>
-                <p class="text-muted mb-0">Administra tu equipo de evento y asigna zonas de trabajo.</p>
+                <h2 class="fw-black display-6" data-i18n="team_management_title">Gestión de Equipo</h2>
+                <p class="text-muted mb-0" data-i18n="team_management_subtitle">Administra tu equipo de evento y asigna zonas de trabajo.</p>
             </div>
             <div>
                 <button class="btn btn-gradient px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm rounded-2" data-bs-toggle="modal" data-bs-target="#inviteStaffModal">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">person_add</span> Invitar al Equipo
+                    <span class="material-symbols-outlined" style="font-size: 18px;">person_add</span> <span data-i18n="invite_to_team">Invitar al Equipo</span>
                 </button>
             </div>
         </div>
@@ -28,34 +28,34 @@
     <!-- Stats -->
     <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="content-card rounded-4 border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card rounded-4 border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary);">
                     <span class="material-symbols-outlined">groups</span>
                 </div>
                 <div>
-                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Total Miembros</small>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="total_members_label">Total Miembros</small>
                     <h3 class="fw-black mb-0" id="totalMembers">{{ total_members }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="content-card rounded-4 border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card rounded-4 border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);">
                     <span class="material-symbols-outlined">check_circle</span>
                 </div>
                 <div>
-                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Miembros Activos</small>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="active_members_label">Miembros Activos</small>
                     <h3 class="fw-black mb-0" id="activeMembers">{{ active_members }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="content-card rounded-4 border-0 shadow-sm p-4 bg-white d-flex align-items-center gap-3">
-                <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 d-flex align-items-center justify-content-center">
+            <div class="content-card rounded-4 border-0 shadow-sm p-4 d-flex align-items-center gap-3">
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-center" style="background-color: rgba(248, 169, 0, 0.1); color: var(--warning);">
                     <span class="material-symbols-outlined">mail</span>
                 </div>
                 <div>
-                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;">Invitaciones Pendientes</small>
+                    <small class="text-muted fw-bold text-uppercase tracking-widest d-block" style="font-size: 0.65rem;" data-i18n="pending_invitations_label">Invitaciones Pendientes</small>
                     <h3 class="fw-black mb-0" id="pendingInvitations">{{ pending_invitations }}</h3>
                 </div>
             </div>
@@ -63,27 +63,27 @@
     </div>
 
     <!-- Filters -->
-    <div class="content-card mb-4 bg-light p-4 rounded-3 border">
+    <div class="content-card mb-4 p-4 rounded-3 border">
         <div class="row g-3 align-items-center">
             <div class="col-md-4">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Buscar Miembro</label>
-                <div class="search-container shadow-sm rounded-2 w-100 bg-white position-relative">
-                    <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: #6c757d;">search</span>
-                    <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" placeholder="Nombre o email..." id="searchMember">
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="search_member">Buscar Miembro</label>
+                <div class="search-container shadow-sm rounded-2 w-100 position-relative">
+                    <span class="material-symbols-outlined" style="font-size: 16px; left: 12px; position: absolute; top: 50%; transform: translateY(-50%); color: var(--text-on-surface-variant);">search</span>
+                    <input type="text" class="form-control form-control-sm border-0 shadow-none ps-5 py-2" data-i18n-placeholder="search_member_placeholder" placeholder="Nombre o email..." id="searchMember">
                 </div>
             </div>
             <div class="col-md-4">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Tipo</label>
-                <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterRole">
-                    <option value="">Todos los Tipos</option>
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="filter_by_type">Filtrar por Tipo</label>
+                <select class="form-select border-0 shadow-sm smaller fw-medium" id="filterRole">
+                    <option value="" data-i18n="all_types">Todos los Tipos</option>
                     <option value="ponente">Ponente</option>
                     <option value="staff">Staff</option>
                 </select>
             </div>
             <div class="col-md-4">
-                <label class="text-primary small fw-bold text-uppercase mb-2 d-block">Filtrar por Estado</label>
-                <select class="form-select border-0 shadow-sm text-muted smaller fw-medium" id="filterStatus">
-                    <option value="">Todos los Estados</option>
+                <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="filter_by_status">Filtrar por Estado</label>
+                <select class="form-select border-0 shadow-sm smaller fw-medium" id="filterStatus">
+                    <option value="" data-i18n="all_statuses">Todos los Estados</option>
                     {% for status in statuses %}
                     <option value="{{ status }}">{{ status|title }}</option>
                     {% endfor %}
@@ -93,16 +93,16 @@
     </div>
 
     <!-- Members and Pending Invitations Table -->
-    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 bg-white mb-4">
+    <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 mb-4">
         <div class="table-responsive">
             <table class="table mb-0 align-middle">
-                <thead class="bg-light">
+                <thead style="background-color: var(--surface-container-high);">
                     <tr>
-                        <th class="px-4 py-3">Miembro</th>
-                        <th class="py-3">Rol</th>
-                        <th class="py-3">Zona/Actividad</th>
-                        <th class="py-3">Estado</th>
-                        <th class="px-4 py-3 text-center">Acciones</th>
+                        <th class="px-4 py-3" data-i18n="member_col">Miembro</th>
+                        <th class="py-3" data-i18n="role_col">Rol</th>
+                        <th class="py-3" data-i18n="zone_activity_col">Zona/Actividad</th>
+                        <th class="py-3" data-i18n="status_col">Estado</th>
+                        <th class="px-4 py-3 text-center" data-i18n="actions_col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="membersTableBody">
@@ -111,7 +111,7 @@
                     <tr data-member-id="{{ member.id }}" data-type="member" data-status="confirmado" data-role="{% if member.user_type == 'ponente' %}ponente{% else %}staff{% endif %}">
                         <td class="px-4 py-3">
                             <div class="d-flex align-items-center">
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: var(--surface-container-high);">
                                     <span class="material-symbols-outlined">person</span>
                                 </div>
                                 <div>
@@ -120,11 +120,11 @@
                                 </div>
                             </div>
                         </td>
-                        <td>{% if member.user_type == 'ponente' %}Ponente{% else %}Staff({{ member.get_role_display }}){% endif %}</td>
+                        <td>{% if member.user_type == 'ponente' %}<span data-i18n="speaker_label">Ponente</span>{% else %}<span data-i18n="staff_label">Staff</span>({{ member.get_role_display }}){% endif %}</td>
                         <td class="zone-cell" data-zone="{{ member.zone|default:'' }}" data-user-type="{{ member.user_type }}">
-                            {% if member.zone %}{{ member.zone }}{% else %}<span class="text-muted">No asignada</span>{% endif %}
+                            {% if member.zone %}{{ member.zone }}{% else %}<span class="text-muted" data-i18n="no_zone_assigned">No asignada</span>{% endif %}
                         </td>
-                        <td><span class="badge bg-success">Confirmado</span></td>
+                        <td><span class="badge" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);" data-i18n="confirmed_status">Confirmado</span></td>
                         <td class="px-4 text-center">
                             <div class="btn-group">
                                 <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewMemberModal" 
@@ -135,13 +135,13 @@
                                     data-member-zone="{{ member.zone|default:'Sin asignar' }}"
                                     data-member-user-type="{{ member.user_type }}"
                                     data-member-phone="{{ member.user.phone|default:'' }}"
-                                    title="Ver">
+                                    title="Ver" data-i18n-title="view_btn_title">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignZoneModal" data-member-id="{{ member.id }}" data-member-type="{{ member.user_type }}" title="Asignar">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#assignZoneModal" data-member-id="{{ member.id }}" data-member-type="{{ member.user_type }}" title="Asignar" data-i18n-title="assign_btn_title">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">place</span>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger remove-member-btn" title="Eliminar" data-member-id="{{ member.id }}">
+                                <button class="btn btn-sm btn-outline-danger remove-member-btn" title="Eliminar" data-member-id="{{ member.id }}" data-i18n-title="delete_btn_title">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
                                 </button>
                             </div>
@@ -154,7 +154,7 @@
                     <tr data-invitation-id="{{ invitation.id }}" data-type="invitation" data-status="confirmado" data-role="{% if invitation.user_type == 'ponente' %}ponente{% else %}staff{% endif %}">
                         <td class="px-4 py-3">
                             <div class="d-flex align-items-center">
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: var(--surface-container-high);">
                                     <span class="material-symbols-outlined">check_circle</span>
                                 </div>
                                 <div>
@@ -163,32 +163,23 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3">
+<td class="py-3">
                             {% if invitation.user_type == 'ponente' %}
-                                Ponente
+                                <span class="badge" style="background-color: rgba(66, 92, 155, 0.1); color: var(--secondary);" data-i18n="speaker_label">Ponente</span>
                             {% elif invitation.role %}
-                                Staff({{ invitation.get_role_display }})
+                                <span class="badge" style="background-color: rgba(66, 92, 155, 0.1); color: var(--secondary);"><span data-i18n="staff_label">Staff</span>({{ invitation.get_role_display }})</span>
                             {% else %}
-                                <span class="text-muted">No asignada</span>
+                                <span class="text-muted" data-i18n="no_zone_assigned">No asignada</span>
                             {% endif %}
                         </td>
                         <td class="py-3">
                             <span class="text-muted small">—</span>
                         </td>
                         <td class="py-3">
-                            <span class="badge bg-success">Confirmado</span>
+                            <span class="badge" style="background-color: rgba(6, 167, 125, 0.1); color: var(--success);" data-i18n="confirmed_status">Confirmado</span>
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <div class="btn-group">
-                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#attendeeInfoModal"
-                                    data-attendee-name="{{ invitation.email }}"
-                                    data-attendee-email="{{ invitation.email }}"
-                                    data-attendee-phone="{{ invitation.phone|default:'No disponible' }}"
-                                    data-attendee-type="{% if invitation.user_type == 'ponente' %}Ponente{% else %}Staff{% endif %}"
-                                    title="Ver">
-                                    <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger delete-invitation-btn" title="Eliminar" data-invitation-id="{{ invitation.id }}">
+                            <button class="btn btn-sm btn-outline-danger delete-invitation-btn" title="Eliminar" data-invitation-id="{{ invitation.id }}" data-i18n-title="delete_btn_title">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
                                 </button>
                             </div>
@@ -201,7 +192,7 @@
                     <tr data-invitation-id="{{ invitation.id }}" data-type="invitation" data-status="rechazado" data-role="{% if invitation.user_type == 'ponente' %}ponente{% else %}staff{% endif %}">
                         <td class="px-4 py-3">
                             <div class="d-flex align-items-center">
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: var(--surface-container-high);">
                                     <span class="material-symbols-outlined">cancel</span>
                                 </div>
                                 <div>
@@ -210,23 +201,23 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3">
+<td class="py-3">
                             {% if invitation.user_type == 'ponente' %}
-                                <span class="badge bg-secondary">Ponente</span>
+                                <span class="badge" style="background-color: rgba(66, 92, 155, 0.1); color: var(--secondary);" data-i18n="speaker_label">Ponente</span>
                             {% elif invitation.role %}
-                                <span class="badge bg-secondary">Staff({{ invitation.get_role_display }})</span>
+                                <span class="badge" style="background-color: rgba(66, 92, 155, 0.1); color: var(--secondary);"><span data-i18n="staff_label">Staff</span>({{ invitation.get_role_display }})</span>
                             {% else %}
-                                <span class="text-muted">No asignada</span>
+                                <span class="text-muted" data-i18n="no_zone_assigned">No asignada</span>
                             {% endif %}
                         </td>
                         <td class="py-3">
                             <span class="text-muted small">—</span>
                         </td>
                         <td class="py-3">
-                            <span class="badge bg-danger">Rechazado</span>
+                            <span class="badge" style="background-color: rgba(220, 38, 38, 0.1); color: var(--error);" data-i18n="rejected_status">Rechazado</span>
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <button class="btn btn-sm btn-outline-danger delete-invitation-btn" title="Eliminar" data-invitation-id="{{ invitation.id }}">
+                            <button class="btn btn-sm btn-outline-danger delete-invitation-btn" title="Eliminar" data-invitation-id="{{ invitation.id }}" data-i18n-title="delete_btn_title">
                                 <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
                             </button>
                         </td>
@@ -238,7 +229,7 @@
                     <tr data-invitation-id="{{ invitation.id }}" data-type="invitation" data-status="pendiente" data-role="{% if invitation.user_type == 'ponente' %}ponente{% else %}staff{% endif %}">
                         <td class="px-4 py-3">
                             <div class="d-flex align-items-center">
-                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background-color: var(--surface-container-high);">
                                     <span class="material-symbols-outlined">mail</span>
                                 </div>
                                 <div>
@@ -249,21 +240,21 @@
                         </td>
                         <td class="py-3">
                             {% if invitation.user_type == 'ponente' %}
-                                <span class="badge bg-primary">Ponente</span>
+                                <span class="badge" style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary);" data-i18n="speaker_label">Ponente</span>
                             {% elif invitation.role %}
-                                <span class="badge bg-primary">Staff({{ invitation.get_role_display }})</span>
+                                <span class="badge" style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary);"><span data-i18n="staff_label">Staff</span>({{ invitation.get_role_display }})</span>
                             {% else %}
-                                <span class="badge bg-secondary">No aplica</span>
+                                <span class="badge" style="background-color: rgba(66, 92, 155, 0.1); color: var(--secondary);" data-i18n="not_applicable">No aplica</span>
                             {% endif %}
                         </td>
                         <td class="py-3">
                             <span class="text-muted small">—</span>
                         </td>
                         <td class="py-3">
-                            <span class="badge bg-warning">Pendiente</span>
+                            <span class="badge" style="background-color: rgba(248, 169, 0, 0.1); color: var(--warning);" data-i18n="pending_status">Pendiente</span>
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <button class="btn btn-sm btn-outline-danger cancel-invitation-btn" data-invitation-id="{{ invitation.id }}" title="Cancelar Invitación">
+                            <button class="btn btn-sm btn-outline-danger cancel-invitation-btn" data-invitation-id="{{ invitation.id }}" title="Cancelar Invitación" data-i18n-title="cancel_invitation_btn_title">
                                 <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
                             </button>
                         </td>
@@ -275,8 +266,8 @@
                         <td colspan="5" class="text-center py-4">
                             <div class="text-muted">
                                 <span class="material-symbols-outlined" style="width: 48px; height: 48px;">group_remove</span>
-                                <p>No hay miembros ni invitaciones</p>
-                                <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#inviteStaffModal">Invitar primer miembro</button>
+                                <p data-i18n="no_members_invitations">No hay miembros ni invitaciones</p>
+                                <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#inviteStaffModal" data-i18n="invite_first_member">Invitar primer miembro</button>
                             </div>
                         </td>
                     </tr>
@@ -285,7 +276,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
+        <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-high);">
             <div class="small text-muted fw-bold" id="paginationInfo">Total: {{ members.count }} miembros</div>
         </div>
     </div>
@@ -295,39 +286,39 @@
     <div class="modal fade" id="inviteStaffModal" tabindex="-1" aria-labelledby="inviteStaffModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom bg-light">
-                    <h5 class="modal-title fw-800" id="inviteStaffModalLabel">Invitar al Equipo</h5>
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-800" id="inviteStaffModalLabel" data-i18n="invite_to_team_title">Invitar al Equipo</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <form id="inviteForm">
                         <div class="mb-3">
-                            <label for="inviteEmail" class="form-label small fw-bold text-uppercase text-primary">Correo Electrónico</label>
-                            <input type="email" class="form-control border-0 bg-light py-2" id="inviteEmail" required placeholder="correo@ejemplo.com">
-                            <small class="text-muted">Debe estar registrado en la plataforma</small>
+                            <label for="inviteEmail" class="form-label small fw-bold text-uppercase text-primary" data-i18n="email_label">Correo Electrónico</label>
+                            <input type="email" class="form-control border-0 py-2" id="inviteEmail" required placeholder="correo@ejemplo.com" data-i18n-placeholder="email_placeholder">
+                            <small class="text-muted" data-i18n="email_hint">Debe estar registrado en la plataforma</small>
                         </div>
                         <div class="mb-3">
-                            <label for="userType" class="form-label small fw-bold text-uppercase text-primary">Tipo de Invitado</label>
-                            <select class="form-select border-0 bg-light py-2" id="userType" required>
-                                <option value="ponente">Ponente</option>
-                                <option value="staff">Staff</option>
+                            <label for="userType" class="form-label small fw-bold text-uppercase text-primary" data-i18n="guest_type_label">Tipo de Invitado</label>
+                            <select class="form-select border-0 py-2" id="userType" required>
+                                <option value="ponente" data-i18n="speaker_label">Ponente</option>
+                                <option value="staff" data-i18n="staff_label">Staff</option>
                             </select>
                         </div>
                         <div class="mb-3" id="roleSelectDiv" style="display: none;">
-                            <label for="inviteRole" class="form-label small fw-bold text-uppercase text-primary">Rol de Staff</label>
-                            <select class="form-select border-0 bg-light py-2" id="inviteRole">
-                                <option value="">Seleccionar rol</option>
-                                <option value="LIDER_ZONA">Líder de Zona</option>
-                                <option value="SOPORTE">Soporte Técnico</option>
-                                <option value="RECEPCION">Recepción</option>
-                                <option value="SEGURIDAD">Seguridad</option>
-                                <option value="MONTAJE">Montaje</option>
-                                <option value="CATERING">Catering</option>
-                                <option value="ATENCION">Atención al Público</option>
+                            <label for="inviteRole" class="form-label small fw-bold text-uppercase text-primary" data-i18n="staff_role_label">Rol de Staff</label>
+                            <select class="form-select border-0 py-2" id="inviteRole">
+                                <option value="" data-i18n="select_role">Seleccionar rol</option>
+                                <option value="LIDER_ZONA" data-i18n="zone_leader">Líder de Zona</option>
+                                <option value="SOPORTE" data-i18n="tech_support">Soporte Técnico</option>
+                                <option value="RECEPCION" data-i18n="reception">Recepción</option>
+                                <option value="SEGURIDAD" data-i18n="security">Seguridad</option>
+                                <option value="MONTAJE" data-i18n="setup">Montaje</option>
+                                <option value="CATERING" data-i18n="catering">Catering</option>
+                                <option value="ATENCION" data-i18n="public_attention">Atención al Público</option>
                             </select>
                         </div>
                         <div class="mt-4">
-                            <button type="submit" class="btn btn-gradient w-100 py-3 fw-bold rounded-2">Confirmar Invitación</button>
+                            <button type="submit" class="btn btn-gradient w-100 py-3 fw-bold rounded-2" data-i18n="confirm_invitation">Confirmar Invitación</button>
                         </div>
                     </form>
                 </div>
@@ -339,8 +330,8 @@
     <div class="modal fade" id="assignZoneModal" tabindex="-1" aria-labelledby="assignZoneModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom bg-light">
-                    <h5 class="modal-title fw-800" id="assignZoneModalLabel">Asignar Zona/Stand</h5>
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-800" id="assignZoneModalLabel" data-i18n="assign_zone_title">Asignar Zona/Stand</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
@@ -348,19 +339,19 @@
                         <input type="hidden" id="memberId">
                         <input type="hidden" id="memberType">
                         <div class="mb-3" id="zoneSelectContainer">
-                            <label for="standSelect" class="form-label small fw-bold text-uppercase text-primary">Selecciona una Zona/Stand</label>
-                            <select class="form-select border-0 bg-light py-2" id="standSelect">
-                                <option value="">Cargando zonas...</option>
+                            <label for="standSelect" class="form-label small fw-bold text-uppercase text-primary" data-i18n="select_zone_stand">Selecciona una Zona/Stand</label>
+                            <select class="form-select border-0 py-2" id="standSelect">
+                                <option value="" data-i18n="loading_zones">Cargando zonas...</option>
                             </select>
                         </div>
                         <div class="mb-3" id="activitySelectContainer" style="display: none;">
-                            <label for="activitySelect" class="form-label small fw-bold text-uppercase text-primary">Selecciona una Actividad</label>
-                            <select class="form-select border-0 bg-light py-2" id="activitySelect">
-                                <option value="">Cargando actividades...</option>
+                            <label for="activitySelect" class="form-label small fw-bold text-uppercase text-primary" data-i18n="select_activity">Selecciona una Actividad</label>
+                            <select class="form-select border-0 py-2" id="activitySelect">
+                                <option value="" data-i18n="loading_activities">Cargando actividades...</option>
                             </select>
                         </div>
                         <div class="mt-4">
-                            <button type="submit" class="btn btn-gradient w-100 py-3 fw-bold rounded-2" id="assignZoneBtn">Asignar Zona</button>
+                            <button type="submit" class="btn btn-gradient w-100 py-3 fw-bold rounded-2" id="assignZoneBtn" data-i18n="assign_zone_btn">Asignar Zona</button>
                         </div>
                     </form>
                 </div>
@@ -372,14 +363,14 @@
     <div class="modal fade" id="viewMemberModal" tabindex="-1" aria-labelledby="viewMemberModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0">
-                <div class="modal-header border-bottom bg-light">
-                    <h5 class="modal-title fw-800" id="viewMemberModalLabel">Información del Miembro</h5>
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-800" id="viewMemberModalLabel" data-i18n="member_info_title">Información del Miembro</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="row gy-3">
-                        <div class="col-md-4 text-center border-end">
-                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px;">
+                        <div class="col-md-4 text-center" style="border-right: 1px solid var(--border-outline-variant);">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px; background-color: var(--surface-container-high);">
                                 <span class="material-symbols-outlined" style="font-size: 48px;">person</span>
                             </div>
                             <h5 id="viewMemberName" class="fw-bold mb-1"></h5>
@@ -388,19 +379,19 @@
                         <div class="col-md-8">
                             <div class="row g-3">
                                 <div class="col-12 col-md-6">
-                                    <small class="text-muted">Tipo de Usuario</small>
+                                    <small class="text-muted" data-i18n="user_type_label">Tipo de Usuario</small>
                                     <p id="viewMemberType" class="mb-2 fw-bold"></p>
                                 </div>
                                 <div class="col-12 col-md-6" id="viewMemberPhoneContainer" style="display: none;">
-                                    <small class="text-muted">Teléfono</small>
+                                    <small class="text-muted" data-i18n="phone_label">Teléfono</small>
                                     <p id="viewMemberPhone" class="mb-2"></p>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <small class="text-muted">Zona Asignada</small>
+                                    <small class="text-muted" data-i18n="zone_assigned_label">Zona Asignada</small>
                                     <p id="viewMemberZone" class="mb-2"></p>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <small class="text-muted">Fecha de Asignación</small>
+                                    <small class="text-muted" data-i18n="assigned_date_label">Fecha de Asignación</small>
                                     <p id="viewMemberAssignedAt" class="mb-2"></p>
                                 </div>
                             </div>
@@ -408,7 +399,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-top-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="close_btn">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -418,14 +409,14 @@
     <div class="modal fade" id="attendeeInfoModal" tabindex="-1" aria-labelledby="attendeeInfoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0">
-                <div class="modal-header border-bottom bg-light">
-                    <h5 class="modal-title fw-800" id="attendeeInfoModalLabel">Información de la Invitación</h5>
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-800" id="attendeeInfoModalLabel" data-i18n="invitation_info_title">Información de la Invitación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="row gy-3">
-                        <div class="col-md-4 text-center border-end">
-                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px;">
+                        <div class="col-md-4 text-center" style="border-right: 1px solid var(--border-outline-variant);">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px; background-color: var(--surface-container-high);">
                                 <span class="material-symbols-outlined" style="font-size: 48px;">mail</span>
                             </div>
                             <h5 id="modalName" class="fw-bold mb-1"></h5>
@@ -434,19 +425,19 @@
                         <div class="col-md-8">
                             <div class="row g-3">
                                 <div class="col-12 col-md-6">
-                                    <small class="text-muted">Tipo de Usuario</small>
+                                    <small class="text-muted" data-i18n="user_type_label">Tipo de Usuario</small>
                                     <p id="modalType" class="mb-2 fw-bold"></p>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <small class="text-muted">Teléfono</small>
+                                    <small class="text-muted" data-i18n="phone_label">Teléfono</small>
                                     <p id="modalPhone" class="mb-2"></p>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <small class="text-muted">Estado</small>
+                                    <small class="text-muted" data-i18n="status_label">Estado</small>
                                     <p id="modalStatus" class="mb-2"></p>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <small class="text-muted">Fecha de Aceptación</small>
+                                    <small class="text-muted" data-i18n="acceptance_date_label">Fecha de Aceptación</small>
                                     <p id="modalAcceptedAt" class="mb-2"></p>
                                 </div>
                             </div>
@@ -454,7 +445,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-top-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="close_btn">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -465,16 +456,16 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold text-danger" id="deleteMemberModalLabel">Confirmar Eliminación</h5>
+                    <h5 class="modal-title fw-bold text-danger" id="deleteMemberModalLabel" data-i18n="delete_member_title">Confirmar Eliminación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="mb-2">¿Estás seguro de que deseas eliminar a <strong id="deleteMemberName"></strong> del equipo?</p>
-                    <p class="text-muted small mb-0">Esta acción no se puede deshacer.</p>
+                    <p class="mb-2"><span data-i18n="delete_member_confirm">¿Estás seguro de que deseas eliminar a</span> <strong id="deleteMemberName"></strong><span data-i18n="from_team_suffix"> del equipo</span>?</p>
+                    <p class="text-muted small mb-0" data-i18n="delete_warning">Esta acción no se puede deshacer.</p>
                 </div>
                 <div class="modal-footer border-top-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteMemberBtn">Eliminar</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteMemberBtn" data-i18n="delete_btn">Eliminar</button>
                 </div>
             </div>
         </div>
@@ -485,16 +476,16 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold text-danger" id="cancelInvitationModalLabel">Cancelar Invitación</h5>
+                    <h5 class="modal-title fw-bold text-danger" id="cancelInvitationModalLabel" data-i18n="cancel_invitation_title">Cancelar Invitación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="mb-2">¿Estás seguro de que deseas cancelar la invitación de <strong id="cancelInvitationName"></strong>?</p>
-                    <p class="text-muted small mb-0">La invitación cambiará a estado rechazado.</p>
+                    <p class="mb-2"><span data-i18n="cancel_invitation_confirm">¿Estás seguro de que deseas cancelar la invitación de</span> <strong id="cancelInvitationName"></strong>?</p>
+                    <p class="text-muted small mb-0" data-i18n="cancel_invitation_warning">La invitación cambiará a estado rechazado.</p>
                 </div>
                 <div class="modal-footer border-top-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger px-4" id="confirmCancelInvitationBtn">Cancelar Invitación</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmCancelInvitationBtn" data-i18n="cancel_invitation_btn">Cancelar Invitación</button>
                 </div>
             </div>
         </div>
@@ -505,16 +496,16 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold text-danger" id="deleteInvitationModalLabel">Eliminar Invitación</h5>
+                    <h5 class="modal-title fw-bold text-danger" id="deleteInvitationModalLabel" data-i18n="delete_invitation_title">Eliminar Invitación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="mb-2">¿Estás seguro de que deseas eliminar la invitación de <strong id="deleteInvitationName"></strong>?</p>
-                    <p class="text-muted small mb-0">Esta acción no se puede deshacer.</p>
+                    <p class="mb-2"><span data-i18n="delete_invitation_confirm">¿Estás seguro de que deseas eliminar la invitación de</span> <strong id="deleteInvitationName"></strong>?</p>
+                    <p class="text-muted small mb-0" data-i18n="delete_warning">Esta acción no se puede deshacer.</p>
                 </div>
                 <div class="modal-footer border-top-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteInvitationBtn">Eliminar</button>
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
+                    <button type="button" class="btn btn-danger px-4" id="confirmDeleteInvitationBtn" data-i18n="delete_invitation_btn">Eliminar</button>
                 </div>
             </div>
         </div>
