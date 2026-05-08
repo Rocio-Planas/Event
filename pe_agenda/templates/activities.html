@@ -55,35 +55,35 @@
         <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 mb-4">
             <div class="table-responsive">
                 <table class="table mb-0 align-middle">
-                    <thead style="background-color: var(--surface-container-high);">
+                    <thead style="background-color: var(--surface-container-lowest);">
                         <tr>
-                            <th class="px-4 py-3" data-i18n="schedule_col">Horario</th>
-                            <th class="py-3" data-i18n="activity_col">Actividad</th>
-                            <th class="py-3" data-i18n="zone_col">Zona</th>
-                            <th class="py-3" data-i18n="speaker_col">Ponente</th>
-                            <th class="py-3" data-i18n="status_col">Estado</th>
-                            <th class="px-4 py-3 text-center" data-i18n="actions_col">Acciones</th>
+                            <th class="px-4 py-3" style="background-color: var(--surface-container-lowest);" data-i18n="schedule_col">Horario</th>
+                            <th class="py-3" style="background-color: var(--surface-container-lowest);" data-i18n="activity_col">Actividad</th>
+                            <th class="py-3" style="background-color: var(--surface-container-lowest);" data-i18n="zone_col">Zona</th>
+                            <th class="py-3" style="background-color: var(--surface-container-lowest);" data-i18n="speaker_col">Ponente</th>
+                            <th class="py-3" style="background-color: var(--surface-container-lowest);" data-i18n="status_col">Estado</th>
+                            <th class="px-4 py-3 text-center" style="background-color: var(--surface-container-lowest);" data-i18n="actions_col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="activitiesTableBody">
                         {% for activity in activities %}
-                        <tr data-activity-id="{{ activity.id }}">
-                            <td class="px-4 py-3">
+                        <tr style="background-color: var(--surface-container-lowest);" data-activity-id="{{ activity.id }}">
+                            <td class="px-4 py-3" style="background-color: var(--surface-container-lowest);">
                                 <div class="fw-bold">{{ activity.start_time|date:"d \d\e M" }} {{ activity.start_time|date:"G:i" }}</div>
                                 <small class="text-muted">{{ activity.get_duration }} min</small>
                             </td>
-                            <td class="py-3">
+                            <td class="py-3" style="background-color: var(--surface-container-lowest);">
                                 <div class="fw-medium">{{ activity.title }}</div>
                                 {% if activity.description %}
                                 <small class="text-muted text-truncate d-block" style="max-width: 200px;">{{ activity.description|truncatechars:50 }}</small>
                                 {% endif %}
                             </td>
-                            <td class="py-3">{% if activity.location %}{{ activity.location }}{% else %}<span class="text-muted" data-i18n="not_assigned">No asignada</span>{% endif %}</td>
-                            <td class="py-3">
+                            <td class="py-3" style="background-color: var(--surface-container-lowest);">{% if activity.location %}{{ activity.location }}{% else %}<span class="text-muted" data-i18n="not_assigned">No asignada</span>{% endif %}</td>
+                            <td class="py-3" style="background-color: var(--surface-container-lowest);">
                                 {% if activity.speaker_name %}{{ activity.speaker_name }}
                                 {% else %}<span class="text-muted">-</span>{% endif %}
                             </td>
-                            <td class="py-3">
+                            <td class="py-3" style="background-color: var(--surface-container-lowest);">
                                 {% if activity.status == 'programada' %}
                                 <span class="badge" style="background-color: rgba(0, 87, 205, 0.1); color: var(--primary);" data-i18n="status_scheduled">Programada</span>
                                 {% elif activity.status == 'en_curso' %}
@@ -94,7 +94,7 @@
                                 <span class="badge" style="background-color: rgba(220, 38, 38, 0.1); color: var(--error);" data-i18n="status_cancelled">Cancelada</span>
                                 {% endif %}
                             </td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-3 text-center" style="background-color: var(--surface-container-lowest);">
                                 <div class="btn-group">
                                     <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewActivityModal" data-activity-id="{{ activity.id }}" title="Ver información">
                                         <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
@@ -116,8 +116,8 @@
                             </td>
                         </tr>
                         {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-4">
+                        <tr style="background-color: var(--surface-container-lowest);">
+                            <td colspan="6" class="text-center py-4" style="background-color: var(--surface-container-lowest);">
                                 <div class="text-muted">
                                     <span class="material-symbols-outlined" style="font-size: 48px;" class="mb-2">calendar_month</span>
                                     <p data-i18n="no_activities_scheduled">No hay actividades programadas</p>
@@ -128,7 +128,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-high);">
+            <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-lowest);">
                 <div class="small text-muted fw-bold" id="paginationInfo"><span data-i18n="showing_activities">Mostrando</span> <span id="activityCount">{{ activities|length }}</span> <span data-i18n="activities_count">actividad{% if activities|length != 1 %}es{% endif %}</span></div>
                 <nav aria-label="Page navigation">
                 </nav>
@@ -151,31 +151,31 @@
                         <!-- Título -->
                         <div class="mb-3">
                             <label class="form-label fw-bold text-primary" data-i18n="activity_name_label">Nombre de la Actividad</label>
-                            <input type="text" name="title" class="form-control" data-i18n-placeholder="activity_name_placeholder" placeholder="Ej. Masterclass de Arquitectura Cloud" required>
+                            <input type="text" name="title" class="form-control border-0 py-2" style="background-color: var(--surface-container-high);" data-i18n-placeholder="activity_name_placeholder" placeholder="Ej. Masterclass de Arquitectura Cloud" required>
                         </div>
 
                         <!-- Descripción -->
                         <div class="mb-3">
                             <label class="form-label fw-bold text-primary" data-i18n="description_label">Descripción</label>
-                            <textarea name="description" class="form-control" rows="3" data-i18n-placeholder="description_activity_placeholder" placeholder="Describe brevemente los objetivos y el contenido..."></textarea>
+                            <textarea name="description" class="form-control border-0 py-2" style="background-color: var(--surface-container-high);" rows="3" data-i18n-placeholder="description_activity_placeholder" placeholder="Describe brevemente los objetivos y el contenido..."></textarea>
                         </div>
 
                         <!-- Horario - Fila -->
                         <div class="row mb-3">
                             <div class="col-12 col-md-6">
                                 <label class="form-label fw-bold text-primary" data-i18n="start_time_label">Hora de Inicio</label>
-                                <input type="datetime-local" name="start_time" class="form-control" required min="{{ event.start_date|date:'Y-m-d\\TH:i' }}" max="{{ event.end_date|date:'Y-m-d\\T23:59' }}">
+                                <input type="datetime-local" name="start_time" class="form-control border-0 py-2" style="background-color: var(--surface-container-high);" required min="{{ event.start_date|date:'Y-m-d\\TH:i' }}" max="{{ event.end_date|date:'Y-m-d\\T23:59' }}">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label fw-bold text-primary" data-i18n="end_time_label">Hora de Finalización</label>
-                                <input type="datetime-local" name="end_time" class="form-control" required min="{{ event.start_date|date:'Y-m-d\\T00:00' }}" max="{{ event.end_date|date:'Y-m-d\\T23:59' }}">
+                                <input type="datetime-local" name="end_time" class="form-control border-0 py-2" style="background-color: var(--surface-container-high);" required min="{{ event.start_date|date:'Y-m-d\\T00:00' }}" max="{{ event.end_date|date:'Y-m-d\\T23:59' }}">
                             </div>
                         </div>
 
                         <!-- Ubicación -->
                         <div class="mb-3">
                             <label class="form-label fw-bold text-primary" data-i18n="zone_location_label">Zona/Ubicación</label>
-                            <select name="location" class="form-select">
+                            <select name="location" class="form-select border-0 py-2" style="background-color: var(--surface-container-high);">
                                 <option value="" data-i18n="select_zone_optional">Seleccionar Zona (opcional)</option>
                                 {% for zone in event_zones %}
                                     <option value="{{ zone }}">{{ zone }}</option>
@@ -186,7 +186,7 @@
                         <!-- Ponente -->
                         <div class="mb-3">
                             <label class="form-label fw-bold text-primary" data-i18n="speaker_label">Ponente</label>
-                            <select name="speaker_name" id="createSpeakerName" class="form-select">
+                            <select name="speaker_name" id="createSpeakerName" class="form-select border-0 py-2" style="background-color: var(--surface-container-high);">
                                 <option value="" data-email="" data-i18n="select_speaker_optional">Seleccionar Ponente (opcional)</option>
                                 {% for member in confirmed_ponentes %}
                                     <option value="{{ member.user.get_full_name|default:member.user.email }}" data-email="{{ member.user.email }}">
@@ -228,25 +228,25 @@
                         <input type="hidden" name="activity_id" id="editActivityId">
                         <div class="mb-3">
                             <label class="form-label fw-bold text-primary" data-i18n="activity_name_label">Nombre de la Actividad</label>
-                            <input type="text" name="title" id="editTitle" class="form-control" required>
+                            <input type="text" name="title" id="editTitle" class="form-control border-0 py-2" style="background-color: var(--surface-container-high);" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold text-primary" data-i18n="description_label">Descripción</label>
-                            <textarea name="description" id="editDescription" class="form-control" rows="3"></textarea>
+                            <textarea name="description" id="editDescription" class="form-control border-0 py-2" style="background-color: var(--surface-container-high);" rows="3"></textarea>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-primary" data-i18n="start_time_label">Hora de Inicio</label>
-                                <input type="datetime-local" name="start_time" id="editStartTime" class="form-control" required min="{{ event.start_date|date:'Y-m-d\\TH:i' }}" max="{{ event.end_date|date:'Y-m-d\\T23:59' }}">
+                                <input type="datetime-local" name="start_time" id="editStartTime" class="form-control border-0 py-2" style="background-color: var(--surface-container-high);" required min="{{ event.start_date|date:'Y-m-d\\TH:i' }}" max="{{ event.end_date|date:'Y-m-d\\T23:59' }}">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-primary" data-i18n="end_time_label">Hora de Finalización</label>
-                                <input type="datetime-local" name="end_time" id="editEndTime" class="form-control" required min="{{ event.start_date|date:'Y-m-d\\T00:00' }}" max="{{ event.end_date|date:'Y-m-d\\T23:59' }}">
+                                <input type="datetime-local" name="end_time" id="editEndTime" class="form-control border-0 py-2" style="background-color: var(--surface-container-high);" required min="{{ event.start_date|date:'Y-m-d\\T00:00' }}" max="{{ event.end_date|date:'Y-m-d\\T23:59' }}">
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold text-primary" data-i18n="zone_location_label">Zona/Ubicación</label>
-                            <select name="location" id="editLocation" class="form-select">
+                            <select name="location" id="editLocation" class="form-select border-0 py-2" style="background-color: var(--surface-container-high);">
                                 <option value="" data-i18n="select_zone_optional">Seleccionar Zona (opcional)</option>
                                 {% for zone in event_zones %}
                                     <option value="{{ zone }}">{{ zone }}</option>
@@ -255,7 +255,7 @@
                         </div>
 <div class="mb-3">
                             <label class="form-label fw-bold text-primary" data-i18n="speaker_label">Ponente</label>
-                            <select name="speaker_name" id="editSpeakerName" class="form-select">
+                            <select name="speaker_name" id="editSpeakerName" class="form-select border-0 py-2" style="background-color: var(--surface-container-high);">
                                 <option value="" data-email="" data-i18n="select_speaker_optional">Seleccionar Ponente (opcional)</option>
                                 {% for member in confirmed_ponentes %}
                                 <option value="{{ member.user.get_full_name|default:member.user.email }}" data-email="{{ member.user.email }}">

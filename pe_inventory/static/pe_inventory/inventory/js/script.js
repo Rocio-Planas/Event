@@ -508,7 +508,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     const t = window.translations && window.translations[window.currentLang] ? window.translations[window.currentLang] : window.translations.es;
                     const noItems = t.no_inventory_items || "No hay artículos registrados";
                     tbody.innerHTML =
-                        `<tr><td colspan="6" class="text-center py-4 text-muted">${noItems}</td></tr>`;
+                        `<tr style="background-color: var(--surface-container-lowest);"><td colspan="6" class="text-center py-4 text-muted" style="background-color: var(--surface-container-lowest);">${noItems}</td></tr>`;
                 } else {
                     items.forEach((item) => {
                         const statusBadgeClass =
@@ -528,8 +528,8 @@ document.addEventListener("DOMContentLoaded", () => {
                             item.image ||
                             `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=f8f9ff&color=0058be`;
                         const rowHtml = `
-                            <tr data-item-id="${item.id}">
-                                <td class="px-4 py-3">
+                            <tr style="background-color: var(--surface-container-lowest);" data-item-id="${item.id}">
+                                <td class="px-4 py-3" style="background-color: var(--surface-container-lowest);">
                                     <div class="d-flex align-items-center">
                                         <div class="bg-light rounded p-1 me-3 border" style="width: 40px; height: 40px;">
                                             <img src="${finalImageUrl}" class="w-100 h-100 object-fit-cover rounded item-img" alt="${item.name}" referrerpolicy="no-referrer">
@@ -539,15 +539,15 @@ document.addEventListener("DOMContentLoaded", () => {
                                         </div>
                                     </div>
                                 </td>
-                                <td><span class="badge bg-primary text-white item-category">${item.category}</span></td>
-                                <td>
+                                <td style="background-color: var(--surface-container-lowest);"><span class="badge bg-primary text-white item-category">${item.category}</span></td>
+                                <td style="background-color: var(--surface-container-lowest);">
                                     <span class="fw-bold" style="color: var(--text-on-surface-variant);">${item.used_stock}/${item.total_stock}</span>
                                 </td>
-                                <td><span class="badge ${statusBadgeClass} item-status">${item.status}</span></td>
-                                <td>
+                                <td style="background-color: var(--surface-container-lowest);"><span class="badge ${statusBadgeClass} item-status">${item.status}</span></td>
+                                <td style="background-color: var(--surface-container-lowest);">
                                     <small class="text-muted item-notes">${item.notes}</small>
                                 </td>
-                                <td class="px-4 text-center">
+                                <td class="px-4 text-center" style="background-color: var(--surface-container-lowest);">
                                     <div class="btn-group">
                                         <button class="btn btn-sm btn-outline-primary edit-btn" title="Editar" data-item-id="${item.id}">
                                             <span class="material-symbols-outlined" style="font-size: 16px;">edit</span>

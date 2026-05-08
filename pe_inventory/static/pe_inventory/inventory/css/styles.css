@@ -72,6 +72,24 @@ body {
     color: var(--text-on-surface-variant);
 }
 
+.dark input[type="file"]::-webkit-file-upload-button {
+    background-color: var(--surface-container-high);
+    color: var(--text-on-surface);
+    border: 1px solid var(--border-outline-variant);
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.dark input[type="file"]::file-selector-button {
+    background-color: var(--surface-container-high);
+    color: var(--text-on-surface);
+    border: 1px solid var(--border-outline-variant);
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
 .dark .btn-close {
     filter: invert(1);
 }

@@ -17,6 +17,67 @@ def get_default_event():
     return Event.objects.first()
 
 
+def send_pending_scheduled_surveys(event_id):
+    """
+    Verifica y envía encuestas programadas que están pendientes.
+    Se ejecuta cada vez que se accede a la lista de encuestas.
+    """
+    from django.utils import timezone
+    from django.conf import settings
+    from django.urls import reverse
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    pending_surveys = Survey.objects.filter(
+        event_id=event_id,
+        delivery_type='programado',
+        scheduled_date__lte=timezone.now(),
+        is_active=True,
+        sent_at__isnull=True
+    )
+    
+    for survey in pending_surveys:
+        try:
+            survey_link = reverse('pe_surveys:survey_answer', kwargs={'event_id': event_id, 'survey_id': survey.pk})
+            
+            try:
+                from django.contrib.sites.models import Site
+                site = Site.objects.get_current()
+                survey_link = f"{site.domain}{survey_link}"
+            except Exception:
+                survey_link = f"http://localhost:8000{survey_link}"
+            
+            Registration = apps.get_model('pe_registration', 'Registration')
+            registrations = Registration.objects.filter(
+                event_id=event_id,
+                status=Registration.Status.CONFIRMADA
+            ).select_related('user')
+            
+            from django.core.mail import send_mail
+            emails_sent = 0
+            
+            for reg in registrations:
+                if reg.user and reg.user.email:
+                    try:
+                        send_mail(
+                            subject=f"Encuesta: {survey.title}",
+                            message=f"Por favor, responde la encuesta '{survey.title}'.\n\nSigue este enlace: {survey_link}\n\nGracias por tu participación.",
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[reg.user.email],
+                            fail_silently=False,
+                        )
+                        emails_sent += 1
+                    except Exception as e:
+                        logger.error(f"Error sending survey email to {reg.user.email}: {e}")
+            
+            survey.sent_at = timezone.now()
+            survey.save(update_fields=['sent_at'])
+            logger.info(f"Sent scheduled survey {survey.id} ({survey.title}) to {emails_sent} recipients")
+            
+        except Exception as e:
+            logger.error(f"Error processing scheduled survey {survey.id}: {e}")
+
+
 @method_decorator(login_required, name='dispatch')
 class SurveyManagementView(ListView):
     model = Survey
@@ -42,6 +103,9 @@ class SurveyManagementView(ListView):
         context['active_page'] = 'encuestas'
         context['form'] = SurveyForm()
         context['formset'] = SurveyOptionFormSet(prefix='options')
+        
+        send_pending_scheduled_surveys(event_id)
+        
         return context
 
 
@@ -236,6 +300,7 @@ class UpdateSurveyAPIView(View):
         data = json.loads(request.body)
         survey_id = data.get('survey_id')
         title = data.get('title')
+        is_active = data.get('is_active', True)
         is_multiple_choice = data.get('is_multiple_choice', False)
         delivery_type = data.get('delivery_type')
         scheduled_date = data.get('scheduled_date')
@@ -247,6 +312,7 @@ class UpdateSurveyAPIView(View):
         survey = get_object_or_404(Survey, pk=survey_id)
         survey.title = title
         survey.survey_type = 'texto'
+        survey.is_active = is_active
         survey.is_multiple_choice = is_multiple_choice
         survey.delivery_type = delivery_type
         
@@ -377,7 +443,7 @@ class SurveyResponseAPIView(View):
         answer = data.get('answer')
         comments = data.get('comments', '')
 
-        user_id = request.user.id if request.user.is_authenticated else None
+        user_id = request.user.id if request.user.is_authenticated else 0
         
         Response.objects.create(
             survey=survey,
