@@ -646,7 +646,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const paginationInfo = document.getElementById("paginationInfo");
 
         if (paginationInfo) {
-            paginationInfo.textContent = `Mostrando ${totalMembers} de ${rows.length} miembros`;
+            console.log('window.translations:', window.translations);
+            const t = window.translations?.es || window.translations;
+            console.log('t:', t);
+            console.log('t.showing_members:', t?.showing_members);
+            console.log('t.member_singular:', t?.member_singular);
+            const showingText = t?.showing_members || 'Mostrando';
+            const membersText = totalMembers === 1 ? (t?.member_singular || 'miembro') : (t?.members_count || 'miembros');
+            paginationInfo.textContent = `${showingText} ${totalMembers} ${membersText}`;
+            console.log('Final text:', paginationInfo.textContent);
         }
     }
 

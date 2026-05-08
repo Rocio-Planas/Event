@@ -18,11 +18,25 @@
     --font-sans: "Inter", sans-serif;
 }
 
+.dark {
+    --surface: #121212;
+    --surface-container-low: #2a2a36;
+    --surface-container-lowest: #1e1e2a;
+    --on-surface: #eef1f6;
+    --on-surface-variant: #b0b3c0;
+    --outline-variant: #3a3e4a;
+}
+
 /* Navbar Custom */
 .navbar-custom {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--outline-variant);
+}
+
+/* Dark mode navbar */
+.dark .navbar-custom {
+    background: rgba(18, 18, 18, 0.95);
 }
 
 .nav-link-custom {
@@ -127,7 +141,7 @@
     padding: 1.25rem;
     border-radius: 1rem;
     transition: all 0.2s;
-    border: 1px solid var(--border-outline-variant);
+    border: 1px solid var(--outline-variant);
     background-color: var(--surface-container-low);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     margin-bottom: 1.5rem;
@@ -170,8 +184,8 @@
 }
 
 .filter-panel {
-    background-color: #f4f6fb;
-    border-bottom: 1px solid #dde3ed;
+    background-color: var(--surface-container-low);
+    border-bottom: 1px solid var(--outline-variant);
     margin-bottom: 1.5rem;
 }
 
@@ -185,8 +199,8 @@
 
 .filter-panel .form-select {
     border-radius: 0.85rem;
-    border: 1px solid #d2d8e2;
-    background-color: #ffffff;
+    border: 1px solid var(--outline-variant);
+    background-color: var(--surface-container-lowest);
     padding: 0.75rem 1rem;
 }
 
@@ -312,6 +326,28 @@
     color: #842029;
 }
 
+/* Dark mode badges */
+.dark .badge-ai {
+    background-color: #1a237e;
+    color: #bbdefb;
+}
+.dark .badge-en_curso {
+    background-color: #004d40;
+    color: #b2dfdb;
+}
+.dark .badge-completada {
+    background-color: #1b5e20;
+    color: #c8e6c9;
+}
+.dark .badge-programada {
+    background-color: #0d47a1;
+    color: #bbdefb;
+}
+.dark .badge-cancelada {
+    background-color: #b71c1c;
+    color: #ffcdd2;
+}
+
 /* Tags */
 .tag {
     padding: 4px 8px;
@@ -340,6 +376,24 @@
 .tag-keynote {
     background-color: #fff3e0;
     color: #ef6c00;
+}
+
+/* Dark mode tags */
+.dark .tag-ai {
+    background-color: #0d47a1;
+    color: #bbdefb;
+}
+.dark .tag-ux {
+    background-color: #4a148c;
+    color: #e1bee7;
+}
+.dark .tag-devops {
+    background-color: #1b5e20;
+    color: #c8e6c9;
+}
+.dark .tag-keynote {
+    background-color: #e65100;
+    color: #ffe0b2;
 }
 
 /* Speaker Images */
@@ -410,6 +464,21 @@
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-top: 1px solid var(--outline-variant);
+}
+
+.dark .mobile-nav {
+    background: rgba(18, 18, 18, 0.95);
+}
+
+/* Content Card Styles */
+.content-card {
+    background-color: var(--surface-container-lowest);
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.dark .content-card {
+    background-color: var(--surface-container-lowest);
 }
 
 .mobile-nav-btn {

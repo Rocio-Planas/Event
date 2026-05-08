@@ -198,6 +198,11 @@ body {
     background-color: var(--surface-container-high) !important;
 }
 
+.hero-banner .container,
+.hero-banner .max-w-7xl {
+    background-color: transparent !important;
+}
+
 .table thead th {
     font-family: "Inter", sans-serif;
     font-size: 0.75rem;

@@ -6,7 +6,7 @@
     <h1 class="text-3xl font-bold text-on-surface mb-2" data-i18n="my_dashboard">
         Mi Panel
     </h1>
-    <p class="text-on-surface-variant mb-8">
+    <p class="text-on-surface-variant mb-8" data-i18n="dashboard_subtitle">
         Gestiona tus eventos, suscripciones y preferencias
     </p>
 
@@ -92,7 +92,7 @@
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-semibold text-on-surface flex items-center gap-2">
                 <span class="material-symbols-outlined text-primary">badge</span>
-                <span>Mis asignaciones como Staff</span>
+                <span data-i18n="staff_assignments_title">Mis asignaciones como Staff</span>
             </h2>
         </div>
 
@@ -112,7 +112,7 @@
                     <h3 class="font-bold text-on-surface">{{ asignacion.event.title }}</h3>
                     {% if asignacion.get_user_type_display %}
                     <p class="text-xs text-on-surface-variant mt-1 mb-1">
-                        Tipo de usuario: {{ asignacion.get_user_type_display }}
+                        <span data-i18n="user_type_label">Tipo de usuario</span>: {{ asignacion.get_user_type_display }}
                     </p>
                     {% endif %}
 
@@ -256,7 +256,7 @@
     <dialog id="modalCrearEvento" class="backdrop:bg-black/50 rounded-xl shadow-lg p-0 max-w-md w-full">
         <div class="bg-surface-container-lowest rounded-xl">
             <div class="flex justify-between items-center p-6 border-b border-outline-variant/20">
-                <h2 class="text-xl font-bold text-on-surface">¿Qué tipo de evento deseas crear?</h2>
+                <h2 class="text-xl font-bold text-on-surface" data-i18n="create_event_type_title">¿Qué tipo de evento deseas crear?</h2>
                 <button onclick="document.getElementById('modalCrearEvento').close()" class="text-on-surface-variant hover:text-on-surface">
                     <span class="material-symbols-outlined">close</span>
                 </button>
@@ -266,16 +266,16 @@
                     class="group p-4 rounded-lg border-2 border-outline-variant/20 hover:border-primary hover:bg-primary-container/10 transition cursor-pointer flex items-start gap-4">
                     <span class="material-symbols-outlined text-3xl text-primary">videocam</span>
                     <div>
-                        <h3 class="font-bold text-on-surface group-hover:text-primary">Evento Virtual</h3>
-                        <p class="text-sm text-on-surface-variant">Realiza un evento en línea, accesible desde cualquier lugar</p>
+                        <h3 class="font-bold text-on-surface group-hover:text-primary" data-i18n="virtual_event_option">Evento Virtual</h3>
+                        <p class="text-sm text-on-surface-variant" data-i18n="virtual_event_desc">Realiza un evento en línea, accesible desde cualquier lugar</p>
                     </div>
                 </a>
                 <a href="{% url 'in_person_events:create_event_form' %}"
                     class="group p-4 rounded-lg border-2 border-outline-variant/20 hover:border-primary hover:bg-primary-container/10 transition cursor-pointer flex items-start gap-4">
                     <span class="material-symbols-outlined text-3xl text-primary">location_on</span>
                     <div>
-                        <h3 class="font-bold text-on-surface group-hover:text-primary">Evento Presencial</h3>
-                        <p class="text-sm text-on-surface-variant">Organiza un evento en una ubicación física específica</p>
+                        <h3 class="font-bold text-on-surface group-hover:text-primary" data-i18n="in_person_event_option">Evento Presencial</h3>
+                        <p class="text-sm text-on-surface-variant" data-i18n="in_person_event_desc">Organiza un evento en una ubicación física específica</p>
                     </div>
                 </a>
             </div>

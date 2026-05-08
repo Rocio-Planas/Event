@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="position-relative" style="background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%), url('{% if event.image %}{{ event.image.url }}{% else %}https://picsum.photos/seed/event/1200/400{% endif %}') center/cover no-repeat; min-height: 400px; display: flex; align-items: flex-end; margin-top: -5rem; padding-top: 5rem;">
+<div class="position-relative hero-banner" style="background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%), url('{% if event.image %}{{ event.image.url }}{% else %}https://picsum.photos/seed/event/1200/400{% endif %}') center/cover no-repeat; min-height: 400px; display: flex; align-items: flex-end; margin-top: -5rem; padding-top: 5rem;">
     <div class="container pb-5">
         <div class="max-w-7xl mx-auto">
             <a href="{% url 'usuarios:dashboard' %}" class="text-decoration-none text-white fw-bold d-flex align-items-center gap-1 mb-4" style="width: fit-content;">
@@ -20,9 +20,9 @@
                 <div class="d-flex align-items-center gap-3 mb-3">
                     <span class="badge" style="background-color: rgba(255, 255, 255, 0.25); color: white; backdrop-filter: blur(10px);">
                         {% if event.status == 'approved' %}
-                            PROGRAMADO
+                            <span data-i18n="event_scheduled">PROGRAMADO</span>
                         {% else %}
-                            {{ event.get_status_display|default:"En curso" }}
+                            <span data-i18n="event_in_progress">{{ event.get_status_display|default:"En curso" }}</span>
                         {% endif %}
                     </span>
                 </div>
@@ -49,7 +49,7 @@
             <div class="col-span-8">
                 <!-- Mi Zona Asignada / Actividad -->
                 {% if my_assignment.zone or my_assignment.activity %}
-                <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
+                <div class="card panel-operativo mb-4">
                     <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
                         <span class="material-symbols-outlined text-primary">{% if 'ponente' in my_assignment.get_user_type_display|lower %}mic{% else %}location_on{% endif %}</span>
                         {% if 'ponente' in my_assignment.get_user_type_display|lower %}<span data-i18n="assigned_activity">Actividad Asignada</span>{% else %}<span data-i18n="assigned_zone">Zona Asignada</span>{% endif %}
@@ -79,7 +79,7 @@
                 {% endif %}
 
                 <!-- Mensaje al Organizador -->
-                <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
+                <div class="card panel-operativo mb-4">
                     <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
                         <span class="material-symbols-outlined text-primary">mail</span>
                         <span data-i18n="message_to_organizer">Mensaje al Organizador</span>
@@ -102,7 +102,7 @@
 
             <div class="col-span-4">
                 <!-- Mi Información como Staff -->
-                <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
+                <div class="card panel-operativo mb-4">
                     <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
                         <span class="material-symbols-outlined text-primary">person</span>
                         <span data-i18n="my_role">Mi Rol</span>
@@ -127,7 +127,7 @@
                 </div>
 
                 <!-- Quién lo organiza -->
-                <div class="card panel-operativo mb-4" style="padding: 2rem; border-radius: 1rem;">
+                <div class="card panel-operativo mb-4">
                     <h4 class="fw-bold mb-4 d-flex align-items-center gap-2" style="color: var(--text-on-surface);">
                         <span class="material-symbols-outlined text-primary">groups</span>
                         <span data-i18n="organized_by">Quién lo organiza</span>

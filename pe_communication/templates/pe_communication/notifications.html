@@ -3,6 +3,89 @@
 
 {% block title %}Mis Notificaciones - EventPulse{% endblock %}
 
+{% block extra_css %}
+<style>
+.dark .card {
+    background-color: var(--surface-container-lowest);
+    border-color: var(--border-outline-variant);
+}
+.dark .card-body.text-center.py-5 {
+    background-color: var(--surface-container-lowest);
+}
+.dark .card-header[style*="background-color: #fff3cd"] {
+    background-color: rgba(251, 191, 36, 0.2) !important;
+    color: #fbbf24 !important;
+}
+.dark .card-header[style*="background-color: #e7f1ff"] {
+    background-color: rgba(122, 158, 255, 0.2) !important;
+    color: #7a9eff !important;
+}
+.dark .notification-item,
+.dark .list-group-item {
+    background-color: var(--surface-container-lowest) !important;
+    border-color: var(--border-outline-variant) !important;
+}
+.dark .notification-item.opacity-85 {
+    opacity: 0.7 !important;
+}
+.dark .notification-title {
+    color: var(--text-on-surface);
+}
+.dark .notification-body {
+    color: var(--text-on-surface-variant) !important;
+}
+.dark .notification-date {
+    color: var(--text-on-surface-variant) !important;
+}
+.dark .btn-outline-success {
+    border-color: #10b981 !important;
+    color: #10b981 !important;
+}
+.dark .btn-outline-success:hover {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    color: #10b981 !important;
+}
+.dark .btn-outline-danger {
+    border-color: var(--border-outline-variant) !important;
+    color: #ef4444 !important;
+}
+.dark .btn-outline-danger:hover {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    color: #ef4444 !important;
+}
+.dark .badge.bg-light {
+    background-color: var(--surface-container-high) !important;
+    color: var(--text-on-surface) !important;
+}
+.dark .modal-content {
+    background-color: var(--surface-container-lowest);
+    color: var(--text-on-surface);
+}
+.dark .modal-header {
+    background-color: var(--surface-container-high);
+    border-bottom-color: var(--border-outline-variant);
+    color: var(--text-on-surface);
+}
+.dark .modal-body {
+    background-color: var(--surface-container-lowest);
+    color: var(--text-on-surface-variant);
+}
+.dark .modal-footer {
+    background-color: var(--surface-container-lowest);
+    border-top-color: var(--border-outline-variant);
+}
+.dark .modal-body .border {
+    border-color: var(--border-outline-variant) !important;
+}
+.dark .modal-body .bg-light {
+    background-color: var(--surface-container-high) !important;
+}
+.dark .btn-close {
+    filter: invert(1);
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
     <div class="row">
@@ -12,7 +95,7 @@
             </a>
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h3 mb-0" data-i18n="my_notifications">Mis Notificaciones</h1>
-                <small class="text-muted"><span data-i18n="total_count_label">{{ total_count }}</span> total</small>
+                <small class="text-muted">{{ total_count }} <span data-i18n="total_label">total</span></small>
             </div>
 
             {% if unread_notifications or read_notifications %}
@@ -22,7 +105,7 @@
                     <div class="card-header" style="background-color: #fff3cd; color: #856404;">
                         <h5 class="mb-0">
                             <i class="bi bi-bell-fill me-2"></i>
-                            <span data-i18n="unread_notifications">No Leídas</span> ({{ unread_notifications|length }})
+                            <span class="notification-count" data-i18n="unread_notifications">No Leídas</span> ({{ unread_notifications|length }})
                         </h5>
                     </div>
                     <div class="list-group">
@@ -65,7 +148,7 @@
                     <div class="card-header" style="background-color: #e7f1ff; color: #0d6efd;">
                         <h5 class="mb-0">
                             <i class="bi bi-check-circle me-2"></i>
-                            <span data-i18n="read_notifications">Leídas</span> ({{ read_notifications|length }})
+                            <span class="notification-count" data-i18n="read_notifications">Leídas</span> ({{ read_notifications|length }})
                         </h5>
                     </div>
                     <div class="list-group">

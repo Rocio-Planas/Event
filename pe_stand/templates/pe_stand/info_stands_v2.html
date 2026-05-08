@@ -1,5 +1,5 @@
 {% extends 'base_bootstrap.html' %} {% load static %} {% block title %}Gestión de Stand - {{ stand.name }}{% endblock %} {% block extra_css %}
-<link rel="stylesheet" href="{% static 'pe_stand/css/stands.css' %}">
+<link rel="stylesheet" href="{% static 'pe_stand/info_stands/css/styles.css' %}">
 <style>
 .main-center {
     min-height: calc(100vh - 180px);
@@ -13,604 +13,10 @@
     width: 100%;
 }
 </style>
+<script src="{% static 'pe_stand/info_stands/js/scripts.js' %}"></script>
 {% endblock %} {% block content %}
 <div class="main-center">
     <div class="content-center">
-<script>
-var currentStandId = {{ stand.id }};
-
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-function addSelectedStaff() {
-    var selectedCheckboxes = document.querySelectorAll('.staff-checkbox:checked');
-    var selectedUsers = Array.from(selectedCheckboxes).map(function(cb) {
-        return { user_id: cb.value, role: cb.dataset.role };
-    });
-    
-    if (selectedUsers.length === 0) return;
-    
-    var btn = document.getElementById('confirmAddStaffBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Añadiendo...';
-    
-    fetch('/stands/api/' + currentStandId + '/add-staff/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ users: selectedUsers })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.error || 'Error desconocido');
-            btn.disabled = false;
-            btn.textContent = 'Aceptar';
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-        btn.disabled = false;
-        btn.textContent = 'Aceptar';
-    });
-}
-
-function openNotificationModal(userId, userName) {
-    document.getElementById('notificationUserId').value = userId;
-    document.getElementById('notificationUserName').textContent = userName;
-    var modal = new bootstrap.Modal(document.getElementById('notificationModal'));
-    modal.show();
-}
-
-function sendNotification() {
-    var userId = document.getElementById('notificationUserId').value;
-    var title = document.getElementById('notificationTitle').value;
-    var message = document.getElementById('notificationMessage').value;
-    
-    if (!title || !message) {
-        alert('Completa todos los campos');
-        return;
-    }
-    
-    var btn = document.getElementById('sendNotificationBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Enviando...';
-    
-    fetch('/comunicacion/send/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            user_id: userId,
-            title: title,
-            message: message
-        })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            alert('Notificación enviada');
-            bootstrap.Modal.getInstance(document.getElementById('notificationModal')).hide();
-            document.getElementById('notificationTitle').value = '';
-            document.getElementById('notificationMessage').value = '';
-        } else {
-            alert(data.error || 'Error al enviar');
-        }
-        btn.disabled = false;
-        btn.textContent = 'Enviar';
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-        btn.disabled = false;
-        btn.textContent = 'Enviar';
-    });
-}
-
-document.addEventListener('change', function(e) {
-    if (e.target.classList.contains('staff-checkbox')) {
-        var anyChecked = document.querySelectorAll('.staff-checkbox:checked').length > 0;
-        document.getElementById('confirmAddStaffBtn').disabled = !anyChecked;
-    }
-    if (e.target.classList.contains('activity-checkbox')) {
-        var anyChecked = document.querySelectorAll('.activity-checkbox:checked').length > 0;
-        document.getElementById('confirmAssignActivityBtn').disabled = !anyChecked;
-    }
-    if (e.target.classList.contains('resource-checkbox')) {
-        var anyChecked = document.querySelectorAll('.resource-checkbox:checked').length > 0;
-        document.getElementById('confirmAddBtn').disabled = !anyChecked;
-    }
-});
-
-function removeStaffFromStand(userId, userName) {
-    document.getElementById('removeStaffUserId').value = userId;
-    document.getElementById('removeStaffUserName').textContent = userName;
-    var modal = new bootstrap.Modal(document.getElementById('removeStaffModal'));
-    modal.show();
-}
-
-function confirmRemoveStaff() {
-    var userId = document.getElementById('removeStaffUserId').value;
-    
-    fetch('/stands/api/' + currentStandId + '/remove-staff/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ user_id: userId })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('removeStaffModal')).hide();
-            location.reload();
-        } else {
-            alert(data.error || 'Error al remover');
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-    });
-}
-
-function addSelectedActivities() {
-    var selectedCheckboxes = document.querySelectorAll('.activity-checkbox:checked');
-    var selectedActivities = Array.from(selectedCheckboxes).map(function(cb) {
-        return { activity_id: cb.value };
-    });
-    
-    if (selectedActivities.length === 0) return;
-    
-    var btn = document.getElementById('confirmAssignActivityBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Asignando...';
-    
-    fetch('/stands/api/' + currentStandId + '/add-activities/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ activities: selectedActivities })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.error || 'Error desconocido');
-            btn.disabled = false;
-            btn.textContent = 'Asignar';
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-        btn.disabled = false;
-        btn.textContent = 'Asignar';
-    });
-}
-
-function addSelectedResources() {
-    var selectedCheckboxes = document.querySelectorAll('.resource-checkbox:checked');
-    var selectedItems = Array.from(selectedCheckboxes).map(function(cb) {
-        return cb.value;
-    });
-
-    if (selectedItems.length === 0) return;
-
-    var btn = document.getElementById('confirmAddBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Añadiendo...';
-
-    fetch('/stands/api/' + currentStandId + '/add-resources/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ item_ids: selectedItems })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('No se pudieron agregar los recursos');
-            btn.disabled = false;
-            btn.textContent = 'Añadir Seleccionados';
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-        btn.disabled = false;
-        btn.textContent = 'Añadir Seleccionados';
-    });
-}
-
-function updateQuantity(assignmentId, delta, maxStock) {
-    var currentQtySpan = document.querySelector('[data-assignment-id="' + assignmentId + '"] .assigned-val');
-    var currentQty = parseInt(currentQtySpan.textContent);
-    var newQty = currentQty + delta;
-    
-    if (newQty < 0 || newQty > maxStock) {
-        return;
-    }
-
-    fetch('/stands/' + currentStandId + '/update-resource/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ assignment_id: assignmentId, quantity: newQty })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        }
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-    });
-}
-
-function openActivityDetails(activityId, title, description, startDate, endDate, duration, location, speakerName, speakerEmail, status) {
-    document.getElementById('detailActivityId').value = activityId;
-    document.getElementById('detailActivityTitle').textContent = title;
-    document.getElementById('detailActivityDescription').textContent = description || 'Descripción no disponible';
-    document.getElementById('detailActivityTime').textContent = 'Inicio: ' + startDate;
-    document.getElementById('detailActivityDate').textContent = 'Fin: ' + endDate;
-    document.getElementById('detailActivityDuration').textContent = duration + ' min';
-    document.getElementById('detailActivityLocation').textContent = location || 'Sin ubicación';
-
-    var statusLabel = 'Programada';
-    var statusClass = 'bg-primary text-white';
-    if (status === 'en_curso') {
-        statusLabel = 'En curso';
-        statusClass = 'bg-warning text-dark';
-    } else if (status === 'completada') {
-        statusLabel = 'Completada';
-        statusClass = 'bg-success text-white';
-    } else if (status === 'cancelada') {
-        statusLabel = 'Cancelada';
-        statusClass = 'bg-danger text-white';
-    }
-    var statusElement = document.getElementById('detailActivityStatus');
-    statusElement.textContent = statusLabel;
-    statusElement.className = 'badge fw-bold ' + statusClass;
-
-    if (speakerName) {
-        document.getElementById('detailActivitySpeaker').textContent = speakerName;
-        document.getElementById('detailActivitySpeakerEmail').textContent = speakerEmail || '';
-    } else {
-        document.getElementById('detailActivitySpeaker').textContent = 'Sin asignar';
-        document.getElementById('detailActivitySpeakerEmail').textContent = '';
-    }
-
-    if (!location) {
-        document.getElementById('detailActivityLocation').textContent = 'No asignada';
-    }
-
-    var modal = new bootstrap.Modal(document.getElementById('activityDetailsModal'));
-    modal.show();
-}
-
-function openEditResourceModal(assignmentId, itemName, itemCategory, currentDetails, currentRequired) {
-    document.getElementById('editAssignmentId').value = assignmentId;
-    document.getElementById('editResourceName').textContent = itemName + ' (' + itemCategory + ')';
-    document.getElementById('editReqInput').value = currentDetails || '';
-    document.getElementById('editRequiredInput').value = currentRequired || 0;
-    var modal = new bootstrap.Modal(document.getElementById('editResourceModal'));
-    modal.show();
-}
-
-function saveResourceEdit() {
-    var assignmentId = document.getElementById('editAssignmentId').value;
-    var details = document.getElementById('editReqInput').value;
-    var requiredQty = document.getElementById('editRequiredInput').value;
-    
-    if (details.length > 100) {
-        alert('El texto no puede exceder 100 caracteres');
-        return;
-    }
-    
-    var btn = document.getElementById('saveResourceEditBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
-    
-    fetch('/stands/' + currentStandId + '/update-resource/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ assignment_id: assignmentId, details: details, required_quantity: parseInt(requiredQty) || 0 })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.error || 'Error al guardar');
-        }
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-    })
-    .finally(function() {
-        btn.disabled = false;
-        btn.textContent = 'Guardar Cambios';
-    });
-}
-
-function removeResource(assignmentId) {
-    if (!confirm('¿Quitar este recurso del stand? La cantidad se liberará al stock available.')) {
-        return;
-    }
-    
-    fetch('/stands/' + currentStandId + '/delete-resource/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ assignment_id: assignmentId })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.error || 'Error al eliminar');
-        }
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-    });
-}
-
-function adjustQuantity(assignmentId, delta, button) {
-    var td = button.closest('td');
-    var span = td.querySelector('span');
-    var currentText = span.textContent.trim();
-    var parts = currentText.split(' / ');
-    var currentQty = parseInt(parts[0]) || 0;
-    var requiredQty = parseInt(parts[1]) || 0;
-    
-    var newQty = Math.max(0, currentQty + delta); // Don't go below 0
-    
-    fetch('/stands/' + currentStandId + '/update-resource/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ assignment_id: assignmentId, quantity: newQty })
-    })
-    .then(function(response) {
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            // Update the display
-            span.textContent = newQty + ' / ' + requiredQty;
-        } else {
-            console.warn('No se pudo actualizar cantidad:', data.error);
-        }
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-        alert('Error al actualizar cantidad: ' + error.message);
-    });
-}
-
-function openMoveModal() {
-    var activityId = document.getElementById('detailActivityId').value;
-    if (!activityId) {
-        alert('Selecciona una actividad primero');
-        return;
-    }
-    var detailsModal = bootstrap.Modal.getInstance(document.getElementById('activityDetailsModal'));
-    if (detailsModal) {
-        detailsModal.hide();
-    }
-    var moveModal = new bootstrap.Modal(document.getElementById('moveActivityModal'));
-    moveModal.show();
-}
-
-function moveActivityToStand() {
-    var activityId = document.getElementById('detailActivityId').value;
-    var targetStandId = document.getElementById('moveStandSelect').value;
-
-    if (!targetStandId) {
-        alert('Selecciona un stand destino');
-        return;
-    }
-
-    var btn = document.querySelector('#moveActivityModal .btn-signature');
-    btn.disabled = true;
-    btn.textContent = 'Moviendo...';
-
-    fetch('/stands/api/' + currentStandId + '/move-activity/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ activity_id: activityId, target_stand_id: targetStandId })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            var moveModal = bootstrap.Modal.getInstance(document.getElementById('moveActivityModal'));
-            if (moveModal) moveModal.hide();
-            var detailsModal = bootstrap.Modal.getInstance(document.getElementById('activityDetailsModal'));
-            if (detailsModal) detailsModal.hide();
-            removeActivityCard(activityId);
-        } else {
-            alert(data.error || 'Error al mover la actividad');
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-    })
-    .finally(function() {
-        btn.disabled = false;
-        btn.textContent = 'Mover';
-    });
-}
-
-function deleteActivityFromStand() {
-    var activityId = document.getElementById('detailActivityId').value;
-    if (!activityId) return;
-
-    if (!confirm('¿Deseas quitar esta actividad del stand y dejar su zona como no asignada?')) {
-        return;
-    }
-
-    var btn = document.getElementById('deleteActivityBtn');
-    btn.disabled = true;
-    btn.textContent = 'Quitando...';
-
-    fetch('/stands/api/' + currentStandId + '/remove-activity/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ activity_id: activityId })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            var detailsModal = bootstrap.Modal.getInstance(document.getElementById('activityDetailsModal'));
-            if (detailsModal) detailsModal.hide();
-            removeActivityCard(activityId);
-        } else {
-            alert(data.error || 'Error al quitar la actividad del stand');
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-    })
-    .finally(function() {
-        btn.disabled = false;
-        btn.textContent = 'Quitar';
-    });
-}
-
-function removeActivityCard(activityId) {
-    var card = document.querySelector('[data-activity-id="' + activityId + '"]');
-    if (card) {
-        card.remove();
-    }
-}
-
-function filterActivities() {
-    var searchInput = document.getElementById('searchActivities');
-    var filter = searchInput.value.toLowerCase();
-    var activityCards = document.querySelectorAll('.activity-card');
-    
-    activityCards.forEach(function(card) {
-        var title = card.getAttribute('data-title') || '';
-        var titleLower = title.toLowerCase();
-        
-        if (titleLower.indexOf(filter) !== -1) {
-            card.style.display = '';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.modal').forEach(function(modal) {
-        if (!modal.hasAttribute('inert')) {
-            modal.setAttribute('inert', '');
-        }
-
-        modal.addEventListener('shown.bs.modal', function() {
-            modal.removeAttribute('inert');
-        });
-
-        modal.addEventListener('hidden.bs.modal', function() {
-            if (modal.contains(document.activeElement)) {
-                document.activeElement.blur();
-            }
-            modal.setAttribute('inert', '');
-        });
-    });
-});
-</script>
 <div class="p-4" data-event-id="{{ event_id }}" data-stand-id="{{ stand.id }}">
     <a href="javascript:window.history.back()" class="btn btn-link text-primary text-decoration-none mb-3 d-flex align-items-center gap-1 p-0" style="cursor: pointer;">
         <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> <span data-i18n="back">Volver</span>
@@ -636,10 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     >
                     {{ stand.location }}</span
                 >
-                <span class="d-flex align-items-center gap-1"
-                    ><span class="material-symbols-outlined fs-6">groups</span>
-                    Capacidad: {{ stand.capacity }}</span
-                >
+                <span class="d-flex align-items-center gap-1"><span class="material-symbols-outlined fs-6">groups</span> <span data-i18n="capacity">Capacidad:</span> {{ stand.capacity }}</span>
             </div>
         </div>
     </div>
@@ -647,14 +50,14 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="row g-4 mb-5">
         <div class="col-12">
             <div class="custom-card">
-                <h4 class="h5 fw-bold mb-4">Equipo Asignado</h4>
+                <h4 class="h5 fw-bold mb-4" data-i18n="assigned_team">Equipo Asignado</h4>
 
                 <div id="assignedTeamList" class="row g-3">
                     {% if staff %}
                     {% for member in staff %}
                     {% if member.user %}
                     <div class="col-md-6 col-lg-4">
-                        <div class="d-flex align-items-center gap-3 p-2 bg-light rounded-3 h-100">
+                        <div class="d-flex align-items-center gap-3 p-2 rounded-3 h-100" style="background-color: var(--surface-container-low);">
                             {% if member.user.avatar %}
                             <img src="{{ member.user.avatar.url }}" alt="{{ member.user.get_full_name }}" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;">
                             {% else %}
@@ -673,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {% else %}
                     <div class="col-12 text-center text-muted py-4">
                         <span class="material-symbols-outlined" style="font-size: 48px;">group</span>
-                        <p class="mt-2">No hay personal asignado</p>
+                        <p class="mt-2" data-i18n="no_staff_assigned">No hay personal asignado</p>
                     </div>
                     {% endif %}
                 </div>
@@ -682,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         <div class="col-12">
             <div class="custom-card">
-                <h4 class="h5 fw-bold mb-4">Cronograma de Actividades</h4>
+                <h4 class="h5 fw-bold mb-4" data-i18n="activity_schedule">Cronograma de Actividades</h4>
 
                 {% if activities %}
                 {% for activity in activities %}
@@ -710,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </span>
                         </div>
                         <button class="btn btn-link btn-sm p-0 text-primary fw-bold text-decoration-none" style="font-size: 0.75rem" onclick="openActivityDetails({{ activity.id }}, '{{ activity.title|escapejs }}', '{{ activity.description|escapejs }}', '{{ activity.start_time|date:"d/m/Y H:i" }}', '{{ activity.end_time|date:"d/m/Y H:i" }}', '{{ activity.get_duration }}', '{{ activity.location|escapejs }}', '{{ activity.speaker_name|escapejs }}', '{{ activity.speaker_email|escapejs }}', '{{ activity.status }}')">
-                            Ver detalles
+                            <span data-i18n="view_details">Ver detalles</span>
                         </button>
                     </div>
                 </div>
@@ -718,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 {% else %}
                 <div class="text-center text-muted py-4">
                     <span class="material-symbols-outlined" style="font-size: 48px;">event_note</span>
-                    <p class="mt-2">No hay actividades asignadas</p>
+                    <p class="mt-2" data-i18n="no_activities_assigned">No hay actividades asignadas</p>
                 </div>
                 {% endif %}
             </div>
@@ -728,8 +131,8 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="custom-card shadow-sm border-0 overflow-hidden p-0">
         <div class="px-4 pt-4 pb-3">
             <div>
-                <h4 class="h5 fw-bold mb-1">Inventario de Recursos</h4>
-                <p class="text-muted small mb-0">
+                <h4 class="h5 fw-bold mb-1" data-i18n="resource_inventory">Inventario de Recursos</h4>
+                <p class="text-muted small mb-0" data-i18n="inventory_subtitle">
                     Logística y despliegue técnico del stand.
                 </p>
             </div>
@@ -739,11 +142,11 @@ document.addEventListener('DOMContentLoaded', function() {
             <table class="table mb-0 align-middle">
                 <thead class="bg-light">
                     <tr>
-                        <th class="col-resource px-4">Recurso</th>
-                        <th class="col-cat px-4">Categoría</th>
-                        <th class="col-qty px-4 text-center">Asignados/Necesarios</th>
-                        <th class="col-status px-4">Estado</th>
-                        <th class="px-4">Detalles</th>
+                        <th class="col-resource px-4" data-i18n="resource_col">Recurso</th>
+                        <th class="col-cat px-4" data-i18n="category_col">Categoría</th>
+                        <th class="col-qty px-4 text-center" data-i18n="assigned_needed_col">Asignados/Necesarios</th>
+                        <th class="col-status px-4" data-i18n="status_col">Estado</th>
+                        <th class="px-4" data-i18n="details_col">Detalles</th>
                     </tr>
                 </thead>
                 <tbody class="border-top-0">
@@ -786,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">
+                            <td colspan="5" class="text-center text-muted py-4" data-i18n="no_resources_assigned">
                                 No hay recursos asignados a este stand.
                             </td>
                         </tr>
@@ -794,8 +197,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 </tbody>
             </table>
         </div>
-        <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center px-4">
-            <div class="small text-muted">Mostrando {{ assignments|length }} recurso{% if assignments|length != 1 %}s{% endif %}</div>
+        <div class="p-3 border-top d-flex justify-content-between align-items-center px-4" style="background-color: var(--surface-container-lowest); border-color: var(--border-outline-variant);">
+            <div class="small text-muted"><span data-i18n="showing_resources">Mostrando</span> {{ assignments|length }} <span data-i18n="resources_count">recurso{% if assignments|length != 1 %}s{% endif %}</span></div>
         </div>
     </div>
 
@@ -810,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-0 px-4 pt-4">
-                    <h5 class="modal-title fw-bold" id="addResourceModalLabel">
+                    <h5 class="modal-title fw-bold" id="addResourceModalLabel" data-i18n="select_resources">
                         Seleccionar Recursos
                     </h5>
                     <button
@@ -821,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="text-muted small mb-4">
+                    <p class="text-muted small mb-4" data-i18n="select_resources_description">
                         Selecciona los elementos que deseas asignar al stand
                         desde el catálogo global.
                     </p>
@@ -843,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                                 <div class="flex-grow-1">
                                     <p class="mb-1 fw-bold small">{{ item.name }}</p>
-                                    <p class="mb-0 text-muted" style="font-size: 0.7rem;">
+                                    <p class="mb-0 text-muted" style="font-size: 0.7rem;" data-i18n="available_count">
                                         {{ item.category }} · {{ item.available_stock }} disponibles
                                     </p>
                                 </div>
@@ -851,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             {% endfor %}
                         </div>
                     {% else %}
-                        <div class="p-4 text-center text-muted">
+                        <div class="p-4 text-center text-muted" data-i18n="no_resources_available">
                             No hay recursos disponibles para este evento.
                         </div>
                     {% endif %}
@@ -862,6 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         type="button"
                         class="btn btn-light rounded-3 px-4"
                         data-bs-dismiss="modal"
+                        data-i18n="cancel"
                     >
                         Cancelar
                     </button>
@@ -871,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         class="btn btn-signature rounded-3 px-4"
                         disabled
                         onclick="addSelectedResources()"
+                        data-i18n="add_selected"
                     >
                         Añadir Seleccionados
                     </button>
@@ -889,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-0 px-4 pt-4">
-                    <h5 class="modal-title fw-bold" id="editResourceModalLabel">
+                    <h5 class="modal-title fw-bold" id="editResourceModalLabel" data-i18n="edit_resource">
                         Editar Recurso
                     </h5>
                     <button
@@ -901,12 +306,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="modal-body px-4">
                     <input type="hidden" id="editAssignmentId">
-                    <p class="text-muted small mb-4" id="editResourceName">
+                    <p class="text-muted small mb-4" id="editResourceName" data-i18n="edit_resource">
                         Ajusta los detalles para este elemento.
                     </p>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted"
-                            >CANTIDAD REQUERIDA</label
+                            data-i18n="required_qty_label">CANTIDAD REQUERIDA</label
                         >
                         <input
                             type="number"
@@ -918,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted"
-                            >DETALLE (máx 100 caracteres)</label
+                            data-i18n="detail_label_max_chars">DETALLE (máx 100 caracteres)</label
                         >
                         <input
                             type="text"
@@ -926,6 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             class="form-control rounded-3"
                             maxlength="100"
                             placeholder="Ej. Sala VIP, Entrada principal"
+                            data-i18n-placeholder="detail_placeholder"
                         />
                     </div>
                 </div>
@@ -934,6 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         type="button"
                         class="btn btn-light rounded-3 px-4"
                         data-bs-dismiss="modal"
+                        data-i18n="cancel"
                     >
                         Cancelar
                     </button>
@@ -942,6 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         id="saveResourceEditBtn"
                         class="btn btn-signature rounded-3 px-4"
                         onclick="saveResourceEdit()"
+                        data-i18n="save_changes"
                     >
                         Guardar Cambios
                     </button>
@@ -954,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-bottom bg-light">
-                    <h5 class="modal-title fw-bold" id="assignActivityModalLabel">Asignar Actividades</h5>
+                    <h5 class="modal-title fw-bold" id="assignActivityModalLabel" data-i18n="assign_activities">Asignar Actividades</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
@@ -965,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <input class="form-check-input me-2 activity-checkbox" type="checkbox" value="{{ activity.id }}">
                             <div class="flex-grow-1">
                                 <p class="mb-0 fw-bold small">{{ activity.title }}</p>
-                                <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ activity.start_time|date:"d/m/Y H:i" }} - {{ activity.location|default:"No asignada" }}</p>
+                                <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ activity.start_time|date:"d/m/Y H:i" }} - {% if activity.location %}{{ activity.location }}{% else %}<span data-i18n="not_assigned">No asignada</span>{% endif %}</p>
                             </div>
                         </label>
                         {% endfor %}
@@ -973,14 +381,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     {% else %}
                     <div class="p-4 text-center text-muted">
                         <span class="material-symbols-outlined" style="font-size: 48px;">event_note</span>
-                        <p class="mt-2">No hay actividades disponibles</p>
-                        <p class="small">Todas las actividades del evento ya están asignadas a este stand</p>
+                        <p class="mt-2" data-i18n="no_activities_available">No hay actividades disponibles</p>
+                        <p class="small" data-i18n="all_activities_assigned">Todas las actividades del evento ya están asignadas a este stand</p>
                     </div>
                     {% endif %}
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="confirmAssignActivityBtn" class="btn btn-signature rounded-3 px-4" disabled onclick="addSelectedActivities()">Asignar</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" id="confirmAssignActivityBtn" class="btn btn-signature rounded-3 px-4" disabled onclick="addSelectedActivities()" data-i18n="assign">Asignar</button>
                 </div>
             </div>
         </div>
@@ -1000,6 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <h5
                         class="modal-title fw-bold"
                         id="activityDetailsModalLabel"
+                        data-i18n="activity_details_title"
                     >
                         Detalles de la Actividad
                     </h5>
@@ -1020,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             >
                         </div>
                         <div>
-                            <h4 class="h5 fw-bold mb-1" id="detailActivityTitle">
+                            <h4 class="h5 fw-bold mb-1" id="detailActivityTitle" data-i18n="activity_title_placeholder">
                                 Título de la Actividad
                             </h4>
                             <span
@@ -1032,9 +441,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="mb-4">
                         <label class="form-label small fw-bold text-muted mb-2"
-                            >DESCRIPCIÓN COMPLETA</label
+                            data-i18n="full_description_label">DESCRIPCIÓN COMPLETA</label
                         >
-                        <p class="text-secondary small" id="detailActivityDescription">
+                        <p class="text-secondary small" id="detailActivityDescription" data-i18n="description_unavailable">
                             Descripción no disponible
                         </p>
                     </div>
@@ -1042,9 +451,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >PONENTE</label
+                                data-i18n="speaker_label">PONENTE</label
                             >
-                            <p class="small mb-0 fw-medium" id="detailActivitySpeaker">
+                            <p class="small mb-0 fw-medium" id="detailActivitySpeaker" data-i18n="not_assigned">
                                 Sin asignar
                             </p>
                             <p class="small mb-0 text-muted" id="detailActivitySpeakerEmail" style="font-size: 0.7rem">
@@ -1053,7 +462,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >HORARIO</label
+                                data-i18n="schedule_label_2">HORARIO</label
                             >
                             <p class="small mb-0 fw-medium" id="detailActivityTime">
                                 --:-- - --:--
@@ -1071,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >DURACIÓN</label
+                                data-i18n="duration_label_2">DURACIÓN</label
                             >
                             <p class="small mb-0 fw-medium" id="detailActivityDuration">
                                 -- min
@@ -1080,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="col-6">
                             <label
                                 class="form-label small fw-bold text-muted mb-1"
-                                >UBICACIÓN</label
+                                data-i18n="location_label_2">UBICACIÓN</label
                             >
                             <p class="small mb-0 fw-medium" id="detailActivityLocation">
                                 --
@@ -1093,6 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         type="button"
                         class="btn btn-signature w-100 rounded-3"
                         data-bs-dismiss="modal"
+                        data-i18n="close"
                     >
                         Cerrar
                     </button>
@@ -1105,15 +515,15 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-bottom bg-light">
-                    <h5 class="modal-title fw-bold" id="moveActivityModalLabel">Mover Actividad</h5>
+                    <h5 class="modal-title fw-bold" id="moveActivityModalLabel" data-i18n="move_activity">Mover Actividad</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="text-muted small mb-3">Selecciona el stand destino para esta actividad.</p>
+                    <p class="text-muted small mb-3" data-i18n="select_destination_stand">Selecciona el stand destino para esta actividad.</p>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">Stand destino</label>
+                        <label class="form-label small fw-bold text-muted" data-i18n="destination_stand">Stand destino</label>
                         <select id="moveStandSelect" class="form-select">
-                            <option value="">Selecciona un stand</option>
+                            <option value="" data-i18n="select_stand">Selecciona un stand</option>
                             {% for event_stand in event_stands %}
                             <option value="{{ event_stand.id }}">{{ event_stand.name }} — {{ event_stand.location }}</option>
                             {% endfor %}
@@ -1121,8 +531,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-signature rounded-3 px-4" onclick="moveActivityToStand()">Mover</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" class="btn btn-signature rounded-3 px-4" onclick="moveActivityToStand()" data-i18n="move">Mover</button>
                 </div>
             </div>
         </div>
@@ -1133,24 +543,24 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-bottom bg-light">
-                    <h5 class="modal-title fw-bold" id="notificationModalLabel">Enviar Notificación</h5>
+                    <h5 class="modal-title fw-bold" id="notificationModalLabel" data-i18n="send_notification">Enviar Notificación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <p class="text-muted small mb-3">Para: <span id="notificationUserName" class="fw-bold"></span></p>
+                    <p class="text-muted small mb-3" data-i18n="to_label">Para: <span id="notificationUserName" class="fw-bold"></span></p>
                     <input type="hidden" id="notificationUserId">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">ASUNTO</label>
+                        <label class="form-label small fw-bold text-muted" data-i18n="subject">ASUNTO</label>
                         <input type="text" id="notificationTitle" class="form-control rounded-3" placeholder="Ej. Información importante">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">MENSAJE</label>
+                        <label class="form-label small fw-bold text-muted" data-i18n="message">MENSAJE</label>
                         <textarea id="notificationMessage" class="form-control rounded-3" rows="4" placeholder="Escribe tu mensaje..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="sendNotificationBtn" class="btn btn-signature rounded-3 px-4" onclick="sendNotification()">Enviar</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" id="sendNotificationBtn" class="btn btn-signature rounded-3 px-4" onclick="sendNotification()" data-i18n="send">Enviar</button>
                 </div>
             </div>
         </div>
@@ -1160,16 +570,16 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
                 <div class="modal-header border-0 px-4 pt-4">
-                    <h5 class="modal-title fw-bold" id="removeStaffModalLabel">Quitar de la zona</h5>
+                    <h5 class="modal-title fw-bold" id="removeStaffModalLabel" data-i18n="remove_from_zone">Quitar de la zona</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
                     <input type="hidden" id="removeStaffUserId">
-                    <p>¿Estás seguro de que deseas quitar a <strong id="removeStaffUserName"></strong> de esta zona? Quedará sin zona asignada.</p>
+                    <p data-i18n="remove_staff_confirm">¿Estás seguro de que deseas quitar a <strong id="removeStaffUserName"></strong> de esta zona? Quedará sin zona asignada.</p>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
-                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger rounded-3 px-4" onclick="confirmRemoveStaff()">Quitar</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" class="btn btn-danger rounded-3 px-4" onclick="confirmRemoveStaff()" data-i18n="remove">Quitar</button>
                 </div>
             </div>
         </div>
