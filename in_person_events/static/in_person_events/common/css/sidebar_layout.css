@@ -238,24 +238,109 @@ body {
         pointer-events: auto;
     }
 
-/* User Menu Dropdown */
-.user-menu-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
+    /* User Menu Dropdown */
+    .user-menu-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .user-menu-btn:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    #user-menu {
+        display: none;
+    }
+
+    #user-menu.show {
+        display: block !important;
+    }
 }
 
-.user-menu-btn:focus {
-    outline: none;
-    box-shadow: none;
+/* ========== DROPDOWN DE NOTIFICACIONES (CORREGIDO) ========== */
+.dropdown-menu {
+    background-color: var(--surface-container-lowest);
+    color: var(--text-on-surface);
+    border: 1px solid var(--border-outline-variant);
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-#user-menu {
-    display: none;
+.dropdown-menu .dropdown-header {
+    color: var(--text-on-surface);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
 }
 
-#user-menu.show {
-    display: block !important;
+.dropdown-menu .dropdown-item {
+    color: #0057cd !important;
+    background-color: #e9ecef !important;
+    border-radius: 0.5rem;
+    margin: 0.2rem 0.5rem;
+    width: calc(100% - 1rem);
+    transition: none;
 }
+
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+    background-color: #e9ecef !important;
+    color: #0057cd !important;
+    transform: none;
+}
+
+.dropdown-menu .dropdown-item.text-muted {
+    color: var(--text-on-surface-variant) !important;
+}
+
+.dropdown-divider {
+    border-top-color: var(--border-outline-variant);
+}
+
+#notifications-list .dropdown-item {
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+/* Modo oscuro */
+.dark .dropdown-menu {
+    background-color: var(--surface-container-lowest);
+    border-color: var(--border-outline-variant);
+}
+
+.dark .dropdown-menu .dropdown-header {
+    color: var(--text-on-surface);
+}
+
+.dark .dropdown-menu .dropdown-item {
+    color: #7a9eff !important;
+    background-color: #2a2a36 !important;
+}
+
+.dark .dropdown-menu .dropdown-item:hover,
+.dark .dropdown-menu .dropdown-item:focus {
+    background-color: #2a2a36 !important;
+    color: #7a9eff !important;
+    transform: none;
+}
+
+.dark .dropdown-item.text-muted {
+    color: var(--text-on-surface-variant) !important;
+}
+
+/* Sin hover para "Sin notificaciones" */
+.dropdown-item.text-muted:hover,
+.dark .dropdown-item.text-muted:hover {
+    background-color: transparent !important;
+    color: var(--text-on-surface-variant) !important;
+    transform: none !important;
+    cursor: default;
+}
+
+/* Campana blanca en modo oscuro */
+.dark .bi-bell,
+.dark #notificationDropdown i {
+    color: white !important;
 }
