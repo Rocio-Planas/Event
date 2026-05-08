@@ -136,11 +136,12 @@ document
                         `tr[data-member-id="${memberId}"]`,
                     );
                     if (row) {
-                        const zoneCell = row.querySelector("td:nth-child(3)");
+                        const zoneCell = row.querySelector("td.zone-cell");
                         if (zoneCell) {
                             const selectedOption = document.getElementById("activitySelect").selectedOptions[0];
                             zoneCell.textContent = selectedOption.textContent;
                             zoneCell.setAttribute("data-zone", "actividad:" + activityId);
+                            zoneCell.setAttribute("data-activity-title", selectedOption.textContent);
                             zoneCell.setAttribute("data-user-type", "ponente");
                         }
                     }
@@ -453,28 +454,34 @@ document.addEventListener("click", function (event) {
         document.getElementById("viewMemberType").textContent = memberType;
     }
     
-    document.getElementById("viewMemberZone").textContent =
-        viewBtn.dataset.memberZone || "";
-    
-    // Resolver nombre de actividad si es ponente
+    // Zona o Actividad
     let zoneText = viewBtn.dataset.memberZone || "";
     const userType = viewBtn.dataset.memberUserType || "";
-    if (userType === "ponente" && zoneText.startsWith("actividad:")) {
-        const actId = parseInt(zoneText.replace("actividad:", ""));
-        zoneText = activitiesMap[actId] || zoneText;
-    }
-    document.getElementById("viewMemberZone").textContent = zoneText;
     
-    // Mostrar teléfono solo para ponentes
-    const phoneContainer = document.getElementById("viewMemberPhoneContainer");
-    const phoneElement = document.getElementById("viewMemberPhone");
-    
-    if (memberType === "Ponente") {
-        phoneContainer.style.display = "block";
-        phoneElement.textContent = viewBtn.dataset.memberPhone || "No disponible";
+    if (userType === "ponente") {
+        // Si tiene prefijo actividad:, resolver el nombre
+        if (zoneText.startsWith("actividad:")) {
+            const activityTitle = viewBtn.dataset.memberActivityTitle || activitiesMap[parseInt(zoneText.replace("actividad:", ""))] || zoneText;
+            zoneText = activityTitle;
+        }
+        document.getElementById("viewMemberZone").textContent = zoneText || "No asignada";
     } else {
-        phoneContainer.style.display = "none";
+        document.getElementById("viewMemberZone").textContent = zoneText || "No asignada";
     }
+    
+    // Teléfono
+    document.getElementById("viewMemberPhone").textContent = viewBtn.dataset.memberPhone || "No disponible";
+    
+    // Redes sociales
+    const twitter = viewBtn.dataset.memberTwitter || "";
+    const instagram = viewBtn.dataset.memberInstagram || "";
+    const linkedin = viewBtn.dataset.memberLinkedin || "";
+    const website = viewBtn.dataset.memberWebsite || "";
+    
+    document.getElementById("viewMemberTwitter").textContent = twitter ? "@" + twitter : "No disponible";
+    document.getElementById("viewMemberInstagram").textContent = instagram ? "@" + instagram : "No disponible";
+    document.getElementById("viewMemberLinkedin").textContent = linkedin || "No disponible";
+    document.getElementById("viewMemberWebsite").textContent = website || "No disponible";
 });
 
 // Ver invitaciones aceptadas

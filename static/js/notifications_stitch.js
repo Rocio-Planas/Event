@@ -84,6 +84,9 @@
                 '<div class="px-3 py-2 text-muted small">Sin notificaciones</div>';
             return;
         }
+        // Detectar modo oscuro en document.documentElement (como en base_stitch.html)
+        var isDarkMode = document.documentElement.classList.contains("dark");
+        var titleColor = isDarkMode ? "#7a9eff" : "#0057cd";
         container.innerHTML = notifications
             .map(function (n) {
                 var senderText = n.sender ? "De: " + n.sender.name : "Sistema";
@@ -96,7 +99,9 @@
                     n.id +
                     '); return false;"><div class="small text-muted mb-1">' +
                     senderText +
-                    '</div><div class="fw-bold small">' +
+                    '</div><div class="fw-bold small" style="color: ' +
+                    titleColor +
+                    ' !important;">' +
                     n.title +
                     '</div><div class="small text-muted text-truncate">' +
                     n.message +
@@ -142,5 +147,24 @@
         requestNotificationPermission();
         fetchUnreadNotifications();
         setInterval(fetchUnreadNotifications, POLL_INTERVAL);
+
+        // Re-renderizar notificaciones cuando cambie el tema
+        var observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                if (
+                    mutation.type === "attributes" &&
+                    mutation.attributeName === "class"
+                ) {
+                    // Si hay notificaciones en cache, re-renderizar con el nuevo tema
+                    if (notificationCache && notificationCache.length > 0) {
+                        renderNotifications(notificationCache);
+                    }
+                }
+            });
+        });
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class"],
+        });
     });
 })();

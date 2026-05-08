@@ -83,8 +83,8 @@ const t = (window.translations && window.translations[window.currentLang]) || wi
     tableBody.innerHTML = paginated
         .map(
             (attendee) => `
-        <tr data-registration-id="${attendee.id}">
-            <td class="px-4 py-3">
+        <tr style="background-color: var(--surface-container-lowest);">
+            <td class="px-4 py-3" style="background-color: var(--surface-container-lowest);">
                 <div class="d-flex align-items-center">
                     <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                         <span class="material-symbols-outlined">person</span>
@@ -95,8 +95,8 @@ const t = (window.translations && window.translations[window.currentLang]) || wi
                     </div>
                 </div>
             </td>
-            <td>${attendee.ticket_type}</td>
-            <td>
+            <td style="background-color: var(--surface-container-lowest);">${attendee.ticket_type}</td>
+            <td style="background-color: var(--surface-container-lowest);">
                 ${
                     attendee.status === "confirmada"
                         ? '<span class="badge bg-success">Confirmado</span>'
@@ -105,8 +105,8 @@ const t = (window.translations && window.translations[window.currentLang]) || wi
                           : '<span class="badge bg-warning">Pendiente</span>'
                 }
             </td>
-            <td>${new Date(attendee.registration_date).toLocaleDateString("es-ES")}</td>
-            <td class="px-4 text-center">
+            <td style="background-color: var(--surface-container-lowest);">${new Date(attendee.registration_date).toLocaleDateString("es-ES")}</td>
+            <td class="px-4 text-center" style="background-color: var(--surface-container-lowest);">
                 <div class="btn-group">
                     <button class="btn btn-sm btn-outline-primary btn-view-attendee" data-id="${attendee.id}" title="Ver detalles">
                         <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
@@ -464,14 +464,14 @@ function renderWaitlistTable() {
     tableBody.innerHTML = filtered
         .map(
             (item, index) => `
-        <tr>
-            <td class="px-4 py-3">${index + 1}</td>
-            <td class="py-3">
+        <tr style="background-color: var(--surface-container-lowest);">
+            <td class="px-4 py-3" style="background-color: var(--surface-container-lowest);">${index + 1}</td>
+            <td class="py-3" style="background-color: var(--surface-container-lowest);">
                 <div class="fw-bold">${item.name}</div>
                 <small class="text-muted">${item.email}</small>
             </td>
-            <td class="py-3">${item.created_at}</td>
-            <td class="px-4 py-3 text-center">
+            <td class="py-3" style="background-color: var(--surface-container-lowest);">${item.created_at}</td>
+            <td class="px-4 py-3 text-center" style="background-color: var(--surface-container-lowest);">
                 <button class="btn btn-sm btn-outline-danger" onclick="removeFromWaitlist(${item.id})" title="Eliminar">
                     <span class="material-symbols-outlined" style="font-size: 18px;">delete</span>
                 </button>

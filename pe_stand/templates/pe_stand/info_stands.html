@@ -973,21 +973,21 @@ function confirmDeleteStand() {
 
         <div class="table-responsive">
             <table class="table mb-0 align-middle">
-                <thead style="background-color: var(--surface-container-high);">
+                <thead style="background-color: var(--surface-container-lowest);">
                     <tr>
-                        <th class="col-resource px-4" data-i18n="resource_col">Recurso</th>
-                        <th class="col-cat px-4" data-i18n="category_col">Categoría</th>
-                        <th class="col-qty px-4 text-center" data-i18n="assigned_needed_col">Asignados/Necesarios</th>
-                        <th class="col-status px-4" data-i18n="status_col">Estado</th>
-                        <th class="px-4" data-i18n="details_col">Detalles</th>
-                        <th class="px-4 text-center" data-i18n="actions_col">Acciones</th>
+                        <th class="col-resource px-4" style="background-color: var(--surface-container-lowest);" data-i18n="resource_col">Recurso</th>
+                        <th class="col-cat px-4" style="background-color: var(--surface-container-lowest);" data-i18n="category_col">Categoría</th>
+                        <th class="col-qty px-4 text-center" style="background-color: var(--surface-container-lowest);" data-i18n="assigned_needed_col">Asignados/Necesarios</th>
+                        <th class="col-status px-4" style="background-color: var(--surface-container-lowest);" data-i18n="status_col">Estado</th>
+                        <th class="px-4" style="background-color: var(--surface-container-lowest);" data-i18n="details_col">Detalles</th>
+                        <th class="px-4 text-center" style="background-color: var(--surface-container-lowest);" data-i18n="actions_col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="border-top-0">
                     {% if assignments %}
                         {% for assignment in assignments %}
-                        <tr data-assignment-id="{{ assignment.id }}">
-                            <td class="px-4">
+                        <tr style="background-color: var(--surface-container-lowest);" data-assignment-id="{{ assignment.id }}">
+                            <td class="px-4" style="background-color: var(--surface-container-lowest);">
                                 <div class="d-flex align-items-center gap-3">
                                     <div
                                         class="rounded p-2 d-flex align-items-center justify-content-center"
@@ -1007,17 +1007,17 @@ function confirmDeleteStand() {
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-4">
+                            <td class="px-4" style="background-color: var(--surface-container-lowest);">
                                 <span class="badge" style="background-color: rgba(var(--secondary), 0.1); color: var(--secondary);">{{ assignment.item.category }}</span>
                             </td>
-                            <td class="px-4">
+                            <td class="px-4" style="background-color: var(--surface-container-lowest);">
                                 <div class="d-flex align-items-center justify-content-center gap-2">
                                     <button class="btn btn-sm btn-outline-secondary" onclick="adjustQuantity('{{ assignment.id }}', -1, this)">-</button>
                                     <span class="fw-bold">{{ assignment.quantity|default:0 }} / {{ assignment.required_quantity|default:0 }}</span>
                                     <button class="btn btn-sm btn-outline-secondary" onclick="adjustQuantity('{{ assignment.id }}', 1, this)">+</button>
                                 </div>
                             </td>
-                            <td class="px-4">
+                            <td class="px-4" style="background-color: var(--surface-container-lowest);">
                                 {% if assignment.item.status == 'Sin Stock' %}
                                     <span class="badge bg-danger text-white badge-custom status-badge">{{ assignment.item.status }}</span>
                                 {% elif assignment.item.status == 'Stock Bajo' %}
@@ -1026,10 +1026,10 @@ function confirmDeleteStand() {
                                     <span class="badge bg-success text-white badge-custom status-badge">{{ assignment.item.status }}</span>
                                 {% endif %}
                             </td>
-                            <td class="px-4">
+                            <td class="px-4" style="background-color: var(--surface-container-lowest);">
                                 <span class="small text-muted">{{ assignment.details|default:"-" }}</span>
                             </td>
-                            <td class="px-4 text-center">
+                            <td class="px-4 text-center" style="background-color: var(--surface-container-lowest);">
                                 <div class="d-flex align-items-center justify-content-center gap-1">
                                     <button
                                         class="btn btn-link btn-sm p-0 text-muted"
@@ -1050,11 +1050,10 @@ function confirmDeleteStand() {
                                 </div>
                             </td>
                         </tr>
-                        </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4" data-i18n="no_resources_assigned">No hay recursos asignados a este stand.</td>
+                            <td colspan="6" class="text-center text-muted py-4" style="background-color: var(--surface-container-lowest);" data-i18n="no_resources_assigned">No hay recursos asignados a este stand.</td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -1062,7 +1061,7 @@ function confirmDeleteStand() {
         </div>
         <div
             class="p-3 border-top d-flex justify-content-between align-items-center px-4"
-            style="background-color: var(--surface-container-high);"
+            style="background-color: var(--surface-container-lowest);"
         >
             <div class="small text-muted"><span data-i18n="showing_resources">Mostrando</span> {{ assignments|length }} <span data-i18n="resources_count">recurso</span>{% if assignments|length != 1 %}s{% endif %}</div>
             <nav aria-label="Page navigation">

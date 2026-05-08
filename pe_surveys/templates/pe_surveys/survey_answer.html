@@ -76,8 +76,8 @@
                     <div id="successMessage" class="text-center py-5 d-none">
                         <span class="material-symbols-outlined text-success" style="font-size: 80px;">check_circle</span>
                         <h2 class="h3 fw-extrabold mt-4 mb-3" data-i18n="thank_you">¡Gracias!</h2>
-                        <p class="text-muted" data-i18n="response_sent">Tu respuesta ha sido enviada correctamente.</p>
-                        <p class="text-muted small" data-i18n="close_window">Puedes cerrar esta ventana.</p>
+                        <p class="text-success fw-semibold mb-2" data-i18n="response_sent">Tu respuesta ha sido enviada correctamente.</p>
+                        <p class="text-muted" data-i18n="close_window">Ya puedes cerrar esta ventana.</p>
                     </div>
                 </div>
             </div>
@@ -123,7 +123,15 @@ document.getElementById('surveyForm').addEventListener('submit', function(e) {
             comments: comments
         })
     })
-    .then(function(res) { return res.json(); })
+    .then(function(res) {
+        if (!res.ok) {
+            return res.text().then(function(text) {
+                console.error('Server error:', text);
+                throw new Error('Error del servidor: ' + res.status);
+            });
+        }
+        return res.json();
+    })
     .then(function(data) {
         if (data.success) {
             document.getElementById('surveyForm').classList.add('d-none');

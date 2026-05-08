@@ -38,6 +38,7 @@ class Survey(models.Model):
         default=DeliveryType.INMEDIATO
     )
     scheduled_date = models.DateTimeField('Fecha Programada', null=True, blank=True)
+    sent_at = models.DateTimeField('Fecha de Envío', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -53,7 +54,7 @@ class Survey(models.Model):
         if self.delivery_type == self.DeliveryType.PROGRAMADO and not self.scheduled_date:
             raise ValidationError({'scheduled_date': 'La fecha programada es requerida para envíos programados.'})
 
-    def send_survey_emails(self):
+    def send_survey_emails(self, event_id=None):
         """
         Envía emails de la encuesta a todos los asistentes confirmados.
         """
@@ -62,23 +63,27 @@ class Survey(models.Model):
         from django.core.mail import send_mail
         from django.conf import settings
         
+        target_event_id = event_id or self.event_id
+        
         registrations = Registration.objects.filter(
-            event_id=1,  # Asumiendo event_id fijo, ajustar según contexto
+            event_id=target_event_id,
             status=Registration.Status.CONFIRMADA
         ).select_related('user')
         
         emails_sent = 0
         for reg in registrations:
-            # Lógica de envío de email
-            # Usar EmailTemplate o send_mail
-            send_mail(
-                subject=f"Encuesta: {self.title}",
-                message=f"Por favor, responde la encuesta: {self.title}",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[reg.user.email],
-                fail_silently=False,
-            )
-            emails_sent += 1
+            if reg.user and reg.user.email:
+                try:
+                    send_mail(
+                        subject=f"Encuesta: {self.title}",
+                        message=f"Por favor, responde la encuesta: {self.title}",
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[reg.user.email],
+                        fail_silently=False,
+                    )
+                    emails_sent += 1
+                except Exception as e:
+                    print(f"Error sending email to {reg.user.email}: {e}")
         
         return emails_sent
 
@@ -94,16 +99,26 @@ class Survey(models.Model):
 
 @receiver(post_save, sender=Survey)
 def send_immediate_survey(sender, instance, created, **kwargs):
-    if created and instance.delivery_type == Survey.DeliveryType.INMEDIATO:
-        instance.send_survey_emails()
+    if created and instance.delivery_type == Survey.DeliveryType.INMEDIATO and instance.is_active and not instance.sent_at:
+        try:
+            instance.send_survey_emails(event_id=instance.event_id)
+            from django.utils import timezone
+            instance.sent_at = timezone.now()
+            instance.save(update_fields=['sent_at'])
+        except Exception as e:
+            print(f"Error sending immediate survey {instance.id}: {e}")
 
 
-@receiver(post_save, sender=Survey)
-def check_scheduled_survey(sender, instance, created, **kwargs):
-    if not created and instance.delivery_type == 'programado' and instance.scheduled_date:
-        from django.utils import timezone
-        if instance.scheduled_date <= timezone.now():
-            instance.send_survey_emails()
+# @receiver(post_save, sender=Survey)
+# def check_scheduled_survey(sender, instance, created, **kwargs):
+#     if not created and instance.delivery_type == 'programado' and instance.scheduled_date:
+#         from django.utils import timezone
+#         if instance.scheduled_date <= timezone.now():
+#             instance.send_survey_emails()
+# 
+# Nota: Las encuestas programadas ahora se envían automáticamente cuando se accede
+# a la lista de encuestas (SurveyManagementView.get_context_data)
+# mediante la función send_pending_scheduled_surveys()
 
 
 class SurveyOption(models.Model):

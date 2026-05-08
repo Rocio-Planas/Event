@@ -8,11 +8,11 @@ class SurveyForm(forms.ModelForm):
         model = Survey
         fields = ['title', 'is_multiple_choice', 'is_active', 'delivery_type', 'scheduled_date']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Título de la encuesta'}),
+            'title': forms.TextInput(attrs={'class': 'form-control border-0 py-2', 'style': 'background-color: var(--surface-container-high);', 'placeholder': 'Título de la encuesta'}),
             'is_multiple_choice': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'delivery_type': forms.Select(attrs={'class': 'form-select'}),
-            'scheduled_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
+            'delivery_type': forms.Select(attrs={'class': 'form-select border-0 py-2', 'style': 'background-color: var(--surface-container-high);'}),
+            'scheduled_date': forms.DateTimeInput(attrs={'class': 'form-control border-0 py-2', 'style': 'background-color: var(--surface-container-high);', 'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M'),
         }
         input_formats = {
             'scheduled_date': ['%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M'],
@@ -24,7 +24,7 @@ class SurveyOptionForm(forms.ModelForm):
         model = SurveyOption
         fields = ['text']
         widgets = {
-            'text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Texto de la opción'}),
+            'text': forms.TextInput(attrs={'class': 'form-control border-0 py-2', 'style': 'background-color: var(--surface-container-high);', 'placeholder': 'Texto de la opción'}),
         }
 
 

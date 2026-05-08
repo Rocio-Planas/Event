@@ -36,28 +36,28 @@
         <div class="content-card p-0 overflow-hidden shadow-sm border rounded-3 mb-4">
             <div class="table-responsive">
                 <table class="table mb-0 align-middle">
-                    <thead style="background-color: var(--surface-container-high);">
+                    <thead style="background-color: var(--surface-container-lowest);">
                         <tr>
-                            <th class="px-4 py-3" data-i18n="title_col">Título</th>
-                            <th class="py-3" data-i18n="status_col_survey">Estado</th>
-                            <th class="py-3" data-i18n="delivery_col">Envío</th>
-                            <th class="px-4 py-3 text-center" data-i18n="actions_col_survey">Acciones</th>
+                            <th class="px-4 py-3" style="background-color: var(--surface-container-lowest);" data-i18n="title_col">Título</th>
+                            <th class="py-3" style="background-color: var(--surface-container-lowest);" data-i18n="status_col_survey">Estado</th>
+                            <th class="py-3" style="background-color: var(--surface-container-lowest);" data-i18n="delivery_col">Envío</th>
+                            <th class="px-4 py-3 text-center" style="background-color: var(--surface-container-lowest);" data-i18n="actions_col_survey">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="surveyTableBody">
                         {% for survey in surveys %}
-                            <tr>
-                                <td class="px-4 py-3">
+                            <tr style="background-color: var(--surface-container-lowest);">
+                                <td class="px-4 py-3" style="background-color: var(--surface-container-lowest);">
                                     <div class="fw-bold">{{ survey.title }}</div>
                                 </td>
-                                <td class="py-3">
+                                <td class="py-3" style="background-color: var(--surface-container-lowest);">
                                     {% if survey.is_active %}
                                         <span class="badge" style="background-color: rgba(var(--success), 0.1); color: var(--success);" data-i18n="active_status">Activa</span>
                                     {% else %}
                                         <span class="badge" style="background-color: rgba(var(--secondary), 0.1); color: var(--secondary);" data-i18n="inactive_status">Inactiva</span>
                                     {% endif %}
                                 </td>
-                                <td class="py-3">
+                                <td class="py-3" style="background-color: var(--surface-container-lowest);">
                                     {% if survey.delivery_type == 'inmediato' %}
                                         <span data-i18n="sent_on">Enviado el</span> {{ survey.created_at|date:'d/m/Y H:i' }}
                                     {% elif survey.delivery_type == 'programado' and survey.scheduled_date %}
@@ -70,9 +70,9 @@
                                         -
                                     {% endif %}
                                 </td>
-                                <td class="px-4 text-center">
+                                <td class="px-4 text-center" style="background-color: var(--surface-container-lowest);">
                                     <div class="btn-group">
-                                        <button class="btn btn-sm btn-outline-primary" title="Editar" data-i18n-title="edit_btn_title" onclick="openEditSurveyModal('{{ survey.pk }}', '{{ survey.title|escapejs }}', '{{ survey.survey_type }}', {% if survey.is_multiple_choice %}true{% else %}false{% endif %}, '{{ survey.delivery_type }}', '{% if survey.scheduled_date %}{{ survey.scheduled_date|date:"Y-m-d H:i:s" }}{% else %}{% endif %}', [{% for opt in survey.options.all %}'{{ opt.text|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
+                                        <button class="btn btn-sm btn-outline-primary" title="Editar" data-i18n-title="edit_btn_title" onclick="openEditSurveyModal('{{ survey.pk }}', '{{ survey.title|escapejs }}', '{{ survey.survey_type }}', {% if survey.is_multiple_choice %}true{% else %}false{% endif %}, {% if survey.is_active %}true{% else %}false{% endif %}, '{{ survey.delivery_type }}', '{% if survey.scheduled_date %}{{ survey.scheduled_date|date:"Y-m-d H:i:s" }}{% else %}{% endif %}', [{% for opt in survey.options.all %}'{{ opt.text|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
                                             <span class="material-symbols-outlined" style="font-size: 16px">edit</span>
                                         </button>
                                         <button class="btn btn-sm btn-outline-danger" onclick="openDeleteSurveyModal('{{ survey.pk }}', '{{ survey.title|escapejs }}')" title="Eliminar" data-i18n-title="delete_btn_title">
@@ -84,8 +84,8 @@
                                 </td>
                             </tr>
                         {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center py-4">
+                            <tr style="background-color: var(--surface-container-lowest);">
+                                <td colspan="4" class="text-center py-4" style="background-color: var(--surface-container-lowest);">
                                     <div class="text-muted">
                                         <span class="material-symbols-outlined" style="width: 48px; height: 48px">poll</span>
                                         <p data-i18n="no_surveys_created">No hay encuestas creadas</p>
@@ -96,7 +96,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-high);">
+            <div class="p-3 border-top d-flex justify-content-between align-items-center" style="background-color: var(--surface-container-lowest);">
                 <div class="small text-muted fw-bold" id="paginationInfo"><span data-i18n="showing_surveys">Mostrando</span> <span id="surveyCount">{{ surveys|length }}</span> <span data-i18n="surveys_count_label">encuestas</span></div>
             </div>
         </div>
@@ -115,10 +115,16 @@
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="survey_title_label">Título de la Encuesta</label>
-                            <input type="text" id="editSurveyTitle" class="form-control" placeholder="Título de la encuesta" data-i18n-placeholder="survey_title_placeholder">
+                            <input type="text" id="editSurveyTitle" class="form-control border-0 py-2" style="background-color: var(--surface-container-high);" placeholder="Título de la encuesta" data-i18n-placeholder="survey_title_placeholder">
                         </div>
                     </div>
                     <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="form-check form-switch mt-2">
+                                <input type="checkbox" id="editIsActive" class="form-check-input">
+                                <label class="form-check-label" for="editIsActive" data-i18n="active_survey_label">Encuesta Activa</label>
+                            </div>
+                        </div>
                         <div class="col-md-4">
                             <div class="form-check form-switch mt-2">
                                 <input type="checkbox" id="editIsMultipleChoice" class="form-check-input">
@@ -127,14 +133,14 @@
                         </div>
                         <div class="col-md-4">
                             <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="delivery_type_label">Tipo de Entrega</label>
-                            <select id="editDeliveryType" class="form-select">
+                            <select id="editDeliveryType" class="form-select border-0 py-2" style="background-color: var(--surface-container-high);">
                                 <option value="inmediato" data-i18n="immediate_option">Inmediato</option>
                                 <option value="programado" data-i18n="scheduled_option">Programado</option>
                             </select>
                         </div>
                         <div class="col-md-4" id="editScheduledDateField" style="display: none;">
                             <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="scheduled_date_label">Fecha Programada</label>
-                            <input type="datetime-local" id="editScheduledDate" class="form-control">
+                            <input type="datetime-local" id="editScheduledDate" class="form-control border-0 py-2" style="background-color: var(--surface-container-high);">
                         </div>
                     </div>
                     <div id="editOptionsSection">
@@ -158,9 +164,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-bottom">
-                    <h5 class="modal-title fw-800" id="createSurveyModalLabel">
-                        {% if survey %}<span data-i18n="edit_survey_header">Editar</span>{% else %}<span data-i18n="new_survey_header">Nueva</span>{% endif %} <span data-i18n="surveys_title">Encuesta</span>
-                    </h5>
+                    <h5 class="modal-title fw-800" id="createSurveyModalLabel" data-i18n="create_survey_title">Nueva Encuesta</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
@@ -207,7 +211,7 @@
                         </div>
                         <div id="options_container">
                             {% for option_form in formset %}
-                                <div class="option-block rounded-3 p-3 mb-3" style="border: 1px solid var(--border-outline-variant);">
+                                <div class="option-block rounded-3 p-3 mb-3" style="border: 1px solid var(--border-outline-variant); background-color: var(--surface-container-lowest);">
                                     <div class="row g-3 align-items-end">
                                         <div class="col-md-10">
                                             <label class="small text-muted" data-i18n="option_label">Opción</label>
@@ -297,9 +301,10 @@
     <script>
         var eventId = {{ event.id }};
         
-        function openEditSurveyModal(surveyId, title, surveyType, isMultipleChoice, deliveryType, scheduledDate, options) {
+        function openEditSurveyModal(surveyId, title, surveyType, isMultipleChoice, isActive, deliveryType, scheduledDate, options) {
             document.getElementById('editSurveyId').value = surveyId;
             document.getElementById('editSurveyTitle').value = title;
+            document.getElementById('editIsActive').checked = isActive;
             document.getElementById('editIsMultipleChoice').checked = isMultipleChoice;
             document.getElementById('editDeliveryType').value = deliveryType;
             
@@ -338,7 +343,8 @@
             var optionCount = container.children.length;
             var div = document.createElement('div');
             div.className = 'option-block border rounded-3 p-3 mb-3';
-            div.innerHTML = '<div class="row g-3 align-items-end"><div class="col-md-10"><label class="small text-muted">Opción</label><input type="text" class="form-control option-input" value="' + (textValue || '') + '" placeholder="Opción"></div><div class="col-md-2 text-end"><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest(\'.option-block\').remove()"><span class="material-symbols-outlined" style="font-size: 16px">delete</span></button></div></div>';
+            div.style.backgroundColor = 'var(--surface-container-lowest)';
+            div.innerHTML = '<div class="row g-3 align-items-end"><div class="col-md-10"><label class="small text-muted">Opción</label><input type="text" class="form-control border-0 py-2 option-input" style="background-color: var(--surface-container-high);" value="' + (textValue || '') + '" placeholder="Opción"></div><div class="col-md-2 text-end"><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest(\'.option-block\').remove()"><span class="material-symbols-outlined" style="font-size: 16px">delete</span></button></div></div>';
             container.appendChild(div);
         }
         
@@ -348,6 +354,7 @@
         function saveSurveyEdit() {
             var surveyId = document.getElementById('editSurveyId').value;
             var title = document.getElementById('editSurveyTitle').value;
+            var isActive = document.getElementById('editIsActive').checked;
             var isMultipleChoice = document.getElementById('editIsMultipleChoice').checked;
             var deliveryType = document.getElementById('editDeliveryType').value;
             var scheduledDate = document.getElementById('editScheduledDate').value || null;
@@ -376,6 +383,7 @@
                 body: JSON.stringify({
                     survey_id: surveyId,
                     title: title,
+                    is_active: isActive,
                     is_multiple_choice: isMultipleChoice,
                     delivery_type: deliveryType,
                     scheduled_date: scheduledDate,

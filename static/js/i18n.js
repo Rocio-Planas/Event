@@ -634,7 +634,7 @@ window.translations = {
     send_response: "Enviar Respuesta",
     thank_you: "¡Gracias!",
     response_sent: "Tu respuesta ha sido enviada correctamente.",
-    close_window: "Puedes cerrar esta窗口.",
+    close_window: "Ya puedes cerrar esta ventana.",
     error_sending_response: "Error al enviar respuesta",
     connection_error: "Error de conexión",
     // Survey list page
