@@ -172,6 +172,9 @@ def dashboard_assistant(request, event_id):
         status__in=[Registration.Status.CONFIRMADA, Registration.Status.PENDIENTE]
     ).select_related('ticket_type').first()
     selected_ticket_type = user_registration.ticket_type if user_registration else None
+    
+    from pe_registration.models import EventWaitlist
+    is_waitlisted = EventWaitlist.objects.filter(event=event, user=request.user).exists()
 
     current_time = timezone.now()
     if event.status == Event.Status.APROBADO:
@@ -190,7 +193,7 @@ def dashboard_assistant(request, event_id):
     ticket_type_name = selected_ticket_type.name if selected_ticket_type else 'General'
     ticket_qr_data_url = None
 
-    if user_registration:
+    if user_registration and not is_waitlisted:
         qr_payload = json.dumps({
             'event_id': event.id,
             'event_title': event.title,
@@ -225,6 +228,7 @@ def dashboard_assistant(request, event_id):
         'ticket_type_name': ticket_type_name,
         'ticket_qr_data_url': ticket_qr_data_url,
         'event_status_label': event_status_label,
+        'is_waitlisted': is_waitlisted,
     })
 
 
