@@ -95,10 +95,38 @@ body {
 }
 
 /* Badge overrides for dark mode */
-.dark .badge,
-.dark span.badge {
+.dark .badge:not(#unread-badge):not(#chat-badge),
+.dark span.badge:not(#unread-badge):not(#chat-badge) {
     background-color: var(--surface-container-high) !important;
     color: var(--text-on-surface) !important;
+}
+
+#unread-badge,
+#unread-badge.badge,
+.dark #unread-badge,
+.dark #unread-badge.badge {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+    font-size: 0.65rem !important;
+    padding: 0.35em 0.65em !important;
+    border-radius: 9999px !important;
+    min-width: 1.4em;
+    text-align: center;
+    line-height: 1;
+}
+
+#chat-badge,
+#chat-badge.badge,
+.dark #chat-badge,
+.dark #chat-badge.badge {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+    font-size: 0.65rem !important;
+    padding: 0.35em 0.65em !important;
+    border-radius: 9999px !important;
+    min-width: 1.4em;
+    text-align: center;
+    line-height: 1;
 }
 
 /* Table dark mode */
@@ -223,7 +251,7 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-.badge {
+.badge:not(#unread-badge):not(#chat-badge) {
     letter-spacing: 0.05em;
     font-size: 0.7rem;
     font-weight: 700;

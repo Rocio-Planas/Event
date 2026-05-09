@@ -210,8 +210,8 @@ body {
 
 .dark .badge.bg-danger,
 .dark span.badge.bg-danger {
-    background-color: rgba(239, 68, 68, 0.2) !important;
-    color: #ef4444 !important;
+    background-color: #dc3545 !important;
+    color: #fff !important;
 }
 
 .dark .badge.bg-warning,

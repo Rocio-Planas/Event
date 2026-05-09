@@ -296,7 +296,7 @@
 }
 
 /* Badges */
-.badge {
+.badge:not(#unread-badge):not(#chat-badge) {
     font-size: 0.625rem;
     font-weight: 700;
     padding: 0.125rem 0.625rem;
