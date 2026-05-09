@@ -158,10 +158,18 @@
     background-color: var(--surface-container-high) !important;
 }
 
-.dark .badge,
-.dark span.badge {
+.dark .badge:not(#unread-badge):not(#chat-badge),
+.dark span.badge:not(#unread-badge):not(#chat-badge) {
     background-color: var(--surface-container-high) !important;
     color: var(--text-on-surface) !important;
+}
+
+.dark #unread-badge,
+.dark #unread-badge.badge,
+.dark #chat-badge,
+.dark #chat-badge.badge {
+    background-color: #dc3545 !important;
+    color: #fff !important;
 }
 
 .dark .btn-close {

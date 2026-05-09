@@ -330,6 +330,35 @@ main {
     color: white !important;
 }
 
+/* Notification badge - always solid red, correct size */
+#unread-badge,
+#unread-badge.badge,
+.dark #unread-badge,
+.dark #unread-badge.badge {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+    font-size: 0.65rem !important;
+    padding: 0.35em 0.65em !important;
+    border-radius: 9999px !important;
+    min-width: 1.4em;
+    text-align: center;
+    line-height: 1;
+}
+
+#chat-badge,
+#chat-badge.badge,
+.dark #chat-badge,
+.dark #chat-badge.badge {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+    font-size: 0.65rem !important;
+    padding: 0.35em 0.65em !important;
+    border-radius: 9999px !important;
+    min-width: 1.4em;
+    text-align: center;
+    line-height: 1;
+}
+
 /* ========== DROPDOWN DE NOTIFICACIONES (CORREGIDO) ========== */
 .dropdown-menu {
     background-color: var(--surface-container-lowest);
