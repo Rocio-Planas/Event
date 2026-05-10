@@ -136,10 +136,30 @@ document.addEventListener('change', function(e) {
 });
 
 function removeStaffFromStand(userId, userName) {
-    document.getElementById('removeStaffUserId').value = userId;
-    document.getElementById('removeStaffUserName').textContent = userName;
-    var modal = new bootstrap.Modal(document.getElementById('removeStaffModal'));
-    modal.show();
+    var userIdInput = document.querySelector('#removeStaffUserId');
+    var userNameSpan = document.querySelector('#removeStaffModal #removeStaffUserName');
+    
+    console.log('userIdInput:', userIdInput);
+    console.log('userNameSpan:', userNameSpan);
+    console.log('userName:', userName);
+    
+    if (userIdInput) {
+        userIdInput.value = userId;
+    }
+    
+    if (userNameSpan) {
+        userNameSpan.textContent = userName;
+    } else {
+        console.error('userNameSpan still null');
+    }
+    
+    var modalEl = document.getElementById('removeStaffModal');
+    if (modalEl) {
+        var modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    } else {
+        alert('Error: Modal no encontrado');
+    }
 }
 
 function confirmRemoveStaff() {
@@ -160,10 +180,10 @@ function confirmRemoveStaff() {
             var row = document.querySelector('[data-staff-id="' + userId + '"]');
             if (row) row.remove();
             var container = document.getElementById('teamContainer');
-            if (container && container.querySelectorAll('[data-staff-id]').length === 0) {
-                container.style.display = 'none';
-                var emptyState = document.getElementById('teamEmptyState');
-                if (emptyState) emptyState.style.display = 'block';
+            var remainingStaff = container ? container.querySelectorAll('[data-staff-id]').length : 0;
+            var emptyState = document.getElementById('teamEmptyState');
+            if (remainingStaff === 0 && emptyState) {
+                emptyState.style.display = 'block';
             }
         } else {
             alert(data.error || 'Error al remover');
@@ -851,39 +871,41 @@ function confirmDeleteStand() {
                     </div>
                 </div>
 
-                <div id="assignedTeamList" class="row g-3">
-                    <div id="teamContainer">
+                <div id="assignedTeamList">
+                    <div id="teamContainer" class="row g-3">
                         {% if staff %}
                         {% for member in staff %}
                         {% if member.user %}
-                        <div class="col-md-6 col-lg-4" data-staff-id="{{ member.user.id }}">
-                            <div class="d-flex align-items-center gap-3 p-2 rounded-3 h-100" style="background-color: var(--surface-container-high);">
+                        <div class="col-12 col-md-6 col-lg-4" data-staff-id="{{ member.user.id }}">
+                            <div class="d-flex align-items-center gap-3 p-3 rounded-3 h-100" style="background-color: var(--surface-container-high);">
                                 {% if member.user.avatar %}
-                                <img src="{{ member.user.avatar.url }}" alt="{{ member.user.get_full_name }}" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;">
+                                <img src="{{ member.user.avatar.url }}" alt="{{ member.user.get_full_name }}" class="rounded-3 flex-shrink-0" style="width: 48px; height: 48px; object-fit: cover;">
                                 {% else %}
-                                <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background-color: var(--surface-container-high); color: var(--primary);">
+                                <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; background-color: var(--surface-container-lowest); color: var(--primary);">
                                     {{ member.user.first_name|default:"U"|first|upper }}
                                 </div>
                                 {% endif %}
-                                <div class="flex-grow-1">
-                                    <p class="mb-0 fw-bold small">{{ member.user.get_full_name|default:member.user.email }}</p>
+                                <div class="flex-grow-1 min-width-0">
+                                    <p class="mb-0 fw-bold small text-truncate">{{ member.user.get_full_name|default:member.user.email }}</p>
                                     <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ member.role }}</p>
                                 </div>
-                                <button class="btn btn-link p-0 text-primary" onclick="openNotificationModal('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')">
-                                    <span class="material-symbols-outlined">chat</span>
-                                </button>
-                                <button class="btn btn-link p-0 text-danger" onclick="removeStaffFromStand('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')" title="Quitar de la zona" data-i18n-title="remove_from_zone">
-                                    <span class="material-symbols-outlined">person_remove</span>
-                                </button>
+                                <div class="d-flex flex-shrink-0">
+                                    <button class="btn btn-link p-0 text-primary" onclick="openNotificationModal('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')">
+                                        <span class="material-symbols-outlined">chat</span>
+                                    </button>
+                                    <button class="btn btn-link p-0 text-danger" onclick="removeStaffFromStand('{{ member.user.id }}', '{{ member.user.get_full_name|default:member.user.email }}')" title="Quitar de la zona" data-i18n-title="remove_from_zone">
+                                        <span class="material-symbols-outlined">person_remove</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         {% endif %}
                         {% endfor %}
                         {% endif %}
-                    </div>
-                    <div class="col-12 text-center text-muted py-4" id="teamEmptyState"{% if not staff %} style="display: block;"{% else %} style="display: none;"{% endif %}>
-                        <span class="material-symbols-outlined" style="font-size: 48px;">group</span>
-                        <p class="mt-2" data-i18n="no_staff_assigned">No hay personal asignado</p>
+                        <div class="col-12 text-center text-muted py-4" id="teamEmptyState"{% if not staff %} style="display: block;"{% else %} style="display: none;"{% endif %}>
+                            <span class="material-symbols-outlined" style="font-size: 48px;">group</span>
+                            <p class="mt-2" data-i18n="no_staff_assigned">No hay personal asignado</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1466,7 +1488,7 @@ function confirmDeleteStand() {
                 </div>
                 <div class="modal-body px-4">
                     <input type="hidden" id="removeStaffUserId">
-                    <p data-i18n="remove_staff_confirm">¿Estás seguro de que deseas quitar a <strong id="removeStaffUserName"></strong> de esta zona? Quedará sin zona asignada.</p>
+                    <p>¿Estás seguro de que deseas quitar a <strong id="removeStaffUserName"></strong> de esta zona? Quedará sin zona asignada.</p>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
                     <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>

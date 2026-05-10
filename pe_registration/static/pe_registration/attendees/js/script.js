@@ -75,7 +75,10 @@ function renderTable() {
             </tr>
         `;
 const t = (window.translations && window.translations[window.currentLang]) || window.translations.es;
-        paginationInfo.textContent = `${t.showing_attendees || 'Mostrando'} ${paginated.length} ${t.attendees_count || 'asistentes'}`;
+        const countEl = document.getElementById("countDisplay");
+        const labelEl = document.getElementById("labelDisplay");
+        if (countEl) countEl.textContent = paginated.length;
+        if (labelEl) labelEl.textContent = t.attendees_count || 'asistentes';
         updatePaginationButtons(1);
         return;
     }
@@ -123,7 +126,10 @@ const t = (window.translations && window.translations[window.currentLang]) || wi
 
     const shownCount = paginated.length;
     const t2 = (window.translations && window.translations[window.currentLang]) || window.translations.es;
-    paginationInfo.textContent = `${t2.showing_attendees || 'Mostrando'} ${paginated.length} ${t2.attendees_count || 'asistentes'}`;
+    const countEl = document.getElementById("countDisplay");
+    const labelEl = document.getElementById("labelDisplay");
+    if (countEl) countEl.textContent = shownCount;
+    if (labelEl) labelEl.textContent = t2.attendees_count || 'asistentes';
     updatePaginationButtons(totalPages);
 }
 
@@ -452,13 +458,22 @@ function renderWaitlistTable() {
                 </td>
             </tr>
         `;
-        if (paginationInfo) paginationInfo.textContent = "";
+        if (paginationInfo) {
+            const t3 = (window.translations && window.translations[window.currentLang]) || window.translations.es;
+            const countEl = document.getElementById("countDisplay");
+            const labelEl = document.getElementById("labelDisplay");
+            if (countEl) countEl.textContent = '0';
+            if (labelEl) labelEl.textContent = t3.on_waitlist || 'en lista de espera';
+        }
         return;
     }
 
     if (paginationInfo) {
         const t3 = (window.translations && window.translations[window.currentLang]) || window.translations.es;
-        paginationInfo.textContent = `${t3.showing_attendees || 'Mostrando'} ${filtered.length} ${t3.on_waitlist || 'en lista de espera'}`;
+        const countEl = document.getElementById("countDisplay");
+        const labelEl = document.getElementById("labelDisplay");
+        if (countEl) countEl.textContent = filtered.length;
+        if (labelEl) labelEl.textContent = t3.on_waitlist || 'en lista de espera';
     }
 
     tableBody.innerHTML = filtered
