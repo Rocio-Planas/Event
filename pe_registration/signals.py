@@ -1,21 +1,25 @@
 from django.db import transaction
 from django.db.models import signals
+from django.db.models.signals import post_delete
 from django.apps import apps
+from django.dispatch import receiver
 
 
-def promote_from_waitlist(sender, **kwargs):
+@receiver(post_delete)
+def promote_from_waitlist(sender, instance, **kwargs):
     """
     Signal para promover automáticamente al primer usuario en lista de espera
     cuando se cancela una inscripción.
     """
-    if not kwargs.get('instance'):
+    from pe_registration.models import Registration, EventWaitlist
+    
+    if sender != Registration:
         return
     
-    registration = kwargs['instance']
-    event = registration.event
-    user = registration.user
+    if not instance:
+        return
     
-    from pe_registration.models import EventWaitlist
+    event = instance.event
     
     with transaction.atomic():
         next_in_line = EventWaitlist.objects.select_for_update(nowait=False).filter(
@@ -23,12 +27,11 @@ def promote_from_waitlist(sender, **kwargs):
         ).order_by('created_at').first()
         
         if next_in_line:
-            Registration = apps.get_model('pe_registration', 'Registration')
             TicketType = apps.get_model('pe_registration', 'TicketType')
             
             default_ticket = TicketType.objects.filter(event=event).first()
             
-            new_registration = Registration.objects.create(
+            Registration.objects.create(
                 event=event,
                 user=next_in_line.user,
                 ticket_type=default_ticket,
@@ -55,11 +58,3 @@ def send_waitlist_notification(event, user):
         )
     except Exception:
         pass
-
-
-def register_signal(sender, **kwargs):
-    """
-    Registra el signal post_delete para Promotion.
-    """
-    Registration = sender
-    signals.post_delete.connect(promote_from_waitlist, sender=Registration)

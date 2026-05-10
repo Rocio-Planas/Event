@@ -93,12 +93,45 @@ def sincronizar_suscripcion_presencial(sender, instance, created, **kwargs):
     if created and instance.tipo_evento == 'presencial':
         try:
             from in_person_events.models import Event
-            from pe_registration.models import Registration, TicketType
+            from pe_registration.models import Registration, TicketType, EventWaitlist
             
-            # Obtener el evento presencial
             event = Event.objects.get(id=instance.evento_id)
             
-            # Obtener el primer ticket type disponible (o crear uno default)
+            current_registrations = Registration.objects.filter(
+                event=event,
+                status__in=[Registration.Status.CONFIRMADA, Registration.Status.PENDIENTE]
+            ).count()
+            
+            existing_registration = Registration.objects.filter(
+                event=event,
+                user=instance.usuario,
+                status__in=[Registration.Status.CONFIRMADA, Registration.Status.PENDIENTE]
+            ).first()
+            
+            if existing_registration:
+                return
+            
+            existing_waitlist = EventWaitlist.objects.filter(
+                event=event,
+                user=instance.usuario
+            ).first()
+            
+            if existing_waitlist:
+                return
+            
+            if current_registrations >= event.capacity:
+                EventWaitlist.objects.create(
+                    event=event,
+                    user=instance.usuario
+                )
+                Notification.objects.create(
+                    user=instance.usuario,
+                    title='Agregado a lista de espera',
+                    message=f'Has sido agregado a la lista de espera para el evento "{event.title}" porque está lleno. Te notificaremos si se libera un espacio.',
+                    notification_type=Notification.Type.MANUAL_ALERT
+                )
+                return
+            
             ticket_type = event.ticket_types.first()
             if not ticket_type:
                 ticket_type = TicketType.objects.create(
@@ -107,7 +140,6 @@ def sincronizar_suscripcion_presencial(sender, instance, created, **kwargs):
                     price=0
                 )
             
-            # Crear el registro en pe_registration
             registration, created_reg = Registration.objects.get_or_create(
                 event=event,
                 user=instance.usuario,
@@ -124,7 +156,7 @@ def sincronizar_suscripcion_presencial(sender, instance, created, **kwargs):
                 Notification.objects.create(
                     user=instance.usuario,
                     title=f'Inscripción confirmada a {event.title}',
-                    message=f'Te has inscrio al evento "{event.title}". ¡Nos vemos allí!',
+                    message=f'Te has inscrito al evento "{event.title}". ¡Nos vemos allí!',
                     notification_type=Notification.Type.MANUAL_ALERT
                 )
                 

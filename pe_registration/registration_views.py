@@ -31,10 +31,9 @@ def register_to_event(request, event_id):
             if not event:
                 return JsonResponse({'success': False, 'error': 'Evento no encontrado'}, status=404)
             
-            # Contar registros confirmados
             current_registrations = Registration.objects.filter(
                 event=event,
-                status=Registration.Status.CONFIRMADA
+                status__in=[Registration.Status.CONFIRMADA, Registration.Status.PENDIENTE]
             ).count()
             
             # Verificar si el usuario ya está registrado
@@ -60,6 +59,13 @@ def register_to_event(request, event_id):
                 )
                 
                 if created:
+                    Notification = apps.get_model('pe_communication', 'Notification')
+                    Notification.objects.create(
+                        user=request.user,
+                        title='Agregado a lista de espera',
+                        message=f'Has sido agregado a la lista de espera para el evento "{event.title}". Te notificaremos si se libera un espacio.',
+                        notification_type=Notification.Type.MANUAL_ALERT
+                    )
                     return JsonResponse({
                         'success': True,
                         'waitlist': True,
@@ -71,13 +77,45 @@ def register_to_event(request, event_id):
                         'error': 'Ya estás en la lista de espera'
                     })
             
-            # Crear inscripción
             ticket_type = None
             if ticket_type_id:
                 ticket_type = TicketType.objects.filter(
                     id=ticket_type_id,
                     event=event
                 ).first()
+                
+                if ticket_type and ticket_type.quantity_available is not None:
+                    tickets_sold = Registration.objects.filter(
+                        event=event,
+                        ticket_type=ticket_type,
+                        status__in=[Registration.Status.CONFIRMADA, Registration.Status.PENDIENTE]
+                    ).count()
+                    
+                    if tickets_sold >= ticket_type.quantity_available:
+                        waitlist_entry, created = EventWaitlist.objects.get_or_create(
+                            event=event,
+                            user=request.user,
+                            defaults={'created_at': timezone.now()}
+                        )
+                        
+                        if created:
+                            Notification = apps.get_model('pe_communication', 'Notification')
+                            Notification.objects.create(
+                                user=request.user,
+                                title='Agregado a lista de espera',
+                                message=f'Los tickets "{ticket_type.name}" para el evento "{event.title}" están agotados. Has sido agregado a la lista de espera.',
+                                notification_type=Notification.Type.MANUAL_ALERT
+                            )
+                            return JsonResponse({
+                                'success': True,
+                                'waitlist': True,
+                                'message': 'Los tickets para este tipo están agotados. Has sido agregado a la lista de espera.'
+                            })
+                        else:
+                            return JsonResponse({
+                                'success': False,
+                                'error': 'Ya estás en la lista de espera'
+                            })
             
             registration = Registration.objects.create(
                 event=event,

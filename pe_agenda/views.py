@@ -29,12 +29,20 @@ def activities(request, event_id):
     """
     Vista para mostrar todas las actividades de un evento presencial.
     """
-    # Obtener el evento y verificar que el usuario sea el organizador
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
 
-    activities_list = Activity.objects.filter(event=event).order_by('start_time')
+    from pe_stand.models import StandActivity
     
-    # Filtrado (si se envía por GET)
+    all_activities = Activity.objects.filter(event=event)
+    
+    for activity in all_activities:
+        has_stand_activity = StandActivity.objects.filter(activity_id=activity.id).exists()
+        if not has_stand_activity and activity.location and activity.location != 'No asignada':
+            activity.location = 'No asignada'
+            activity.save(update_fields=['location'])
+
+    activities_list = all_activities.order_by('start_time')
+    
     search_query = request.GET.get('search', '')
     zone_filter = request.GET.get('zone', 'all')
     day_filter = request.GET.get('day', 'all')
@@ -50,7 +58,6 @@ def activities(request, event_id):
         activities_list = activities_list.filter(location=zone_filter)
     
     if day_filter != 'all':
-        # Filtrar por día (asumiendo que day_filter es un formato de fecha)
         activities_list = activities_list.filter(start_time__date=day_filter)
     
     if speaker_filter != 'all':
@@ -123,6 +130,17 @@ def create_activity(request, event_id):
             status='programada'
         )
         
+        if location and not is_unassigned_location(location):
+            from pe_stand.models import Stand, StandActivity
+            stand = Stand.objects.filter(event=event, name=location).first()
+            if stand:
+                StandActivity.objects.filter(activity_id=activity.id).delete()
+                StandActivity.objects.create(
+                    stand=stand,
+                    activity_id=activity.id,
+                    scheduled_time=start_time
+                )
+        
         messages.success(request, 'Actividad creada exitosamente')
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -154,9 +172,21 @@ def edit_activity(request, event_id, activity_id):
         
         activity.save()
 
-        if is_unassigned_location(activity.location):
-            from pe_stand.models import StandActivity
+        from pe_stand.models import Stand, StandActivity
+        
+        if is_unassigned_location(activity.location) or not activity.location:
             StandActivity.objects.filter(activity_id=activity.id).delete()
+        else:
+            stand = Stand.objects.filter(event=event, name=activity.location).first()
+            if stand:
+                StandActivity.objects.filter(activity_id=activity.id).delete()
+                StandActivity.objects.create(
+                    stand=stand,
+                    activity_id=activity.id,
+                    scheduled_time=activity.start_time
+                )
+            else:
+                StandActivity.objects.filter(activity_id=activity.id).delete()
 
         messages.success(request, 'Actividad actualizada exitosamente')
         

@@ -273,27 +273,27 @@
 </button>
 
 <!-- Announcement Modal -->
-<div class="modal fade" id="announcementModal" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
+<div class="modal fade" id="announcementModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header announcement-modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" data-i18n="send_announcement">Enviar Anuncio</h5>
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-800" data-i18n="send_announcement">Enviar Anuncio</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <form id="announcementForm" method="post" action="{% url 'in_person_events:send_announcement' event.id %}">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label fw-medium" data-i18n="announcement_title_label">Título del mensaje</label>
-                        <input type="text" class="form-control" name="title" data-i18n-placeholder="announcement_title_placeholder" placeholder="Título de la notificación" required>
+                        <label class="form-label small fw-bold text-uppercase text-primary" data-i18n="announcement_title_label">Título del mensaje</label>
+                        <input type="text" class="form-control border-0 py-2" style="background-color: var(--surface-container-high);" name="title" data-i18n-placeholder="announcement_title_placeholder" placeholder="Título de la notificación" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-medium" data-i18n="message_label">Mensaje</label>
-                        <textarea class="form-control" name="message" rows="4" data-i18n-placeholder="message_placeholder" placeholder="Escribe tu mensaje para los asistentes..." required></textarea>
+                        <label class="form-label small fw-bold text-uppercase text-primary" data-i18n="message_label">Mensaje</label>
+                        <textarea class="form-control border-0" style="background-color: var(--surface-container-high);" name="message" rows="4" data-i18n-placeholder="message_placeholder" placeholder="Escribe tu mensaje para los asistentes..." required></textarea>
                     </div>
-                    <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
-                        <button type="submit" class="btn btn-primary" data-i18n="send_btn">Enviar</button>
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
+                        <button type="submit" class="btn btn-gradient px-4 py-2 fw-bold" data-i18n="send_btn">Enviar</button>
                     </div>
                 </form>
             </div>
