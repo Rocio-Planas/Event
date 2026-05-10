@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'pe_communication',
     'pe_analytics',
     'pe_surveys',
-
+    'sslserver',
+    
     'django.contrib.humanize',
 ]
 
@@ -84,7 +85,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'plataforma_eventos'),
+        'NAME': os.getenv('DB_NAME', 'nuevo_proyecto_bd'),
         'USER': os.getenv('DB_USER', 'postgres'),
         'PASSWORD': os.getenv('DB_PASSWORD', 'admin'),
         'HOST': os.getenv('DB_HOST', 'localhost'),
@@ -171,6 +172,10 @@ TIME_ZONE = 'America/Havana'
 USE_TZ = True
 
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+X_FRAME_OPTIONS = "SAMEORIGIN"
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', 'tudominio.com', 'www.tudominio.com']
+
 
 # Palabras ofensivas para moderación automática
 OFFENSIVE_WORDS = [

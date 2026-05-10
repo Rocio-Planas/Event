@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/organizer-dashboard.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'css/organizer-dashboard.css' %}?v=3">
 {% endblock %}
 
 {% block content %}
@@ -85,7 +85,6 @@
                             <small class="text-muted smaller" data-i18n="emails_separator">Separa los correos con comas.</small>
                         </div>
 
-
                         <!-- Enlace de invitación único -->
                         <div class="mb-4">
                             <label class="od-label mb-2" data-i18n="invite_link_label">Enlace de invitación único:</label>
@@ -101,12 +100,14 @@
                             <button type="submit" class="btn btn-primary btn-lg" id="od-btn-save-all" data-i18n="save_changes">Save Changes</button>
                         </div>
                     </form>
+
                     <!-- Botón para subir material post-evento -->
                     <div class="d-grid gap-2 mt-3">
                         <button type="button" class="btn btn-material" data-bs-toggle="modal" data-bs-target="#materialModal" data-i18n="upload_material">
                             <i class="fa-solid fa-cloud-upload-alt"></i> Subir material post-evento
                         </button>
                     </div>
+
                     {% if event.materials.recording or event.materials.slides_url %}
                     <div class="material-shared">
                         <h5><i class="bi bi-archive"></i> <span data-i18n="shared_material">Material ya compartido</span></h5>
@@ -141,7 +142,7 @@
                             <span class="od-dot"></span> <span data-i18n="live">LIVE</span>
                         </span>
                     </div>
-                    
+
                     <div class="row row-cols-3 row-cols-md-3 g-3 mb-2" id="od-metrics-grid">
                         <div class="col"><div class="od-metric-card"><div class="od-metric-icon-container"><i class="bi bi-people-fill"></i></div><div class="od-metric-value" id="metric-online">0</div><div class="od-label mb-0" data-i18n="online">En línea</div></div></div>
                         <div class="col"><div class="od-metric-card"><div class="od-metric-icon-container"><i class="bi bi-chat-dots-fill"></i></div><div class="od-metric-value" id="metric-messages">0</div><div class="od-label mb-0" data-i18n="messages">Mensajes</div></div></div>
@@ -169,37 +170,47 @@
                 </div>
             </div>
 
-            <!-- YouTube Live -->
+            <!-- VDO.Ninja Live -->
             <div class="od-card-main flex-grow-1">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0 fw-bold text-indigo" data-i18n="live_streaming"><i class="bi bi-youtube me-1"></i> Transmisión en vivo</h5>
-                        <button type="button" class="btn btn-link btn-sm text-decoration-none p-0" id="od-btn-preview-yt" data-i18n="preview"><i class="bi bi-eye me-1"></i> Previsualizar</button>
+                        <h5 class="card-title mb-0 fw-bold text-indigo">
+                            <i class="bi bi-camera-video me-1"></i> Transmisión en vivo con VDO.Ninja
+                        </h5>
                     </div>
-                    <div class="od-youtube-instructions p-3 rounded mb-4">
-                        <h6 class="fw-bold small text-indigo-dark mb-2" data-i18n="youtube_help_title"><i class="bi bi-info-circle me-1"></i> ¿Cómo obtener la URL?</h6>
+
+                    <div class="od-vdo-instructions p-3 rounded mb-4" style="background-color: #f8f9fa;">
+                        <h6 class="fw-bold small text-indigo-dark mb-2">
+                            <i class="bi bi-info-circle me-1"></i> ¿Cómo obtener el enlace de transmisión?
+                        </h6>
                         <ol class="smaller text-indigo-muted mb-0 ps-3">
-                            <li data-i18n="youtube_help_step1">En YouTube, haz clic en Compartir bajo tu video.</li>
-                            <li data-i18n="youtube_help_step2">Selecciona la opción Insertar (Embed).</li>
-                            <li data-i18n="youtube_help_step3">Copia solo el enlace dentro de src="..." (ej: https://www.youtube.com/embed/ABC).</li>
+                            <li>Accede a <a href="https://vdo.ninja" target="_blank" rel="noopener">VDO.Ninja</a>.</li>
+                            <li>Selecciona la opción <strong>"Add your Camera to OBS"</strong>.</li>
+                            <li>Permite el acceso a tu cámara y micrófono cuando el navegador lo solicite.</li>
+                            <li>Haz clic en el botón <strong>"Start"</strong>.</li>
+                            <li>Una vez iniciada la transmisión, copia la URL que comienza con <code>https://vdo.ninja/?view=...</code> (aparece justo encima del botón Start).</li>
+                            <li>Pega esa URL en el campo de abajo y haz clic en <strong>"Guardar enlace"</strong>.</li>
                         </ol>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="bi bi-shield-check"></i> La transmisión se verá directamente en la <a href="{% url 've_streaming:streaming_room' unique_link=event.unique_link %}" target="_blank">Sala de Streaming</a>. 
+                            Asegúrate de que tu sitio esté en HTTPS para el correcto funcionamiento de la cámara.
+                        </small>
                     </div>
+
                     <div class="mb-3">
-                        <label for="od-youtube-url" class="od-label" data-i18n="youtube_url_label">YouTube Embed URL</label>
+                        <label for="od-vdoninja-url" class="od-label">Enlace de vista (VIEW link) de VDO.Ninja</label>
                         <div class="input-group">
-                            <input type="url" class="form-control od-input" id="od-youtube-url" name="youtube_url" 
-                                   placeholder="https://www.youtube.com/embed/..." 
-                                   value="{{ youtube_embed }}">
-                            <button class="btn btn-indigo ms-2" type="button" id="od-btn-test-youtube" data-i18n="test_btn">Probar</button>
+                            <input type="url" class="form-control od-input" id="od-vdoninja-url" 
+                                placeholder="https://vdo.ninja/?view=..." 
+                                value="{{ vdoninja_url }}">
+                            <button class="btn btn-indigo ms-2" type="button" id="od-btn-save-vdoninja">Guardar enlace</button>
                         </div>
                     </div>
-                    <div id="od-yt-preview-container" class="mb-0 d-none">
-                        <div class="ratio ratio-16x9 od-mini-iframe rounded shadow-sm">
-                            <iframe id="od-yt-mini-iframe" src="about:blank" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-                        </div>
-                    </div>
+
+                    <div id="od-vdo-status" class="small mt-2"></div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -233,7 +244,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- Modal para subir material post-evento -->
 <div class="modal fade" id="materialModal" tabindex="-1" aria-hidden="true">
@@ -269,13 +279,11 @@
 {% endblock %}
 
 {% block extra_js %}
-
 <script>
     const EVENT_ID = {{ event.id }};
     const CSRF_TOKEN = "{{ csrf_token }}";
-    const SAVE_YOUTUBE_URL = "{% url 'virtualEvent:save_youtube_embed' event.id %}";
+    const SAVE_VDO_NINJA_URL = "{% url 'virtualEvent:save_vdoninja_url' event.id %}";
     const METRICS_URL = "{% url 'virtualEvent:event_metrics' event.id %}";
 </script>
-
 <script src="{% static 'js/organizer-dashboard.js' %}"></script>
 {% endblock %}

@@ -19,44 +19,26 @@ def waiting_room(request, unique_link):
     )
 
 
-def clean_youtube_embed(url):
-    """Convierte cualquier URL de YouTube en una URL de embed limpia."""
-    if not url:
-        return ""
-    patterns = [
-        r"youtube\.com/embed/([a-zA-Z0-9_-]+)",
-        r"youtu\.be/([a-zA-Z0-9_-]+)",
-        r"youtube\.com/watch\?v=([a-zA-Z0-9_-]+)",
-        r"youtube\.com/shorts/([a-zA-Z0-9_-]+)",
-    ]
-    video_id = None
-    for pattern in patterns:
-        match = re.search(pattern, url)
-        if match:
-            video_id = match.group(1)
-            break
-    if video_id:
-        return f"https://www.youtube.com/embed/{video_id}"
-    return url
-
-
 def streaming_room(request, unique_link):
     event = get_object_or_404(VirtualEvent, unique_link=unique_link)
-
-    # El organizador es el creador del evento (sin forzados de pruebas)
     is_organizer = request.user.is_authenticated and request.user == event.created_by
     raw_embed = event.settings.get("youtube_embed", "")
-    youtube_embed = clean_youtube_embed(raw_embed)
-    return render(
-        request,
-        "ve_streaming/streaming_room.html",
-        {
-            "event": event,
-            "event_id": event.id,
-            "is_organizer": is_organizer,
-            "youtube_embed": youtube_embed,
-        },
-    )
+    vdoninja_view_url = event.settings.get("vdoninja_view_url", "")
+
+    if request.method == "POST":
+        pass
+
+    context = {
+        "event": event,  
+        "event_id": event.id, 
+        "event_title": event.title,
+        "event_date_str": event.start_datetime.strftime("%d %b %Y, %H:%M"),
+        "event_duration": event.duration_minutes,
+        "event_description": event.description,
+        "is_organizer": is_organizer,
+        "vdoninja_view_url": vdoninja_view_url,   
+    }
+    return render(request, "ve_streaming/streaming_room.html", context)
 
 
 @login_required

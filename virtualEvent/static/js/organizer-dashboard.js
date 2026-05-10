@@ -1,12 +1,32 @@
-// organizer-dashboard.js - Dashboard del organizador
-// Funcionalidades: edición de evento, invitaciones, métricas (placeholder) y YouTube (guardado + previsualización)
-
+// organizer-dashboard.js - Dashboard del organizador (VERSIÓN VDO.Ninja)
+// Funcionalidades: edición de evento, invitaciones, métricas en tiempo real, PDF y VDO.Ninja
 document.addEventListener("DOMContentLoaded", function () {
   // --- Variables globales desde el template ---
   const eventId = typeof EVENT_ID !== "undefined" ? EVENT_ID : null;
   const csrfToken = typeof CSRF_TOKEN !== "undefined" ? CSRF_TOKEN : "";
-  const saveYoutubeUrlEndpoint =
-    typeof SAVE_YOUTUBE_URL !== "undefined" ? SAVE_YOUTUBE_URL : null;
+  const saveVdoNinjaUrl =
+    typeof SAVE_VDO_NINJA_URL !== "undefined" ? SAVE_VDO_NINJA_URL : null;
+  const metricsUrl = typeof METRICS_URL !== "undefined" ? METRICS_URL : null;
+
+  // ========================
+  // Toast de notificación (sin alert molestos)
+  // ========================
+  function showToast(message, isError = false) {
+    const toastEl = document.getElementById("od-toast");
+    if (toastEl) {
+      const toastBody = document.getElementById("od-toast-body");
+      toastBody.textContent = message;
+      toastEl.classList.toggle("bg-danger", isError);
+      toastEl.classList.toggle("bg-success", !isError);
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+      setTimeout(() => {
+        toastEl.classList.remove("bg-danger", "bg-success");
+      }, 3000);
+    } else {
+      console.log(message);
+    }
+  }
 
   // ========================
   // 1. Previsualización de imagen de portada
@@ -62,32 +82,36 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ========================
-  // 4. Métricas en tiempo real (placeholder – lo implementarás después)
+  // 4. Métricas en tiempo real (usando API real)
   // ========================
-  // Métricas en tiempo real usando la API real
   function loadMetrics() {
-    if (!eventId) return;
-    fetch(METRICS_URL)   // <--- CAMBIA ESTA LÍNEA: usa la variable en lugar de la ruta fija
+    if (!eventId || !metricsUrl) return;
+    fetch(metricsUrl)
       .then((res) => res.json())
       .then((data) => {
-        document.getElementById("metric-online").innerText = data.active_viewers || 0;
-        document.getElementById("metric-messages").innerText = data.total_messages || 0;
-        document.getElementById("metric-hands").innerText = data.total_hands || 0;
-        document.getElementById("metric-participation").innerText = (data.participation_percent || 0) + "%";
-        document.getElementById("metric-time").innerText = data.elapsed_time || "00:00:00";
-        document.getElementById("metric-satisfaction").innerText = data.average_satisfaction || 0;
+        document.getElementById("metric-online").innerText =
+          data.active_viewers || 0;
+        document.getElementById("metric-messages").innerText =
+          data.total_messages || 0;
+        document.getElementById("metric-hands").innerText =
+          data.total_hands || 0;
+        document.getElementById("metric-participation").innerText =
+          (data.participation_percent || 0) + "%";
+        document.getElementById("metric-time").innerText =
+          data.elapsed_time || "00:00:00";
+        document.getElementById("metric-satisfaction").innerText =
+          data.average_satisfaction || 0;
       })
       .catch((err) => console.error("Error cargando métricas:", err));
-}
+  }
 
-  // Llamar cada 5 segundos
-  if (eventId) {
+  if (eventId && metricsUrl) {
     loadMetrics();
     setInterval(loadMetrics, 5000);
   }
 
   // ========================
-  // Evento para el botón de exportar PDF
+  // 5. Botón de exportar PDF
   // ========================
   const exportPdfBtn = document.getElementById("od-btn-export-pdf");
   if (exportPdfBtn && eventId) {
@@ -97,113 +121,19 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ========================
-  // 5. YouTube: guardado, previsualización y modal (opcional)
+  // 6. VDO.Ninja: Guardar URL de transmisión
   // ========================
-  const ytInput = document.getElementById("od-youtube-url");
-  const previewContainer = document.getElementById("od-yt-preview-container");
-  const miniIframe = document.getElementById("od-yt-mini-iframe");
-  const modalIframe = document.getElementById("od-modal-iframe");
-  const modalElement = document.getElementById("od-youtube-modal");
-  const testBtn = document.getElementById("od-btn-test-youtube");
-  const previewBtn = document.getElementById("od-btn-preview-yt");
+  const vdoInput = document.getElementById("od-vdoninja-url");
+  const saveVdoBtn = document.getElementById("od-btn-save-vdoninja");
+  const statusDiv = document.getElementById("od-vdo-status");
 
-  let modal = null;
-  if (modalElement) modal = new bootstrap.Modal(modalElement);
-
-  // Notificaciones toast (sin alert molestos)
-  function showToast(message, isError = false) {
-    const toastEl = document.getElementById("od-toast");
-    if (toastEl) {
-      const toastBody = document.getElementById("od-toast-body");
-      toastBody.textContent = message;
-      toastEl.classList.toggle("bg-danger", isError);
-      toastEl.classList.toggle("bg-success", !isError);
-      const toast = new bootstrap.Toast(toastEl);
-      toast.show();
-      setTimeout(() => {
-        toastEl.classList.remove("bg-danger", "bg-success");
-      }, 3000);
-    } else {
-      console.log(message);
-    }
+  function isValidVdoNinjaUrl(url) {
+    if (!url) return false;
+    return url.includes("vdo.ninja") && url.includes("view=");
   }
 
-  // Limpiar y convertir URL de YouTube a formato embed (acepta cualquier formato)
-  function cleanYoutubeUrl(url) {
-    if (!url || url.trim() === "") return "";
-    let clean = url.trim();
-
-    // Eliminar parámetros (todo lo que siga a '?')
-    if (clean.includes("?")) clean = clean.split("?")[0];
-
-    // Si no tiene protocolo, añadir https://
-    if (!clean.startsWith("http://") && !clean.startsWith("https://")) {
-      clean = "https://" + clean;
-    }
-
-    // Caso 1: youtube.com/watch?v=...
-    if (clean.includes("youtube.com/watch?v=")) {
-      const videoId = clean.split("v=")[1].split("&")[0];
-      return `https://www.youtube.com/embed/${videoId}`;
-    }
-    // Caso 2: youtu.be/...
-    else if (clean.includes("youtu.be/")) {
-      const videoId = clean.split("youtu.be/")[1].split("?")[0];
-      return `https://www.youtube.com/embed/${videoId}`;
-    }
-
-    else if (clean.includes("youtube.com/live/") || clean.includes("youtu.be/live/")) {
-    const videoId = clean.split("/live/")[1].split("?")[0];
-    return `https://www.youtube.com/embed/${videoId}`;
-    }
-
-    // Caso 3: ya es embed (youtube.com/embed/...)
-    else if (clean.includes("youtube.com/embed/")) {
-      // Asegurar dominio correcto (www.)
-      if (clean.includes("://youtube.com/embed/")) {
-        clean = clean.replace(
-          "://youtube.com/embed/",
-          "://www.youtube.com/embed/",
-        );
-      } else if (clean.includes("://www.youtube.com/embed/")) {
-        // ya está bien
-      } else {
-        // si no tiene www, agregarlo
-        clean = clean.replace("youtube.com/embed/", "www.youtube.com/embed/");
-      }
-      return clean;
-    }
-
-    // Si no es una URL de YouTube reconocida, devolvemos vacío
-    return "";
-  }
-
-  // Actualizar el mini iframe de previsualización (sin guardar)
-  function updatePreview() {
-    let rawUrl = ytInput ? ytInput.value.trim() : "";
-    let cleanUrl = "";
-
-    if (rawUrl !== "") {
-      cleanUrl = cleanYoutubeUrl(rawUrl);
-    }
-
-    if (cleanUrl === "") {
-      previewContainer.classList.add("d-none");
-      if (miniIframe) miniIframe.src = "about:blank";
-      return;
-    }
-
-    // Si la URL limpia es diferente a la original, actualizamos el campo visualmente
-    if (cleanUrl !== rawUrl && ytInput) {
-      ytInput.value = cleanUrl;
-    }
-    miniIframe.src = cleanUrl;
-    previewContainer.classList.remove("d-none");
-  }
-
-  // Guardar URL en el backend
-  function saveYoutubeUrl(url) {
-    if (!saveYoutubeUrlEndpoint) {
+  function saveVdoNinjaUrl(url) {
+    if (!saveVdoNinjaUrl) {
       showToast("Error: URL de guardado no configurada", true);
       return Promise.reject("No endpoint");
     }
@@ -211,23 +141,29 @@ document.addEventListener("DOMContentLoaded", function () {
       showToast("Error de autenticación", true);
       return Promise.reject("Auth error");
     }
-    return fetch(saveYoutubeUrlEndpoint, {
+    let cleanUrl = url.trim();
+    return fetch(saveVdoNinjaUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": csrfToken,
       },
-      body: JSON.stringify({ youtube_url: url }),
+      body: JSON.stringify({ vdoninja_url: cleanUrl }),
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.status === "ok") {
-          showToast("✓ URL guardada correctamente");
-          if (data.url && ytInput && data.url !== ytInput.value) {
-            ytInput.value = data.url;
+          showToast("✓ Enlace de transmisión guardado correctamente");
+          if (data.url && vdoInput && data.url !== vdoInput.value) {
+            vdoInput.value = data.url;
           }
-          // Actualizar previsualización después de guardar
-          updatePreview();
+          if (statusDiv) {
+            statusDiv.innerHTML =
+              '<span class="text-success"><i class="bi bi-check-circle"></i> Enlace guardado. La transmisión se mostrará en la sala de streaming.</span>';
+            setTimeout(() => {
+              if (statusDiv) statusDiv.innerHTML = "";
+            }, 5000);
+          }
           return true;
         } else {
           showToast(
@@ -244,72 +180,41 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  // --- Eventos ---
-
-  // Botón "Probar": guarda y actualiza preview (sin abrir modal)
-  if (testBtn && ytInput) {
-    testBtn.addEventListener("click", function () {
-      let rawUrl = ytInput.value.trim();
-      if (!rawUrl) {
-        showToast("Escribe una URL de YouTube", true);
+  if (saveVdoBtn && vdoInput) {
+    saveVdoBtn.addEventListener("click", function () {
+      let url = vdoInput.value.trim();
+      if (!url) {
+        showToast("Por favor, pega el enlace de VDO.Ninja", true);
+        if (statusDiv)
+          statusDiv.innerHTML =
+            '<span class="text-warning"><i class="bi bi-exclamation-triangle"></i> El enlace no puede estar vacío.</span>';
         return;
       }
-      const cleanUrl = cleanYoutubeUrl(rawUrl);
-      if (!cleanUrl) {
-        showToast("URL no válida (debe ser de YouTube)", true);
+      if (!isValidVdoNinjaUrl(url)) {
+        showToast(
+          "El enlace no parece ser de VDO.Ninja (debe contener 'vdo.ninja' y 'view=')",
+          true,
+        );
+        if (statusDiv)
+          statusDiv.innerHTML =
+            '<span class="text-danger"><i class="bi bi-x-circle"></i> Enlace inválido. Asegúrate de copiar la URL VIEW correcta.</span>';
         return;
       }
-      if (cleanUrl !== rawUrl) ytInput.value = cleanUrl;
-      saveYoutubeUrl(cleanUrl); // Guarda y actualiza preview (updatePreview se llama dentro de saveYoutubeUrl)
+      saveVdoNinjaUrl(url);
     });
   }
 
-  // Botón "Previsualizar": solo actualiza el mini iframe (no guarda)
-  if (previewBtn) {
-    previewBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      updatePreview();
-    });
+  if (vdoInput && vdoInput.value.trim() && statusDiv) {
+    statusDiv.innerHTML =
+      '<span class="text-info"><i class="bi bi-info-circle"></i> Enlace actual cargado. Puedes cambiarlo si es necesario.</span>';
   }
-
-  // Auto‑guardado al perder el foco (opcional, pero útil)
-  if (ytInput) {
-    ytInput.addEventListener("change", function () {
-      let url = this.value.trim();
-      if (url) {
-        const cleanUrl = cleanYoutubeUrl(url);
-        if (cleanUrl !== url) this.value = cleanUrl;
-        if (cleanUrl) saveYoutubeUrl(cleanUrl);
-        else updatePreview();
-      } else {
-        updatePreview();
-      }
-    });
-  }
-
-  // Inicializar previsualización al cargar la página
-  if (ytInput) {
-    const initialUrl = ytInput.value.trim();
-    if (initialUrl && cleanYoutubeUrl(initialUrl)) {
-      updatePreview();
-    } else {
-      previewContainer.classList.add("d-none");
-      if (miniIframe) miniIframe.src = "about:blank";
-    }
-  }
-
-  // El modal se mantiene por si quieres usarlo en otro lado, pero no se abre con "Probar"
-  // Si quieres eliminar completamente el modal, puedes borrar el HTML del modal.
 });
 
-// Funciones globales (por si se llaman desde onclick en el HTML)
+// Funciones globales por si se llaman desde onclick (no se usan en el nuevo flujo, pero se mantienen por compatibilidad)
 function copyToClipboard() {
   const urlText = document.getElementById("od-copy-url")?.innerText.trim();
   if (urlText) {
-    navigator.clipboard
-      .writeText(urlText)
-      .then(() => alert("¡Enlace copiado!"))
-      .catch(console.error);
+    navigator.clipboard.writeText(urlText).catch(console.error);
   }
 }
 function exportReport() {

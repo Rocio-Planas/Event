@@ -14,7 +14,6 @@ from ve_invitations.models import Invitation
 from ve_invitations.models import EventFollower
 from ve_invitations.utils import send_invitation_email
 import uuid
-import re
 import json
 from django.views.decorators.csrf import csrf_exempt
 from .report_generator import generate_event_pdf  # type: ignore
@@ -226,23 +225,18 @@ def event_delete(request, pk):
 def organizer_dashboard(request, event_id):
     event = get_object_or_404(VirtualEvent, pk=event_id, created_by=request.user)
     invitations = Invitation.objects.filter(event=event)
-    youtube_embed = event.settings.get("youtube_embed", "")
-    if youtube_embed and 'src="' in youtube_embed:
-        match = re.search(r'src="([^"]+)"', youtube_embed)
-        if match:
-            youtube_embed = match.group(1)
+    vdoninja_url = event.settings.get("vdoninja_view_url", "")
 
-    errors = {}  # Diccionario para errores de campo
+    errors = {}
 
     if request.method == "POST":
-        # Recoger datos del formulario (igual que antes)
         title = request.POST.get("title", event.title)
         description = request.POST.get("description", event.description)
         start_time_str = request.POST.get("start_time", "")
         duration = request.POST.get("duration", "")
         access_type = request.POST.get("access_type", event.privacy)
 
-        # --- Validación de fecha (igual que en event_create) ---
+        # Validación de fecha
         if not start_time_str:
             errors["start_time"] = "La fecha y hora son obligatorias"
         else:
@@ -254,9 +248,9 @@ def organizer_dashboard(request, event_id):
                 if start_datetime_aware < now():
                     errors["start_time"] = "La fecha no puede ser pasada"
                 else:
-                    event.start_datetime = start_datetime_aware  # solo si es válida
+                    event.start_datetime = start_datetime_aware
 
-        # Validar duración (opcional, pero por consistencia)
+        # Validación de duración
         if not duration:
             errors["duration"] = "La duración es obligatoria"
         else:
@@ -269,9 +263,7 @@ def organizer_dashboard(request, event_id):
             except ValueError:
                 errors["duration"] = "Número inválido"
 
-        # Si hay errores, volvemos a mostrar el formulario con los datos actuales (sin guardar)
         if errors:
-            # Preparamos el contexto con los valores actuales del evento (sin cambios) y los errores
             invite_link = request.build_absolute_uri(
                 reverse("ve_streaming:waiting_room", args=[event.unique_link])
             )
@@ -280,21 +272,21 @@ def organizer_dashboard(request, event_id):
                 "event": event,
                 "invitations": invitations,
                 "invited_emails": invited_emails,
-                "youtube_embed": youtube_embed,
+                "vdoninja_url": vdoninja_url,
                 "invite_link": invite_link,
-                "start_time_str": start_time_str,  # mostramos lo que el usuario intentó poner
+                "start_time_str": start_time_str,
                 "errors": errors,
-                "now": now().isoformat(),  # para el atributo min
+                "now": now().isoformat(),
             }
             return render(request, "virtualEvents/organizer_dashboard.html", context)
 
-        # --- Si no hay errores, actualizamos el resto de campos y guardamos ---
+        # Actualizar campos del evento
         event.title = title
         event.description = description
         event.privacy = access_type
-        event.save()  # ya se actualizó la fecha y duración en las validaciones
+        event.save()
 
-        # Procesar imagen de portada (igual que antes)
+        # Procesar imagen de portada
         if request.FILES.get("event_image"):
             if event.image:
                 default_storage.delete(event.image.name)
@@ -306,23 +298,7 @@ def organizer_dashboard(request, event_id):
             )
             event.save()
 
-        # Procesar YouTube embed
-        youtube_url = request.POST.get("youtube_url", "")
-        if youtube_url:
-            if "?" in youtube_url:
-                youtube_url = youtube_url.split("?")[0]
-            if "youtube.com/embed/" not in youtube_url:
-                if "youtube.com/watch?v=" in youtube_url:
-                    video_id = youtube_url.split("v=")[1].split("&")[0]
-                    youtube_url = f"https://www.youtube.com/embed/{video_id}"
-                elif "youtu.be/" in youtube_url:
-                    video_id = youtube_url.split("youtu.be/")[1].split("?")[0]
-                    youtube_url = f"https://www.youtube.com/embed/{video_id}"
-                elif "/live/" in youtube_url:
-                    video_id = youtube_url.split("/live/")[1].split("?")[0]
-                    youtube_url = f"https://www.youtube.com/embed/{video_id}"
-            event.settings["youtube_embed"] = youtube_url
-            event.save()
+        # NOTA: Se eliminó el procesamiento de YouTube Embed
 
         # Procesar invitaciones si es evento privado
         if event.privacy == "private":
@@ -350,11 +326,11 @@ def organizer_dashboard(request, event_id):
         "event": event,
         "invitations": invitations,
         "invited_emails": invited_emails,
-        "youtube_embed": youtube_embed,
+        "vdoninja_url": vdoninja_url,
         "invite_link": invite_link,
         "start_time_str": start_time_str,
         "errors": {},
-        "now": now().isoformat(),  # para el atributo min en el input
+        "now": now().isoformat(),
     }
     return render(request, "virtualEvents/organizer_dashboard.html", context)
 
@@ -384,7 +360,6 @@ def event_metrics(request, event_id):
         event=event, last_heartbeat__gte=cutoff
     ).count()
 
-    #  Calcular tiempo transcurrido (congelado si finalizado)
     if event.status == "finished":
         elapsed_seconds = event.final_elapsed_seconds
         current_viewers = 0
@@ -415,23 +390,19 @@ def event_metrics(request, event_id):
 
 
 @login_required
-def save_youtube_embed(request, event_id):
+def save_vdoninja_url(request, event_id):
     if request.method == "POST":
         event = get_object_or_404(VirtualEvent, pk=event_id, created_by=request.user)
         data = json.loads(request.body)
-        youtube_url = data.get("youtube_url", "")
-        if youtube_url:
-            if "?" in youtube_url:
-                youtube_url = youtube_url.split("?")[0]
-            if "youtube.com/watch?v=" in youtube_url:
-                video_id = youtube_url.split("v=")[1].split("&")[0]
-                youtube_url = f"https://www.youtube.com/embed/{video_id}"
-            elif "youtu.be/" in youtube_url:
-                video_id = youtube_url.split("youtu.be/")[1].split("?")[0]
-                youtube_url = f"https://www.youtube.com/embed/{video_id}"
-        event.settings["youtube_embed"] = youtube_url
+        vdoninja_url = data.get("vdoninja_url", "").strip()
+        if vdoninja_url and ("vdo.ninja" in vdoninja_url and "view=" in vdoninja_url):
+            event.settings["vdoninja_view_url"] = vdoninja_url
+        else:
+            event.settings["vdoninja_view_url"] = ""
         event.save(update_fields=["settings"])
-        return JsonResponse({"status": "ok", "url": youtube_url})
+        return JsonResponse(
+            {"status": "ok", "url": event.settings.get("vdoninja_view_url", "")}
+        )
     return JsonResponse({"error": "Método no permitido"}, status=405)
 
 
@@ -487,21 +458,18 @@ def generate_pdf_report(request, event_id):
 def event_detail(request, pk):
     event = get_object_or_404(VirtualEvent, pk=pk)
 
-    # Restricción de visibilidad: solo aprobados o si es el organizador/admin
     if event.estado != "aprobado":
         if not request.user.is_authenticated or (
             request.user != event.created_by and not request.user.is_staff
         ):
             raise Http404("Evento no disponible o pendiente de aprobación")
 
-    # Calcular fecha fin para Google Calendar
     fecha_fin = (
         event.start_datetime + timedelta(minutes=event.duration_minutes)
         if event.duration_minutes
         else event.start_datetime
     )
 
-    # Construir el objeto 'evento' para el template
     evento_data = {
         "id": event.id,
         "titulo": event.title,
@@ -521,7 +489,6 @@ def event_detail(request, pk):
         "fecha_fin_google": fecha_fin.strftime("%Y%m%dT%H%M%S"),
     }
 
-    # Verificar si el usuario sigue el evento
     is_following = False
     es_organizador = False
     if request.user.is_authenticated:
@@ -531,8 +498,9 @@ def event_detail(request, pk):
                 user=request.user, event=event
             ).exists()
 
-    # Obtener reseñas aprobadas
-    resenas = Resena.objects.filter(evento_virtual=event, aprobada=True).order_by('-fecha_creacion')
+    resenas = Resena.objects.filter(evento_virtual=event, aprobada=True).order_by(
+        "-fecha_creacion"
+    )
     total_resenas = resenas.count()
     promedio = 0
     if total_resenas > 0:
@@ -582,7 +550,6 @@ def upload_material(request, event_id):
 def finalize_event(request, event_id):
     event = get_object_or_404(VirtualEvent, pk=event_id, created_by=request.user)
     if event.status != "finished":
-
         if event.start_datetime <= timezone.now():
             elapsed = timezone.now() - event.start_datetime
             elapsed_seconds = int(elapsed.total_seconds())
