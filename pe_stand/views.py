@@ -45,7 +45,8 @@ class StandDashboardView(TemplateView):
         
         # Zonas activas = zonas con al menos una actividad asignada
         active_zones = StandActivity.objects.filter(
-            stand__event_id=event_id
+            stand__event_id=event_id,
+            stand__isnull=False
         ).values('stand_id').distinct().count()
         
         # Integración con pe_inventory para obtener recursos asignados
@@ -506,13 +507,17 @@ def add_resources(request, stand_id):
     API para asignar uno o varios recursos a un stand.
     POST /api/stands/<stand_id>/add-resources/
     """
+    from django.db import connection
+    
     if request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
     
     try:
-        StandAssignment = apps.get_model('pe_inventory', 'StandAssignment')
-        Item = apps.get_model('pe_inventory', 'Item')
+        from pe_inventory.models import StandAssignment, Item
+    except ImportError:
+        return JsonResponse({'error': 'El módulo de inventario no está disponible'}, status=500)
 
+    try:
         data = json.loads(request.body)
         item_ids = data.get('item_ids', [])
 
@@ -546,7 +551,9 @@ def add_resources(request, stand_id):
         return JsonResponse({'error': 'Datos inválidos'}, status=400)
     except Exception as e:
         import traceback
-        return JsonResponse({'error': str(e), 'trace': traceback.format_exc()}, status=500)
+        trace = traceback.format_exc()
+        print(f"Error in add_resources: {trace}")
+        return JsonResponse({'error': str(e), 'trace': trace}, status=500)
 
 
 @login_required
@@ -766,7 +773,7 @@ def move_activity_in_stand(request, stand_id):
         from pe_agenda.models import Activity
         try:
             activity = Activity.objects.get(id=activity_id)
-            activity.location = target_stand.location
+            activity.location = target_stand.name
             activity.save(update_fields=['location'])
         except Activity.DoesNotExist:
             pass
@@ -801,7 +808,7 @@ def remove_activity_from_stand(request, stand_id):
         from pe_agenda.models import Activity
         try:
             activity = Activity.objects.get(id=activity_id)
-            activity.location = ''
+            activity.location = 'No asignada'
             activity.save(update_fields=['location'])
         except Activity.DoesNotExist:
             pass

@@ -368,19 +368,65 @@ def configure_event(request, event_id):
 def delete_event(request, event_id):
     event = get_object_or_404(Event, id=event_id, organizer=request.user)
     
-    deleted_event = {
-        'title': event.title,
-        'id': event.id,
-        'image': event.image.url if event.image else None,
-        'category': event.category,
-        'start_date': event.start_date.isoformat() if event.start_date else None,
-    }
+    try:
+        from pe_stand.models import Stand, StandActivity, StandStaff
+        from pe_agenda.models import Activity, ActivitySubscription
+        from pe_registration.models import Registration, TicketType, EventWaitlist
+        from pe_staff.models import StaffMember
+        
+        activity_ids = list(Activity.objects.filter(event=event).values_list('id', flat=True))
+        
+        if activity_ids:
+            StandActivity.objects.filter(activity_id__in=activity_ids).delete()
+            ActivitySubscription.objects.filter(activity_id__in=activity_ids).delete()
+            Activity.objects.filter(event=event).delete()
+        
+        Registration.objects.filter(event=event).delete()
+        EventWaitlist.objects.filter(event=event).delete()
+        
+        stands = Stand.objects.filter(event=event)
+        for stand in stands:
+            StandStaff.objects.filter(stand=stand).delete()
+            try:
+                StandAssignment = __import__('pe_inventory.models', fromlist=['StandAssignment']).StandAssignment
+                StandAssignment.objects.filter(stand=stand).delete()
+            except:
+                pass
+        Stand.objects.filter(event=event).delete()
+        
+        TicketType.objects.filter(event=event).delete()
+        
+        StaffMember.objects.filter(event=event).delete()
+        
+    except Exception as e:
+        import traceback
+        print(f"Error deleting related data: {traceback.format_exc()}")
     
-    event.delete()
+    try:
+        from core.models import Suscripcion
+        Suscripcion.objects.filter(evento_id=event_id, tipo_evento='presencial').delete()
+    except:
+        pass
     
-    request.session['deleted_event'] = deleted_event
-    
-    return redirect('in_person_events:delete_page')
+    try:
+        deleted_event = {
+            'title': event.title,
+            'id': event.id,
+            'image': event.image.url if event.image else None,
+            'category': event.category,
+            'start_date': event.start_date.isoformat() if event.start_date else None,
+        }
+        
+        event.delete()
+        
+        request.session['deleted_event'] = deleted_event
+        
+        return redirect('in_person_events:delete_page')
+    except Exception as e:
+        import traceback
+        print(f"Error deleting event: {traceback.format_exc()}")
+        messages.error(request, f'Error al eliminar el evento: {str(e)}')
+        return redirect('in_person_events:dashboard_organizer', event_id=event_id)
 
 
 @login_required
