@@ -123,6 +123,16 @@ def create_activity(request, event_id):
             status='programada'
         )
         
+        if location and not is_unassigned_location(location):
+            from pe_stand.models import Stand, StandActivity
+            stand = Stand.objects.filter(event=event, name=location).first()
+            if stand:
+                StandActivity.objects.create(
+                    stand=stand,
+                    activity_id=activity.id,
+                    scheduled_time=start_time
+                )
+        
         messages.success(request, 'Actividad creada exitosamente')
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -154,9 +164,20 @@ def edit_activity(request, event_id, activity_id):
         
         activity.save()
 
-        if is_unassigned_location(activity.location):
-            from pe_stand.models import StandActivity
+        from pe_stand.models import Stand, StandActivity
+        
+        if is_unassigned_location(activity.location) or not activity.location:
             StandActivity.objects.filter(activity_id=activity.id).delete()
+        else:
+            stand = Stand.objects.filter(event=event, name=activity.location).first()
+            if stand:
+                StandActivity.objects.update_or_create(
+                    stand=stand,
+                    activity_id=activity.id,
+                    defaults={'scheduled_time': activity.start_time}
+                )
+            else:
+                StandActivity.objects.filter(activity_id=activity.id).delete()
 
         messages.success(request, 'Actividad actualizada exitosamente')
         
