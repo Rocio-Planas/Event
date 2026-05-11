@@ -1,1 +1,1 @@
-web: gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker --log-file -
+web: bash start.sh
