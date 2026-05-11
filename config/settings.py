@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'pe_surveys',
 
     'django.contrib.humanize',
-    'django_anymail',
+    'anymail',
 ]
 
 # ─── MIDDLEWARE (IMPORTANTE: WhiteNoise añadido) ──────────
