@@ -139,14 +139,14 @@ LOGIN_URL = 'usuarios:login'
 LOGIN_REDIRECT_URL = 'usuarios:perfil'
 LOGOUT_REDIRECT_URL = 'usuarios:login'
 
-# ─── CONFIGURACIÓN DE CORREO (para desarrollo usa consola) 
-# ─── CONFIGURACIÓN DE CORREO CON ELASTIC EMAIL ──────────
-# ─── CONFIGURACIÓN DE CORREO CON ELASTIC EMAIL ──────────
-ANYMAIL = {
-    "ELASTIC_EMAIL_API_KEY": os.getenv("ELASTIC_EMAIL_API_KEY", "tu-api-key"),
-}
-EMAIL_BACKEND = "anymail.backends.elasticemail.EmailBackend"
-DEFAULT_FROM_EMAIL = "rocioplanash@gmail.com"
+# ─── CONFIGURACIÓN DE CORREO CON GMAIL (SMTP) ──────────
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'rocioplanash@gmail.com'
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = 'rocioplanash@gmail.com'
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 BASE_URL = 'http://127.0.0.1:8000'
