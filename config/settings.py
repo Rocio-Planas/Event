@@ -1,16 +1,22 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
-from django.utils.translation import gettext_lazy as _
-
-load_dotenv()
+import dj_database_url          # ← NUEVO: para conectar con PostgreSQL en Render
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# ─── SEGURIDAD Y ENTORNO ─────────────────────────────────
+# En producción (Render) estas variables se definirán en el panel de control.
+# En desarrollo local, se usan los valores por defecto.
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-l#w9bo)b5mha(4^2josjk-dt@-a84-q+9spx8+wy#4)qd0ujsk')
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
+# Permitir el dominio de Render y los entornos locales
+ALLOWED_HOSTS = os.getenv(
+    'ALLOWED_HOSTS',
+    'localhost,127.0.0.1,.onrender.com'
+).split(',')
+
+# ─── APLICACIONES ─────────────────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -46,8 +52,10 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
 ]
 
+# ─── MIDDLEWARE (IMPORTANTE: WhiteNoise añadido) ──────────
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',   # ← NUEVO: Sirve estáticos eficientemente
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -79,22 +87,18 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'   # ← NUEVO: necesario para WebSockets/Channels
 
-# PostgreSQL
+# ─── BASE DE DATOS (Automática con dj_database_url) ──────
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'plataforma_eventos'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'admin'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
-        'OPTIONS': {
-            'options': '-c client_encoding=utf8'
-        }
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),  # Render la proveerá al crear la BD
+        conn_max_age=600,
+        engine='django.db.backends.postgresql',
+    )
 }
 
+# ─── VALIDACIÓN DE CONTRASEÑAS ────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -102,37 +106,36 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internacionalización
+# ─── INTERNACIONALIZACIÓN ─────────────────────────────────
 USE_I18N = True
 USE_TZ = True
 LANGUAGE_CODE = 'es'
 LANGUAGES = [
-    ('es', _('Español')),
-    ('en', _('English')),
+    ('es', 'Español'),
+    ('en', 'English'),
 ]
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
+# ─── ARCHIVOS ESTÁTICOS Y MEDIA ───────────────────────────
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-COOKIE_CONSENT_NAME = "cookie_consent"
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # ← NUEVO
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# ─── COOKIES Y CONSENTIMIENTO ─────────────────────────────
+COOKIE_CONSENT_NAME = "cookie_consent"
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"
-
+# ─── MODELO DE USUARIO PERSONALIZADO ──────────────────────
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
 LOGIN_URL = 'usuarios:login'
 LOGIN_REDIRECT_URL = 'usuarios:perfil'
 LOGOUT_REDIRECT_URL = 'usuarios:login'
 
-# Configuración de correo para desarrollo (MUESTRA CORREOS EN CONSOLA)
+# ─── CONFIGURACIÓN DE CORREO (para desarrollo usa consola) 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -160,19 +163,29 @@ LOGGING = {
     },
 }
 
-# Capa de canales en memoria (solo para desarrollo)
+# ─── CANALES (WebSocket) ──────────────────────────────────
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
 
+# ─── ZONA HORARIA ─────────────────────────────────────────
 TIME_ZONE = 'America/Havana'
 USE_TZ = True
 
+# ─── SEGURIDAD ADICIONAL (solo en producción) ─────────────
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
-# Palabras ofensivas para moderación automática
+# ─── MODERACIÓN DE CHAT ───────────────────────────────────
 OFFENSIVE_WORDS = [
     'mierda', 'puta', 'cabron', 'cojones', 'hostia', 'joder', 'pendejo',
     'imbecil', 'estupido', 'gilipollas', 'capullo', 'zorra', 'maricon',
@@ -180,11 +193,21 @@ OFFENSIVE_WORDS = [
     'carajo', 'verga', 'chucha', 'concha', 'pija', 'bobo'
 ]
 
-
+# ─── CSRF y orígenes de confianza ─────────────────────────
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
-CSRF_COOKIE_SECURE = False
-CSRF_COOKIE_HTTPONLY = False
 
+# En producción, agregaremos automáticamente el dominio de Render
+if not DEBUG:
+    CSRF_TRUSTED_ORIGINS.append('https://*.onrender.com')
+
+# Configuración por defecto (Render la ajustará con HTTPS)
+CSRF_COOKIE_SECURE = DEBUG is False    # ← True en producción, False en desarrollo
+SESSION_COOKIE_SECURE = DEBUG is False
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
