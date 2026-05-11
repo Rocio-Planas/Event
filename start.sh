@@ -2,6 +2,7 @@
 set -e
 
 # Instalación explícita de django-anymail (por si acaso)
+pip install django-anymail[elasticemail]
 pip install django-anymail
 
 echo "==> Aplicando migraciones..."
