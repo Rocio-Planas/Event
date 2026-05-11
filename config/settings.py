@@ -141,10 +141,11 @@ LOGOUT_REDIRECT_URL = 'usuarios:login'
 
 # ─── CONFIGURACIÓN DE CORREO (para desarrollo usa consola) 
 # ─── CONFIGURACIÓN DE CORREO CON ELASTIC EMAIL ──────────
+# ─── CONFIGURACIÓN DE CORREO CON ELASTIC EMAIL ──────────
 ANYMAIL = {
     "ELASTIC_EMAIL_API_KEY": os.getenv("ELASTIC_EMAIL_API_KEY", "tu-api-key"),
 }
-EMAIL_BACKEND = "anymail.backends.elastic_email.EmailBackend"
+EMAIL_BACKEND = "anymail.backends.elasticemail.EmailBackend"
 DEFAULT_FROM_EMAIL = "rocioplanash@gmail.com"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
