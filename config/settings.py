@@ -143,13 +143,21 @@ LOGIN_REDIRECT_URL = 'usuarios:perfil'
 LOGOUT_REDIRECT_URL = 'usuarios:login'
 
 # ─── CONFIGURACIÓN DE CORREO CON GMAIL (SMTP) ──────────
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'rocioplanash@gmail.com'
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = 'rocioplanash@gmail.com'
+#EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+#EMAIL_HOST = 'smtp.gmail.com'
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = 'rocioplanash@gmail.com'
+#EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+#DEFAULT_FROM_EMAIL = 'rocioplanash@gmail.com'
+#SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# ─── CONFIGURACIÓN DE CORREO CON BREVO (API) ──────────
+ANYMAIL = {
+    "BREVO_API_KEY": os.getenv("BREVO_API_KEY", "tu-api-key-de-brevo"),
+}
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+DEFAULT_FROM_EMAIL = "rocioplanash@gmail.com"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 BASE_URL = 'http://127.0.0.1:8000'
