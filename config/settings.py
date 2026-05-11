@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'anymail',
     'cloudinary_storage',
     'cloudinary',
-    'django.contrib.staticfiles',
+    
 ]
 
 # ─── MIDDLEWARE (IMPORTANTE: WhiteNoise añadido) ──────────
