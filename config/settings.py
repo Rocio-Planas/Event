@@ -140,13 +140,12 @@ LOGIN_REDIRECT_URL = 'usuarios:perfil'
 LOGOUT_REDIRECT_URL = 'usuarios:login'
 
 # ─── CONFIGURACIÓN DE CORREO (para desarrollo usa consola) 
-# Configuración de correo con Mailjet
+# ─── CONFIGURACIÓN DE CORREO CON MAILERSEND ──────────
 ANYMAIL = {
-    "MAILJET_API_KEY": os.getenv("MAILJET_API_KEY", "tu-api-key-de-mailjet"),
-    "MAILJET_SECRET_KEY": os.getenv("MAILJET_SECRET_KEY", "tu-secret-key-de-mailjet"),
+    "MAILERSEND_API_TOKEN": os.getenv("MAILERSEND_API_TOKEN", "mlsn_tu_token_aqui"),
 }
-EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
-DEFAULT_FROM_EMAIL = "rocioplanash@gmail.com"
+EMAIL_BACKEND = "anymail.backends.mailersend.EmailBackend"
+DEFAULT_FROM_EMAIL = "rocioplanash@gmail.com"  # <-- CAMBIA ESTO
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 BASE_URL = 'http://127.0.0.1:8000'
