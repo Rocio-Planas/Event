@@ -4,6 +4,9 @@ import dj_database_url          # ← NUEVO: para conectar con PostgreSQL en Ren
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Para que Django detecte HTTPS detrás del proxy de Render
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # ─── SEGURIDAD Y ENTORNO ─────────────────────────────────
 # En producción (Render) estas variables se definirán en el panel de control.
 # En desarrollo local, se usan los valores por defecto.
@@ -50,6 +53,7 @@ INSTALLED_APPS = [
     'pe_surveys',
 
     'django.contrib.humanize',
+    'django_anymail',
 ]
 
 # ─── MIDDLEWARE (IMPORTANTE: WhiteNoise añadido) ──────────
@@ -136,14 +140,14 @@ LOGIN_REDIRECT_URL = 'usuarios:perfil'
 LOGOUT_REDIRECT_URL = 'usuarios:login'
 
 # ─── CONFIGURACIÓN DE CORREO (para desarrollo usa consola) 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'rocioplanash@gmail.com'
-EMAIL_HOST_PASSWORD = 'pifdnblypvrsgoya'
-DEFAULT_FROM_EMAIL = 'rocioplanash@gmail.com'
-EMAIL_TIMEOUT = 30
+# Configuración de correo con Mailjet
+ANYMAIL = {
+    "MAILJET_API_KEY": os.getenv("MAILJET_API_KEY", "tu-api-key-de-mailjet"),
+    "MAILJET_SECRET_KEY": os.getenv("MAILJET_SECRET_KEY", "tu-secret-key-de-mailjet"),
+}
+EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
+DEFAULT_FROM_EMAIL = "rocioplanash@gmail.com"
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 BASE_URL = 'http://127.0.0.1:8000'
 
