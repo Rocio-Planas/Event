@@ -140,12 +140,12 @@ LOGIN_REDIRECT_URL = 'usuarios:perfil'
 LOGOUT_REDIRECT_URL = 'usuarios:login'
 
 # ─── CONFIGURACIÓN DE CORREO (para desarrollo usa consola) 
-# ─── CONFIGURACIÓN DE CORREO CON MAILERSEND ──────────
+# ─── CONFIGURACIÓN DE CORREO CON ELASTIC EMAIL ──────────
 ANYMAIL = {
-    "MAILERSEND_API_TOKEN": os.getenv("MAILERSEND_API_TOKEN", "mlsn_tu_token_aqui"),
+    "ELASTIC_EMAIL_API_KEY": os.getenv("ELASTIC_EMAIL_API_KEY", "tu-api-key"),
 }
-EMAIL_BACKEND = "anymail.backends.mailersend.EmailBackend"
-DEFAULT_FROM_EMAIL = "rocioplanash@gmail.com"  # <-- CAMBIA ESTO
+EMAIL_BACKEND = "anymail.backends.elastic_email.EmailBackend"
+DEFAULT_FROM_EMAIL = "rocioplanash@gmail.com"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 BASE_URL = 'http://127.0.0.1:8000'
