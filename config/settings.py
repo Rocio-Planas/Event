@@ -54,6 +54,9 @@ INSTALLED_APPS = [
 
     'django.contrib.humanize',
     'anymail',
+    'cloudinary_storage',
+    'cloudinary',
+    'django.contrib.staticfiles',
 ]
 
 # ─── MIDDLEWARE (IMPORTANTE: WhiteNoise añadido) ──────────
@@ -215,3 +218,12 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuración de Cloudinary para archivos media
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'tu-cloud-name'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY', 'tu-api-key'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', 'tu-api-secret'),
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
