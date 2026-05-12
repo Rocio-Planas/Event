@@ -159,6 +159,10 @@ def dashboard_organizer(request, event_id):
 @login_required
 def dashboard_assistant(request, event_id):
     """Dashboard del asistente para un evento presencial inscrito."""
+    if not Event.objects.filter(id=event_id).exists():
+        messages.error(request, 'El evento no existe o ha sido eliminado.')
+        return redirect('usuarios:dashboard')
+    
     event = get_object_or_404(Event, id=event_id)
     activities = list(event.activities.order_by('start_time')[:5])
     for activity in activities:
