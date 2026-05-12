@@ -27,9 +27,11 @@
             <span data-i18n="admin_panel_manage_users">Gestionar Usuarios</span>
         </h1>
         <div class="flex gap-3">
-            <a href="{% url 'core:admin_crear_usuario' %}" class="px-4 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition flex items-center gap-1 shadow-sm">
-                <span class="material-symbols-outlined text-base">add</span>
-                <span data-i18n="create_user">Crear usuario</span>
+            <a href="{% url 'core:admin_crear_usuario' %}" 
+            class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary border border-primary/30 rounded-full text-xs font-medium hover:bg-primary/20 transition sm:bg-primary sm:text-white sm:border-none sm:px-4 sm:py-2 sm:rounded-full sm:shadow-sm sm:no-underline">
+                <span class="material-symbols-outlined text-sm sm:text-base">add</span>
+                <span class="hidden sm:inline" data-i18n="create_user">Crear usuario</span>
+                <span class="sm:hidden" data-i18n="new">Nuevo</span>
             </a>
             <a href="{% url 'core:admin_panel' %}" class="text-primary hover:underline flex items-center gap-1">
                 <span data-i18n="admin_panel_back">Volver al panel</span>
@@ -123,13 +125,13 @@
             </div>
             <h3 class="text-xl font-bold text-on-surface mb-2" data-i18n="confirm_delete_title">¿Eliminar usuario?</h3>
             <p class="text-on-surface-variant mb-4" id="deleteModalMessage" data-i18n="confirm_delete_message">Esta acción no se puede deshacer. El usuario será eliminado permanentemente.</p>
-            <div class="flex gap-3 justify-center">
-                <button id="cancelDeleteBtn" class="px-5 py-2 rounded-xl border border-outline-variant text-on-surface-variant font-semibold hover:bg-surface-container-high transition">
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button id="cancelDeleteBtn" class="px-5 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant font-semibold hover:bg-surface-container-high transition w-full sm:w-auto order-2 sm:order-1">
                     <span data-i18n="cancel">Cancelar</span>
                 </button>
-                <form id="deleteUserForm" method="post" action="">
+                <form id="deleteUserForm" method="post" action="" class="w-full sm:w-auto order-1 sm:order-2">
                     {% csrf_token %}
-                    <button type="submit" class="px-5 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-sm">
+                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-sm">
                         <span data-i18n="confirm_delete_btn">Sí, eliminar</span>
                     </button>
                 </form>

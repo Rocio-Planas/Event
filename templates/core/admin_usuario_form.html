@@ -35,7 +35,6 @@
                     {{ titulo }}
                 </h1>
                 <a href="{% url 'core:admin_usuarios' %}" class="text-primary hover:underline flex items-center gap-1 text-sm">
-                    <span class="material-symbols-outlined text-base">arrow_back</span> 
                     <span data-i18n="admin_panel_back">Volver</span>
                 </a>
             </div>
@@ -114,12 +113,12 @@
             </div>
 
             <!-- Botones -->
-            <div class="flex justify-end gap-3 pt-4 border-t border-outline-variant/30">
-                <a href="{% url 'core:admin_usuarios' %}" class="px-5 py-2.5 border border-outline-variant rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 font-medium flex items-center gap-1">
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-outline-variant/30">
+                <a href="{% url 'core:admin_usuarios' %}" class="px-5 py-2.5 border border-outline-variant rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 font-medium flex items-center justify-center gap-1 w-full sm:w-auto order-2 sm:order-1">
                     <span class="material-symbols-outlined text-base">close</span>
                     <span data-i18n="cancel">Cancelar</span>
                 </a>
-                <button type="submit" class="px-6 py-2.5 btn-gradient-primary text-white rounded-xl font-semibold hover:shadow-md hover:scale-[1.02] transition-all duration-200 flex items-center gap-1">
+                <button type="submit" class="px-6 py-2.5 btn-gradient-primary text-white rounded-xl font-semibold hover:shadow-md hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-1 w-full sm:w-auto order-1 sm:order-2">
                     <span class="material-symbols-outlined text-base">save</span>
                     <span data-i18n="save_changes">Guardar cambios</span>
                 </button>
