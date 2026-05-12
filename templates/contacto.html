@@ -14,7 +14,11 @@
                 <span class="material-symbols-outlined mb-4" style="color: var(--primary); font-size: 32px;">support_agent</span>
                 <h3 class="text-lg font-semibold mb-2" style="color: var(--text-on-surface);" data-i18n="support_title">Soporte en vivo</h3>
                 <p class="text-sm mb-4" style="color: var(--text-on-surface-variant);" data-i18n="support_hours">Nuestro equipo está disponible de lunes a viernes, 9am - 6pm.</p>
-                <button id="chat-now-btn" class="text-primary font-bold text-sm hover:underline" data-i18n="chat_now">Chatear ahora</button>
+                {% if user.is_authenticated %}
+                    <button id="chat-now-btn" class="text-primary font-bold text-sm hover:underline" data-i18n="chat_now">Chatear ahora</button>
+                {% else %}
+                    <a href="{% url 'usuarios:login' %}" class="text-primary font-bold text-sm hover:underline">Inicia sesión para chatear</a>
+                {% endif %}
             </div>
             <div class="p-6 rounded-xl shadow-sm overflow-hidden relative" style="background-color: var(--primary); color: white;">
                 <div class="relative z-10">
@@ -33,6 +37,8 @@
                 <button class="flex-1 py-4 text-sm font-bold tracking-wider uppercase border-b-2 border-transparent transition-colors" id="tab-inquiry" style="color: var(--text-on-surface-variant);" data-i18n="tab_inquiry">Consulta general</button>
             </div>
             <div class="p-8">
+
+                {% if user.is_authenticated %}
                 <!-- Formulario de reseña -->
                 <form method="post" class="space-y-6" id="form-review">
                     {% csrf_token %}
@@ -69,7 +75,18 @@
                     </div>
                     <button type="submit" class="w-full py-4 btn-gradient-primary text-white font-bold rounded-lg shadow-md hover:shadow-lg active:scale-[0.98] transition-all uppercase tracking-widest text-sm" data-i18n="send_review">Enviar reseña</button>
                 </form>
+                {% else %}
+                    <div class="text-center py-12">
+                        <span class="material-symbols-outlined text-6xl text-on-surface-variant mb-4">lock</span>
+                        <p class="text-lg font-semibold text-on-surface mb-2">Debes iniciar sesión para enviar una reseña.</p>
+                        <p class="text-on-surface-variant mb-6">Es rápido y gratuito.</p>
+                        <a href="{% url 'usuarios:login' %}" class="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:opacity-90 transition">
+                            Iniciar sesión
+                        </a>
+                    </div>
+                {% endif %}
 
+                {% if user.is_authenticated %}
                 <!-- Formulario de consulta -->
                 <form method="post" class="space-y-6 hidden" id="form-inquiry">
                     {% csrf_token %}
@@ -110,6 +127,16 @@
                     </div>
                     <button type="submit" class="w-full py-4 btn-gradient-primary text-white font-bold rounded-lg shadow-md hover:shadow-lg active:scale-[0.98] transition-all uppercase tracking-widest text-sm" data-i18n="send_message">Enviar mensaje</button>
                 </form>
+                {% else %}
+                <div class="text-center py-12">
+                    <span class="material-symbols-outlined text-6xl text-on-surface-variant mb-4">lock</span>
+                    <p class="text-lg font-semibold text-on-surface mb-2">Debes iniciar sesión para enviar una consulta.</p>
+                    <p class="text-on-surface-variant mb-6">Es rápido y gratuito.</p>
+                    <a href="{% url 'usuarios:login' %}" class="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:opacity-90 transition">
+                        Iniciar sesión
+                    </a>
+                </div>
+            {% endif %}
             </div>
         </div>
     </div>

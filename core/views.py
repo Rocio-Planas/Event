@@ -866,7 +866,7 @@ def admin_metrics(request):
     }
     return render(request, 'core/admin_metrics.html', context)
 
-
+@login_required
 def contacto_view(request):
     if request.method == 'POST':
         form_type = request.POST.get('form_type')
