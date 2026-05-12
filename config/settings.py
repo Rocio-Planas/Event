@@ -158,8 +158,8 @@ ANYMAIL = {
     "RESEND_API_KEY": os.getenv("RESEND_API_KEY", "tu-api-key-de-resend"),
 }
 EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
-DEFAULT_FROM_EMAIL = "rocioplanash@gmail.com"   # o "onboarding@resend.dev" para pruebas
-SERVER_EMAIL = DEFAULT_FROM_EMAIL
+DEFAULT_FROM_EMAIL = "onboarding@resend.dev"
+SERVER_EMAIL = "onboarding@resend.dev"
 BASE_URL = 'http://127.0.0.1:8000'
 
 LOGGING = {
