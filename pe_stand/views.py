@@ -153,8 +153,8 @@ class StandDetailView(TemplateView):
         # Obtener IDs de staff ya asignados a este stand (ahora es una lista de objetos StandStaff con .user)
         assigned_user_ids = set(s.user.id for s in staff if s.user)
         
-        # Filtrar solo usuarios no asignados Y con usuario válido
-        not_assigned_staff = [s for s in available_staff if s.user and s.user.id not in assigned_user_ids]
+        # Filtrar solo usuarios no asignados Y con usuario válido Y sin zona asignada
+        not_assigned_staff = [s for s in available_staff if s.user and s.user.id not in assigned_user_ids and (s.zone is None or s.zone == '')]
         
         # Obtener actividades del stand con sus detalles completos
         from pe_agenda.models import Activity
@@ -644,6 +644,17 @@ def add_staff_to_stand(request, stand_id):
                 continue
 
             staff = StandStaff.objects.create(stand=stand, user=user, role=role)
+            
+            # Also update StaffMember zone to keep it in sync
+            from pe_staff.models import StaffMember
+            staff_member = StaffMember.objects.filter(
+                event_id=stand.event_id,
+                user=user
+            ).first()
+            if staff_member:
+                staff_member.zone = stand.name
+                staff_member.save(update_fields=['zone'])
+            
             added.append({
                 'user_id': user.id,
                 'name': user.get_full_name() or user.email,
