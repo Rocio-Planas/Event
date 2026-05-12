@@ -43,7 +43,6 @@ def clean_youtube_embed(url):
 def streaming_room(request, unique_link):
     event = get_object_or_404(VirtualEvent, unique_link=unique_link)
 
-    # El organizador es el creador del evento (sin forzados de pruebas)
     is_organizer = request.user.is_authenticated and request.user == event.created_by
     raw_embed = event.settings.get("youtube_embed", "")
     youtube_embed = clean_youtube_embed(raw_embed)

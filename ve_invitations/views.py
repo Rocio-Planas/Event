@@ -1,6 +1,5 @@
 # Create your views here.
 
-# ve_invitations/views.py
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -29,7 +28,6 @@ def follow_event(request, event_id):
     return redirect('virtualEvent:event_detail', pk=event_id)
 
 
-# Opcional: vista AJAX para seguir sin recargar
 @login_required
 def follow_event_ajax(request, event_id):
     event = get_object_or_404(VirtualEvent, pk=event_id)
@@ -47,7 +45,6 @@ def follow_event_ajax(request, event_id):
 @login_required
 def accept_invitation(request, token):
     invitation = get_object_or_404(Invitation, token=token)
-    # Opcional: invitation.accepted = True; invitation.save()
     return redirect(
         "ve_streaming:waiting_room", unique_link=invitation.event.unique_link
     )

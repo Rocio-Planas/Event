@@ -96,13 +96,13 @@
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            min-width: 32px !important;
-            height: 28px !important;
-            font-size: 0.75rem !important;
+            min-width: auto !important;
+            height: 24px !important;
+            font-size: 0.65rem !important;
             font-weight: bold !important;
             border-radius: 9999px !important;
             cursor: pointer !important;
-            padding: 2px 8px !important;
+            padding: 1px 6px !important;
             transition: all 0.2s ease !important;
             color: #64748b;
             background: transparent;
@@ -117,8 +117,8 @@
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            width: 36px !important;
-            height: 36px !important;
+            width: 30px !important;
+            height: 30px !important;
             border-radius: 9999px !important;
             cursor: pointer !important;
             transition: all 0.2s ease !important;
@@ -126,50 +126,154 @@
         .theme-btn:hover {
             background-color: var(--surface-container-high) !important;
         }
-                /* Responsividad: pantallas pequeñas (móviles) */
+
+        /* ========== MENÚ HAMBURGUESA ========== */
+        /* Overlay oscuro detrás del menú móvil */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .menu-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Panel lateral del menú */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100vh;
+            background-color: var(--surface-container-lowest);
+            z-index: 50;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            padding: 1rem;
+        }
+        .mobile-menu.show {
+            left: 0;
+        }
+
+        /* Cabecera del menú móvil */
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-outline-variant);
+        }
+
+        /* Enlaces del menú móvil */
+        .mobile-nav-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-on-surface);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s ease;
+        }
+        .mobile-nav-link:hover {
+            background-color: var(--surface-container-high);
+        }
+
+        /* Botón hamburguesa */
+        .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s ease;
+        }
+        .hamburger-btn:hover {
+            background-color: var(--surface-container-high);
+        }
+
         @media (max-width: 768px) {
+            .hamburger-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            /* Ocultar los enlaces de escritorio en móvil */
+            .nav-links-desktop {
+                display: none !important;
+            }
             .navbar-container {
-                flex-wrap: wrap;
+                flex-wrap: nowrap;
                 gap: 0.5rem;
             }
-            .navbar-container .hidden.md\\:flex {
-                display: flex !important;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-                width: 100%;
-                justify-content: center;
-                order: 3;
-            }
-            .navbar-container > .flex.items-center.gap-8 {
-                width: 100%;
-                justify-content: center;
-            }
-            .hero-section .flex.justify-center.gap-3 {
-                flex-direction: column;
-            }
-            .hero-section .flex.justify-center.gap-3 input {
-                width: 100%;
-            }
-            .hero-section .flex.justify-center.gap-3 button {
-                width: 100%;
-            }
-        }
             /* Links de navegación visibles en móvil */
-    @media (max-width: 768px) {
-        .navbar-container .flex.flex-wrap.items-center.justify-center {
-            order: 3;
-            margin-top: 0.5rem;
-            gap: 0.75rem !important;
-        }
-        .navbar-container .flex.flex-wrap.items-center.justify-center a {
-            font-size: 0.8rem;
-            white-space: nowrap;
-        }
-        /* Aumenta el margen superior en móviles para que no se superponga la navbar */
-    main.pt-24 {
-        padding-top: 120px !important; /* 96px original + 24px extra para la barra expandida */
-}
+            .navbar-container .flex.flex-wrap.items-center.justify-center {
+                order: 3;
+                margin-top: 0.5rem;
+                gap: 0.75rem !important;
+            }
+            .navbar-container .flex.flex-wrap.items-center.justify-center a {
+                font-size: 0.8rem;
+                white-space: nowrap;
+            }
+            /* Aumenta el margen superior en móviles para que no se superponga la navbar */
+            main.pt-24 {
+                padding-top: 120px !important;
+            }
+                        /* Ajusta los botones de la derecha para que no desborden */
+            .navbar-container .flex.items-center.gap-1.sm\\:gap-2.md\\:gap-4 > button,
+            .navbar-container .flex.items-center.gap-1.sm\\:gap-2.md\\:gap-4 > a {
+                padding: 0.25rem;
+            }
+            .navbar-container .lang-switch {
+                padding: 1px;
+            }
+            .navbar-container .lang-btn {
+                padding: 1px 6px;
+                font-size: 0.65rem;
+                min-width: 28px;
+                height: 24px;
+            }
+            /* Ajuste de botones de idioma y tema en móvil */
+            .lang-switch {
+                padding: 1px;
+            }
+            .lang-btn {
+                padding: 1px 5px;
+                font-size: 0.6rem;
+                min-width: 26px;
+                height: 22px;
+            }
+            .theme-btn {
+                width: 30px;
+                height: 30px;
+            }
+            /* Ocultar textos largos si los hubiera */
+            /* Ajusta el contenedor de iconos en móvil */
+            .navbar-container .flex.flex-wrap.items-center.justify-end {
+                max-width: calc(100% - 100px); /* deja espacio para el logo y hamburguesa */
     }
+        }
+        
+        
+
+        @media (min-width: 769px) {
+            .mobile-menu,
+            .menu-overlay {
+                display: none !important;
+            }
+        }
     </style>
     <script>
         // ==================== TRADUCCIONES COMPLETAS ====================
@@ -514,8 +618,10 @@
                 'staff': 'Staff / Miembro del equipo',
                 'staff_assignments_title': 'Mis asignaciones como Staff',
                 'user_type_label': 'Tipo de usuario',
+                'new': 'Nuevo',
             },
             en: {
+                'new': 'New',
                 'show_filters': 'Filters',
                 'cat_Otros': 'Others',
                 'staff': 'Staff / Team member',
@@ -859,147 +965,177 @@
             }
         };
 
-            let currentLang = localStorage.getItem("lang") || "es";
+        let currentLang = localStorage.getItem("lang") || "es";
 
-                        function applyTranslations() {
-                const t = translations[currentLang];
-                document.querySelectorAll("[data-i18n]").forEach((el) => {
-                    const key = el.getAttribute("data-i18n");
-                    if (t[key]) {
-                        if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-                            if (el.hasAttribute("placeholder")) el.placeholder = t[key];
-                            else el.value = t[key];
-                        } else {
-                            el.innerText = t[key];
-                        }
-                    }
-                });
-                document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
-                    const key = el.getAttribute("data-i18n-placeholder");
-                    if (t[key]) el.placeholder = t[key];
-                });
-                document.querySelectorAll(".category-name").forEach((el) => {
-                    const catOriginal = el.getAttribute("data-cat-original");
-                    if (catOriginal && t[`cat_${catOriginal}`]) {
-                        el.innerText = t[`cat_${catOriginal}`];
-                    }
-                });
-
-                // CORRECCIÓN: Aplicar estilos inline a los botones de idioma
-                const langEs = document.getElementById("lang-es");
-                const langEn = document.getElementById("lang-en");
-                if (langEs && langEn) {
-                    if (currentLang === "es") {
-                        langEs.style.backgroundColor = "white";
-                        langEs.style.boxShadow = "0 1px 2px rgba(0,0,0,0.1)";
-                        langEs.style.color = "var(--primary)";
-                        langEn.style.backgroundColor = "transparent";
-                        langEn.style.boxShadow = "none";
-                        langEn.style.color = "#64748b";
+        function applyTranslations() {
+            const t = translations[currentLang];
+            document.querySelectorAll("[data-i18n]").forEach((el) => {
+                const key = el.getAttribute("data-i18n");
+                if (t[key]) {
+                    if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+                        if (el.hasAttribute("placeholder")) el.placeholder = t[key];
+                        else el.value = t[key];
                     } else {
-                        langEn.style.backgroundColor = "white";
-                        langEn.style.boxShadow = "0 1px 2px rgba(0,0,0,0.1)";
-                        langEn.style.color = "var(--primary)";
-                        langEs.style.backgroundColor = "transparent";
-                        langEs.style.boxShadow = "none";
-                        langEs.style.color = "#64748b";
+                        el.innerText = t[key];
                     }
-                }
-            }
-
-            function setLanguage(lang) {
-                currentLang = lang;
-                localStorage.setItem("lang", lang);
-                document.documentElement.lang = lang === "es" ? "es" : "en";
-                applyTranslations();
-                window.dispatchEvent(
-                    new CustomEvent("languageChanged", {
-                        detail: { lang: lang },
-                    }),
-                );
-            }
-
-            function initTheme() {
-                const storedTheme = localStorage.getItem("theme");
-                const html = document.documentElement;
-                if (storedTheme === "dark") {
-                    html.classList.add("dark");
-                    html.classList.remove("light");
-                } else if (storedTheme === "light") {
-                    html.classList.add("light");
-                    html.classList.remove("dark");
-                } else {
-                    if (
-                        window.matchMedia("(prefers-color-scheme: dark)")
-                            .matches
-                    ) {
-                        html.classList.add("dark");
-                        html.classList.remove("light");
-                    } else {
-                        html.classList.add("light");
-                        html.classList.remove("dark");
-                    }
-                }
-                updateThemeIcon();
-            }
-
-            function toggleTheme() {
-                const html = document.documentElement;
-                if (html.classList.contains("dark")) {
-                    html.classList.remove("dark");
-                    html.classList.add("light");
-                    localStorage.setItem("theme", "light");
-                } else {
-                    html.classList.remove("light");
-                    html.classList.add("dark");
-                    localStorage.setItem("theme", "dark");
-                }
-                updateThemeIcon();
-            }
-
-            function updateThemeIcon() {
-                const icon = document.getElementById("theme-icon");
-                if (!icon) return;
-                if (document.documentElement.classList.contains("dark")) {
-                    icon.className = "bi bi-moon-fill";
-                } else {
-                    icon.className = "bi bi-brightness-high-fill";
-                }
-            }
-
-            document.addEventListener("DOMContentLoaded", function () {
-                initTheme();
-                const themeToggle = document.getElementById("theme-toggle");
-                if (themeToggle)
-                    themeToggle.addEventListener("click", toggleTheme);
-                setLanguage(currentLang);
-                const langEs = document.getElementById("lang-es");
-                const langEn = document.getElementById("lang-en");
-                if (langEs)
-                    langEs.addEventListener("click", () => setLanguage("es"));
-                if (langEn)
-                    langEn.addEventListener("click", () => setLanguage("en"));
-
-                const userMenuBtn = document.getElementById("user-menu-btn");
-                const userMenu = document.getElementById("user-menu");
-                if (userMenuBtn) {
-                    userMenuBtn.addEventListener("click", (e) => {
-                        e.stopPropagation();
-                        userMenu.classList.toggle("hidden");
-                    });
-                    document.addEventListener("click", (e) => {
-                        if (
-                            !userMenuBtn.contains(e.target) &&
-                            !userMenu.contains(e.target)
-                        ) {
-                            userMenu.classList.add("hidden");
-                        }
-                    });
                 }
             });
-        </script>
+            document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+                const key = el.getAttribute("data-i18n-placeholder");
+                if (t[key]) el.placeholder = t[key];
+            });
+            document.querySelectorAll(".category-name").forEach((el) => {
+                const catOriginal = el.getAttribute("data-cat-original");
+                if (catOriginal && t[`cat_${catOriginal}`]) {
+                    el.innerText = t[`cat_${catOriginal}`];
+                }
+            });
+
+            // CORRECCIÓN: Aplicar estilos inline a los botones de idioma
+            const langEs = document.getElementById("lang-es");
+            const langEn = document.getElementById("lang-en");
+            if (langEs && langEn) {
+                if (currentLang === "es") {
+                    langEs.style.backgroundColor = "white";
+                    langEs.style.boxShadow = "0 1px 2px rgba(0,0,0,0.1)";
+                    langEs.style.color = "var(--primary)";
+                    langEn.style.backgroundColor = "transparent";
+                    langEn.style.boxShadow = "none";
+                    langEn.style.color = "#64748b";
+                } else {
+                    langEn.style.backgroundColor = "white";
+                    langEn.style.boxShadow = "0 1px 2px rgba(0,0,0,0.1)";
+                    langEn.style.color = "var(--primary)";
+                    langEs.style.backgroundColor = "transparent";
+                    langEs.style.boxShadow = "none";
+                    langEs.style.color = "#64748b";
+                }
+            }
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem("lang", lang);
+            document.documentElement.lang = lang === "es" ? "es" : "en";
+            applyTranslations();
+            window.dispatchEvent(
+                new CustomEvent("languageChanged", {
+                    detail: { lang: lang },
+                }),
+            );
+        }
+
+        function initTheme() {
+            const storedTheme = localStorage.getItem("theme");
+            const html = document.documentElement;
+            if (storedTheme === "dark") {
+                html.classList.add("dark");
+                html.classList.remove("light");
+            } else if (storedTheme === "light") {
+                html.classList.add("light");
+                html.classList.remove("dark");
+            } else {
+                if (
+                    window.matchMedia("(prefers-color-scheme: dark)")
+                        .matches
+                ) {
+                    html.classList.add("dark");
+                    html.classList.remove("light");
+                } else {
+                    html.classList.add("light");
+                    html.classList.remove("dark");
+                }
+            }
+            updateThemeIcon();
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains("dark")) {
+                html.classList.remove("dark");
+                html.classList.add("light");
+                localStorage.setItem("theme", "light");
+            } else {
+                html.classList.remove("light");
+                html.classList.add("dark");
+                localStorage.setItem("theme", "dark");
+            }
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById("theme-icon");
+            if (!icon) return;
+            if (document.documentElement.classList.contains("dark")) {
+                icon.className = "bi bi-moon-fill";
+            } else {
+                icon.className = "bi bi-brightness-high-fill";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            initTheme();
+            const themeToggle = document.getElementById("theme-toggle");
+            if (themeToggle)
+                themeToggle.addEventListener("click", toggleTheme);
+            setLanguage(currentLang);
+            const langEs = document.getElementById("lang-es");
+            const langEn = document.getElementById("lang-en");
+            if (langEs)
+                langEs.addEventListener("click", () => setLanguage("es"));
+            if (langEn)
+                langEn.addEventListener("click", () => setLanguage("en"));
+
+            const userMenuBtn = document.getElementById("user-menu-btn");
+            const userMenu = document.getElementById("user-menu");
+            if (userMenuBtn) {
+                userMenuBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    userMenu.classList.toggle("hidden");
+                });
+                document.addEventListener("click", (e) => {
+                    if (
+                        !userMenuBtn.contains(e.target) &&
+                        !userMenu.contains(e.target)
+                    ) {
+                        userMenu.classList.add("hidden");
+                    }
+                });
+            }
+        });
+    </script>
     </head>
     <body class="min-h-screen flex flex-col">
+        <!-- ========== OVERLAY PARA MENÚ MÓVIL ========== -->
+        <div class="menu-overlay" id="menuOverlay"></div>
+
+        <!-- ========== MENÚ LATERAL MÓVIL ========== -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <span class="text-xl font-bold tracking-tight text-on-surface">EventPulse</span>
+                <button type="button" id="mobileMenuClose" style="background: none; border: none; cursor: pointer; padding: 0.5rem; border-radius: 0.5rem; color: var(--text-on-surface);">
+                    <i class="bi bi-x-lg" style="font-size: 1.5rem;"></i>
+                </button>
+            </div>
+            <a href="{% url 'core:home' %}" class="mobile-nav-link" data-i18n="nav_inicio">Inicio</a>
+            <a href="{% url 'in_person_events:create_event_form' %}" class="mobile-nav-link" data-i18n="nav_presenciales">Eventos Presenciales</a>
+            <a href="{% url 'virtualEvent:event_create' %}" class="mobile-nav-link" data-i18n="nav_virtuales">Eventos Virtuales</a>
+            <a href="{% url 'core:contacto' %}" class="mobile-nav-link" data-i18n="nav_contacto">Contacto</a>
+            <hr style="border-color: var(--border-outline-variant); margin: 1rem 0;" />
+            {% if user.is_authenticated %}
+            <a href="{% url 'usuarios:dashboard' %}" class="mobile-nav-link" data-i18n="my_dashboard">Mi Panel</a>
+            <a href="{% url 'usuarios:perfil' %}" class="mobile-nav-link" data-i18n="my_profile">Mi Perfil</a>
+            {% if user.rol == 'administrador' %}
+            <a href="{% url 'core:admin_panel' %}" class="mobile-nav-link" data-i18n="admin_panel">Panel de Administración</a>
+            {% endif %}
+            <a href="{% url 'usuarios:logout' %}" class="mobile-nav-link" style="color: #ef4444;" data-i18n="logout">Cerrar Sesión</a>
+            {% else %}
+            <a href="{% url 'usuarios:login' %}" class="mobile-nav-link" data-i18n="login">Iniciar Sesión</a>
+            <a href="{% url 'usuarios:registro' %}" class="mobile-nav-link" data-i18n="register">Registrarse</a>
+            {% endif %}
+        </div>
+
+        <!-- ========== NAVBAR PRINCIPAL ========== -->
         <nav
             class="fixed top-0 w-full z-50 backdrop-blur-md shadow-sm"
             style="
@@ -1013,7 +1149,8 @@
                         class="text-xl font-bold tracking-tight text-on-surface"
                         >EventPulse</span
                     >
-                    <div class="flex flex-wrap items-center justify-center gap-6 w-full md:w-auto">
+                    <!-- Enlaces de escritorio -->
+                    <div class="nav-links-desktop flex flex-wrap items-center justify-center gap-6 w-full md:w-auto">
                         <a
                             class="font-sans text-sm font-medium transition-colors duration-200"
                             style="color: var(--text-on-surface-variant)"
@@ -1044,12 +1181,18 @@
                         >
                     </div>
                 </div>
-                <div class="flex items-center gap-4">
+
+                <!-- Botón hamburguesa (solo móvil) -->
+                <button class="hamburger-btn" id="mobileMenuBtn" type="button" aria-label="Menú">
+                    <i class="bi bi-list" style="font-size: 1.8rem; color: var(--text-on-surface);"></i>
+                </button>
+
+                <div class="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 md:flex-nowrap md:gap-4">
                     <div style="display: flex; align-items: center; background-color: var(--surface-container-high); border-radius: 9999px; padding: 2px; gap: 1px;">
                         <button id="lang-es" type="button" style="background-color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); border: none; border-radius: 9999px; padding: 2px 10px; font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: all 0.2s; color: var(--primary);">ES</button>
                         <button id="lang-en" type="button" style="background-color: transparent; box-shadow: none; border: none; border-radius: 9999px; padding: 2px 10px; font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: all 0.2s; color: #64748b;">EN</button>
                     </div>
-                         <button type="button" id="theme-toggle" aria-label="Cambiar tema" style="background: none; border: none; cursor: pointer; padding: 6px; border-radius: 9999px; transition: all 0.2s;">
+                    <button type="button" id="theme-toggle" aria-label="Cambiar tema" style="background: none; border: none; cursor: pointer; padding: 6px; border-radius: 9999px; transition: all 0.2s;">
                         <i id="theme-icon" class="bi bi-brightness-high-fill" style="font-size: 1.25rem; color: var(--text-on-surface);"></i>
                     </button>
 
@@ -1089,7 +1232,9 @@
                         </div>
                     </div>
                     {% endif %}
+
                     {% if user.is_authenticated %}
+                    <div class="hidden md:block">
                     <div class="relative">
                         <button
                             id="user-menu-btn"
@@ -1100,6 +1245,7 @@
                                 src="{{ user.avatar.url }}"
                                 class="w-8 h-8 rounded-full object-cover"
                             />
+                            </div>
                             {% else %}
                             <div
                                 class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold"
@@ -1143,18 +1289,14 @@
                         </div>
                     </div>
                     {% else %}
-                    <a
-                        href="{% url 'usuarios:login' %}"
+                    <div class="hidden md:flex items-center gap-2">
+                        <a href="{% url 'usuarios:login' %}"
                         class="text-sm font-semibold px-4 py-2 rounded-lg border border-primary text-primary hover:bg-primary hover:text-white transition"
-                        data-i18n="login"
-                        >Login</a
-                    >
-                    <a
-                        href="{% url 'usuarios:registro' %}"
+                        data-i18n="login">Login</a>
+                        <a href="{% url 'usuarios:registro' %}"
                         class="text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-white shadow-sm"
-                        data-i18n="register"
-                        >Registro</a
-                    >
+                        data-i18n="register">Registro</a>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -1166,331 +1308,344 @@
             </div>
         </main>
 
-<!-- Mensajes de Django convertidos a toasts con traducción condicional -->
-{% if messages %}
-<div id="django-messages-data" style="display: none;" data-messages='[
-    {% for message in messages %}
-        {"text": "{{ message|escapejs }}", "tags": "{{ message.tags }}"}{% if not forloop.last %},{% endif %}
-    {% endfor %}
-]'></div>
-<script>
-    // Diccionario de traducción de mensajes comunes (español -> inglés)
-    const messageTranslations = {
-        // Login/registro
-        "Email o contraseña incorrectos": "Incorrect email or password",
-        "¡Bienvenido/a de nuevo": "Welcome back",
-        "¡Bienvenido/a": "Welcome",
-        "Has cerrado sesión correctamente.": "You have been logged out successfully.",
-        "Se ha enviado un enlace de recuperación a": "A recovery link has been sent to",
-        "No existe una cuenta con este email": "No account exists with this email",
-        "Este email ya está registrado": "This email is already registered",
-        "Las contraseñas no coinciden": "Passwords do not match",
-        "Debes seleccionar al menos 3 categorías.": "You must select at least 3 categories.",
-        "Perfil actualizado correctamente.": "Profile updated successfully.",
-        "Contraseña cambiada correctamente.": "Password changed successfully.",
-        "La contraseña actual es incorrecta": "Current password is incorrect",
-        "Tus preferencias se han actualizado correctamente.": "Your preferences have been updated successfully.",
-        // Suscripciones
-        " Te has suscrito a": " You have subscribed to",
-        " Ya estabas suscrito a": " You were already subscribed to",
-        " Has cancelado tu suscripción a": " You have cancelled your subscription to",
-        // Contacto
-        "¡Gracias por tu reseña! Será revisada por nuestro equipo.": "Thank you for your review! It will be reviewed by our team.",
-        "Hubo un error al enviar la reseña. Revisa los datos.": "There was an error sending the review. Check your data.",
-        "Consulta enviada correctamente. Te responderemos pronto.": "Inquiry sent successfully. We will reply soon.",
-        "Hubo un error al enviar la consulta. Revisa los datos.": "There was an error sending the inquiry. Check your data.",
-        // Otros
-        "Debes iniciar sesión para enviar una reseña o consulta.": "You must log in to send a review or inquiry.",
-    };
-
-    function translateMessage(text) {
-        // Solo traducir si el idioma actual es inglés
-        if (typeof currentLang !== 'undefined' && currentLang === 'en') {
-            // Buscar traducción exacta
-            if (messageTranslations[text]) {
-                return messageTranslations[text];
+        <!-- Toast notifications (floating) -->
+        <style>
+            .toast-container {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
             }
-            // Buscar traducción por prefijo (para mensajes con variables)
-            for (let key in messageTranslations) {
-                if (text.startsWith(key)) {
-                    return text.replace(key, messageTranslations[key]);
+            .toast {
+                min-width: 250px;
+                max-width: 350px;
+                background: var(--surface-container-lowest);
+                color: var(--text-on-surface);
+                border-left: 4px solid var(--primary);
+                border-radius: 12px;
+                padding: 12px 16px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                backdrop-filter: blur(8px);
+                font-size: 0.875rem;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                transform: translateX(120%);
+                transition: transform 0.3s ease;
+                pointer-events: none;
+            }
+            .toast.show {
+                transform: translateX(0);
+            }
+            .toast.success {
+                border-left-color: #10b981;
+            }
+            .toast.error {
+                border-left-color: #ef4444;
+            }
+            .toast.info {
+                border-left-color: var(--primary);
+            }
+            .toast .toast-icon {
+                font-size: 1.25rem;
+            }
+        </style>
+        <div class="toast-container" id="toast-container"></div>
+        <script>
+            function showToast(message, type = 'info') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                let icon = '';
+                if (type === 'success') icon = '✅';
+                else if (type === 'error') icon = '❌';
+                else icon = 'ℹ️';
+                toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
+                container.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        </script>
+
+        <!-- Mensajes de Django convertidos a toasts con traducción condicional -->
+        {% if messages %}
+        <div id="django-messages-data" style="display: none;" data-messages='[
+            {% for message in messages %}
+                {"text": "{{ message|escapejs }}", "tags": "{{ message.tags }}"}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]'></div>
+        <script>
+            const messageTranslations = {
+                "Email o contraseña incorrectos": "Incorrect email or password",
+                "¡Bienvenido/a de nuevo": "Welcome back",
+                "¡Bienvenido/a": "Welcome",
+                "Has cerrado sesión correctamente.": "You have been logged out successfully.",
+                "Se ha enviado un enlace de recuperación a": "A recovery link has been sent to",
+                "No existe una cuenta con este email": "No account exists with this email",
+                "Este email ya está registrado": "This email is already registered",
+                "Las contraseñas no coinciden": "Passwords do not match",
+                "Debes seleccionar al menos 3 categorías.": "You must select at least 3 categories.",
+                "Perfil actualizado correctamente.": "Profile updated successfully.",
+                "Contraseña cambiada correctamente.": "Password changed successfully.",
+                "La contraseña actual es incorrecta": "Current password is incorrect",
+                "Tus preferencias se han actualizado correctamente.": "Your preferences have been updated successfully.",
+                " Te has suscrito a": " You have subscribed to",
+                " Ya estabas suscrito a": " You were already subscribed to",
+                " Has cancelado tu suscripción a": " You have cancelled your subscription to",
+                "¡Gracias por tu reseña! Será revisada por nuestro equipo.": "Thank you for your review! It will be reviewed by our team.",
+                "Hubo un error al enviar la reseña. Revisa los datos.": "There was an error sending the review. Check your data.",
+                "Consulta enviada correctamente. Te responderemos pronto.": "Inquiry sent successfully. We will reply soon.",
+                "Hubo un error al enviar la consulta. Revisa los datos.": "There was an error sending the inquiry. Check your data.",
+                "Debes iniciar sesión para enviar una reseña o consulta.": "You must log in to send a review or inquiry.",
+            };
+
+            function translateMessage(text) {
+                if (typeof currentLang !== 'undefined' && currentLang === 'en') {
+                    if (messageTranslations[text]) return messageTranslations[text];
+                    for (let key in messageTranslations) {
+                        if (text.startsWith(key)) return text.replace(key, messageTranslations[key]);
+                    }
                 }
-                // Si no es inglés o no hay traducción, devolver el texto original
                 return text;
             }
-        }
-        // Si no es inglés o no hay traducción, devolver el texto original
-        return text;
-    }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const messagesDiv = document.getElementById('django-messages-data');
-        if (messagesDiv) {
-            const messages = JSON.parse(messagesDiv.getAttribute('data-messages'));
-            messages.forEach(function(msg) {
-                let type = 'info';
-                if (msg.tags === 'error') type = 'error';
-                else if (msg.tags === 'success') type = 'success';
-                const translatedText = translateMessage(msg.text);
-                showToast(translatedText, type);
+            document.addEventListener('DOMContentLoaded', function() {
+                const messagesDiv = document.getElementById('django-messages-data');
+                if (messagesDiv) {
+                    const messages = JSON.parse(messagesDiv.getAttribute('data-messages'));
+                    messages.forEach(function(msg) {
+                        let type = 'info';
+                        if (msg.tags === 'error') type = 'error';
+                        else if (msg.tags === 'success') type = 'success';
+                        showToast(translateMessage(msg.text), type);
+                    });
+                }
             });
-        }
-    });
-</script>
-{% endif %}
+        </script>
+        {% endif %}
 
-    <!-- Toast notifications (floating) -->
-    <style>
-        .toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .toast {
-            min-width: 250px;
-            max-width: 350px;
-            background: var(--surface-container-lowest);
-            color: var(--text-on-surface);
-            border-left: 4px solid var(--primary);
-            border-radius: 12px;
-            padding: 12px 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            backdrop-filter: blur(8px);
-            font-size: 0.875rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transform: translateX(120%);
-            transition: transform 0.3s ease;
-            pointer-events: none;
-        }
-        .toast.show {
-            transform: translateX(0);
-        }
-        .toast.success {
-            border-left-color: #10b981;
-        }
-        .toast.error {
-            border-left-color: #ef4444;
-        }
-        .toast.info {
-            border-left-color: var(--primary);
-        }
-        .toast .toast-icon {
-            font-size: 1.25rem;
-        }
-    </style>
-    <div class="toast-container" id="toast-container"></div>
-    <script>
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            let icon = '';
-            if (type === 'success') icon = '✅';
-            else if (type === 'error') icon = '❌';
-            else icon = 'ℹ️';
-            toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-    </script>
-
-    <!-- Modal de confirmación para eliminar evento -->
-    <div id="deleteEventModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300">
-        <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="deleteEventModalContent">
-            <div class="p-6 text-center">
-                <div class="mx-auto w-16 h-16 mb-4 rounded-full bg-red-100 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-on-surface mb-2">¿Eliminar evento?</h3>
-                <p class="text-on-surface-variant mb-2">Esta acción no se puede deshacer.</p>
-                <p class="text-sm font-medium text-on-surface-variant bg-surface-container-high inline-block px-3 py-1 rounded-full mb-4" id="deleteEventTitle"></p>
-                <div class="flex gap-3 justify-center">
-                    <button type="button" id="cancelDeleteBtn" class="px-5 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-semibold hover:bg-surface-container-high transition-colors">
-                        Cancelar
-                    </button>
-                    <form id="deleteEventForm" method="post" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="px-5 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors shadow-sm">
-                            Sí, eliminar
+        <!-- Modal de confirmación para eliminar evento -->
+        <div id="deleteEventModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-300">
+            <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="deleteEventModalContent">
+                <div class="p-6 text-center">
+                    <div class="mx-auto w-16 h-16 mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-on-surface mb-2">¿Eliminar evento?</h3>
+                    <p class="text-on-surface-variant mb-2">Esta acción no se puede deshacer.</p>
+                    <p class="text-sm font-medium text-on-surface-variant bg-surface-container-high inline-block px-3 py-1 rounded-full mb-4" id="deleteEventTitle"></p>
+                    <div class="flex gap-3 justify-center">
+                        <button type="button" id="cancelDeleteBtn" class="px-5 py-2 rounded-lg border border-outline-variant text-on-surface-variant font-semibold hover:bg-surface-container-high transition-colors">
+                            Cancelar
                         </button>
-                    </form>
+                        <form id="deleteEventForm" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="px-5 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors shadow-sm">
+                                Sí, eliminar
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        // ==================== MODAL ELIMINAR EVENTO ====================
-        document.addEventListener('DOMContentLoaded', function() {
-            const modal = document.getElementById('deleteEventModal');
-            const modalContent = document.getElementById('deleteEventModalContent');
-            const cancelBtn = document.getElementById('cancelDeleteBtn');
-            const deleteForm = document.getElementById('deleteEventForm');
-            const eventTitleSpan = document.getElementById('deleteEventTitle');
-            
-            if (!modal) return;
-            
-            function openModal() {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                setTimeout(() => {
+        <script>
+            // ==================== MODAL ELIMINAR EVENTO ====================
+            document.addEventListener('DOMContentLoaded', function() {
+                const modal = document.getElementById('deleteEventModal');
+                const modalContent = document.getElementById('deleteEventModalContent');
+                const cancelBtn = document.getElementById('cancelDeleteBtn');
+                const deleteForm = document.getElementById('deleteEventForm');
+                const eventTitleSpan = document.getElementById('deleteEventTitle');
+                
+                if (!modal) return;
+                
+                function openModal() {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    setTimeout(() => {
+                        if (modalContent) {
+                            modalContent.classList.remove('scale-95', 'opacity-0');
+                            modalContent.classList.add('scale-100', 'opacity-100');
+                        }
+                    }, 10);
+                    document.body.style.overflow = 'hidden';
+                }
+                
+                function closeModal() {
                     if (modalContent) {
-                        modalContent.classList.remove('scale-95', 'opacity-0');
-                        modalContent.classList.add('scale-100', 'opacity-100');
+                        modalContent.classList.remove('scale-100', 'opacity-100');
+                        modalContent.classList.add('scale-95', 'opacity-0');
                     }
-                }, 10);
+                    setTimeout(() => {
+                        modal.classList.remove('flex');
+                        modal.classList.add('hidden');
+                        document.body.style.overflow = '';
+                    }, 200);
+                }
+                
+                if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+                
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) closeModal();
+                });
+                
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+                });
+                
+                // Configurar botones de eliminar en toda la página
+                const virtualUrlTemplate = "{% url 'virtualEvent:event_delete' 99999 %}".replace('99999', '{id}');
+                const presencialUrlTemplate = "{% url 'in_person_events:delete_event' 99999 %}".replace('99999', '{id}');
+                
+                function setupDeleteButtons() {
+                    document.querySelectorAll('.open-delete-modal').forEach(button => {
+                        if (button.hasAttribute('data-listener')) return;
+                        button.setAttribute('data-listener', 'true');
+                        
+                        button.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const eventId = this.getAttribute('data-event-id');
+                            const eventTitle = this.getAttribute('data-event-title');
+                            const eventType = this.getAttribute('data-event-type') || 'virtual';
+                            
+                            if (eventId && eventTitle) {
+                                eventTitleSpan.textContent = `"${eventTitle}"`;
+                                const urlTemplate = eventType === 'presencial' ? presencialUrlTemplate : virtualUrlTemplate;
+                                deleteForm.action = urlTemplate.replace('{id}', eventId);
+                                openModal();
+                            } else {
+                                console.error('Faltan datos:', {eventId, eventTitle, eventType});
+                            }
+                        });
+                    });
+                }
+                
+                setupDeleteButtons();
+                
+                // Observar cambios en el DOM para botones añadidos dinámicamente
+                const observer = new MutationObserver(setupDeleteButtons);
+                observer.observe(document.body, { childList: true, subtree: true });
+            });
+        </script>
+        <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+        {% if user.is_authenticated %}
+        <script src="{% static 'js/notifications.js' %}"></script>
+        {% endif %}
+        {% block extra_js %}
+        {% if cookie_consent_required %}
+        <script>
+            (function() {
+                if (document.cookie.indexOf('cookie_consent=') !== -1) return;
+                var banner = document.createElement('div');
+                banner.id = 'cookie-banner';
+                banner.style.cssText = 'position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: #e2e8f0; padding: 1rem; text-align: center; z-index: 9999; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; font-family: system-ui, sans-serif;';
+                banner.innerHTML = `
+                    <span>Usamos cookies esenciales para el funcionamiento de la plataforma. Al continuar navegando, aceptas su uso.</span>
+                    <button id="accept-cookies" style="background: #3b82f6; border: none; padding: 0.5rem 1.2rem; border-radius: 2rem; color: white; cursor: pointer; font-weight: bold;">Aceptar</button>
+                    <a href="/politica-cookies/" style="color: #94a3b8; text-decoration: underline;">Más información</a>
+                `;
+                document.body.appendChild(banner);
+                document.getElementById('accept-cookies').addEventListener('click', function() {
+                    document.cookie = "cookie_consent=accepted; path=/; max-age=" + (365 * 24 * 60 * 60);
+                    banner.remove();
+                });
+            })();
+        </script>
+        {% endif %}
+        {% endblock %}
+
+        <script>
+            // Actualizar el contador de mensajes del chat (solo para administradores)
+            function actualizarContadorChat() {
+                const badge = document.getElementById('chat-badge');
+                if (!badge) return;
+
+                fetch('/chat/contar-no-leidos/')
+                    .then(response => {
+                        if (!response.ok) throw new Error('Error al obtener el conteo');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.style.display = 'flex';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al actualizar contador de chat:', error);
+                        badge.style.display = 'none';
+                    });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                if (document.getElementById('chat-badge')) {
+                    actualizarContadorChat();
+                    setInterval(actualizarContadorChat, 30000);
+                }
+            });
+        </script>
+
+        <script>
+        // ========== FUNCIONALIDAD MENÚ HAMBURGUESA ==========
+            const mobileMenu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('menuOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            const closeBtn = document.getElementById('mobileMenuClose');
+
+            function openMobileMenu() {
+                mobileMenu.classList.add('show');
+                overlay.classList.add('show');
                 document.body.style.overflow = 'hidden';
             }
-            
-            function closeModal() {
-                if (modalContent) {
-                    modalContent.classList.remove('scale-100', 'opacity-100');
-                    modalContent.classList.add('scale-95', 'opacity-0');
-                }
-                setTimeout(() => {
-                    modal.classList.remove('flex');
-                    modal.classList.add('hidden');
-                    document.body.style.overflow = '';
-                }, 200);
+
+            function closeMobileMenu() {
+                mobileMenu.classList.remove('show');
+                overlay.classList.remove('show');
+                document.body.style.overflow = '';
             }
-            
-            if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
-            
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) closeModal();
-            });
-            
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
-            });
-            
-            // Configurar botones de eliminar en toda la página
-            const virtualUrlTemplate = "{% url 'virtualEvent:event_delete' 99999 %}".replace('99999', '{id}');
-            const presencialUrlTemplate = "{% url 'in_person_events:delete_event' 99999 %}".replace('99999', '{id}');
-            
-            function setupDeleteButtons() {
-                document.querySelectorAll('.open-delete-modal').forEach(button => {
-                    if (button.hasAttribute('data-listener')) return;
-                    button.setAttribute('data-listener', 'true');
-                    
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const eventId = this.getAttribute('data-event-id');
-                        const eventTitle = this.getAttribute('data-event-title');
-                        const eventType = this.getAttribute('data-event-type') || 'virtual';
-                        
-                        if (eventId && eventTitle) {
-                            eventTitleSpan.textContent = `"${eventTitle}"`;
-                            const urlTemplate = eventType === 'presencial' ? presencialUrlTemplate : virtualUrlTemplate;
-                            deleteForm.action = urlTemplate.replace('{id}', eventId);
-                            openModal();
-                        } else {
-                            console.error('Faltan datos:', {eventId, eventTitle, eventType});
-                        }
-                    });
-                });
-            }
-            
-            setupDeleteButtons();
-            
-            // Observar cambios en el DOM para botones añadidos dinámicamente
-            const observer = new MutationObserver(setupDeleteButtons);
-            observer.observe(document.body, { childList: true, subtree: true });
-        });
-    </script>
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-    {% if user.is_authenticated %}
-    <script src="{% static 'js/notifications.js' %}"></script>
-    {% endif %}
-    {% block extra_js %}
-    {% if cookie_consent_required %}
-<script>
-    (function() {
-        if (document.cookie.indexOf('cookie_consent=') !== -1) return;
-        var banner = document.createElement('div');
-        banner.id = 'cookie-banner';
-        banner.style.cssText = 'position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: #e2e8f0; padding: 1rem; text-align: center; z-index: 9999; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; font-family: system-ui, sans-serif;';
-        banner.innerHTML = `
-            <span>Usamos cookies esenciales para el funcionamiento de la plataforma. Al continuar navegando, aceptas su uso.</span>
-            <button id="accept-cookies" style="background: #3b82f6; border: none; padding: 0.5rem 1.2rem; border-radius: 2rem; color: white; cursor: pointer; font-weight: bold;">Aceptar</button>
-            <a href="/politica-cookies/" style="color: #94a3b8; text-decoration: underline;">Más información</a>
-        `;
-        document.body.appendChild(banner);
-        document.getElementById('accept-cookies').addEventListener('click', function() {
-            document.cookie = "cookie_consent=accepted; path=/; max-age=" + (365 * 24 * 60 * 60);
-            banner.remove();
-        });
-    })();
 
-</script>
-{% endif %}
-{% endblock %}
-
-<script>
-        // Actualizar el contador de mensajes del chat (solo para administradores)
-    function actualizarContadorChat() {
-        const badge = document.getElementById('chat-badge');
-        if (!badge) return;
-
-        fetch('/chat/contar-no-leidos/')
-            .then(response => {
-                if (!response.ok) throw new Error('Error al obtener el conteo');
-                return response.json();
-            })
-            .then(data => {
-                if (data.count > 0) {
-                    badge.textContent = data.count;
-                    badge.style.display = 'flex';
-                    console.log('Contador de chat actualizado:', data.count);
-                } else {
-                    badge.style.display = 'none';
-                }
-            })
-            .catch(error => {
-                console.error('Error al actualizar contador de chat:', error);
-                badge.style.display = 'none';
-            });
-    }
-
-    // Ejecutar al cargar la página y cada 30 segundos
-    document.addEventListener('DOMContentLoaded', function() {
-        if (document.getElementById('chat-badge')) {
-            actualizarContadorChat();
-            setInterval(actualizarContadorChat, 30000); // cada 30 segundos
+            if (menuBtn) {
+    menuBtn.addEventListener('click', function () {
+        if (mobileMenu.classList.contains('show')) {
+            closeMobileMenu();
+        } else {
+            openMobileMenu();
         }
     });
+}
+            if (closeBtn) closeBtn.addEventListener('click', closeMobileMenu);
+            if (overlay) overlay.addEventListener('click', closeMobileMenu);
 
-</script>
+            // Cerrar menú al hacer clic en un enlace del menú móvil
+            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', closeMobileMenu);
+            });
+            </script>
 
+    </body>
 
-</script>
-
-</body>
-
-<footer class="w-full border-t py-8 mt-12">
-    <div class="max-w-7xl mx-auto px-4 text-center text-sm" style="color: var(--text-on-surface-variant);">
-        <div class="flex flex-wrap justify-center gap-4 mb-3">
-            <a href="{% url 'core:about' %}" class="hover:underline transition-colors" data-i18n="about_link">Acerca de</a>
-            <a href="{% url 'core:aviso_legal' %}" class="hover:underline transition-colors" data-i18n="aviso_legal_link">Aviso Legal</a>
-            <a href="{% url 'core:politica_cookies' %}" class="hover:underline transition-colors" data-i18n="cookie_policy_link">Política de Cookies</a>
-            <a href="{% url 'core:terms' %}" class="hover:underline transition-colors" data-i18n="terms_link">Términos y condiciones</a>
-            <a href="{% url 'core:privacy' %}" class="hover:underline transition-colors" data-i18n="privacy_link">Política de privacidad</a>
+    <footer class="w-full border-t py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm" style="color: var(--text-on-surface-variant);">
+            <div class="flex flex-wrap justify-center gap-4 mb-3">
+                <a href="{% url 'core:about' %}" class="hover:underline transition-colors" data-i18n="about_link">Acerca de</a>
+                <a href="{% url 'core:aviso_legal' %}" class="hover:underline transition-colors" data-i18n="aviso_legal_link">Aviso Legal</a>
+                <a href="{% url 'core:politica_cookies' %}" class="hover:underline transition-colors" data-i18n="cookie_policy_link">Política de Cookies</a>
+                <a href="{% url 'core:terms' %}" class="hover:underline transition-colors" data-i18n="terms_link">Términos y condiciones</a>
+                <a href="{% url 'core:privacy' %}" class="hover:underline transition-colors" data-i18n="privacy_link">Política de privacidad</a>
+            </div>
+            <div>&copy; {% now "Y" %} EventPulse. <span data-i18n="footer_copyright">Todos los derechos reservados.</span></div>
         </div>
-        <div>&copy; {% now "Y" %} EventPulse. <span data-i18n="footer_copyright">Todos los derechos reservados.</span></div>
-    </div>
-</footer>
-
+    </footer>
 </html>

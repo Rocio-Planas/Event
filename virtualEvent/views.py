@@ -232,17 +232,17 @@ def organizer_dashboard(request, event_id):
         if match:
             youtube_embed = match.group(1)
 
-    errors = {}  # Diccionario para errores de campo
+    errors = {}  
 
     if request.method == "POST":
-        # Recoger datos del formulario (igual que antes)
+        
         title = request.POST.get("title", event.title)
         description = request.POST.get("description", event.description)
         start_time_str = request.POST.get("start_time", "")
         duration = request.POST.get("duration", "")
         access_type = request.POST.get("access_type", event.privacy)
 
-        # --- Validación de fecha (igual que en event_create) ---
+        
         if not start_time_str:
             errors["start_time"] = "La fecha y hora son obligatorias"
         else:
@@ -254,9 +254,9 @@ def organizer_dashboard(request, event_id):
                 if start_datetime_aware < now():
                     errors["start_time"] = "La fecha no puede ser pasada"
                 else:
-                    event.start_datetime = start_datetime_aware  # solo si es válida
+                    event.start_datetime = start_datetime_aware 
 
-        # Validar duración (opcional, pero por consistencia)
+        
         if not duration:
             errors["duration"] = "La duración es obligatoria"
         else:
@@ -269,9 +269,8 @@ def organizer_dashboard(request, event_id):
             except ValueError:
                 errors["duration"] = "Número inválido"
 
-        # Si hay errores, volvemos a mostrar el formulario con los datos actuales (sin guardar)
+        
         if errors:
-            # Preparamos el contexto con los valores actuales del evento (sin cambios) y los errores
             invite_link = request.build_absolute_uri(
                 reverse("ve_streaming:waiting_room", args=[event.unique_link])
             )
@@ -282,19 +281,17 @@ def organizer_dashboard(request, event_id):
                 "invited_emails": invited_emails,
                 "youtube_embed": youtube_embed,
                 "invite_link": invite_link,
-                "start_time_str": start_time_str,  # mostramos lo que el usuario intentó poner
+                "start_time_str": start_time_str,  
                 "errors": errors,
-                "now": now().isoformat(),  # para el atributo min
+                "now": now().isoformat(), 
             }
             return render(request, "virtualEvents/organizer_dashboard.html", context)
 
-        # --- Si no hay errores, actualizamos el resto de campos y guardamos ---
         event.title = title
         event.description = description
         event.privacy = access_type
-        event.save()  # ya se actualizó la fecha y duración en las validaciones
+        event.save() 
 
-        # Procesar imagen de portada (igual que antes)
         if request.FILES.get("event_image"):
             if event.image:
                 default_storage.delete(event.image.name)
@@ -337,7 +334,7 @@ def organizer_dashboard(request, event_id):
 
         return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
 
-    # ----- GET (mostrar formulario) -----
+    
     invite_link = request.build_absolute_uri(
         reverse("ve_streaming:waiting_room", args=[event.unique_link])
     )
@@ -354,7 +351,7 @@ def organizer_dashboard(request, event_id):
         "invite_link": invite_link,
         "start_time_str": start_time_str,
         "errors": {},
-        "now": now().isoformat(),  # para el atributo min en el input
+        "now": now().isoformat(),  
     }
     return render(request, "virtualEvents/organizer_dashboard.html", context)
 
@@ -487,21 +484,18 @@ def generate_pdf_report(request, event_id):
 def event_detail(request, pk):
     event = get_object_or_404(VirtualEvent, pk=pk)
 
-    # Restricción de visibilidad: solo aprobados o si es el organizador/admin
     if event.estado != "aprobado":
         if not request.user.is_authenticated or (
             request.user != event.created_by and not request.user.is_staff
         ):
             raise Http404("Evento no disponible o pendiente de aprobación")
 
-    # Calcular fecha fin para Google Calendar
     fecha_fin = (
         event.start_datetime + timedelta(minutes=event.duration_minutes)
         if event.duration_minutes
         else event.start_datetime
     )
 
-    # Construir el objeto 'evento' para el template
     evento_data = {
         "id": event.id,
         "titulo": event.title,

@@ -180,6 +180,7 @@ OFFENSIVE_WORDS = [
     'carajo', 'verga', 'chucha', 'concha', 'pija', 'bobo'
 ]
 
+
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
@@ -187,3 +188,9 @@ CSRF_TRUSTED_ORIGINS = [
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
 
+
+# Base URL para construir enlaces absolutos (invitaciones, recordatorios, etc.)
+if DEBUG:
+    BASE_URL = 'http://127.0.0.1:8000'
+else:
+    BASE_URL = 'https://melissagiraldo18.pythonanywhere.com'

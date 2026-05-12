@@ -1,4 +1,3 @@
-/* src/event-form.css */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 :root {
@@ -63,7 +62,7 @@ body {
 }
 
 .ev-form-body {
-  padding: 2.5rem 3.5rem 3.5rem; /* Sincronizado con el header */
+  padding: 2.5rem 3.5rem 3.5rem; 
 }
 
 .ev-label {
@@ -188,7 +187,6 @@ body {
   border-radius: 0.5rem;
 }
 
-/* Eliminar bordes redondeados donde se unen input y addon */
 .ev-form .input-group .ev-input {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
@@ -236,7 +234,7 @@ input[type="number"] {
 
 .dark .ev-header {
   border-bottom-color: var(--border-outline-variant) !important;
-  background: var(--surface-container-lowest) !important; /* sólido */
+  background: var(--surface-container-lowest) !important;
 }
 
 .dark .ev-title {
@@ -259,7 +257,6 @@ input[type="number"] {
   border-color: var(--primary) !important;
 }
 
-/* Placeholder */
 .dark .ev-input::placeholder {
   color: var(--text-on-surface-variant) !important;
   opacity: 0.8;
@@ -310,20 +307,20 @@ input[type="number"] {
   color: var(--text-on-surface) !important;
 }
 
-/* Texto de los radio buttons en modo oscuro */
+
 .dark .ev-radio-card .form-check-label,
 .dark .ev-radio-card span:not(.ev-icon-box),
 .dark .form-check-label {
   color: var(--text-on-surface) !important;
 }
 
-/* Si el texto está dentro de un label o párrafo */
+
 .dark .ev-radio-card label,
 .dark .ev-radio-card p {
   color: var(--text-on-surface) !important;
 }
 
-/* Forzar colores de textos fijos en modo oscuro (público/privado) */
+
 .dark .ev-radio-card .fw-bold.text-dark,
 .dark .ev-radio-card div:not(.ev-icon-box) .fw-bold,
 .dark .ev-radio-card .text-dark {
@@ -335,13 +332,13 @@ input[type="number"] {
   color: var(--text-on-surface-variant) !important;
 }
 
-/* Texto del dropzone (PNG O JPG) */
+
 .dark .ev-drop-zone .text-muted,
 .dark .ev-drop-zone small {
   color: var(--text-on-surface-variant) !important;
 }
 
-/* Asegurar que los placeholders usen la variable (ya lo tienes, pero reforzamos) */
+
 .dark .ev-input::placeholder,
 .dark .ev-drop-zone p::placeholder {
   color: var(--text-on-surface-variant) !important;

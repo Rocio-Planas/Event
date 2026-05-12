@@ -4,7 +4,7 @@
 
 {% block extra_css %}
 <style>
-        .like-icon {
+    .like-icon {
         transition: transform 0.2s ease;
     }
     .like-icon.filled {
@@ -16,15 +16,15 @@
         transform: scale(1.1);
     }
     @media (max-width: 640px) {
-    .hero-section form {
-        flex-direction: column;
-        padding: 0 1rem;
-    }
-    .hero-section input {
-        width: 100% !important;
-    }
-    .hero-section button {
-        width: 100% !important;
+        .hero-section form {
+            flex-direction: column;
+            padding: 0 1rem;
+        }
+        .hero-section input {
+            width: 100% !important;
+        }
+        .hero-section button {
+            width: 100% !important;
         }
     }
 </style>
@@ -44,12 +44,12 @@
     </div>
 </section>
 
-<!-- Filtro de categorías (pills) -->
+<!-- Filtro de categorías -->
 <div id="filtros-container">
     <section class="mb-12">
         <h2 class="text-2xl font-bold mb-6" style="color: var(--text-on-surface);" data-i18n="cat_title">Explorar por Categoría</h2>
         <div class="flex flex-wrap gap-3">
-           <a href="{% url 'core:home' %}?all=1" class="rounded-full px-5 py-2 text-sm font-medium transition-all {% if not categoria_seleccionada %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}" data-i18n="all_categories">Todas</a>
+            <a href="{% url 'core:home' %}?all=1" class="rounded-full px-5 py-2 text-sm font-medium transition-all {% if not categoria_seleccionada %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}" data-i18n="all_categories">Todas</a>
             {% for cat in categorias %}
             <a href="?categoria={{ cat.nombre }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" class="rounded-full px-5 py-2 text-sm font-medium transition-all flex items-center gap-2 {% if categoria_seleccionada == cat.nombre %}bg-primary text-white shadow-md{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
                 <span class="material-symbols-outlined text-base">{{ cat.icono|default:"category" }}</span>
@@ -109,7 +109,7 @@
                                 </button>
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'usuarios:login' %}" class="text-red-400 relative z-20">
+                            <a href="{% url 'usuarios:login' %}" class="relative z-20" style="color: var(--text-on-surface-variant);">
                                 <span class="material-symbols-outlined">favorite_border</span>
                             </a>
                         {% endif %}
@@ -142,38 +142,16 @@
                             <a href="{% url 'usuarios:login' %}" class="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-semibold text-center hover:opacity-90 transition relative z-20" data-i18n="login_to_subscribe">Iniciar sesión</a>
                         {% endif %}
 
+                        <!-- Botones: Compartir y Detalles (CORREGIDO) -->
                         <div class="flex gap-2">
-                            <!-- Compartir -->
-                            <div class="relative share-wrapper flex-1">
-                                <button class="share-trigger w-full py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition relative z-20" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);">
-                                    <i class="fas fa-share-alt"></i> <span data-i18n="share_btn">Compartir</span>
-                                </button>
-                                <div class="share-menu hidden absolute right-0 bottom-full mb-2 w-56 rounded-xl shadow-xl z-30 p-3" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
-                                    <!-- opciones de compartir -->
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <button class="share-facebook flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ evento.id }}">
-                                            <i class="fab fa-facebook-f text-xl" style="color: #1877f2;"></i>
-                                            <span class="text-xs">Facebook</span>
-                                        </button>
-                                        <button class="share-twitter flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ evento.id }}">
-                                            <i class="fab fa-x-twitter text-xl" style="color: #000000;"></i>
-                                            <span class="text-xs">X</span>
-                                        </button>
-                                        <button class="share-whatsapp flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ evento.id }}">
-                                            <i class="fab fa-whatsapp text-xl" style="color: #25D366;"></i>
-                                            <span class="text-xs">WhatsApp</span>
-                                        </button>
-                                        <button class="share-telegram flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ evento.id }}">
-                                            <i class="fab fa-telegram-plane text-xl" style="color: #26A5E4;"></i>
-                                            <span class="text-xs">Telegram</span>
-                                        </button>
-                                        <button class="share-copy flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-surface-container-high transition col-span-2" data-event-title="{{ evento.titulo }}" data-event-url="{{ request.build_absolute_uri }}?event={{ evento.id }}">
-                                            <i class="fas fa-link text-xl" style="color: var(--text-on-surface-variant);"></i>
-                                            <span class="text-xs">Copiar enlace</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Compartir (abre modal único) -->
+                            <button class="flex-1 py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition relative z-20"
+                                style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);"
+                                data-event-title="{{ evento.titulo }}"
+                                data-event-url="{{ request.scheme }}://{{ request.get_host }}{{ evento.url_detalle }}"
+                                onclick="event.stopPropagation(); openShareModal(this.dataset);">
+                                <i class="bi bi-share-fill"></i> <span data-i18n="share_btn">Compartir</span>
+                            </button>
                             <!-- Ver detalles -->
                             <a href="{{ evento.url_detalle }}" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition text-center relative z-20" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);" data-i18n="view_reviews">
                                 <span class="material-symbols-outlined text-base align-middle">info</span> Detalles
@@ -226,6 +204,92 @@
 
 <!-- Datos para el mapa -->
 {{ eventos_presenciales_mapa|json_script:"eventos-presenciales-data" }}
+
+<!-- ==================== MODAL DE COMPARTIR ÚNICO ==================== -->
+<div class="share-overlay hidden fixed inset-0 z-[9999] flex items-center justify-center p-0 md:p-4" id="share-overlay-unico" onclick="if(event.target===this) this.classList.add('hidden')">
+    <!-- Fondo oscuro -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    
+    <!-- Contenedor del modal -->
+    <div class="relative w-full max-w-md bg-surface-container-lowest rounded-t-2xl md:rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+        
+        <!-- Encabezado -->
+        <div class="flex items-center justify-between px-4 py-3 border-b border-outline-variant/30">
+            <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors" onclick="document.getElementById('share-overlay-unico').classList.add('hidden')">
+                <i class="bi bi-x text-on-surface" style="font-size: 1.5rem;"></i>
+            </button>
+            <h2 class="text-lg font-semibold text-on-surface">Compartir evento</h2>
+            <div class="w-10 h-10"></div>
+        </div>
+
+        <!-- Contenido -->
+        <div class="overflow-y-auto p-4 space-y-5">
+            
+            <!-- Previsualización del enlace -->
+            <div class="flex items-center gap-3 p-3 bg-surface-container rounded-xl">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
+                    <i class="bi bi-link-45deg text-white text-xl"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-on-surface truncate" id="share-event-title">Título del evento</p>
+                    <p class="text-xs text-on-surface-variant truncate" id="share-url-text">https://...</p>
+                </div>
+            </div>
+
+            <!-- Grid de plataformas -->
+            <div>
+                <h3 class="text-sm font-medium text-on-surface-variant mb-3 px-1">Compartir en</h3>
+                <div class="grid grid-cols-4 gap-3">
+                    <!-- WhatsApp -->
+                    <button class="flex flex-col items-center gap-2 group" id="share-btn-whatsapp">
+                        <div class="w-14 h-14 rounded-full bg-[#25D366]/10 flex items-center justify-center group-hover:bg-[#25D366]/20 transition-colors">
+                            <i class="bi bi-whatsapp text-[#25D366] text-2xl"></i>
+                        </div>
+                        <span class="text-xs text-on-surface-variant">WhatsApp</span>
+                    </button>
+                    <!-- Facebook -->
+                    <button class="flex flex-col items-center gap-2 group" id="share-btn-facebook">
+                        <div class="w-14 h-14 rounded-full bg-[#1877F2]/10 flex items-center justify-center group-hover:bg-[#1877F2]/20 transition-colors">
+                            <i class="bi bi-facebook text-[#1877F2] text-2xl"></i>
+                        </div>
+                        <span class="text-xs text-on-surface-variant">Facebook</span>
+                    </button>
+                    <!-- Telegram -->
+                    <button class="flex flex-col items-center gap-2 group" id="share-btn-telegram">
+                        <div class="w-14 h-14 rounded-full bg-[#0088cc]/10 flex items-center justify-center group-hover:bg-[#0088cc]/20 transition-colors">
+                            <i class="bi bi-telegram text-[#0088cc] text-2xl"></i>
+                        </div>
+                        <span class="text-xs text-on-surface-variant">Telegram</span>
+                    </button>
+                    <!-- X (Twitter) -->
+                    <button class="flex flex-col items-center gap-2 group" id="share-btn-twitter">
+                        <div class="w-14 h-14 rounded-full bg-[#0f1419]/10 flex items-center justify-center group-hover:bg-[#0f1419]/20 transition-colors">
+                            <svg width="15" height="15" viewBox="0 0 1200 1227" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z" fill="#0f1419"/>
+                            </svg>
+                        </div>
+                        <span class="text-xs text-on-surface-variant">X</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Barra de copiar enlace -->
+            <div class="bg-surface-container-low rounded-xl border border-outline-variant/30 p-2 flex items-center gap-2">
+                <div class="flex-1 px-2 text-sm text-on-surface-variant truncate" id="share-url-bar">https://...</div>
+                <button class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:opacity-90 active:scale-95 transition-all whitespace-nowrap flex items-center gap-1" id="share-btn-copy">
+                    <i class="bi bi-copy"></i> Copiar
+                </button>
+            </div>
+        </div>
+
+        <!-- Botón cancelar -->
+        <div class="p-4 pt-0">
+            <button class="w-full py-3 bg-surface-container-high text-on-surface font-medium rounded-xl hover:bg-surface-container-highest transition-colors active:scale-[0.98] duration-200" onclick="document.getElementById('share-overlay-unico').classList.add('hidden')">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
 
@@ -358,17 +422,6 @@
         const searchInputMap = document.getElementById('search-location');
         if (searchInputMap) searchInputMap.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); searchAndShowEvents(); } });
         
-        // Menús de compartir
-        document.querySelectorAll('.share-trigger').forEach(trigger => {
-            trigger.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const menu = trigger.closest('.share-wrapper').querySelector('.share-menu');
-                document.querySelectorAll('.share-menu').forEach(m => m.classList.add('hidden'));
-                menu.classList.toggle('hidden');
-            });
-        });
-        document.addEventListener('click', () => document.querySelectorAll('.share-menu').forEach(m => m.classList.add('hidden')));
-        
         // ========== SISTEMA DE "ME GUSTA" ==========
         function getCSRFToken() {
             return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
@@ -459,63 +512,45 @@
 
     });
 
-    // ========== FUNCIONALIDAD DE COMPARTIR ==========
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.share-facebook').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const title = encodeURIComponent(this.dataset.eventTitle);
-                const url = encodeURIComponent(this.dataset.eventUrl);
-                window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
-                this.closest('.share-menu').classList.add('hidden');
+    // ========== FUNCIONALIDAD DE COMPARTIR (CORREGIDA) ==========
+    // Abre el modal único con los datos del evento
+    function openShareModal(data) {
+        const overlay = document.getElementById('share-overlay-unico');
+        const title = data.eventTitle;
+        const url = data.eventUrl;
+
+        // Actualizar textos
+        document.getElementById('share-event-title').textContent = title;
+        document.getElementById('share-url-text').textContent = url;
+        document.getElementById('share-url-bar').textContent = url;
+
+        // Configurar botones
+        document.getElementById('share-btn-facebook').onclick = () => {
+            window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'width=600,height=400');
+            overlay.classList.add('hidden');
+        };
+        document.getElementById('share-btn-twitter').onclick = () => {
+            window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(title) + '&url=' + encodeURIComponent(url), '_blank', 'width=600,height=400');
+            overlay.classList.add('hidden');
+        };
+        document.getElementById('share-btn-whatsapp').onclick = () => {
+            window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(title) + '%20' + encodeURIComponent(url), '_blank');
+            overlay.classList.add('hidden');
+        };
+        document.getElementById('share-btn-telegram').onclick = () => {
+            window.open('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(title), '_blank');
+            overlay.classList.add('hidden');
+        };
+        document.getElementById('share-btn-copy').onclick = () => {
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = document.getElementById('share-btn-copy');
+                btn.innerHTML = '<i class="bi bi-check-lg"></i> Copiado';
+                setTimeout(() => { btn.innerHTML = '<i class="bi bi-copy"></i> Copiar'; }, 2000);
             });
-        });
-        document.querySelectorAll('.share-twitter').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const title = encodeURIComponent(this.dataset.eventTitle);
-                const url = encodeURIComponent(this.dataset.eventUrl);
-                window.open(`https://twitter.com/intent/tweet?text=${title}&url=${url}`, '_blank', 'width=600,height=400');
-                this.closest('.share-menu').classList.add('hidden');
-            });
-        });
-        document.querySelectorAll('.share-whatsapp').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const title = encodeURIComponent(this.dataset.eventTitle);
-                const url = encodeURIComponent(this.dataset.eventUrl);
-                window.open(`https://api.whatsapp.com/send?text=${title}%20${url}`, '_blank');
-                this.closest('.share-menu').classList.add('hidden');
-            });
-        });
-        document.querySelectorAll('.share-telegram').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const title = encodeURIComponent(this.dataset.eventTitle);
-                const url = encodeURIComponent(this.dataset.eventUrl);
-                window.open(`https://t.me/share/url?url=${url}&text=${title}`, '_blank');
-                this.closest('.share-menu').classList.add('hidden');
-            });
-        });
-        document.querySelectorAll('.share-copy').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const url = this.dataset.eventUrl;
-                navigator.clipboard.writeText(url).then(() => {
-                    alert('Enlace copiado al portapapeles');
-                }).catch(() => {
-                    const textarea = document.createElement('textarea');
-                    textarea.value = url;
-                    document.body.appendChild(textarea);
-                    textarea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textarea);
-                    alert('Enlace copiado al portapapeles');
-                });
-                this.closest('.share-menu').classList.add('hidden');
-            });
-        });
-    });
+        };
+
+        overlay.classList.remove('hidden');
+    }
 
     // ========== CONTROL DE FILTROS POR BÚSQUEDA ==========
     (function() {
@@ -546,6 +581,17 @@
                 }
             });
         }
+        
+        // Envío automático del formulario al escribir (debounce)
+        let debounceTimer;
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    this.form.submit();
+                }, 500);
+            });
+        }
 
         const btnFiltros = document.querySelector('#mostrar-filtros-btn button');
         if (btnFiltros) {
@@ -554,6 +600,5 @@
             });
         }
     })();
-
 </script>
 {% endblock %}

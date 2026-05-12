@@ -1,5 +1,3 @@
-// streaming-room-sync.js
-// Sincroniza la altura del chat con la columna izquierda
 
 (function() {
     'use strict';
@@ -20,7 +18,7 @@
         
         // Calcular altura del chat
         var chatHeight = leftHeight - metricsHeight - metricsMargin;
-        chatHeight = Math.max(chatHeight, 300); // Mínimo 300px
+        chatHeight = Math.max(chatHeight, 300); 
         
         // Aplicar
         chatContainer.style.height = chatHeight + 'px';
@@ -34,19 +32,16 @@
         syncChatHeight();
     }
     
-    // Re-calcular al redimensionar (con delay)
     var resizeTimer;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(syncChatHeight, 200);
     });
     
-    // Observar cambios en la columna izquierda
     var leftCol = document.querySelector('.row.g-4 > .col-lg-8');
     if (leftCol && window.ResizeObserver) {
         new ResizeObserver(syncChatHeight).observe(leftCol);
     }
     
-    // Exponer globalmente por si se necesita llamar manualmente
     window.syncChatHeight = syncChatHeight;
 })();

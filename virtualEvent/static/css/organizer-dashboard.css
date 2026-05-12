@@ -1,8 +1,3 @@
-/* 
-   ORGANIZER DASHBOARD - PREMIUM EDITION
-   Fiel a la preview de AI Studio
-*/
-
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 :root {
@@ -31,7 +26,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Contenedor de Tarjetas */
 .od-card-main {
   background: var(--od-card-bg);
   border-radius: 1.25rem !important;
@@ -40,7 +34,6 @@ body {
   overflow: hidden;
 }
 
-/* Banner Inmersivo Perfeccionado */
 .od-banner-wrapper {
   height: 340px;
   background-color: #000;
@@ -74,7 +67,7 @@ body {
   font-size: 0.65rem;
   font-weight: 800;
   letter-spacing: 0.15em;
-  color: #60a5fa; /* Azul vibrante claro */
+  color: #60a5fa;
   text-transform: uppercase;
   margin-bottom: 0.25rem;
 }
@@ -186,9 +179,9 @@ body {
   box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3);
 }
 
-/* Botón subir material post-evento - estilo coherente con la interfaz */
+/* Botón subir material post-evento */
 .btn-material {
-  background-color: #0ea5e9 !important; /* Mismo color que .btn-info */
+  background-color: #0ea5e9 !important;
   color: white !important;
   border: none !important;
   border-radius: 0.75rem !important;
@@ -225,7 +218,6 @@ body {
   box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3);
 }
 
-/* Botón subir material post-evento - VERSIÓN FORZADA */
 .btn-material.btn-material {
   background-color: #f8fafc !important;
   border: 1px solid #e2e8f0 !important;
@@ -251,7 +243,7 @@ body {
 
 .btn-material.btn-material i {
   font-size: 1.2rem !important;
-  color: #1e293b !important; /* icono oscuro */
+  color: #1e293b !important;
 }
 
 /* Sección de material ya compartido */
@@ -333,7 +325,6 @@ body {
   }
 }
 
-/* --- YouTube Section (Indigo - Adaptado para combinar) --- */
 .text-indigo {
   color: #4f46e5;
 }
@@ -428,10 +419,9 @@ body {
   color: var(--text-on-surface) !important;
 }
 
-/* Botón para navegadores estándar (Firefox, Edge, Chrome) */
 .modal .od-input[type="file"]::file-selector-button,
 .modal .od-input[type="file"]::-webkit-file-upload-button {
-  background-color: #d1d5db !important; /* gris claro neutro */
+  background-color: #d1d5db !important;
   color: #1f2937 !important;
   border: none !important;
   border-radius: 0.5rem !important;
@@ -445,21 +435,18 @@ body {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
 }
 
-/* Efecto hover: cambio muy sutil (opcional, puedes borrar) */
 .modal .od-input[type="file"]::file-selector-button:hover,
 .modal .od-input[type="file"]::-webkit-file-upload-button:hover {
   background-color: #e5e7eb !important;
   transform: scale(1.01) !important;
 }
 
-/* EFECTO AL PRESIONAR (clic) - MOVIMIENTO MÍNIMO */
 .modal .od-input[type="file"]::file-selector-button:active,
 .modal .od-input[type="file"]::-webkit-file-upload-button:active {
   transform: scale(0.98) !important;
   background-color: #cbd5e1 !important;
 }
 
-/* Modo oscuro: gris más claro que antes pero visible */
 .dark .modal .od-input[type="file"]::file-selector-button,
 .dark .modal .od-input[type="file"]::-webkit-file-upload-button {
   background-color: #4b5563 !important; /* gris medio oscuro */
@@ -611,3 +598,235 @@ body {
 .dark .material-shared .h5 {
   color: var(--text-on-surface-variant) !important;
 }
+
+/* ============================================================
+   MODAL RESPONSIVE PARA SUBIR MATERIAL POST-EVENTO
+   ============================================================ */
+#materialModal .modal-dialog {
+  margin: 1rem;
+  max-width: 95%;
+}
+
+@media (min-width: 768px) {
+  #materialModal .modal-dialog {
+    max-width: 600px;
+    margin: 1.75rem auto;
+  }
+}
+
+#materialModal .modal-content {
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+#materialModal .modal-body {
+  padding: 1.5rem;
+}
+
+#materialModal .modal-body .od-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#materialModal .od-label {
+  font-size: 0.8rem;
+  margin-bottom: 0.4rem;
+}
+
+#materialModal .modal-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--od-border, #e2e8f0);
+}
+
+@media (max-width: 576px) {
+  #materialModal .modal-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  #materialModal .modal-footer .btn {
+    width: 100% !important;
+    min-width: unset !important;
+    margin: 0 !important;
+  }
+
+  #materialModal .od-input[type="file"] {
+    font-size: 0.85rem;
+  }
+
+  #materialModal .modal-body {
+    padding: 1rem;
+  }
+
+  #materialModal .modal-footer {
+    padding: 1rem;
+  }
+}
+
+#materialModal .od-input[type="file"] {
+  display: block;
+  width: 100%;
+}
+
+#materialModal .od-input[type="file"]::file-selector-button,
+#materialModal .od-input[type="file"]::-webkit-file-upload-button {
+  white-space: normal;
+  word-break: keep-all;
+}
+
+/* ===== ELIMINAR FONDO GRIS Y DESBORDES - DEFINITIVO ===== */
+html,
+body {
+  overflow-x: hidden !important;
+  background-color: #ffffff !important;
+}
+
+body {
+  background-color: #ffffff !important;
+}
+
+.od-dashboard {
+  background-color: #ffffff !important;
+}
+
+.od-card-main {
+  box-shadow: none !important;
+  border-color: #e2e8f0 !important;
+}
+
+.modal-backdrop {
+  display: none !important;
+}
+
+.modal-open {
+  overflow: auto !important;
+  padding-right: 0 !important;
+}
+
+/* ===== CORRECCIÓN MODAL Y FONDO GRIS ===== */
+body,
+.od-dashboard {
+  background-color: #ffffff !important;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+#materialModal .modal-dialog {
+  margin: 1.75rem auto;
+}
+
+@media (max-width: 576px) {
+  #materialModal .modal-dialog {
+    margin: 0.5rem auto;
+  }
+}
+
+/* ===== CORRECCIÓN MODAL Y FONDO GRIS ===== */
+
+body,
+.od-dashboard {
+  background-color: #ffffff !important;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+#materialModal .modal-dialog {
+  margin: 1.75rem auto;
+}
+
+@media (max-width: 576px) {
+  #materialModal .modal-dialog {
+    margin: 0.5rem auto;
+  }
+}
+
+/* ===== AJUSTE RESPONSIVE PARA TARJETAS DE MÉTRICAS (PANEL ORGANIZADOR) ===== */
+
+@media (max-width: 480px) {
+  .od-metric-card {
+    padding: 0.75rem 0.25rem !important;
+  }
+
+  .od-metric-value {
+    font-size: 1rem !important;
+    line-height: 1.2;
+  }
+
+  .od-metric-label {
+    font-size: 0.6rem !important;
+    white-space: nowrap;
+  }
+
+  .od-metric-icon-container {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 0.4rem;
+  }
+
+  .od-metric-icon-container i {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .od-metric-value {
+    font-size: 0.85rem !important;
+  }
+  .od-metric-label {
+    font-size: 0.5rem !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    line-height: 1.2 !important;
+    max-width: 100% !important;
+    overflow-wrap: break-word;
+  }
+  .od-metric-card {
+    padding: 0.6rem 0.1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .od-metric-label {
+    font-size: 0.55rem !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+    line-height: 1.3 !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  .od-metric-value {
+    font-size: 1rem !important;
+  }
+  @media (max-width: 360px) {
+    .od-metric-label {
+      font-size: 0.5rem !important;
+    }
+    .od-metric-value {
+      font-size: 0.85rem !important;
+    }
+  }
+}
+
+
+@media (max-width: 576px) {
+  .od-card-main .btn-lg {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.9rem !important;
+    white-space: normal !important;
+    line-height: 1.2 !important;
+  }
+  .d-grid.gap-3 .btn {
+    width: 100% !important;
+  }
+}
+

@@ -1,13 +1,12 @@
 :root {
-    /* Colores extraídos de tu Dashboard y Streaming Room */
+    
     --ev-primary: #2563eb; 
     --ev-primary-hover: #1d4ed8;
-    --ev-bg-page: #f8fafc; /* Consistente con tus otros CSS */
+    --ev-bg-page: #f8fafc; 
     --ev-card-bg: #ffffff;
     --ev-border: #e2e8f0;
-    --ev-text-main: #1e293b; /* Slate 800: más suave para la vista */
+    --ev-text-main: #1e293b;
     --ev-text-muted: #64748b;
-    /* Sombra de "elevación natural" para evitar fatiga */
     --ev-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.04), 0 4px 6px -4px rgb(0 0 0 / 0.02);
 }
 
@@ -19,7 +18,7 @@ body {
 }
 
 .ev-form-card {
-    max-width: 760px; /* Ligeramente más estrecho para que no "coma" la pantalla */
+    max-width: 760px; 
     margin: 0 auto;
     background-color: var(--ev-card-bg);
     border: 1px solid var(--ev-border) !important;
@@ -30,7 +29,6 @@ body {
 
 .ev-header {
     padding: 3rem 3rem 1.5rem;
-    /* Un degradado casi imperceptible para dar volumen sin brillar */
     background: linear-gradient(to bottom, #ffffff, #fafbfc);
     border-bottom: 1px solid #f1f5f9;
 }
@@ -62,9 +60,7 @@ body {
     display: block;
 }
 
-/* INPUTS: El cambio clave para la vista */
 .ev-input {
-    /* Usamos el gris de tus otros archivos para que el input no "brille" */
     background-color: #f1f5f9 !important; 
     border: 1px solid var(--ev-border) !important;
     border-radius: 0.85rem !important;
@@ -76,13 +72,13 @@ body {
 }
 
 .ev-input:focus {
-    background-color: #ffffff !important; /* Se vuelve blanco solo al escribir */
+    background-color: #ffffff !important; 
     border-color: var(--ev-primary) !important;
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
     outline: none !important;
 }
 
-/* Drop Zone más integrada */
+
 .ev-drop-zone {
     border: 2px dashed var(--ev-border) !important;
     background-color: #f8fafc;
@@ -154,7 +150,7 @@ body {
     letter-spacing: 0.05em;
 }
 
-/* Botón de envío con el azul de tu marca */
+
 .ev-btn-submit {
     background-color: var(--ev-primary) !important;
     border: none !important;
@@ -189,7 +185,6 @@ body {
     border-radius: 0.5rem;
 }
 
-/* Hide spin buttons for number inputs */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
