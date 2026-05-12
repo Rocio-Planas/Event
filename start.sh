@@ -8,11 +8,11 @@ pip install django-anymail
 echo "==> Aplicando migraciones..."
 python manage.py migrate --noinput
 
-echo "==> Ejecutando fix_categorias.py..."
-python fix_categorias.py
-
 echo "==> Ejecutando load_categories.py..."
 python load_categories.py
+
+echo "==> Ejecutando fix_categorias.py..."
+python fix_categorias.py
 
 echo "==> Recogiendo archivos estáticos..."
 python manage.py collectstatic --noinput
