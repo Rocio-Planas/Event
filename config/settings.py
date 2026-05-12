@@ -153,16 +153,13 @@ LOGOUT_REDIRECT_URL = 'usuarios:login'
 #SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 
-# ─── CONFIGURACIÓN DE CORREO CON KEPLARS ──────────
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.keplars.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'kms_7882da0cb1159ae5.live_55bf59ec0bab9cd15947da652ca2ac61723503275b880fb90182a318471b1ab3'  # <-- Pega aquí la clave que copiaste
-EMAIL_HOST_PASSWORD = 'kms_7882da0cb1159ae5.live_55bf59ec0bab9cd15947da652ca2ac61723503275b880fb90182a318471b1ab3' # <-- Pega la misma clave aquí
-DEFAULT_FROM_EMAIL = 'rocioplanash@gmail.com'
+# ─── CONFIGURACIÓN DE CORREO CON RESEND (API HTTP) ──────────
+ANYMAIL = {
+    "RESEND_API_KEY": os.getenv("RESEND_API_KEY", "tu-api-key-de-resend"),
+}
+EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
+DEFAULT_FROM_EMAIL = "rocioplanash@gmail.com"   # o "onboarding@resend.dev" para pruebas
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
-
 BASE_URL = 'http://127.0.0.1:8000'
 
 LOGGING = {
