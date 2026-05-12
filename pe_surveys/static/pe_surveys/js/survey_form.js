@@ -213,7 +213,7 @@ function removeOption(button) {
     
     // Verificar que no queden menos de 2 opciones
     if (optionBlocks.length <= 2) {
-        showOptionsError("Debes mantener al menos 2 opciones para las encuestas de texto.");
+        showOptionsError("Debes mantener al menos 2 opciones.");
         return;
     }
     

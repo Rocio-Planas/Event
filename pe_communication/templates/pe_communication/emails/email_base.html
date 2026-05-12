@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EventPulse{% endblock %}</title>
+    {% block styles %}
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .email-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            padding: 30px 40px;
+            text-align: center;
+        }
+        .email-header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .email-header .subtitle {
+            color: #bfdbfe;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        .email-body {
+            padding: 40px;
+        }
+        .email-body h2 {
+            color: #1f2937;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .email-body p {
+            color: #4b5563;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .email-body ul {
+            color: #4b5563;
+            line-height: 1.8;
+        }
+        .email-body li {
+            margin-bottom: 8px;
+        }
+        .event-info {
+            background-color: #f9fafb;
+            border-left: 4px solid #2563eb;
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .event-info p {
+            margin: 8px 0;
+            color: #374151;
+        }
+        .event-info strong {
+            color: #1f2937;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #2563eb;
+            color: #ffffff !important;
+            padding: 14px 32px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 24px 0;
+            text-align: center;
+        }
+        .cta-button:hover {
+            background-color: #1d4ed8;
+        }
+        .cta-button:visited {
+            color: #ffffff;
+        }
+        .info-box {
+            background-color: #ecfdf5;
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        .info-box p {
+            color: #065f46;
+            margin: 0;
+        }
+        .warning-box {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        .warning-box p {
+            color: #92400e;
+            margin: 0;
+        }
+        .footer {
+            background-color: #f9fafb;
+            padding: 30px 40px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 0 0 8px 0;
+        }
+        .footer .social-links {
+            margin-top: 16px;
+        }
+        .footer .social-links a {
+            color: #2563eb;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+            }
+            .email-header, .email-body, .footer {
+                padding: 20px !important;
+            }
+            .cta-button {
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+        }
+    </style>
+    {% endblock %}
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>EventPulse</h1>
+            <p class="subtitle">Plataforma de Gestión de Eventos</p>
+        </div>
+        
+        <div class="email-body">
+            {% block content %}{% endblock %}
+        </div>
+        
+        <div class="footer">
+            <p>Este correo fue enviado por EventPulse</p>
+            <p>Si no esperabas este mensaje, puedes ignorarlo safely.</p>
+            <div class="social-links">
+                <a href="{{ base_url }}">Visitar EventPulse</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -353,11 +353,11 @@ function openActivityDetails(
     statusElement.textContent = statusLabel;
     statusElement.className = "badge fw-bold " + statusClass;
 
-    if (speakerName) {
+    if (speakerName && speakerName !== 'None' && speakerName.trim()) {
         document.getElementById("detailActivitySpeaker").textContent =
             speakerName;
         document.getElementById("detailActivitySpeakerEmail").textContent =
-            speakerEmail || "";
+            speakerEmail && speakerEmail !== 'None' ? speakerEmail : "";
     } else {
         document.getElementById("detailActivitySpeaker").textContent =
             "Sin asignar";

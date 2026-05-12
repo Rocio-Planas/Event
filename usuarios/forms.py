@@ -3,6 +3,14 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 from .models import Usuario, PreferenciaUsuario
 from core.models import CategoriaEvento
+from datetime import date
+
+def validar_fecha_nacimiento(value):
+    if value >= date.today():
+        raise ValidationError('Fecha de nacimiento incorrecta.')
+    edad_minima = date.today().year - 16
+    if value.year > edad_minima:
+        raise ValidationError('Fecha de nacimiento incorrecta.')
 
 class RegistroForm(UserCreationForm):
     # ... (todo igual que antes, no cambia)
@@ -30,12 +38,13 @@ class RegistroForm(UserCreationForm):
         })
     )
     fecha_nacimiento = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={
-            'type': 'date',
-            'class': 'w-full px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none transition-all'
-        })
-    )
+    required=False,
+    validators=[validar_fecha_nacimiento],
+    widget=forms.DateInput(attrs={
+        'type': 'date',
+        'class': 'w-full px-4 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 focus:ring-4 focus:ring-primary-fixed-dim/30 focus:border-primary outline-none transition-all'
+    })
+)
     sexo = forms.ChoiceField(
         choices=Usuario.SEXOS,
         required=False,
@@ -201,6 +210,7 @@ class PerfilForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['avatar'].required = False
+        self.fields['fecha_nacimiento'].validators.append(validar_fecha_nacimiento)
 
 
 class CambiarPasswordForm(forms.Form):

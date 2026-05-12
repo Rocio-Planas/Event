@@ -97,18 +97,6 @@ class Survey(models.Model):
         return False
 
 
-@receiver(post_save, sender=Survey)
-def send_immediate_survey(sender, instance, created, **kwargs):
-    if created and instance.delivery_type == Survey.DeliveryType.INMEDIATO and instance.is_active and not instance.sent_at:
-        try:
-            instance.send_survey_emails(event_id=instance.event_id)
-            from django.utils import timezone
-            instance.sent_at = timezone.now()
-            instance.save(update_fields=['sent_at'])
-        except Exception as e:
-            print(f"Error sending immediate survey {instance.id}: {e}")
-
-
 # @receiver(post_save, sender=Survey)
 # def check_scheduled_survey(sender, instance, created, **kwargs):
 #     if not created and instance.delivery_type == 'programado' and instance.scheduled_date:
