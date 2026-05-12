@@ -123,7 +123,7 @@ class FullInteractionTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        # El número de activos puede variar por el cliente de pruebas, comprobamos que sea al menos 3
+        
         self.assertGreaterEqual(data["active_viewers"], 3)
         self.assertEqual(data["total_messages"], 3)
         self.assertEqual(data["total_hands"], 1)

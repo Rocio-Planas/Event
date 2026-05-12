@@ -1,8 +1,8 @@
-// streaming-room.js - Versión con persistencia de satisfacción y emoji funcional
+
 class StreamingRoomExtras {
   constructor(eventSlug, eventId) {
     this.eventSlug = eventSlug;
-    this.eventId = eventId; // para localStorage
+    this.eventId = eventId; 
     this.mediaRecorder = null;
     this.recordedChunks = [];
     this.init();
@@ -11,17 +11,14 @@ class StreamingRoomExtras {
   init() {
     this.bindRecording();
     this.bindSatisfaction();
-    this.restoreSatisfaction(); // restaurar calificación guardada
+    this.restoreSatisfaction(); 
   }
 
-  // Pequeño helper para mostrar mensajes (toast o alert)
   showMessage(msg, type = "info") {
     if (typeof window.showToast === "function") {
       window.showToast(msg, type);
     } else {
-      // Fallback
       console.log(`[${type.toUpperCase()}] ${msg}`);
-      // alert(msg); // no recomendado, mejor console
     }
   }
 
@@ -84,20 +81,16 @@ class StreamingRoomExtras {
   }
 
   bindSatisfaction() {
-    // ===== 1. BOTÓN EMOJI (😊) =====
     const satisfactionBtn = document.getElementById("sr-satisfaction-btn");
     if (satisfactionBtn) {
-      // Eliminar listeners anteriores
       const newBtn = satisfactionBtn.cloneNode(true);
       satisfactionBtn.parentNode.replaceChild(newBtn, satisfactionBtn);
       newBtn.addEventListener("click", () => {
         console.log("Emoji satisfaction clicked");
-        // Enviar satisfacción máxima (5)
         if (window.room && typeof window.room.sendSatisfaction === "function") {
           window.room.sendSatisfaction(5);
-          // Guardar en localStorage para persistencia
           localStorage.setItem(`satisfaction_${this.eventId}`, "5");
-          this.highlightStars(5); // resaltar estrellas
+          this.highlightStars(5); 
           this.showMessage("¡Gracias por tu valoración! ⭐", "success");
         } else {
           console.warn("sendSatisfaction no disponible");
@@ -112,7 +105,6 @@ class StreamingRoomExtras {
     // ===== 2. SATISFACCIÓN ESTRELLAS =====
     const starsContainer = document.querySelector(".sr-star-rating");
     if (starsContainer) {
-      // Recrear inputs para asegurar listeners frescos
       const inputs = starsContainer.querySelectorAll("input");
       inputs.forEach((input) => {
         const newInput = input.cloneNode(true);
@@ -126,7 +118,6 @@ class StreamingRoomExtras {
             typeof window.room.sendSatisfaction === "function"
           ) {
             window.room.sendSatisfaction(rating);
-            // Guardar en localStorage
             localStorage.setItem(`satisfaction_${this.eventId}`, rating);
             this.highlightStars(rating);
             this.showMessage(
@@ -142,33 +133,32 @@ class StreamingRoomExtras {
     }
   }
 
-  // Resalta las estrellas según la puntuación
   highlightStars(rating) {
     const starsContainer = document.querySelector(".sr-star-rating");
     if (!starsContainer) return;
     const labels = starsContainer.querySelectorAll("label");
     labels.forEach((label, idx) => {
       if (idx < rating) {
-        label.style.color = "#fbbf24"; // amarillo
+        label.style.color = "#fbbf24"; 
       } else {
-        label.style.color = ""; // color por defecto
+        label.style.color = ""; 
       }
     });
-    // Opcional: marcar el radio correspondiente
+    
     const radioToCheck = starsContainer.querySelector(
       `input[value="${rating}"]`,
     );
     if (radioToCheck) radioToCheck.checked = true;
   }
 
-  // Restaurar satisfacción guardada en localStorage al cargar la página
+  
   restoreSatisfaction() {
     const savedRating = localStorage.getItem(`satisfaction_${this.eventId}`);
     if (savedRating) {
       const rating = parseInt(savedRating);
       console.log(`Restaurando satisfacción guardada: ${rating}`);
       this.highlightStars(rating);
-      // Enviar al backend opcionalmente (para que el servidor también lo sepa)
+      
       if (window.room && typeof window.room.sendSatisfaction === "function") {
         window.room.sendSatisfaction(rating);
       }
@@ -176,11 +166,11 @@ class StreamingRoomExtras {
   }
 }
 
-// Inicialización - espera a que window.room esté disponible
+
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Inicializando StreamingRoomExtras...");
 
-  // Obtener eventId (definido en el template)
+  
   const eventId = window.EVENT_ID || null;
   if (!eventId) {
     console.warn(
@@ -215,13 +205,13 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const confirmFinalizeBtn = document.getElementById("confirmFinalizeBtn");
   if (confirmFinalizeBtn) {
-    // Construir la URL de finalización usando window.EVENT_ID (que existe)
-    const finalizeUrl = `/eventos/finalizar/${window.EVENT_ID}/`; // Ajusta si tu URL es diferente
+    
+    const finalizeUrl = `/eventos/finalizar/${window.EVENT_ID}/`;
     confirmFinalizeBtn.addEventListener("click", function () {
       const form = document.createElement("form");
       form.method = "POST";
       form.action = finalizeUrl;
-      // Obtener token CSRF
+      
       let csrfToken = "";
       const csrfCookie = document.cookie
         .split(";")

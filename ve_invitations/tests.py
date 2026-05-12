@@ -11,7 +11,6 @@ User = get_user_model()
 
 class InvitationTests(TestCase):
     def setUp(self):
-        # Crear usuario con los campos que requiere tu modelo (solo email y password)
         self.user = User.objects.create_user(email="test@example.com", password="123")
         self.event = VirtualEvent.objects.create(
             title="Test Event",
@@ -27,8 +26,7 @@ class InvitationTests(TestCase):
         send_invitation_email("test@example.com", self.event, token)
         mock_send_mail.assert_called_once()
         args, kwargs = mock_send_mail.call_args
-        # subject es el primer argumento posicional
-        self.assertIn("Invitación al evento privado", args[0])  # args[0] es el subject
+        self.assertIn("Invitación al evento privado", args[0]) 
 
     @patch("ve_invitations.utils.send_mail")
     def test_send_material_notification(self, mock_send_mail):

@@ -28,9 +28,9 @@ def generate_event_pdf(context):
     styles = getSampleStyleSheet()
 
     # Colores personalizados
-    verde_principal = colors.HexColor("#2E7D32")  # verde oscuro agradable
-    azul_tabla = colors.HexColor("#E3F2FD")  # azul muy claro
-    azul_grafico = colors.HexColor("#1E88E5")  # azul vivo pero suave
+    verde_principal = colors.HexColor("#2E7D32") 
+    azul_tabla = colors.HexColor("#E3F2FD")  
+    azul_grafico = colors.HexColor("#1E88E5")  
     gris_claro = colors.HexColor("#F5F5F5")
     gris_borde = colors.HexColor("#BDBDBD")
 
@@ -106,13 +106,13 @@ def generate_event_pdf(context):
                     (0, 0),
                     (0, -1),
                     gris_claro,
-                ),  # fondo gris claro para etiquetas
+                ),  
                 (
                     "BACKGROUND",
                     (1, 0),
                     (1, -1),
                     colors.white,
-                ),  # fondo blanco para valores
+                ),  
                 ("GRID", (0, 0), (-1, -1), 0.5, gris_borde),
                 ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
                 ("FONTSIZE", (0, 0), (-1, -1), 10),
@@ -122,9 +122,9 @@ def generate_event_pdf(context):
                     (0, 0),
                     (0, -1),
                     verde_principal,
-                ),  # texto de etiquetas en verde
-                ("ALIGN", (0, 0), (0, -1), "RIGHT"),  # etiquetas alineadas a la derecha
-                ("ALIGN", (1, 0), (1, -1), "LEFT"),  # valores a la izquierda
+                ),  
+                ("ALIGN", (0, 0), (0, -1), "RIGHT"),  
+                ("ALIGN", (1, 0), (1, -1), "LEFT"), 
             ]
         )
     )
@@ -151,19 +151,19 @@ def generate_event_pdf(context):
                     (0, 0),
                     (0, -1),
                     azul_tabla,
-                ),  # fondo azul claro para etiquetas
+                ),  
                 (
                     "BACKGROUND",
                     (1, 0),
                     (1, -1),
                     colors.white,
-                ),  # fondo blanco para valores
+                ),  
                 ("GRID", (0, 0), (-1, -1), 0.5, gris_borde),
                 ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
                 ("FONTSIZE", (0, 0), (-1, -1), 10),
                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("TEXTCOLOR", (0, 0), (0, -1), azul_grafico),  # texto etiquetas en azul
-                ("ALIGN", (1, 0), (1, -1), "CENTER"),  # valores centrados
+                ("TEXTCOLOR", (0, 0), (0, -1), azul_grafico),  
+                ("ALIGN", (1, 0), (1, -1), "CENTER"),  
                 ("ALIGN", (0, 0), (0, -1), "RIGHT"),
             ]
         )
@@ -171,19 +171,17 @@ def generate_event_pdf(context):
     story.append(metrics_table)
     story.append(Spacer(1, 0.25 * inch))
 
-    # Gráfica de mensajes por hora (reducimos altura para evitar salto de página)
     if context["messages_per_hour"]:
         story.append(Paragraph("Mensajes por Hora", heading_style))
         story.append(Spacer(1, 0.05 * inch))
         hours = sorted(context["messages_per_hour"].keys())
         counts = [context["messages_per_hour"][h] for h in hours]
-        # Reducimos tamaño del gráfico para que quepa en la misma página
-        drawing = Drawing(400, 160)  # altura reducida de 200 a 160
+        drawing = Drawing(400, 160)  
         bc = VerticalBarChart()
         bc.x = 50
-        bc.y = 40  # mover un poco hacia arriba
+        bc.y = 40  
         bc.width = 300
-        bc.height = 100  # altura de las barras reducida
+        bc.height = 100 
         bc.data = [counts]
         category_names = [h[11:16] for h in hours]
         bc.categoryAxis.categoryNames = category_names
@@ -191,7 +189,7 @@ def generate_event_pdf(context):
         bc.categoryAxis.labels.fontSize = 8
         bc.categoryAxis.labels.textAnchor = "start"
         bc.valueAxis.valueMin = 0
-        bc.bars[0].fillColor = azul_grafico  # color azul agradable
+        bc.bars[0].fillColor = azul_grafico  
         drawing.add(bc)
         story.append(drawing)
         story.append(Spacer(1, 0.15 * inch))

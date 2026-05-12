@@ -1,7 +1,3 @@
-/* 
-   ORGANIZER DASHBOARD - PREMIUM EDITION
-   Fiel a la preview de AI Studio
-*/
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
@@ -31,7 +27,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Contenedor de Tarjetas */
 .od-card-main {
   background: var(--od-card-bg);
   border-radius: 1.25rem !important;
@@ -40,7 +35,6 @@ body {
   overflow: hidden;
 }
 
-/* Banner Inmersivo Perfeccionado */
 .od-banner-wrapper {
   height: 340px;
   background-color: #000;
@@ -74,7 +68,7 @@ body {
   font-size: 0.65rem;
   font-weight: 800;
   letter-spacing: 0.15em;
-  color: #60a5fa; /* Azul vibrante claro */
+  color: #60a5fa; 
   text-transform: uppercase;
   margin-bottom: 0.25rem;
 }
@@ -186,9 +180,9 @@ body {
   box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3);
 }
 
-/* Botón subir material post-evento - estilo coherente con la interfaz */
+/* Botón subir material post-evento */
 .btn-material {
-  background-color: #0ea5e9 !important; /* Mismo color que .btn-info */
+  background-color: #0ea5e9 !important; 
   color: white !important;
   border: none !important;
   border-radius: 0.75rem !important;
@@ -225,7 +219,7 @@ body {
   box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3);
 }
 
-/* Botón subir material post-evento - VERSIÓN FORZADA */
+
 .btn-material.btn-material {
   background-color: #f8fafc !important;
   border: 1px solid #e2e8f0 !important;
@@ -251,7 +245,7 @@ body {
 
 .btn-material.btn-material i {
   font-size: 1.2rem !important;
-  color: #1e293b !important; /* icono oscuro */
+  color: #1e293b !important; 
 }
 
 /* Sección de material ya compartido */
@@ -333,7 +327,6 @@ body {
   }
 }
 
-/* --- YouTube Section (Indigo - Adaptado para combinar) --- */
 .text-indigo {
   color: #4f46e5;
 }
@@ -428,10 +421,9 @@ body {
   color: var(--text-on-surface) !important;
 }
 
-/* Botón para navegadores estándar (Firefox, Edge, Chrome) */
 .modal .od-input[type="file"]::file-selector-button,
 .modal .od-input[type="file"]::-webkit-file-upload-button {
-  background-color: #d1d5db !important; /* gris claro neutro */
+  background-color: #d1d5db !important; 
   color: #1f2937 !important;
   border: none !important;
   border-radius: 0.5rem !important;
@@ -445,21 +437,19 @@ body {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
 }
 
-/* Efecto hover: cambio muy sutil (opcional, puedes borrar) */
 .modal .od-input[type="file"]::file-selector-button:hover,
 .modal .od-input[type="file"]::-webkit-file-upload-button:hover {
   background-color: #e5e7eb !important;
   transform: scale(1.01) !important;
 }
 
-/* EFECTO AL PRESIONAR (clic) - MOVIMIENTO MÍNIMO */
 .modal .od-input[type="file"]::file-selector-button:active,
 .modal .od-input[type="file"]::-webkit-file-upload-button:active {
   transform: scale(0.98) !important;
   background-color: #cbd5e1 !important;
 }
 
-/* Modo oscuro: gris más claro que antes pero visible */
+
 .dark .modal .od-input[type="file"]::file-selector-button,
 .dark .modal .od-input[type="file"]::-webkit-file-upload-button {
   background-color: #4b5563 !important; /* gris medio oscuro */
@@ -615,14 +605,11 @@ body {
 /* ============================================================
    MODAL RESPONSIVE PARA SUBIR MATERIAL POST-EVENTO
    ============================================================ */
-
-/* Para todos los tamaños, aseguramos que el modal se vea bien */
 #materialModal .modal-dialog {
   margin: 1rem;
   max-width: 95%;
 }
 
-/* En pantallas grandes, se ve más ancho */
 @media (min-width: 768px) {
   #materialModal .modal-dialog {
     max-width: 600px;
@@ -630,30 +617,25 @@ body {
   }
 }
 
-/* Aseguramos que el contenido del modal no se desborde */
 #materialModal .modal-content {
   border-radius: 1rem;
   overflow: hidden;
 }
 
-/* Padding del cuerpo del modal para que no quede pegado */
 #materialModal .modal-body {
   padding: 1.5rem;
 }
 
-/* Los inputs y textareas ocupan todo el ancho */
 #materialModal .modal-body .od-input {
   width: 100%;
   box-sizing: border-box;
 }
 
-/* Los labels del modal se mantienen legibles */
 #materialModal .od-label {
   font-size: 0.8rem;
   margin-bottom: 0.4rem;
 }
 
-/* Footer: por defecto, los botones están en fila */
 #materialModal .modal-footer {
   display: flex;
   flex-direction: row;
@@ -663,7 +645,7 @@ body {
   border-top: 1px solid var(--od-border, #e2e8f0);
 }
 
-/* En móviles, los botones se apilan verticalmente y ocupan todo el ancho */
+
 @media (max-width: 576px) {
   #materialModal .modal-footer {
     flex-direction: column;
@@ -676,12 +658,10 @@ body {
     margin: 0 !important;
   }
 
-  /* Ajuste para el botón de archivo en móvil */
   #materialModal .od-input[type="file"] {
     font-size: 0.85rem;
   }
-
-  /* Reduce el padding del modal en móvil */
+  
   #materialModal .modal-body {
     padding: 1rem;
   }
@@ -691,13 +671,11 @@ body {
   }
 }
 
-/* El botón de archivo (file input) se ajusta en móvil */
 #materialModal .od-input[type="file"] {
   display: block;
   width: 100%;
 }
 
-/* Para que el texto del botón de archivo no se corte */
 #materialModal .od-input[type="file"]::file-selector-button,
 #materialModal .od-input[type="file"]::-webkit-file-upload-button {
   white-space: normal;
@@ -724,37 +702,30 @@ body {
   border-color: #e2e8f0 !important;
 }
 
-/* Si el modal tiene un backdrop gris (fondo semitransparente) y quieres quitarlo */
 .modal-backdrop {
   display: none !important;
 }
 
-/* Opcional: asegura que el modal no cause desborde */
 .modal-open {
   overflow: auto !important;
   padding-right: 0 !important;
 }
 
 /* ===== CORRECCIÓN MODAL Y FONDO GRIS ===== */
-
-/* 1. Fondo blanco puro en todo el dashboard */
 body,
 .od-dashboard {
   background-color: #ffffff !important;
 }
 
-/* 2. Evita el desbordamiento horizontal que causa la franja gris */
 html,
 body {
   overflow-x: hidden;
 }
 
-/* 3. Asegura que el modal se centre sin interferencias */
 #materialModal .modal-dialog {
   margin: 1.75rem auto;
 }
 
-/* 4. En móviles, margen más pequeño pero sigue centrado */
 @media (max-width: 576px) {
   #materialModal .modal-dialog {
     margin: 0.5rem auto;
@@ -763,24 +734,21 @@ body {
 
 /* ===== CORRECCIÓN MODAL Y FONDO GRIS ===== */
 
-/* 1. Fondo blanco puro en todo el dashboard */
 body,
 .od-dashboard {
   background-color: #ffffff !important;
 }
 
-/* 2. Evita el desbordamiento horizontal que causa la franja gris */
 html,
 body {
   overflow-x: hidden;
 }
 
-/* 3. Asegura que el modal se centre sin interferencias */
 #materialModal .modal-dialog {
   margin: 1.75rem auto;
 }
 
-/* 4. En móviles, margen más pequeño pero sigue centrado */
+
 @media (max-width: 576px) {
   #materialModal .modal-dialog {
     margin: 0.5rem auto;

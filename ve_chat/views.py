@@ -170,7 +170,6 @@ def raise_hand(request, room_slug):
     room, error_response = get_room_or_error(room_slug)
     if error_response:
         return error_response
-    # Crear siempre un nuevo registro, sin verificar existencia previa
     hand = HandRaise.objects.create(room=room, user=request.user, attended=False)
     return JsonResponse({"status": "hand_raised"})
 
@@ -284,7 +283,6 @@ def vote_poll(request, room_slug, poll_id):
     option_id = data.get("option_id")
     option = get_object_or_404(PollOption, id=option_id, poll=poll)
 
-    # Como ahora el modelo PollVote requiere user, ya no necesitamos lógica de anónimos
     vote, created = PollVote.objects.get_or_create(
         poll=poll, user=request.user, defaults={"option": option}
     )

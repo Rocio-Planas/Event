@@ -52,12 +52,12 @@ def notify_event_approval(sender, instance, **kwargs):
     """
     Cuando un evento cambia de estado a 'aprobado', envía un email al organizador.
     """
-    if instance.pk:  # Solo si el evento ya existe (no es nuevo)
+    if instance.pk:  
         try:
             old = sender.objects.get(pk=instance.pk)
         except sender.DoesNotExist:
             return
-        # Detectamos el cambio de estado a 'aprobado'
+        
         if old.estado != 'aprobado' and instance.estado == 'aprobado':
             subject = f'Tu evento "{instance.title}" ha sido aprobado'
             message = f'''

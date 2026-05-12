@@ -429,7 +429,6 @@ main {
     color: var(--text-on-surface-variant) !important;
 }
 
-/* Sin hover para "Sin notificaciones" */
 .dropdown-item.text-muted:hover,
 .dark .dropdown-item.text-muted:hover {
     background-color: transparent !important;
@@ -545,7 +544,6 @@ main {
     }
 }
 
-/* Ajuste adicional para pantallas de 820px (iPad Air) en horizontal */
 @media (min-width: 820px) and (max-width: 1024px) {
     .navbar-container {
         max-width: 95%;
@@ -569,7 +567,6 @@ main {
         gap: 0.5rem;
     }
 
-    /* Logo y botón menú */
     .navbar-container > .flex.items-center.gap-8 {
         flex: 1;
     }
@@ -578,7 +575,6 @@ main {
         order: 1;
     }
 
-    /* Botones de idioma, tema, campana, avatar */
     .navbar-container > .flex.items-center.gap-4 {
         order: 2;
         width: 100%;
@@ -695,37 +691,31 @@ main {
 
 /* ========== MEJORAS PARA TABLETS (768px - 1024px) ========== */
 @media (min-width: 768px) and (max-width: 1024px) {
-    /* Ajustar el contenedor del navbar para que no esté tan ancho */
     .navbar-container {
         max-width: 100%;
         padding: 0.75rem 1rem;
     }
 
-    /* Reducir el gap entre los enlaces del menú principal */
     .nav-links {
         gap: 0.75rem;
         margin-left: 1rem;
     }
 
-    /* Ajustar tamaño de fuente y padding de los enlaces */
     .nav-link {
         font-size: 0.8rem;
         padding: 0.4rem 0;
         white-space: nowrap;
     }
 
-    /* Si los textos son muy largos (ej. "Eventos Presenciales"), permitir que ocupen menos espacio */
     .nav-links {
         flex-wrap: wrap;
         justify-content: flex-start;
     }
 
-    /* Opcional: reducir el ancho máximo de los elementos de la derecha (idioma, tema, campana, avatar) */
     .flex.items-center.gap-4 {
         gap: 0.75rem;
     }
 
-    /* Ajustar el badge de notificaciones y el avatar */
     .user-avatar {
         width: 28px;
         height: 28px;

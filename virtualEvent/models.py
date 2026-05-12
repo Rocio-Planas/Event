@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 
-# from datetime import timedelta
 import uuid
 
 
@@ -85,7 +84,6 @@ class VirtualEvent(models.Model):
         self.estado = 'rechazado'
         self.save()
 
-    # Enlace único para acceso (para RF-04)
     unique_link = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     class Meta:
@@ -131,7 +129,7 @@ class OnlineViewer(models.Model):
     last_heartbeat = models.DateTimeField(auto_now=True)
     entered_at = models.DateTimeField(
         auto_now_add=True
-    )  # para calcular tiempo de visualización
+    )  
 
     class Meta:
         unique_together = ("event", "session_key")

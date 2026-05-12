@@ -62,7 +62,6 @@ def send_material_notification(event, request=None):
     
     materials = event.materials.copy() if event.materials else {}
     
-    # Si tenemos request, construir URLs absolutas correctamente
     if request:
         if 'slides_url' in materials and materials['slides_url']:
             materials['slides_url'] = request.build_absolute_uri(materials['slides_url'])
@@ -70,7 +69,6 @@ def send_material_notification(event, request=None):
             materials['recording'] = request.build_absolute_uri(materials['recording'])
         link = request.build_absolute_uri(reverse("ve_streaming:waiting_room", args=[event.unique_link]))
     else:
-        # Fallback: usa BASE_URL si no hay request
         base = getattr(settings, 'BASE_URL', 'http://127.0.0.1:8000')
         if 'slides_url' in materials and materials['slides_url']:
             materials['slides_url'] = f"{base}{materials['slides_url']}"
@@ -87,7 +85,6 @@ def send_material_notification(event, request=None):
     if not emails:
         return
 
-    # Usar el mismo enlace que se muestra en el dashboard (waiting room)
     waiting_room_path = reverse("ve_streaming:waiting_room", args=[event.unique_link])
     link = f"{settings.BASE_URL}{waiting_room_path}"
 
