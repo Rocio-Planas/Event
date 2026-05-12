@@ -168,7 +168,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <form method="post" action="{% if survey.pk %}{% url 'pe_surveys:survey_edit' event.id survey.pk %}{% else %}{% url 'pe_surveys:survey_create' event.id %}{% endif %}">
+                    <form method="post" action="{% if survey.pk %}{% url 'pe_surveys:survey_edit' event.id survey.pk %}{% else %}{% url 'pe_surveys:survey_create' event.id %}{% endif %}" onsubmit="return validateSurveyForm()">
                         {% csrf_token %}
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
@@ -205,9 +205,9 @@
                         <hr class="my-4" style="border-color: var(--border-outline-variant);" />
                         <h4 class="fw-bold mb-3" id="options_title" style="color: var(--text-on-surface);" data-i18n="options_label">Opciones</h4>
                         {{ formset.management_form }}
-                        <div id="options_error" class="alert" style="display: none; background-color: rgba(var(--error), 0.1); color: var(--error); border: none;" role="alert">
+                        <div id="options_error" class="alert" style="display: {% if options_error %}block{% else %}none{% endif %}; background-color: rgba(var(--error), 0.1); color: var(--error); border: none;" role="alert">
                             <span class="material-symbols-outlined me-2" style="font-size: 18px">error</span>
-                            <span id="options_error_text"></span>
+                            <span id="options_error_text">{% if options_error %}{{ options_error }}{% endif %}</span>
                         </div>
                         <div id="options_container">
                             {% for option_form in formset %}
@@ -300,7 +300,37 @@
     <script src="{% static 'pe_surveys/js/survey_list.js' %}"></script>
     <script>
         var eventId = {{ event.id }};
-        
+        {% if hasFormErrors %}window.hasFormErrors = true;{% endif %}
+
+        function validateSurveyForm() {
+            var titleInput = document.querySelector('input[name="title"]');
+            if (!titleInput || !titleInput.value.trim()) {
+                alert('El título de la encuesta es requerido');
+                return false;
+            }
+
+            var optionsContainer = document.querySelector('#options_container');
+            var options = optionsContainer.querySelectorAll('.option-block input');
+            var validOptions = 0;
+            options.forEach(function(opt) {
+                if (opt.value.trim() !== '') validOptions++;
+            });
+
+            if (validOptions < 2) {
+                alert('Debes completar al menos 2 opciones');
+                return false;
+            }
+
+            return true;
+        }
+
+        {% if options_error %}
+        setTimeout(function() {
+            var errorDiv = document.getElementById('options_error');
+            if (errorDiv) errorDiv.style.display = 'none';
+        }, 5000);
+        {% endif %}
+
         function openEditSurveyModal(surveyId, title, surveyType, isMultipleChoice, isActive, deliveryType, scheduledDate, options) {
             document.getElementById('editSurveyId').value = surveyId;
             document.getElementById('editSurveyTitle').value = title;

@@ -61,7 +61,7 @@ def send_pending_scheduled_surveys(event_id):
                     try:
                         send_mail(
                             subject=f"Encuesta: {survey.title}",
-                            message=f"Por favor, responde la encuesta '{survey.title}'.\n\nSigue este enlace: {survey_link}\n\nGracias por tu participación.",
+                            message=f"Por favor, responde la encuesta '{survey.title}'.\nSigue este enlace: {survey_link}\nGracias por tu participación.",
                             from_email=settings.DEFAULT_FROM_EMAIL,
                             recipient_list=[reg.user.email],
                             fail_silently=False,
@@ -163,7 +163,7 @@ class SurveyCreateUpdateView(TemplateView):
                             valid_options_count += 1
                 
                 if valid_options_count < 2:
-                    form.add_error(None, "Las encuestas de tipo TEXTO deben tener al menos 2 opciones.")
+                    form.add_error(None, "La encuesta debe tener al menos 2 opciones.")
             
             if not form.errors:
                 survey = form.save(commit=False)
@@ -189,12 +189,20 @@ class SurveyCreateUpdateView(TemplateView):
                 
                 return redirect('pe_surveys:survey_list', event_id=event_id)
 
+        has_errors = bool(form.errors) or bool(form.non_field_errors())
+
+        options_error = None
+        if form.non_field_errors():
+            options_error = form.non_field_errors()[0]
+
         return self.render_to_response({
             'form': form,
             'formset': formset,
             'survey': survey,
             'event': event,
-            'active_page': 'encuestas'
+            'active_page': 'encuestas',
+            'hasFormErrors': has_errors,
+            'options_error': options_error
         })
 
     def send_survey_emails(self, survey, event_id):
@@ -216,7 +224,7 @@ class SurveyCreateUpdateView(TemplateView):
                 try:
                     send_mail(
                         subject=f"Encuesta: {survey.title}",
-                        message=f"Por favor, responde la encuesta '{survey.title}'.\n\nSigue este enlace: {survey_link}\n\nGracias por tu participación.",
+                        message=f"Por favor, responde la encuesta '{survey.title}'.\nSigue este enlace: {survey_link}\nGracias por tu participación.",
                         from_email=settings.DEFAULT_FROM_EMAIL,
                         recipient_list=[reg.user.email],
                         fail_silently=False,
@@ -276,7 +284,7 @@ class SendSurveyAPIView(View):
                     try:
                         send_mail(
                             subject=f"Encuesta: {survey.title}",
-                            message=f"Por favor, responde la encuesta '{survey.title}'.\n\nSigue este enlace: {survey_link}\n\nGracias por tu participación.",
+                            message=f"Por favor, responde la encuesta '{survey.title}'.\nSigue este enlace: {survey_link}\nGracias por tu participación.",
                             from_email=settings.DEFAULT_FROM_EMAIL,
                             recipient_list=[reg.user.email],
                             fail_silently=False,
@@ -425,7 +433,22 @@ class SurveyAnswerView(TemplateView):
     template_name = 'pe_surveys/survey_answer.html'
 
     def get(self, request, event_id, survey_id, **kwargs):
-        survey = get_object_or_404(Survey, pk=survey_id, event_id=event_id, is_active=True)
+        survey = Survey.objects.filter(pk=survey_id, event_id=event_id).first()
+        
+        if not survey:
+            return self.render_to_response({
+                'error': 'encuesta_no_encontrada',
+                'message': 'La encuesta no existe o ha sido eliminada.',
+                'event_id': event_id
+            })
+        
+        if not survey.is_active:
+            return self.render_to_response({
+                'error': 'encuesta_inactiva',
+                'message': 'Esta encuesta ya no está disponible.',
+                'event_id': event_id
+            })
+        
         return self.render_to_response({
             'survey': survey,
             'event_id': event_id
