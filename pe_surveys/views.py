@@ -45,7 +45,8 @@ def send_pending_scheduled_surveys(event_id):
                 site = Site.objects.get_current()
                 survey_link = f"{site.domain}{survey_link}"
             except Exception:
-                survey_link = f"http://localhost:8000{survey_link}"
+                from django.conf import settings
+                survey_link = f"{settings.BASE_URL}{survey_link}"
             
             Registration = apps.get_model('pe_registration', 'Registration')
             registrations = Registration.objects.filter(

@@ -1,16 +1,82 @@
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Invitación al equipo</title>
-</head>
-<body>
-    <h1>¡Estás invitado al equipo!</h1>
-    <p>Te invitamos a unirte al equipo del evento <strong>{{ event.title }}</strong>.</p>
-    {% if invitation.role %}
-    <p>Rol asignado: <strong>{{ invitation.get_role_display }}</strong></p>
+{% extends 'pe_communication/emails/email_base.html' %}
+
+{% block title %}Invitación al Equipo{% endblock %}
+
+{% block content %}
+<h2>¡Te hemos invitado a nuestro equipo! 👋</h2>
+
+<p>Hola <strong>{{ invitation.user.get_full_name|default:invitation.email }}</strong>,</p>
+
+<p>Has sido invitado a participar como <strong>
+    {% if invitation.user_type == 'ponente' %}Ponente{% else %}{{ invitation.get_role_display }}{% endif %}
+</strong> en el evento:</p>
+
+<div class="event-info">
+    <p><strong>📅 Evento:</strong> {{ event.title }}</p>
+    <p><strong>🗓️ Fecha:</strong> {{ event.start_date|date:"d/m/Y" }}</p>
+    {% if event.location %}
+    <p><strong>📍 Ubicación:</strong> {{ event.location }}</p>
     {% endif %}
-    <p>Haz clic en el siguiente enlace para aceptar la invitación:</p>
-    <p><a href="{{ accept_url }}">Aceptar invitación</a></p>
-    <p>Si no puedes aceptar, ignora este mensaje.</p>
-</body>
-</html>
+</div>
+
+<p>Como miembro del equipo, tendrás acceso al panel de gestión donde podrás:</p>
+<ul>
+    {% if invitation.user_type == 'ponente' %}
+    <li>Gestionar tus presentaciones y materiales</li>
+    <li>Ver el calendario de actividades</li>
+    <li>Comunicarte con otros ponentes</li>
+    {% elif invitation.user_type == 'staff' %}
+    {% if invitation.role == 'LIDER_ZONA' %}
+    <li>Coordinar y liderar tu zona asignada</li>
+    <li>Gestionar al equipo de staff de tu zona</li>
+    <li>Reportar incidencias al organizador</li>
+    {% elif invitation.role == 'SOPORTE' %}
+    <li>Brindar soporte técnico a los asistentes</li>
+    <li>Ayudar con problemas de equipos</li>
+    <li>Coordinar con el equipo de montaje</li>
+    {% elif invitation.role == 'RECEPCION' %}
+    <li>Recibir y registrar a los asistentes</li>
+    <li>Gestionar credenciales y accesos</li>
+    <li>Orientar a los participantes</li>
+    {% elif invitation.role == 'SEGURIDAD' %}
+    <li>Vigilar zonas de acceso</li>
+    <li>Coordinar flujo de personas</li>
+    <li>Reportar situaciones de riesgo</li>
+    {% elif invitation.role == 'MONTAJE' %}
+    <li>Preparar y organizar el espacio</li>
+    <li>Armar stands y equipos</li>
+    <li>Verificar funcionamiento de servicios</li>
+    {% elif invitation.role == 'CATERING' %}
+    <li>Servir alimentos y bebidas</li>
+    <li>Mantener áreas de servicio limpias</li>
+    <li>Coordinar tiempos de servicio</li>
+    {% elif invitation.role == 'ATENCION' %}
+    <li>Atender consultas de asistentes</li>
+    <li>Resolver dudas sobre el evento</li>
+    <li>Gestionar síntomas y recomendaciones</li>
+    {% else %}
+    <li>Administrar zonas y stands</li>
+    <li>Coordinar con otros miembros del staff</li>
+    <li>Apoyar en la logística del evento</li>
+    {% endif %}
+    {% else %}
+    <li>Acceder al panel de gestión del evento</li>
+    <li>Ver la agenda de actividades</li>
+    <li>Colaborar con el equipo organizador</li>
+    {% endif %}
+</ul>
+
+<a href="{{ accept_url }}" class="cta-button">✅ Confirmar mi participación</a>
+
+<div class="info-box">
+    <p><strong>💡 Nota:</strong> Si no puedes aceptar esta invitación, por favor contacta al organizador del evento.</p>
+</div>
+
+<p>Si tienes alguna pregunta sobre tu rol o necesitas más información, no dudes en contactar al equipo de EventPulse.</p>
+
+<p>¡Estamos emocionados de tenerte en el equipo! 🎉</p>
+
+<p style="margin-top: 30px;">
+    <strong>El equipo de EventPulse</strong>
+</p>
+{% endblock %}

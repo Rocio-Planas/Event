@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.utils import timezone
 from django.apps import apps
+from django.urls import reverse
 
 from .models import StaffInvitation, StaffMember, StaffRole, InvitationStatus
 from pe_communication.views import send_staff_invitation_email, send_staff_confirmation_email, send_zone_assignment_email
@@ -275,7 +276,7 @@ def invite_staff(request, event_id):
         if StaffInvitation.objects.filter(event_id=event_id, email=email, status__in=[InvitationStatus.PENDIENTE, InvitationStatus.ACEPTADA]).exists():
             return JsonResponse({'error': 'Ya existe una invitación activa para este correo'}, status=400)
         
-        # Crear invitación
+        # Crear invitación (el email se envía automáticamente por signal)
         expiration = timezone.now() + timedelta(days=7)
         invitation = StaffInvitation.objects.create(
             event_id=event_id,
@@ -284,36 +285,6 @@ def invite_staff(request, event_id):
             role=role if user_type == 'staff' else None,
             expires_at=expiration,
         )
-        
-        # Enviar correo de invitación directamente
-        try:
-            from django.conf import settings
-            site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
-            accept_url = f"{site_url}/equipo/accept/{invitation.token}/"
-            
-            if user_type == 'ponente':
-                role_text = 'Ponente'
-            elif role:
-                role_text = role
-            else:
-                role_text = 'Staff'
-            
-            from django.core.mail import send_mail
-            send_mail(
-                subject=f'Invitación como {role_text} - {invitation.event.title}',
-                message=f'Hola,\n\n'
-                       f'Has sido invitado a participar como {role_text} en el evento "{invitation.event.title}".\n\n'
-                       f'Fecha: {invitation.event.start_date}\n\n'
-                       f'Para confirmar tu participación, visita el siguiente enlace:\n'
-                       f'{accept_url}\n\n'
-                       f'El equipo de EventPulse',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                fail_silently=False,
-            )
-            logger.info(f'Email de invitación enviado a {email}')
-        except Exception as e:
-            logger.error(f'Error al enviar email de invitación: {e}')
         
         return JsonResponse({
             'success': True,
@@ -435,7 +406,7 @@ def accept_invitation(request, token):
         try:
             user = User.objects.get(email__iexact=invitation.email)
             if user:
-                return redirect(f'/usuarios/login/?next=/pe_staff/accept/{token}/')
+                return redirect(f'/login/?next=/pe_staff/accept/{token}/')
         except User.DoesNotExist:
             pass
         return render(request, 'pe_staff/invitation_login_required.html', {'invitation': invitation})
@@ -514,8 +485,6 @@ def assign_zone(request, event_id, member_id):
         # Enviar notificación y email al staff
         try:
             from pe_communication.models import Notification
-            from django.conf import settings
-            from django.core.mail import send_mail
             
             Notification.objects.create(
                 user=member.user,
@@ -524,15 +493,7 @@ def assign_zone(request, event_id, member_id):
                 notification_type=Notification.Type.MANUAL_ALERT
             )
             
-            send_mail(
-                subject=f'Zona asignada - {member.event.title}',
-                message=f'Hola {member.user.get_full_name() or member.user.email},\n\n'
-                       f'Se te ha asignado la zona "{stand.name}" en el evento "{member.event.title}".\n\n'
-                       f'El equipo de EventPulse',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[member.user.email],
-                fail_silently=False,
-            )
+            send_zone_assignment_email(member, stand.name)
             logger.info(f'Notificación de zona enviada a {member.user.email}')
         except Exception as e:
             logger.error(f'Error al enviar notificación de zona: {e}')
@@ -610,33 +571,8 @@ def assign_activity(request, event_id, member_id):
         activity.speaker_email = member.user.email
         activity.save(update_fields=['speaker_name', 'speaker_email'])
         
-        # Enviar notificación y email al ponente
-        try:
-            from pe_communication.models import Notification
-            from django.conf import settings
-            from django.core.mail import send_mail
-            
-            Notification.objects.create(
-                user=member.user,
-                title=f'Actividad asignada: {activity.title}',
-                message=f'Se te ha asignado la actividad "{activity.title}" en el evento "{member.event.title}". '
-                        f'Horario: {activity.start_time.strftime("%d/%m/%Y %H:%M")} - {activity.end_time.strftime("%H:%M")}.',
-                notification_type=Notification.Type.MANUAL_ALERT
-            )
-            
-            send_mail(
-                subject=f'Actividad asignada - {activity.title}',
-                message=f'Hola {member.user.get_full_name() or member.user.email},\n\n'
-                       f'Se te ha asignado la actividad "{activity.title}" en el evento "{member.event.title}".\n'
-                       f'Horario: {activity.start_time.strftime("%d/%m/%Y %H:%M")} - {activity.end_time.strftime("%H:%M")}\n\n'
-                       f'El equipo de EventPulse',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[member.user.email],
-                fail_silently=False,
-            )
-            logger.info(f'Notificación de asignación de actividad enviada a {member.user.email}')
-        except Exception as e:
-            logger.error(f'Error al enviar notificación de actividad: {e}')
+        # El email y notificación ya se envían por el signal post_save
+        logger.info(f'Actividad "{activity.title}" asignada a {member.user.email}')
         
         return JsonResponse({
             'success': True,

@@ -664,6 +664,10 @@ def detalle_evento_presencial(request, evento_id):
             raise Http404("Evento no encontrado.")
         
         if not request.user.is_authenticated:
+            from django.shortcuts import redirect
+            return redirect(f'/login/?next=/eventos-presenciales/{evento_id}/')
+        
+        if not request.user.is_authenticated:
             from django.http import Http404
             raise Http404("Evento no encontrado. Debes iniciar sesión.")
         
