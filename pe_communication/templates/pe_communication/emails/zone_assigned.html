@@ -1,11 +1,36 @@
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Asignación de zona</title>
-</head>
-<body>
-    <h1>Zona asignada</h1>
-    <p>Has sido asignado a la zona <strong>{{ zone }}</strong> para el evento <strong>{{ event.title }}</strong>.</p>
-    <p>Gracias por tu colaboración.</p>
-</body>
-</html>
+{% extends 'pe_communication/emails/email_base.html' %}
+
+{% block title %}Zona Asignada{% endblock %}
+
+{% block content %}
+<h2>📍 Zona Asignada</h2>
+
+<p>Hola <strong>{{ member.user.get_full_name|default:member.user.email }}</strong>,</p>
+
+<p>Se te ha asignado una zona de responsabilidad para el evento:</p>
+
+<div class="event-info">
+    <p><strong>📅 Evento:</strong> {{ event.title }}</p>
+    <p><strong>🗓️ Fecha:</strong> {{ event.start_date|date:"d/m/Y" }}</p>
+    <p><strong>🎯 Zona asignada:</strong> <span style="color: #2563eb; font-size: 18px;">{{ zone }}</span></p>
+</div>
+
+<p><strong>¿Qué debes hacer?</strong></p>
+<ul>
+    <li>Llegar a tu zona <strong>30 minutos antes</strong> del inicio del evento</li>
+    <li>Reportarte con el coordinador de área al llegar</li>
+    <li>Mantenerse comunicado con el equipo de staff</li>
+    <li>Resolver cualquier incidencia que surja en tu zona</li>
+</ul>
+
+<div class="warning-box">
+    <p><strong>⚠️ Importante:</strong> Si no puedes cumplir con esta responsabilidad, contacta al organizador lo antes posible para buscar una solución.</p>
+</div>
+
+<p>Tu rol como <strong>{{ member.get_role_display }}</strong> es fundamental para el éxito del evento. ¡Gracias por tu compromiso!</p>
+
+<p style="margin-top: 30px;">
+    <strong>El equipo de EventPulse</strong><br>
+    <span style="color: #6b7280; font-size: 13px;">Si tienes dudas sobre tu zona, contacta al organizador</span>
+</p>
+{% endblock %}

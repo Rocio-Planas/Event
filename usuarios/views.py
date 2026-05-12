@@ -64,12 +64,17 @@ def login_view(request):
             if not form.cleaned_data.get('remember_me'):
                 request.session.set_expiry(0)
             messages.success(request, f'¡Bienvenido/a de nuevo, {user.first_name}!')
+            # Usar el parámetro next si existe, si no redirigir al dashboard
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
             return redirect('usuarios:dashboard')
         else:
             messages.error(request, 'Email o contraseña incorrectos')
     else:
         form = LoginForm()
-    return render(request, 'usuarios/login.html', {'form': form})
+    next_url = request.GET.get('next', '')
+    return render(request, 'usuarios/login.html', {'form': form, 'next': next_url})
 
 def logout_view(request):
     logout(request)

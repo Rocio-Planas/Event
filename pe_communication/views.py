@@ -91,8 +91,7 @@ def send_staff_invitation_email(invitation):
     from django.urls import reverse
     
     # Construir URL de aceptación
-    site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
-    accept_url = f"{site_url}/equipo/accept/{invitation.token}/"
+    accept_url = f"{settings.BASE_URL}{reverse('pe_staff:accept_invitation', args=[invitation.token])}"
     
     # Obtener o crear plantilla
     template = get_or_create_template(EmailTemplate.TemplateType.STAFF_INVITATION)
@@ -102,6 +101,7 @@ def send_staff_invitation_email(invitation):
         'invitation': invitation,
         'accept_url': accept_url,
         'event': invitation.event,
+        'base_url': settings.BASE_URL,
     }
     
     body_html = render_to_string('pe_communication/emails/staff_invitation.html', context)
@@ -122,8 +122,7 @@ def send_event_invitation_email(recipient_email, event, organizer_name, custom_m
     """
     from django.urls import reverse
 
-    site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
-    event_url = f"{site_url}{reverse('core:detalle_evento_presencial', args=[event.id])}"
+    event_url = f"{settings.BASE_URL}{reverse('core:detalle_evento_presencial', args=[event.id])}"
 
     template = get_or_create_template(EmailTemplate.TemplateType.EVENT_INVITATION)
 
@@ -132,6 +131,7 @@ def send_event_invitation_email(recipient_email, event, organizer_name, custom_m
         'organizer_name': organizer_name,
         'event_url': event_url,
         'custom_message': custom_message,
+        'base_url': settings.BASE_URL,
     }
 
     body_html = render_to_string('pe_communication/emails/event_invitation.html', context)
@@ -181,6 +181,7 @@ def send_zone_assignment_email(member, zone_name):
         'member': member,
         'event': member.event,
         'zone': zone_name,
+        'base_url': settings.BASE_URL,
     }
     
     body_html = render_to_string('pe_communication/emails/zone_assigned.html', context)
@@ -192,6 +193,34 @@ def send_zone_assignment_email(member, zone_name):
         body_html=body_html,
         body_text=body_text,
         template_type=EmailTemplate.TemplateType.STAFF_ASSIGNED,
+    )
+
+
+def send_activity_assigned_email(member, activity):
+    """
+    Envía email cuando se asigna una actividad a un ponente.
+    """
+    from pe_communication.models import EmailTemplate
+    
+    context = {
+        'member': member,
+        'event': member.event,
+        'activity': activity,
+        'base_url': settings.BASE_URL,
+    }
+    
+    body_html = render_to_string('pe_communication/emails/activity_assigned.html', context)
+    body_text = (
+        f"Se te ha asignado la actividad '{activity.title}' en el evento '{member.event.title}'.\n"
+        f"Horario: {activity.start_time.strftime('%d/%m/%Y %H:%M')} - {activity.end_time.strftime('%H:%M')}\n"
+        f"Ubicación: {activity.location or 'Por definir'}"
+    )
+    
+    return send_email_notification(
+        recipient_email=member.user.email,
+        subject=f"Actividad asignada: {activity.title}",
+        body_html=body_html,
+        body_text=body_text,
     )
 
 
