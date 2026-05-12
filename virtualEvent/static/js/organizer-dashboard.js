@@ -1,5 +1,3 @@
-// organizer-dashboard.js - Dashboard del organizador
-// Funcionalidades: edición de evento, invitaciones, métricas (placeholder) y YouTube (guardado + previsualización)
 
 document.addEventListener("DOMContentLoaded", function () {
   // --- Variables globales desde el template ---
@@ -67,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Métricas en tiempo real usando la API real
   function loadMetrics() {
     if (!eventId) return;
-    fetch(METRICS_URL)   // <--- CAMBIA ESTA LÍNEA: usa la variable en lugar de la ruta fija
+    fetch(METRICS_URL)
       .then((res) => res.json())
       .then((data) => {
         document.getElementById("metric-online").innerText = data.active_viewers || 0;
@@ -80,7 +78,6 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch((err) => console.error("Error cargando métricas:", err));
 }
 
-  // Llamar cada 5 segundos
   if (eventId) {
     loadMetrics();
     setInterval(loadMetrics, 5000);
@@ -97,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ========================
-  // 5. YouTube: guardado, previsualización y modal (opcional)
+  // 5. YouTube: guardado, previsualización y modal
   // ========================
   const ytInput = document.getElementById("od-youtube-url");
   const previewContainer = document.getElementById("od-yt-preview-container");
@@ -110,7 +107,6 @@ document.addEventListener("DOMContentLoaded", function () {
   let modal = null;
   if (modalElement) modal = new bootstrap.Modal(modalElement);
 
-  // Notificaciones toast (sin alert molestos)
   function showToast(message, isError = false) {
     const toastEl = document.getElementById("od-toast");
     if (toastEl) {
@@ -128,25 +124,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Limpiar y convertir URL de YouTube a formato embed (acepta cualquier formato)
   function cleanYoutubeUrl(url) {
     if (!url || url.trim() === "") return "";
     let clean = url.trim();
 
-    // Eliminar parámetros (todo lo que siga a '?')
     if (clean.includes("?")) clean = clean.split("?")[0];
 
-    // Si no tiene protocolo, añadir https://
     if (!clean.startsWith("http://") && !clean.startsWith("https://")) {
       clean = "https://" + clean;
     }
 
-    // Caso 1: youtube.com/watch?v=...
     if (clean.includes("youtube.com/watch?v=")) {
       const videoId = clean.split("v=")[1].split("&")[0];
       return `https://www.youtube.com/embed/${videoId}`;
     }
-    // Caso 2: youtu.be/...
     else if (clean.includes("youtu.be/")) {
       const videoId = clean.split("youtu.be/")[1].split("?")[0];
       return `https://www.youtube.com/embed/${videoId}`;
@@ -157,28 +148,23 @@ document.addEventListener("DOMContentLoaded", function () {
     return `https://www.youtube.com/embed/${videoId}`;
     }
 
-    // Caso 3: ya es embed (youtube.com/embed/...)
     else if (clean.includes("youtube.com/embed/")) {
-      // Asegurar dominio correcto (www.)
       if (clean.includes("://youtube.com/embed/")) {
         clean = clean.replace(
           "://youtube.com/embed/",
           "://www.youtube.com/embed/",
         );
       } else if (clean.includes("://www.youtube.com/embed/")) {
-        // ya está bien
+        
       } else {
-        // si no tiene www, agregarlo
         clean = clean.replace("youtube.com/embed/", "www.youtube.com/embed/");
       }
       return clean;
     }
 
-    // Si no es una URL de YouTube reconocida, devolvemos vacío
     return "";
   }
 
-  // Actualizar el mini iframe de previsualización (sin guardar)
   function updatePreview() {
     let rawUrl = ytInput ? ytInput.value.trim() : "";
     let cleanUrl = "";
@@ -193,7 +179,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Si la URL limpia es diferente a la original, actualizamos el campo visualmente
     if (cleanUrl !== rawUrl && ytInput) {
       ytInput.value = cleanUrl;
     }
@@ -245,8 +230,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // --- Eventos ---
-
-  // Botón "Probar": guarda y actualiza preview (sin abrir modal)
+  // Botón "Probar": guarda y actualiza preview
   if (testBtn && ytInput) {
     testBtn.addEventListener("click", function () {
       let rawUrl = ytInput.value.trim();
@@ -260,11 +244,10 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
       if (cleanUrl !== rawUrl) ytInput.value = cleanUrl;
-      saveYoutubeUrl(cleanUrl); // Guarda y actualiza preview (updatePreview se llama dentro de saveYoutubeUrl)
+      saveYoutubeUrl(cleanUrl); 
     });
   }
 
-  // Botón "Previsualizar": solo actualiza el mini iframe (no guarda)
   if (previewBtn) {
     previewBtn.addEventListener("click", function (e) {
       e.preventDefault();
@@ -272,7 +255,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Auto‑guardado al perder el foco (opcional, pero útil)
   if (ytInput) {
     ytInput.addEventListener("change", function () {
       let url = this.value.trim();
@@ -287,7 +269,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Inicializar previsualización al cargar la página
   if (ytInput) {
     const initialUrl = ytInput.value.trim();
     if (initialUrl && cleanYoutubeUrl(initialUrl)) {
@@ -298,11 +279,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // El modal se mantiene por si quieres usarlo en otro lado, pero no se abre con "Probar"
-  // Si quieres eliminar completamente el modal, puedes borrar el HTML del modal.
 });
 
-// Funciones globales (por si se llaman desde onclick en el HTML)
 function copyToClipboard() {
   const urlText = document.getElementById("od-copy-url")?.innerText.trim();
   if (urlText) {

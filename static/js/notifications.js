@@ -117,7 +117,6 @@
       });
   };
 
-  // ---- CORRECCIÓN: Cerrar dropdown de notificaciones al hacer clic en el avatar ----
   document.addEventListener("DOMContentLoaded", function () {
     requestNotificationPermission();
     fetchUnreadNotifications();
@@ -129,7 +128,6 @@
 
     // Función para cerrar el dropdown de notificaciones (si está abierto)
     const closeNotificationDropdown = function () {
-      // Usamos Bootstrap API para cerrar el dropdown
       if (typeof bootstrap !== 'undefined') {
         const instance = bootstrap.Dropdown.getInstance(notificationBtn);
         if (
@@ -141,13 +139,11 @@
       }
     };
 
-    // Cerrar al hacer clic en el avatar (incluyendo el botón y el contenedor)
     const avatarBtn = document.getElementById("user-menu-btn");
     if (avatarBtn) {
       avatarBtn.addEventListener("click", closeNotificationDropdown);
     }
 
-    // También cerrar al hacer clic en cualquier otro elemento del navbar
     const otherElements = document.querySelectorAll(
       ".lang-btn, .theme-btn, .navbar-toggler, .logo, .nav-link",
     );
@@ -155,7 +151,6 @@
       el.addEventListener("click", closeNotificationDropdown);
     });
 
-    // Opcional: cerrar si se hace clic fuera del dropdown (además de la detección automática de Bootstrap)
     document.addEventListener("click", function (event) {
       const target = event.target;
       const isNotificationBtn = notificationBtn.contains(target);

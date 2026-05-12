@@ -71,7 +71,6 @@
   border: none;
 }
 
-/* Estilo base del botón (cuando está habilitado/activo) */
 .wr-btn-access:not(:disabled) {
   background: linear-gradient(135deg, #0057cd 0%, #0d6efd 100%);
   color: white;
@@ -103,7 +102,6 @@
   transform: scale(0.98);
 }
 
-/* Tooltip simple for copy feedback */
 .copy-success {
   background-color: #198754 !important;
   color: white !important;
@@ -207,14 +205,13 @@
   color: white !important;
 }
 
-/* Forzar cualquier elemento que pueda tener fondo blanco fijo */
 .dark .wr-card *,
 .dark .countdown-container *,
 .dark .invite-link-container *,
 .dark .card-body,
 .dark .card-header,
 .dark .card-footer {
-  background-color: transparent !important; /* hereda el fondo del padre */
+  background-color: transparent !important; 
 }
 
 .dark div[class*="countdown"],
@@ -222,7 +219,7 @@
   background: transparent !important;
 }
 
-/* ===== REFUERZO EXTREMO PARA MODO OSCURO EN WAITING ROOM ===== */
+/* ===== MODO OSCURO EN WAITING ROOM ===== */
 
 .dark .wr-card,
 .dark .card,
@@ -270,7 +267,11 @@
 }
 
 .dark .wr-btn-access:not(:disabled) {
-  background: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 80%, white) 100%) !important;
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    color-mix(in srgb, var(--primary) 80%, white) 100%
+  ) !important;
   color: white !important;
   border: none !important;
 }
@@ -300,4 +301,57 @@
 .dark body,
 .dark .wr-container {
   background-color: var(--bg-surface) !important;
+}
+
+@media (max-width: 400px) {
+  
+  .countdown-container,
+  .wr-countdown,
+  [class*="countdown"] {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  .countdown-container > div,
+  .wr-countdown > div,
+  [class*="countdown"] > div {
+    flex: 1 1 0 !important; 
+    min-width: 0 !important;
+    text-align: center !important;
+    padding: 0.25rem 0 !important;
+  }
+
+  .countdown-digit,
+  .countdown-number,
+  [class*="digit"],
+  [class*="number"] {
+    font-size: 1.4rem !important;
+    white-space: nowrap !important;
+    display: block !important;
+    line-height: 1.2 !important;
+  }
+
+  .countdown-label,
+  [class*="label"] {
+    font-size: 0.65rem !important;
+    white-space: nowrap !important;
+    display: block !important;
+  }
+
+  @media (max-width: 375px) {
+    .countdown-digit,
+    .countdown-number {
+      font-size: 1.2rem !important;
+    }
+    .countdown-label {
+      font-size: 0.6rem !important;
+    }
+    .countdown-container > div,
+    .wr-countdown > div {
+      gap: 0.25rem !important;
+    }
+  }
 }

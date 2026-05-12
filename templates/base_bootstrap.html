@@ -248,13 +248,13 @@
         const navLinks = document.querySelector(".nav-links");
         const overlay = document.getElementById("menuOverlay");
 
-        console.log("menuBtn:", menuBtn); // Debe mostrar el botón
-        console.log("navLinks:", navLinks); // Debe mostrar el elemento
+        console.log("menuBtn:", menuBtn); 
+        console.log("navLinks:", navLinks); 
 
         if (menuBtn && navLinks && overlay) {
           menuBtn.addEventListener("click", function (e) {
             e.stopPropagation();
-            console.log("Botón clickeado"); // Debe aparecer al hacer clic
+            console.log("Botón clickeado"); 
             navLinks.classList.toggle("show");
             overlay.classList.toggle("show");
           });
