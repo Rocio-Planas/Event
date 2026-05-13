@@ -390,6 +390,14 @@ def admin_panel(request):
 def admin_usuarios(request):
     """Listado de usuarios con opciones de cambiar rol y eliminar."""
     usuarios = UsuarioModel.objects.all().order_by('-date_joined')
+    
+    # Filtro por verificación
+    verified_filter = request.GET.get('verified')
+    if verified_filter == 'yes':
+        usuarios = usuarios.filter(is_active=True)
+    elif verified_filter == 'no':
+        usuarios = usuarios.filter(is_active=False)
+    
     paginator = Paginator(usuarios, 15)
     page = request.GET.get('page', 1)
     usuarios_paginados = paginator.get_page(page)

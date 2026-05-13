@@ -1,0 +1,42 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+
+{% block title %}{% if currentLang == 'en' %}Invalid link{% else %}Enlace inválido{% endif %} - EventPulse{% endblock %}
+
+{% block content %}
+<style>
+    main.pt-24 {
+        padding-top: 0 !important;
+    }
+</style>
+
+<div class="max-w-md mx-auto">
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden text-center">
+        
+        <!-- Cabecera -->
+        <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-8">
+            <div class="w-16 h-16 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-3">
+                <span class="material-symbols-outlined text-white text-4xl">link_off</span>
+            </div>
+            <h1 class="text-2xl font-bold text-white" data-i18n="invalid_link_title">Enlace inválido</h1>
+            <p class="text-white/80 mt-1" data-i18n="invalid_link_message">Este enlace ya no es válido</p>
+        </div>
+        
+        <!-- Contenido -->
+        <div class="p-6">
+            <p class="text-on-surface-variant mb-6">
+                {% if tipo == 'confirmacion' %}
+                    <span data-i18n="confirmation_expired">El enlace de confirmación ha expirado o ya fue utilizado.</span>
+                {% else %}
+                    <span data-i18n="recovery_expired">El enlace de recuperación ha expirado o ya fue utilizado.</span>
+                {% endif %}
+            </p>
+            
+            <a href="{% url 'usuarios:login' %}" class="block w-full py-3 bg-primary text-white rounded-lg font-semibold hover:opacity-90 transition flex items-center justify-center gap-2" data-i18n="back_to_login">
+                <span class="material-symbols-outlined text-base">login</span>
+                ← Volver al inicio de sesión
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

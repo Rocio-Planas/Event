@@ -1,0 +1,36 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+
+{% block title %}{% if currentLang == 'en' %}Password reset{% else %}Contraseña restablecida{% endif %} - EventPulse{% endblock %}
+
+{% block content %}
+<!-- Margen superior para separar del navbar -->
+<div class="pt-8">
+    <div class="max-w-md mx-auto">
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden text-center">
+            
+            <!-- Cabecera -->
+            <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-8">
+                <div class="w-16 h-16 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-3">
+                    <span class="material-symbols-outlined text-white text-4xl">lock_open</span>
+                </div>
+                <h1 class="text-2xl font-bold text-white" data-i18n="password_reset_title">¡Contraseña restablecida!</h1>
+                <p class="text-white/80 mt-1" data-i18n="password_reset_subtitle">Tu contraseña ha sido cambiada exitosamente</p>
+            </div>
+            
+            <!-- Contenido -->
+            <div class="p-6">
+                <p class="text-on-surface-variant mb-6" data-i18n="login_with_new_password">
+                    Ahora puedes iniciar sesión con tu nueva contraseña.
+                </p>
+                
+                <!-- Redirige al login para iniciar sesión -->
+                <a href="{% url 'usuarios:login' %}" class="block w-full py-3 bg-primary text-white rounded-lg font-semibold hover:opacity-90 transition flex items-center justify-center gap-2" data-i18n="login_now">
+                    <span class="material-symbols-outlined text-base">login</span>
+                    Iniciar sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
