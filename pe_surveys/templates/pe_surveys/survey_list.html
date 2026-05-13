@@ -60,11 +60,13 @@
                                 <td class="py-3" style="background-color: var(--surface-container-lowest);">
                                     {% if survey.delivery_type == 'inmediato' %}
                                         <span data-i18n="sent_on">Enviado el</span> {{ survey.created_at|date:'d/m/Y H:i' }}
-                                    {% elif survey.delivery_type == 'programado' and survey.scheduled_date %}
-                                        {% if survey.scheduled_date < now %}
-                                            <span data-i18n="sent_on">Enviado el</span> {{ survey.scheduled_date|date:'d/m/Y H:i' }}
-                                        {% else %}
+                                    {% elif survey.delivery_type == 'programado' %}
+                                        {% if survey.sent_at %}
+                                            <span data-i18n="sent_on">Enviado el</span> {{ survey.sent_at|date:'d/m/Y H:i' }}
+                                        {% elif survey.scheduled_date %}
                                             <span data-i18n="scheduled_for">Programada para</span> {{ survey.scheduled_date|date:'d/m/Y H:i' }}
+                                        {% else %}
+                                            -
                                         {% endif %}
                                     {% else %}
                                         -
