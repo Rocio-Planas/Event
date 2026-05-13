@@ -56,36 +56,43 @@ class Survey(models.Model):
 
     def send_survey_emails(self, event_id=None):
         """
-        Envía emails de la encuesta a todos los asistentes confirmados.
+        Envía emails de la encuesta a todos los asistentes confirmados (en background).
         """
+        import threading
         from pe_registration.models import Registration
         from pe_communication.models import EmailTemplate
         from django.core.mail import send_mail
         from django.conf import settings
         
-        target_event_id = event_id or self.event_id
+        def send_emails_in_background():
+            target_event_id = event_id or self.event_id
+            
+            registrations = Registration.objects.filter(
+                event_id=target_event_id,
+                status=Registration.Status.CONFIRMADA
+            ).select_related('user')
+            
+            emails_sent = 0
+            for reg in registrations:
+                if reg.user and reg.user.email:
+                    try:
+                        send_mail(
+                            subject=f"Encuesta: {self.title}",
+                            message=f"Por favor, responde la encuesta: {self.title}",
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[reg.user.email],
+                            fail_silently=False,
+                        )
+                        emails_sent += 1
+                    except Exception as e:
+                        print(f"Error sending email to {reg.user.email}: {e}")
+            
+            print(f"Survey emails sent: {emails_sent}")
         
-        registrations = Registration.objects.filter(
-            event_id=target_event_id,
-            status=Registration.Status.CONFIRMADA
-        ).select_related('user')
+        email_thread = threading.Thread(target=send_emails_in_background)
+        email_thread.start()
         
-        emails_sent = 0
-        for reg in registrations:
-            if reg.user and reg.user.email:
-                try:
-                    send_mail(
-                        subject=f"Encuesta: {self.title}",
-                        message=f"Por favor, responde la encuesta: {self.title}",
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[reg.user.email],
-                        fail_silently=False,
-                    )
-                    emails_sent += 1
-                except Exception as e:
-                    print(f"Error sending email to {reg.user.email}: {e}")
-        
-        return emails_sent
+        return 0  # Return immediately, actual count will be in logs
 
     def should_send(self):
         """Check if survey should be sent based on delivery_type and scheduled_date."""

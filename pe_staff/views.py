@@ -473,17 +473,19 @@ def assign_zone(request, event_id, member_id):
         member.zone = stand.name
         member.save()
         
-        # Also create StandStaff entry if not already assigned
-        if not StandStaff.objects.filter(stand=stand, user=member.user).exists():
-            stand_staff = StandStaff(
-                stand=stand,
-                user=member.user,
-                role=member.role
-            )
-            stand_staff.save()
+        # Remove StandStaff from any previous stand in this event and create new one
+        StandStaff.objects.filter(user=member.user, stand__event_id=event_id).delete()
+        stand_staff = StandStaff(
+            stand=stand,
+            user=member.user,
+            role=member.role
+        )
+        stand_staff.save()
         
-        # Enviar notificación y email al staff
+        # Enviar notificación y email al staff (en background para no bloquear)
         try:
+            import threading
+            
             from pe_communication.models import Notification
             
             Notification.objects.create(
@@ -493,10 +495,18 @@ def assign_zone(request, event_id, member_id):
                 notification_type=Notification.Type.MANUAL_ALERT
             )
             
-            send_zone_assignment_email(member, stand.name)
-            logger.info(f'Notificación de zona enviada a {member.user.email}')
+            # Send email in background thread
+            def send_email_background():
+                try:
+                    send_zone_assignment_email(member, stand.name)
+                    logger.info(f'Notificación de zona enviada a {member.user.email}')
+                except Exception as e:
+                    logger.error(f'Error al enviar email de zona: {e}')
+            
+            email_thread = threading.Thread(target=send_email_background)
+            email_thread.start()
         except Exception as e:
-            logger.error(f'Error al enviar notificación de zona: {e}')
+            logger.error(f'Error al crear notificación de zona: {e}')
         
         return JsonResponse({
             'success': True,

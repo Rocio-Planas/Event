@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="position-relative hero-banner" style="background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%), url('{% if event.image %}{{ event.image.url }}{% else %}https://picsum.photos/seed/event/1200/400{% endif %}') center/cover no-repeat; min-height: 400px; display: flex; align-items: flex-end; margin-top: -5rem; padding-top: 5rem;">
+<div class="position-relative hero-banner" style="background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%){% if event.image %}, url('{{ event.image.url }}') center/cover no-repeat{% endif %}; min-height: 400px; display: flex; align-items: flex-end; margin-top: -5rem; padding-top: 5rem;">
     <div class="container pb-5">
         <div class="max-w-7xl mx-auto">
             <a href="{% url 'usuarios:dashboard' %}" class="text-decoration-none text-white fw-bold d-flex align-items-center gap-1 mb-4" style="width: fit-content;">
