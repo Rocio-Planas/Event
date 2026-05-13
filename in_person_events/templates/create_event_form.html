@@ -46,7 +46,7 @@
                         class="ev-form"
                     >
                         {% csrf_token %}
-                        <input type="hidden" name="tickets_data" id="ticketsData" value='[{"name":"Entrada General","price":25}]' />
+                        <input type="hidden" name="tickets_data" id="ticketsData" value='[]' />
 
                         <div class="mb-5">
                             <div class="ev-field-group mb-4">
@@ -201,22 +201,6 @@
                             </div>
 
                             <div id="ticketContainer">
-                                <div class="ticket-item d-flex flex-column flex-md-row align-items-center gap-3">
-                                    <div class="flex-grow-1 w-100">
-                                        <label class="ev-label mb-1" data-i18n="ticket_name_label">Nombre del Ticket</label>
-                                        <input type="text" class="form-control border-0 bg-transparent p-0 fw-medium shadow-none" value="Entrada General" />
-                                    </div>
-                                    <div class="w-100 w-md-25">
-                                        <label class="ev-label mb-1" data-i18n="price_label">Precio</label>
-                                        <div class="d-flex align-items-center">
-                                            <span class="fw-bold me-1">€</span>
-                                            <input type="number" class="form-control border-0 bg-transparent p-0 fw-bold shadow-none" value="25" />
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn text-danger p-2 remove-ticket">
-                                        <span class="material-symbols-outlined">delete</span>
-                                    </button>
-                                </div>
                             </div>
                         </div>
 

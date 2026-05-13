@@ -390,6 +390,14 @@ def admin_panel(request):
 def admin_usuarios(request):
     """Listado de usuarios con opciones de cambiar rol y eliminar."""
     usuarios = UsuarioModel.objects.all().order_by('-date_joined')
+    
+    # Filtro por verificación
+    verified_filter = request.GET.get('verified')
+    if verified_filter == 'yes':
+        usuarios = usuarios.filter(is_active=True)
+    elif verified_filter == 'no':
+        usuarios = usuarios.filter(is_active=False)
+    
     paginator = Paginator(usuarios, 15)
     page = request.GET.get('page', 1)
     usuarios_paginados = paginator.get_page(page)
@@ -872,18 +880,22 @@ def admin_metrics(request):
 
 @login_required
 def contacto_view(request):
+    # Inicializar variables con valores por defecto
+    review_form = None
+    inquiry_form = None
+    
     if request.method == 'POST':
         form_type = request.POST.get('form_type')
         if form_type == 'review':
-            form = ResenaForm(request.POST)
-            if form.is_valid():
-                resena = form.save(commit=False)
+            review_form = ResenaForm(request.POST)
+            if review_form.is_valid():
+                resena = review_form.save(commit=False)
                 if request.user.is_authenticated:
                     resena.usuario = request.user
                     resena.nombre = request.user.get_full_name() or request.user.email
                     resena.email = request.user.email
-                tipo = form.cleaned_data['tipo_evento']
-                evento_id = form.cleaned_data['evento_id']
+                tipo = review_form.cleaned_data['tipo_evento']
+                evento_id = review_form.cleaned_data['evento_id']
                 if tipo == 'virtual':
                     resena.evento_virtual_id = evento_id
                 else:
@@ -893,16 +905,18 @@ def contacto_view(request):
                 return redirect('core:contacto')
             else:
                 messages.error(request, 'Hubo un error al enviar la reseña. Revisa los datos.')
-        else:
-            form = ConsultaForm(request.POST)
-            if form.is_valid():
-                consulta = form.save(commit=False)
+                # Crear formulario de consulta vacío para mostrar en el template
+                inquiry_form = ConsultaForm()
+        else:  # form_type == 'consulta' o cualquier otro
+            inquiry_form = ConsultaForm(request.POST)
+            if inquiry_form.is_valid():
+                consulta = inquiry_form.save(commit=False)
                 if request.user.is_authenticated:
                     consulta.usuario = request.user
                     consulta.nombre = request.user.get_full_name() or request.user.email
                     consulta.email = request.user.email
-                tipo = form.cleaned_data.get('tipo_evento')
-                evento_id = form.cleaned_data.get('evento_id')
+                tipo = inquiry_form.cleaned_data.get('tipo_evento')
+                evento_id = inquiry_form.cleaned_data.get('evento_id')
                 if tipo == 'virtual':
                     consulta.evento_virtual_id = evento_id
                 elif tipo == 'presencial':
@@ -912,10 +926,18 @@ def contacto_view(request):
                 return redirect('core:contacto')
             else:
                 messages.error(request, 'Hubo un error al enviar la consulta. Revisa los datos.')
-    else:
+                # Crear formulario de reseña vacío para mostrar en el template
+                review_form = ResenaForm()
+    else:  # GET request
         review_form = ResenaForm()
         inquiry_form = ConsultaForm()
-
+    
+    # Garantizar que ambos formularios existan antes de enviarlos al template
+    if review_form is None:
+        review_form = ResenaForm()
+    if inquiry_form is None:
+        inquiry_form = ConsultaForm()
+    
     # Convertir querysets a listas de diccionarios para json_script
     eventos_virtuales = list(
         VirtualEvent.objects.filter(estado='aprobado')
@@ -927,12 +949,12 @@ def contacto_view(request):
         .order_by('-start_date')
         .values('id', 'title')
     )
-
+    
     chat_config = {
         'available': is_chat_available(),
         'user_id': request.user.id if request.user.is_authenticated else 0,
     }
-
+    
     return render(request, 'contacto.html', {
         'review_form': review_form,
         'inquiry_form': inquiry_form,

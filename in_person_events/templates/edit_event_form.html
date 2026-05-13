@@ -28,6 +28,7 @@
 <form id="eventForm" action="{% url 'in_person_events:edit_event' event.id %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <input type="hidden" name="tickets_data" id="ticketsData" value='{{ tickets_json|default:"[]"|safe }}'>
+    <input type="hidden" name="remove_image" id="removeImage" value="false">
 
     <main class="container py-3">
     <div class="row g-3">
@@ -86,7 +87,7 @@
                             <p class="text-muted small text-uppercase tracking-widest" data-i18n="image_hint_in_person">PNG o JPG de alta resolución (Máx 10MB)</p>
                         </div>
                         <div class="ev-preview-container {% if not form.instance.image %}d-none{% endif %} position-absolute top-0 start-0 w-100 h-100 rounded-4 overflow-hidden" id="evPreviewContainer">
-                            <img src="{{ form.instance.image.url|default:'' }}" alt="Vista previa" id="evImagePreview" class="w-100 h-100 object-fit-cover" />
+                            <img src="{% if form.instance.image %}{{ form.instance.image.url }}{% endif %}" alt="Vista previa" id="evImagePreview" class="w-100 h-100 object-fit-cover" />
                             <button type="button" class="btn btn-sm btn-dark position-absolute top-0 end-0 m-2" id="evRemoveImage">
                                 <i class="bi bi-x-lg"></i> <span data-i18n="remove_image">Remover</span>
                             </button>
@@ -119,10 +120,16 @@
                 <div class="mb-4">
                     <label for="id_start_date" class="form-label text-uppercase small fw-bold" data-i18n="start_label">Inicio</label>
                     {{ form.start_date }}
+                    {% for error in form.start_date.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
                 </div>
                 <div>
                     <label for="id_end_date" class="form-label text-uppercase small fw-bold" data-i18n="end_label">Fin</label>
                     {{ form.end_date }}
+                    {% for error in form.end_date.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
                 </div>
             </section>
 
