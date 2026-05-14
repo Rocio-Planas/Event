@@ -113,3 +113,198 @@ def enviar_notificacion_cambio_password(user, ip_address=None, user_agent=None):
     except Exception as e:
         logger.error(f"Error enviando notificación de cambio de password a {user.email}: {str(e)}")
         return False
+    
+   
+
+def enviar_email_aprobacion_evento(user, evento, tipo_evento):
+    """Envía email cuando un evento es aprobado"""
+    from django.urls import reverse
+    
+    # Construir URL según tipo de evento
+    if tipo_evento == 'virtual':
+        evento_url = reverse('virtualEvent:event_detail', args=[evento.id])
+    else:
+        evento_url = f"/eventos-presenciales/{evento.id}/"
+    
+    protocol = 'https' if settings.DEBUG is False else 'http'
+    domain = 'event-jxok.onrender.com' if not settings.DEBUG else '127.0.0.1:8000'
+    full_url = f"{protocol}://{domain}{evento_url}"
+    
+    context = {
+        'user': user,
+        'nombre': user.get_full_name() or user.email,
+        'evento_titulo': evento.title,
+        'evento_fecha': evento.start_datetime if hasattr(evento, 'start_datetime') else evento.start_date,
+        'evento_tipo': 'virtual' if tipo_evento == 'virtual' else 'presencial',
+        'evento_url': full_url,
+        'site_name': 'EventPulse',
+    }
+    
+    html_content = render_to_string('usuarios/email/evento_aprobado.html', context)
+    text_content = strip_tags(html_content)
+    
+    try:
+        send_mail(
+            subject=f'✅ Tu evento "{evento.title}" ha sido aprobado',
+            message=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_content,
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        logger.error(f"Error enviando email de aprobación a {user.email}: {str(e)}")
+        return False
+
+
+def enviar_email_rechazo_evento(user, evento, tipo_evento, motivo=None):
+    """Envía email cuando un evento es rechazado"""
+    context = {
+        'user': user,
+        'nombre': user.get_full_name() or user.email,
+        'evento_titulo': evento.title,
+        'evento_tipo': 'virtual' if tipo_evento == 'virtual' else 'presencial',
+        'motivo': motivo or 'No cumple con nuestras políticas de contenido.',
+        'site_name': 'EventPulse',
+        'contacto_url': '/contacto/',
+    }
+    
+    html_content = render_to_string('usuarios/email/evento_rechazado.html', context)
+    text_content = strip_tags(html_content)
+    
+    try:
+        send_mail(
+            subject=f'❌ Tu evento "{evento.title}" ha sido rechazado',
+            message=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_content,
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        logger.error(f"Error enviando email de rechazo a {user.email}: {str(e)}")
+        return False
+
+
+def enviar_email_resena_aprobada(resena):
+    """Envía email cuando una reseña es aprobada"""
+    evento = resena.evento_virtual or resena.evento_presencial
+    evento_titulo = evento.title if evento else 'Evento'
+    
+    context = {
+        'nombre': resena.nombre,
+        'email': resena.email,
+        'evento_titulo': evento_titulo,
+        'calificacion': resena.calificacion,
+        'comentario': resena.comentario,
+        'site_name': 'EventPulse',
+    }
+    
+    html_content = render_to_string('usuarios/email/resena_aprobada.html', context)
+    text_content = strip_tags(html_content)
+    
+    try:
+        send_mail(
+            subject='⭐ Tu reseña ha sido aprobada',
+            message=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[resena.email],
+            html_message=html_content,
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        logger.error(f"Error enviando email de reseña aprobada a {resena.email}: {str(e)}")
+        return False
+
+
+def enviar_email_resena_rechazada(resena):
+    """Envía email cuando una reseña es rechazada"""
+    evento = resena.evento_virtual or resena.evento_presencial
+    evento_titulo = evento.title if evento else 'Evento'
+    
+    context = {
+        'nombre': resena.nombre,
+        'email': resena.email,
+        'evento_titulo': evento_titulo,
+        'site_name': 'EventPulse',
+        'contacto_url': '/contacto/',
+    }
+    
+    html_content = render_to_string('usuarios/email/resena_rechazada.html', context)
+    text_content = strip_tags(html_content)
+    
+    try:
+        send_mail(
+            subject='ℹ️ Actualización sobre tu reseña',
+            message=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[resena.email],
+            html_message=html_content,
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        logger.error(f"Error enviando email de reseña rechazada a {resena.email}: {str(e)}")
+        return False
+
+
+def enviar_email_respuesta_consulta(consulta):
+    """Envía email cuando una consulta es respondida"""
+    context = {
+        'nombre': consulta.nombre,
+        'email': consulta.email,
+        'asunto': consulta.asunto,
+        'mensaje': consulta.mensaje,
+        'respuesta': consulta.respuesta,
+        'site_name': 'EventPulse',
+        'contacto_url': '/contacto/',
+    }
+    
+    html_content = render_to_string('usuarios/email/consulta_respondida.html', context)
+    text_content = strip_tags(html_content)
+    
+    try:
+        send_mail(
+            subject=f'📩 Respuesta a tu consulta: {consulta.asunto}',
+            message=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[consulta.email],
+            html_message=html_content,
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        logger.error(f"Error enviando respuesta de consulta a {consulta.email}: {str(e)}")
+        return False
+
+
+def enviar_email_suscripcion_evento(user, evento, tipo_evento):
+    """Envía email cuando un usuario se suscribe a un evento"""
+    context = {
+        'user': user,
+        'nombre': user.get_full_name() or user.email,
+        'evento_titulo': evento.title,
+        'evento_fecha': evento.start_datetime if hasattr(evento, 'start_datetime') else evento.start_date,
+        'evento_tipo': 'virtual' if tipo_evento == 'virtual' else 'presencial',
+        'site_name': 'EventPulse',
+    }
+    
+    html_content = render_to_string('usuarios/email/suscripcion_exitosa.html', context)
+    text_content = strip_tags(html_content)
+    
+    try:
+        send_mail(
+            subject=f'🎉 Te has suscrito a "{evento.title}"',
+            message=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_content,
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        logger.error(f"Error enviando email de suscripción a {user.email}: {str(e)}")
+        return False

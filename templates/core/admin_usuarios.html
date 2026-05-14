@@ -38,6 +38,27 @@
         align-items: center;
         gap: 4px;
     }
+    /* Select redondeado */
+    .role-select {
+        min-width: 130px;
+        padding: 6px 12px;
+        border-radius: 30px !important;
+        border: 1px solid var(--border-outline-variant);
+        background-color: var(--surface-container-lowest);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .role-select:hover {
+        border-color: var(--primary);
+        background-color: var(--surface-container-high);
+    }
+    .role-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(0, 87, 206, 0.2);
+    }
 </style>
 {% endblock %}
 
@@ -61,7 +82,7 @@
         </div>
     </div>
 
-    <!-- Filtro de verificación - MOVIDO FUERA del overflow -->
+    <!-- Filtro de verificación -->
     <div class="flex justify-between items-center mb-4">
         <div class="flex gap-2">
             <a href="?verified=all" class="px-3 py-1 rounded-full text-xs font-medium {% if request.GET.verified == 'all' or not request.GET.verified %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface-variant{% endif %}">
@@ -108,16 +129,15 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ usuario.email }}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 whitespace-nowrap">
                             <form method="post" action="{% url 'core:admin_cambiar_rol' usuario.id %}" class="flex items-center gap-2">
                                 {% csrf_token %}
-                                <select name="rol" class="px-2 py-1.5 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface text-sm focus:ring-2 focus:ring-primary/30">
-                                    <option value="espectador" {% if usuario.rol == 'espectador' %}selected{% endif %} data-i18n="spectator">Espectador</option>
-                                    <option value="organizador" {% if usuario.rol == 'organizador' %}selected{% endif %} data-i18n="organizer">Organizador</option>
-                                    <option value="staff" {% if usuario.rol == 'staff' %}selected{% endif %} data-i18n="staff">Staff</option>
-                                    <option value="administrador" {% if usuario.rol == 'administrador' %}selected{% endif %} data-i18n="admin">Administrador</option>
+                                <select name="rol" class="role-select" style="border-radius: 30px !important;" onchange="this.form.submit()">
+                                    <option value="espectador" {% if usuario.rol == 'espectador' %}selected{% endif %}>Espectador</option>
+                                    <option value="organizador" {% if usuario.rol == 'organizador' %}selected{% endif %}>Organizador</option>
+                                    <option value="staff" {% if usuario.rol == 'staff' %}selected{% endif %}>Staff</option>
+                                    <option value="administrador" {% if usuario.rol == 'administrador' %}selected{% endif %}>Administrador</option>
                                 </select>
-                                <button type="submit" class="text-primary hover:underline text-sm" data-i18n="admin_panel_save">Guardar</button>
                             </form>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -177,10 +197,10 @@
             <h3 class="text-xl font-bold text-on-surface mb-2" data-i18n="confirm_delete_title">¿Eliminar usuario?</h3>
             <p class="text-on-surface-variant mb-4" id="deleteModalMessage" data-i18n="confirm_delete_message">Esta acción no se puede deshacer. El usuario será eliminado permanentemente.</p>
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <button id="cancelDeleteBtn" class="px-5 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant font-semibold hover:bg-surface-container-high transition w-full sm:w-auto order-2 sm:order-1">
+                <button id="cancelDeleteBtn" class="px-5 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant font-semibold hover:bg-surface-container-high transition w-full sm:w-auto">
                     <span data-i18n="cancel">Cancelar</span>
                 </button>
-                <form id="deleteUserForm" method="post" action="" class="w-full sm:w-auto order-1 sm:order-2">
+                <form id="deleteUserForm" method="post" action="" class="w-full sm:w-auto">
                     {% csrf_token %}
                     <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-sm">
                         <span data-i18n="confirm_delete_btn">Sí, eliminar</span>

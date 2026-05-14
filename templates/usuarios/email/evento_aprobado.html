@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evento aprobado - EventPulse</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f4;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table width="500" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <tr style="background: linear-gradient(135deg, #10b981, #059669);">
+                        <td style="padding: 30px 20px; text-align: center;">
+                            <h1 style="color: white; margin: 0; font-size: 28px;">✅ ¡Evento Aprobado!</h1>
+                         </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px 25px;">
+                            <h2 style="color: #181c20; margin: 0 0 15px 0;">Hola {{ nombre }},</h2>
+                            <p style="color: #424655; line-height: 1.5; font-size: 15px;">
+                                ¡Buenas noticias! Tu evento <strong style="color: #10b981;">"{{ evento_titulo }}"</strong> ha sido <strong>APROBADO</strong> y ya está visible en la plataforma.
+                            </p>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0; background-color: #f8f9fa; border-radius: 8px;">
+                                <tr>
+                                    <td style="padding: 15px;">
+                                        <p style="margin: 5px 0;"><strong>📅 Fecha:</strong> {{ evento_fecha|date:"d/m/Y H:i" }}</p>
+                                        <p style="margin: 5px 0;"><strong>🎟️ Tipo:</strong> {% if evento_tipo == 'virtual' %}Virtual{% else %}Presencial{% endif %}</p>
+                                     </td>
+                                </tr>
+                            </table>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 25px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ evento_url }}" style="background-color: #0057cd; color: #ffffff; display: inline-block; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 48px; text-align: center; text-decoration: none; width: 200px; border-radius: 8px;">Ver mi evento</a>
+                                     </td>
+                                </tr>
+                            </table>
+                            
+                            <hr style="border: none; border-top: 1px solid #e5e8ee; margin: 20px 0;">
+                            <p style="color: #6c757d; font-size: 12px; margin: 0;">
+                                ¿Necesitas ayuda? <a href="{{ site_url }}/contacto/" style="color: #0057cd;">Contáctanos</a>
+                            </p>
+                         </td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 15px; text-align: center; font-size: 11px; color: #6c757d;">
+                            &copy; 2026 EventPulse. Todos los derechos reservados.
+                         </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
