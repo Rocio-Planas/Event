@@ -345,13 +345,15 @@ class UpdateSurveyAPIView(View):
         survey.survey_type = 'texto'
         survey.is_active = is_active
         survey.is_multiple_choice = is_multiple_choice
-        survey.delivery_type = delivery_type
         
-        if scheduled_date:
-            from django.utils.dateparse import parse_datetime
-            survey.scheduled_date = parse_datetime(scheduled_date)
-        else:
-            survey.scheduled_date = None
+        if delivery_type is not None and scheduled_date is not None:
+            if survey.sent_at is None:
+                survey.delivery_type = delivery_type
+                if scheduled_date:
+                    from django.utils.dateparse import parse_datetime
+                    survey.scheduled_date = parse_datetime(scheduled_date)
+                else:
+                    survey.scheduled_date = None
         
         survey.save()
         
