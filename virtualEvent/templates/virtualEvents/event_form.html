@@ -30,7 +30,7 @@
                         <div class="ev-field-group mb-4">
                             <label class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="event_cover" >Event Cover</label>
                             <div class="ev-drop-zone position-relative rounded-4 border-2 border-dashed d-flex flex-column align-items-center justify-content-center py-5 px-3">
-                                <input type="file" name="event_image" id="evImageInput" class="ev-file-input position-absolute w-100 h-100 opacity-0 cursor-pointer" accept=".jpg,.png,.gif" required>
+                                <input type="file" name="event_image" id="evImageInput" class="ev-file-input position-absolute w-100 h-100 opacity-0 cursor-pointer" accept=".jpg,.png,.gif">
                                 <div class="ev-drop-zone-content text-center" id="evDropZoneContent">
                                     <div class="ev-upload-icon mb-3">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-cloud-upload text-primary" viewBox="0 0 16 16">
@@ -41,6 +41,7 @@
                                     <p class="mb-1 fw-bold" data-i18n="drop_image">Drop your image here or <span class="text-primary">browse</span></p>
                                     <p class="text-muted small text-uppercase tracking-widest" data-i18n="image_hint">High-res PNG or JPG (Max 10MB)</p>
                                 </div>
+                                <small class="text-muted d-block mt-2">Si recargas la página, tendrás que volver a seleccionar la imagen.</small>
                                 <div class="ev-preview-container d-none position-absolute top-0 start-0 w-100 h-100 rounded-4 overflow-hidden" id="evPreviewContainer">
                                     <img src="" alt="Preview" id="evImagePreview" class="w-100 h-100 object-fit-cover">
                                     <button type="button" class="btn btn-sm btn-dark position-absolute top-0 end-0 m-2" id="evRemoveImage" data-i18n="remove_btn">
@@ -90,9 +91,9 @@
                                 {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="id_duration" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="duration_label" value="{{ duration|default:'' }}" >Duration</label>
+                                <label for="id_duration" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="duration_label" >Duration</label>
                                 <div class="input-group">
-                                    <input type="number" name="duration" id="id_duration" min="1" class="form-control ev-input py-3 px-4 rounded-start-3" placeholder="90" required>
+                                    <input type="number" name="duration" id="id_duration" min="1" class="form-control ev-input py-3 px-4 rounded-start-3" placeholder="90" required value="{{ duration|default:'' }}" >
                                     <span class="input-group-text ev-input-addon bg-transparent border-start-0 text-muted small fw-bold text-uppercase px-3 rounded-end-3" data-i18n="minutes">Minutes</span>
                                 </div>
                             </div>

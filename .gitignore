@@ -19,6 +19,7 @@ db.sqlite3-journal
 # Entorno y secretos
 .env
 .env.local
+.env.*.local
 .secrets
 reset_db.py
 test_pg.py
