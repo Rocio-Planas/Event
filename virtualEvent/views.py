@@ -1,3 +1,5 @@
+import os
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -37,7 +39,6 @@ def event_list(request):
     return render(request, "virtualEvent/event_list.html", {"events": events})
 
 
-# Crear evento (solo organizador autenticado)
 @login_required
 def event_create(request):
     if request.method == "POST":
@@ -50,6 +51,9 @@ def event_create(request):
         duration = request.POST.get("duration")
         access_type = request.POST.get("access_type")
         invitations_text = request.POST.get("invitations", "")
+
+        temp_image_path = request.session.get("temp_event_image")
+        temp_image_url = None
 
         errors = {}
         if not title:
@@ -84,6 +88,17 @@ def event_create(request):
             errors["custom_category"] = "Ingresa categoría personalizada"
 
         if errors:
+            if image:
+                base_name = os.path.basename(image.name)
+                safe_name = re.sub(r'[<>:"/\\|?*]', "_", base_name)
+                temp_image_name = f"temp_{request.session.session_key}_{safe_name}"
+                temp_image_path = default_storage.save(
+                    f"temp/{temp_image_name}", ContentFile(image.read())
+                )
+                request.session["temp_event_image"] = temp_image_path
+                temp_image_url = (
+                    default_storage.url(temp_image_path) if temp_image_path else None
+                )
             context = {
                 "errors": errors,
                 "title": title,
@@ -96,6 +111,7 @@ def event_create(request):
                 "invitations_text": invitations_text,
                 "predefined_categories": VirtualEvent.PREDEFINED_CATEGORIES,
                 "now": now().isoformat(),
+                "temp_image_url": temp_image_url,
             }
             return render(request, "virtualEvents/event_form.html", context)
 
@@ -106,6 +122,27 @@ def event_create(request):
             image_path = default_storage.save(
                 f"event_images/{image_name}", ContentFile(image.read())
             )
+        elif temp_image_path and default_storage.exists(temp_image_path):
+            with default_storage.open(temp_image_path, "rb") as f:
+                file_content = f.read()
+            ext = temp_image_path.split(".")[-1]
+            image_name = f"event_{uuid.uuid4().hex}.{ext}"
+            image_path = default_storage.save(
+                f"event_images/{image_name}", ContentFile(file_content)
+            )
+
+        if temp_image_path and default_storage.exists(temp_image_path):
+            try:
+                default_storage.delete(temp_image_path)
+            except PermissionError:
+                import time
+
+                time.sleep(0.1)
+                try:
+                    default_storage.delete(temp_image_path)
+                except:
+                    pass
+        request.session.pop("temp_event_image", None)
 
         final_category = custom_category if category == "custom" else category
 
@@ -134,16 +171,19 @@ def event_create(request):
 
         return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
 
+    else:
+        temp_image_path = request.session.pop("temp_event_image", None)
+        if temp_image_path and default_storage.exists(temp_image_path):
+            try:
+                default_storage.delete(temp_image_path)
+            except PermissionError:
+                pass
+
     context = {
         "predefined_categories": VirtualEvent.PREDEFINED_CATEGORIES,
         "now": now().isoformat(),
     }
-
-    return render(
-        request,
-        "virtualEvents/event_form.html",
-        {"predefined_categories": VirtualEvent.PREDEFINED_CATEGORIES},
-    )
+    return render(request, "virtualEvents/event_form.html", context)
 
 
 # Editar evento
@@ -232,17 +272,16 @@ def organizer_dashboard(request, event_id):
         if match:
             youtube_embed = match.group(1)
 
-    errors = {}  
+    errors = {}
 
     if request.method == "POST":
-        
+
         title = request.POST.get("title", event.title)
         description = request.POST.get("description", event.description)
         start_time_str = request.POST.get("start_time", "")
         duration = request.POST.get("duration", "")
         access_type = request.POST.get("access_type", event.privacy)
 
-        
         if not start_time_str:
             errors["start_time"] = "La fecha y hora son obligatorias"
         else:
@@ -254,9 +293,8 @@ def organizer_dashboard(request, event_id):
                 if start_datetime_aware < now():
                     errors["start_time"] = "La fecha no puede ser pasada"
                 else:
-                    event.start_datetime = start_datetime_aware 
+                    event.start_datetime = start_datetime_aware
 
-        
         if not duration:
             errors["duration"] = "La duración es obligatoria"
         else:
@@ -269,7 +307,6 @@ def organizer_dashboard(request, event_id):
             except ValueError:
                 errors["duration"] = "Número inválido"
 
-        
         if errors:
             invite_link = request.build_absolute_uri(
                 reverse("ve_streaming:waiting_room", args=[event.unique_link])
@@ -281,16 +318,16 @@ def organizer_dashboard(request, event_id):
                 "invited_emails": invited_emails,
                 "youtube_embed": youtube_embed,
                 "invite_link": invite_link,
-                "start_time_str": start_time_str,  
+                "start_time_str": start_time_str,
                 "errors": errors,
-                "now": now().isoformat(), 
+                "now": now().isoformat(),
             }
             return render(request, "virtualEvents/organizer_dashboard.html", context)
 
         event.title = title
         event.description = description
         event.privacy = access_type
-        event.save() 
+        event.save()
 
         if request.FILES.get("event_image"):
             if event.image:
@@ -334,7 +371,6 @@ def organizer_dashboard(request, event_id):
 
         return redirect("virtualEvent:organizer_dashboard", event_id=event.id)
 
-    
     invite_link = request.build_absolute_uri(
         reverse("ve_streaming:waiting_room", args=[event.unique_link])
     )
@@ -351,7 +387,7 @@ def organizer_dashboard(request, event_id):
         "invite_link": invite_link,
         "start_time_str": start_time_str,
         "errors": {},
-        "now": now().isoformat(),  
+        "now": now().isoformat(),
     }
     return render(request, "virtualEvents/organizer_dashboard.html", context)
 
@@ -526,7 +562,9 @@ def event_detail(request, pk):
             ).exists()
 
     # Obtener reseñas aprobadas
-    resenas = Resena.objects.filter(evento_virtual=event, aprobada=True).order_by('-fecha_creacion')
+    resenas = Resena.objects.filter(evento_virtual=event, aprobada=True).order_by(
+        "-fecha_creacion"
+    )
     total_resenas = resenas.count()
     promedio = 0
     if total_resenas > 0:
