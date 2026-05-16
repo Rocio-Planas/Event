@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respuesta a tu consulta - EventPulse</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f4;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table width="500" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <tr style="background: linear-gradient(135deg, #0057cd, #0d6efd);">
+                        <td style="padding: 30px 20px; text-align: center;">
+                            <h1 style="color: white; margin: 0; font-size: 28px;">📩 Respuesta a tu consulta</h1>
+                         </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px 25px;">
+                            <h2 style="color: #181c20; margin: 0 0 15px 0;">Hola {{ nombre }},</h2>
+                            <p style="color: #424655; line-height: 1.5; font-size: 15px;">
+                                Tu consulta ha sido respondida por nuestro equipo de soporte.
+                            </p>
+                            
+                            <div style="background-color: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                                <p style="color: #0369a1; margin: 0 0 10px 0; font-weight: bold;">Tu consulta:</p>
+                                <p style="color: #0c4a6e; margin: 0 0 15px 0; font-style: italic;">"{{ mensaje }}"</p>
+                                <p style="color: #0369a1; margin: 0 0 10px 0; font-weight: bold;">Respuesta:</p>
+                                <p style="color: #0c4a6e; margin: 0;">{{ respuesta }}</p>
+                            </div>
+                            
+                            <p style="color: #424655; line-height: 1.5; font-size: 14px;">
+                                Si tienes más preguntas, no dudes en contactarnos nuevamente.
+                            </p>
+                            
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 25px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ site_url }}/contacto/" style="background-color: #0057cd; color: #ffffff; display: inline-block; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 48px; text-align: center; text-decoration: none; width: 200px; border-radius: 8px;">Nueva consulta</a>
+                                     </td>
+                                </tr>
+                            </table>
+                            
+                            <hr style="border: none; border-top: 1px solid #e5e8ee; margin: 20px 0;">
+                            <p style="color: #6c757d; font-size: 12px; margin: 0;">
+                                ¿Te fue útil esta respuesta? <a href="{{ site_url }}/contacto/" style="color: #0057cd;">Déjanos tu opinión</a>
+                            </p>
+                         </td>
+                    </tr>
+                    <tr style="background-color: #f8f9fa;">
+                        <td style="padding: 15px; text-align: center; font-size: 11px; color: #6c757d;">
+                            &copy; 2026 EventPulse. Todos los derechos reservados.
+                         </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

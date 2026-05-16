@@ -1,33 +1,23 @@
 """
 URL configuration for config project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.i18n import set_language  # noqa: F401
-from django.contrib.auth import views as auth_views
+# ❌ Comenta esta línea porque ya no la usamos
+# from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('i18n/', include('django.conf.urls.i18n')),
     path('', include('core.urls')),
     path('', include(('usuarios.urls', 'usuarios'), namespace='usuarios')),
-    # Incluye las URLs de autenticación bajo el prefijo 'password-reset/'
-    path('password-reset/', include('django.contrib.auth.urls')),
+    
+    # ✅ Comentado - ya usamos nuestras propias vistas de recuperación
+    # path('password-reset/', include('django.contrib.auth.urls')),
+    
     path('chat/', include('chat.urls')),
     path("cookies/", include("cookie_consent.urls")),
 
@@ -37,7 +27,7 @@ urlpatterns = [
     path('chat/', include('ve_chat.urls')),
     path('invitacion/', include('ve_invitations.urls')),
     
-    #Eventos presenciales
+    # Eventos presenciales
     path('eventos-presenciales/', include('in_person_events.urls', namespace='in_person_events')),
     path('tickets/', include('pe_registration.urls', namespace='pe_registration')),
     path('agenda/', include('pe_agenda.urls', namespace='pe_agenda')),
@@ -48,10 +38,12 @@ urlpatterns = [
     path('encuestas/', include('pe_surveys.urls', namespace='pe_surveys')),
     path('comunicacion/', include('pe_communication.urls')),
 
-    path('accounts/login/', auth_views.LoginView.as_view(
-        template_name='usuarios/login.html',
-        redirect_authenticated_user=True
-    ), name='login'),
+    # ❌ ELIMINA o COMENTA esta línea - está causando conflicto
+    # Tu login ya está en usuarios.urls con la ruta 'login/'
+    # path('accounts/login/', auth_views.LoginView.as_view(
+    #     template_name='usuarios/login.html',
+    #     redirect_authenticated_user=True
+    # ), name='login'),
 ]
 
 if settings.DEBUG:

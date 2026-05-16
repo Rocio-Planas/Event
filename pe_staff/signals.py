@@ -2,12 +2,13 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 from django.apps import apps
-from django.core.mail import send_mail
 from django.conf import settings
+from django.urls import reverse
 import logging
 
 from .models import StaffInvitation, StaffMember, InvitationStatus
 from pe_communication.models import Notification
+from pe_communication.views import send_staff_invitation_email, send_staff_confirmation_email, send_activity_assigned_email
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -50,41 +51,34 @@ def notification_on_invitation_created(sender, instance, created, **kwargs):
     if not created:
         return
     
+    # Solo enviar email si el usuario existe en la plataforma
     try:
         user = User.objects.get(email__iexact=instance.email)
+        
+        # Enviar email con plantilla HTML profesional
+        try:
+            send_staff_invitation_email(instance)
+        except Exception as e:
+            logger.error(f'Error al enviar email de invitación: {e}')
+        
+        # Crear notificación in-app
+        if instance.user_type == StaffInvitation.UserType.PONENTE:
+            role_text = 'Ponente'
+        elif instance.role:
+            role_text = instance.get_role_display()
+        else:
+            role_text = 'Staff'
+        
+        Notification.objects.create(
+            user=user,
+            title=f'Invitación como {role_text} para {instance.event.title}',
+            message=f'Has sido invitado a participar como {role_text} en el evento "{instance.event.title}". '
+                    f'Haz clic en el enlace del correo para confirmar tu participación.',
+            notification_type=Notification.Type.MANUAL_ALERT
+        )
     except User.DoesNotExist:
-        return
+        logger.info(f'No se envió invitación a {instance.email}: usuario no existe en la plataforma')
     
-    if instance.user_type == StaffInvitation.UserType.PONENTE:
-        role_text = 'Ponente'
-    elif instance.role:
-        role_text = instance.get_role_display()
-    else:
-        role_text = 'Staff'
-    
-    site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
-    accept_url = f"{site_url}/equipo/accept/{instance.token}/"
-    
-    Notification.objects.create(
-        user=user,
-        title=f'Invitación como {role_text} para {instance.event.title}',
-        message=f'Has sido invitado a participar como {role_text} en el evento "{instance.event.title}". '
-                f'Haz clic en el enlace del correo para confirmar tu participación.',
-        notification_type=Notification.Type.MANUAL_ALERT
-    )
-    
-    send_mail(
-        subject=f'Invitación como {role_text} - {instance.event.title}',
-        message=f'Hola {user.get_full_name() or user.email},\n\n'
-               f'Has sido invitado a participar como {role_text} en el evento "{instance.event.title}".\n\n'
-               f'Fecha: {instance.event.start_date}\n\n'
-               f'Para confirmar tu participación, visita el siguiente enlace:\n'
-               f'{accept_url}\n\n'
-               f'El equipo de EventPulse',
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
-        fail_silently=False,
-    )
     logger.info(f'Notificación de invitación enviada a {instance.email}')
 
 
@@ -113,16 +107,11 @@ def notification_on_activity_assigned(sender, instance, created, **kwargs):
         notification_type=Notification.Type.MANUAL_ALERT
     )
     
-    send_mail(
-        subject=f'Actividad asignada - {instance.activity.title}',
-        message=f'Hola {instance.user.get_full_name() or instance.user.email},\n\n'
-               f'Se te ha asignado la actividad "{instance.activity.title}" en el evento "{instance.event.title}".\n'
-               f'Horario: {instance.activity.start_time.strftime("%d/%m/%Y %H:%M")} - {instance.activity.end_time.strftime("%H:%M")}\n\n'
-               f'El equipo de EventPulse',
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[instance.user.email],
-        fail_silently=False,
-    )
+    try:
+        send_activity_assigned_email(instance, instance.activity)
+    except Exception as e:
+        logger.error(f'Error al enviar email de actividad asignada: {e}')
+    
     logger.info(f'Notificación de asignación de actividad enviada a {instance.user.email}')
 
 

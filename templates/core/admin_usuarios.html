@@ -16,6 +16,49 @@
     .modal-backdrop:not(.hidden) .modal-content {
         transform: scale(1);
     }
+    .badge-verified {
+        background-color: #10b98120;
+        color: #10b981;
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .badge-unverified {
+        background-color: #ef444420;
+        color: #ef4444;
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    /* Select redondeado */
+    .role-select {
+        min-width: 130px;
+        padding: 6px 12px;
+        border-radius: 30px !important;
+        border: 1px solid var(--border-outline-variant);
+        background-color: var(--surface-container-lowest);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .role-select:hover {
+        border-color: var(--primary);
+        background-color: var(--surface-container-high);
+    }
+    .role-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(0, 87, 206, 0.2);
+    }
 </style>
 {% endblock %}
 
@@ -27,12 +70,29 @@
             <span data-i18n="admin_panel_manage_users">Gestionar Usuarios</span>
         </h1>
         <div class="flex gap-3">
-            <a href="{% url 'core:admin_crear_usuario' %}" class="px-4 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition flex items-center gap-1 shadow-sm">
-                <span class="material-symbols-outlined text-base">add</span>
-                <span data-i18n="create_user">Crear usuario</span>
+            <a href="{% url 'core:admin_crear_usuario' %}" 
+            class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary border border-primary/30 rounded-full text-xs font-medium hover:bg-primary/20 transition sm:bg-primary sm:text-white sm:border-none sm:px-4 sm:py-2 sm:rounded-full sm:shadow-sm sm:no-underline">
+                <span class="material-symbols-outlined text-sm sm:text-base">add</span>
+                <span class="hidden sm:inline" data-i18n="create_user">Crear usuario</span>
+                <span class="sm:hidden" data-i18n="new">Nuevo</span>
             </a>
             <a href="{% url 'core:admin_panel' %}" class="text-primary hover:underline flex items-center gap-1">
                 <span data-i18n="admin_panel_back">Volver al panel</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtro de verificación -->
+    <div class="flex justify-between items-center mb-4">
+        <div class="flex gap-2">
+            <a href="?verified=all" class="px-3 py-1 rounded-full text-xs font-medium {% if request.GET.verified == 'all' or not request.GET.verified %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface-variant{% endif %}">
+                Todos
+            </a>
+            <a href="?verified=yes" class="px-3 py-1 rounded-full text-xs font-medium {% if request.GET.verified == 'yes' %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface-variant{% endif %}">
+                Verificados
+            </a>
+            <a href="?verified=no" class="px-3 py-1 rounded-full text-xs font-medium {% if request.GET.verified == 'no' %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface-variant{% endif %}">
+                No verificados
             </a>
         </div>
     </div>
@@ -45,6 +105,7 @@
                         <th class="px-6 py-4 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider" data-i18n="admin_panel_user">Usuario</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider" data-i18n="admin_panel_email">Email</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider" data-i18n="admin_panel_role">Rol</th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider" data-i18n="admin_panel_verified">Verificado</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider" data-i18n="admin_panel_registered">Registro</th>
                         <th class="px-6 py-4 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider" data-i18n="admin_panel_actions">Acciones</th>
                     </tr>
@@ -68,17 +129,29 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ usuario.email }}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 whitespace-nowrap">
                             <form method="post" action="{% url 'core:admin_cambiar_rol' usuario.id %}" class="flex items-center gap-2">
                                 {% csrf_token %}
-                                <select name="rol" class="px-2 py-1.5 rounded-lg border border-outline-variant bg-surface-container-low text-on-surface text-sm focus:ring-2 focus:ring-primary/30">
-                                    <option value="espectador" {% if usuario.rol == 'espectador' %}selected{% endif %} data-i18n="spectator">Espectador</option>
-                                    <option value="organizador" {% if usuario.rol == 'organizador' %}selected{% endif %} data-i18n="organizer">Organizador</option>
-                                    <option value="staff" {% if usuario.rol == 'staff' %}selected{% endif %} data-i18n="staff">Staff</option>
-                                    <option value="administrador" {% if usuario.rol == 'administrador' %}selected{% endif %} data-i18n="admin">Administrador</option>
+                                <select name="rol" class="role-select" style="border-radius: 30px !important;" onchange="this.form.submit()">
+                                    <option value="espectador" {% if usuario.rol == 'espectador' %}selected{% endif %}>Espectador</option>
+                                    <option value="organizador" {% if usuario.rol == 'organizador' %}selected{% endif %}>Organizador</option>
+                                    <option value="staff" {% if usuario.rol == 'staff' %}selected{% endif %}>Staff</option>
+                                    <option value="administrador" {% if usuario.rol == 'administrador' %}selected{% endif %}>Administrador</option>
                                 </select>
-                                <button type="submit" class="text-primary hover:underline text-sm" data-i18n="admin_panel_save">Guardar</button>
                             </form>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if usuario.is_active %}
+                                <span class="badge-verified">
+                                    <span class="material-symbols-outlined text-sm">verified</span>
+                                    <span data-i18n="verified">Verificado</span>
+                                </span>
+                            {% else %}
+                                <span class="badge-unverified">
+                                    <span class="material-symbols-outlined text-sm">warning</span>
+                                    <span data-i18n="unverified">No verificado</span>
+                                </span>
+                            {% endif %}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ usuario.date_joined|date:"d/m/Y" }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -102,19 +175,19 @@
     {% if usuarios.has_other_pages %}
     <div class="flex justify-center mt-8 gap-2">
         {% if usuarios.has_previous %}
-            <a href="?page=1" class="px-3 py-1.5 border rounded-lg hover:bg-surface-container-high">&laquo;</a>
-            <a href="?page={{ usuarios.previous_page_number }}" class="px-3 py-1.5 border rounded-lg hover:bg-surface-container-high" data-i18n="previous">Anterior</a>
+            <a href="?page=1{% if request.GET.verified %}&verified={{ request.GET.verified }}{% endif %}" class="px-3 py-1.5 border rounded-lg hover:bg-surface-container-high">&laquo;</a>
+            <a href="?page={{ usuarios.previous_page_number }}{% if request.GET.verified %}&verified={{ request.GET.verified }}{% endif %}" class="px-3 py-1.5 border rounded-lg hover:bg-surface-container-high" data-i18n="previous">Anterior</a>
         {% endif %}
         <span class="px-3 py-1.5 bg-primary text-white rounded-lg">Página {{ usuarios.number }} de {{ usuarios.paginator.num_pages }}</span>
         {% if usuarios.has_next %}
-            <a href="?page={{ usuarios.next_page_number }}" class="px-3 py-1.5 border rounded-lg hover:bg-surface-container-high" data-i18n="next">Siguiente</a>
-            <a href="?page={{ usuarios.paginator.num_pages }}" class="px-3 py-1.5 border rounded-lg hover:bg-surface-container-high">&raquo;</a>
+            <a href="?page={{ usuarios.next_page_number }}{% if request.GET.verified %}&verified={{ request.GET.verified }}{% endif %}" class="px-3 py-1.5 border rounded-lg hover:bg-surface-container-high" data-i18n="next">Siguiente</a>
+            <a href="?page={{ usuarios.paginator.num_pages }}{% if request.GET.verified %}&verified={{ request.GET.verified }}{% endif %}" class="px-3 py-1.5 border rounded-lg hover:bg-surface-container-high">&raquo;</a>
         {% endif %}
     </div>
     {% endif %}
 </div>
 
-<!-- Modal de confirmación personalizado -->
+<!-- Modal de confirmación -->
 <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" style="background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
     <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-200 scale-95 opacity-0 modal-content">
         <div class="p-6 text-center">
@@ -123,13 +196,13 @@
             </div>
             <h3 class="text-xl font-bold text-on-surface mb-2" data-i18n="confirm_delete_title">¿Eliminar usuario?</h3>
             <p class="text-on-surface-variant mb-4" id="deleteModalMessage" data-i18n="confirm_delete_message">Esta acción no se puede deshacer. El usuario será eliminado permanentemente.</p>
-            <div class="flex gap-3 justify-center">
-                <button id="cancelDeleteBtn" class="px-5 py-2 rounded-xl border border-outline-variant text-on-surface-variant font-semibold hover:bg-surface-container-high transition">
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button id="cancelDeleteBtn" class="px-5 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant font-semibold hover:bg-surface-container-high transition w-full sm:w-auto">
                     <span data-i18n="cancel">Cancelar</span>
                 </button>
-                <form id="deleteUserForm" method="post" action="">
+                <form id="deleteUserForm" method="post" action="" class="w-full sm:w-auto">
                     {% csrf_token %}
-                    <button type="submit" class="px-5 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-sm">
+                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-sm">
                         <span data-i18n="confirm_delete_btn">Sí, eliminar</span>
                     </button>
                 </form>
@@ -139,7 +212,6 @@
 </div>
 
 <script>
-    // Modal de confirmación personalizado
     const modal = document.getElementById('deleteModal');
     const modalContent = modal.querySelector('.modal-content');
     const deleteForm = document.getElementById('deleteUserForm');

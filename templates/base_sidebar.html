@@ -65,7 +65,7 @@
                     class="nav-link {% if active_page == 'zona' %}active{% endif %}"
                 >
                     <span class="material-symbols-outlined">location_on</span>
-                    <span data-i18n="zone">Zona</span>
+                    <span data-i18n="zone">Zonas</span>
                 </a>
                 <a
                     href="{% url 'pe_inventory:dashboard' event.id %}"
@@ -126,7 +126,7 @@
             <header class="top-bar d-flex justify-content-between align-items-center border-bottom px-3 py-2 sticky-top shadow-sm" style="background-color: var(--surface-container-lowest);">
                 <div class="d-flex align-items-center">
                     <button class="hamburger-btn me-2 d-lg-none" id="hamburger-btn" type="button">☰</button>
-                    <h1 class="h5 fw-800 mb-0 text-primary">EventPulse</h1>
+                    <a href="{% url 'core:home' %}" class="logo">EventPulse</a>
                 </div>
 
                 <nav class="top-nav d-none d-lg-flex gap-3">

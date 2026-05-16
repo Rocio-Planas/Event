@@ -135,6 +135,26 @@
 {{ chat_config|json_script:"chat-config" }}
 
 <script>
+    function showToast(message, type = 'info') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        let icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+        toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+
     const eventosVirtuales = JSON.parse(document.getElementById('eventos-virtuales-data').textContent);
     const eventosPresenciales = JSON.parse(document.getElementById('eventos-presenciales-data').textContent);
 
@@ -156,7 +176,6 @@
         } else {
             eventoSelect.disabled = true;
         }
-        // Sincronizar hidden input
         const hiddenInput = tipoSelect.parentElement.querySelector('input[type="hidden"]');
         if (hiddenInput) {
             hiddenInput.value = eventoSelect.value;
@@ -166,7 +185,7 @@
         });
     }
 
-    // Chat (código original sin cambios)
+    // Chat con TOAST en lugar de ALERT
     const chatConfig = JSON.parse(document.getElementById('chat-config').textContent);
     const chatAvailable = chatConfig.available;
     const userId = chatConfig.user_id;
@@ -183,7 +202,11 @@
 
     function openChat() {
         if (!chatAvailable) {
-            alert('El chat está disponible de lunes a viernes de 9:00 a 18:00 horas.');
+            const isEnglish = typeof currentLang !== 'undefined' && currentLang === 'en';
+            const msg = isEnglish 
+                ? 'Chat is available Monday to Friday from 9:00 AM to 6:00 PM.'
+                : 'El chat está disponible de lunes a viernes de 9:00 a 18:00 horas.';
+            showToast(msg, 'info');
             return;
         }
         chatModal.classList.remove('hidden');
@@ -222,7 +245,6 @@
         const message = chatInput.value.trim();
         if (!message) return;
         
-        // Primero obtener o crear la conversación
         let conversacionId;
         try {
             const convResponse = await fetch('/chat/mi-conversacion/');
@@ -230,11 +252,10 @@
             conversacionId = convData.conversacion_id;
         } catch (err) {
             console.error('Error obteniendo conversación:', err);
-            alert('Error al conectar con el chat.');
+            showToast('Error al conectar con el chat.', 'error');
             return;
         }
 
-        // Enviar el mensaje
         const formData = new FormData();
         formData.append('texto', message);
         
@@ -250,13 +271,13 @@
             const data = await response.json();
             if (data.status === 'ok') {
                 chatInput.value = '';
-                fetchMessages();  // refrescar mensajes
+                fetchMessages();
             } else {
-                alert('Error: ' + (data.error || 'No se pudo enviar'));
+                showToast(data.error || 'No se pudo enviar el mensaje', 'error');
             }
         } catch (err) {
             console.error('Error enviando mensaje:', err);
-            alert('Error de conexión al enviar mensaje.');
+            showToast('Error de conexión al enviar mensaje.', 'error');
         }
     }
 

@@ -1,0 +1,123 @@
+{% extends "base_stitch.html" %}
+{% load static %}
+
+{% block title %}{% if currentLang == 'en' %}Verify your email{% else %}Verifica tu email{% endif %} - EventPulse{% endblock %}
+
+{% block content %}
+<style>
+    main.pt-24 {
+        padding-top: 0 !important;
+    }
+</style>
+
+<div class="max-w-md mx-auto">
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+        
+        <!-- Cabecera -->
+        <div class="bg-gradient-to-r from-primary to-primary/80 px-6 py-8 text-center">
+            <div class="w-16 h-16 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-3">
+                <span class="material-symbols-outlined text-white text-4xl">mail</span>
+            </div>
+            <h1 class="text-2xl font-bold text-white" data-i18n="confirm_email_title">¡Último paso!</h1>
+            <p class="text-white/80 mt-1" data-i18n="confirm_email_subtitle">Confirma tu cuenta para comenzar</p>
+        </div>
+        
+        <!-- Contenido -->
+        <div class="p-6">
+            
+            <!-- Email -->
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-3">
+                    <span class="material-symbols-outlined text-green-600 text-2xl">check_circle</span>
+                </div>
+                <p class="text-on-surface-variant" data-i18n="email_sent_to_you">Te hemos enviado un email a:</p>
+                <strong class="text-primary text-lg">{{ user_email }}</strong>
+            </div>
+            
+            <!-- Tarjeta de ayuda -->
+            <div class="bg-surface-container-high rounded-lg p-4 mb-6">
+                <div class="flex gap-3">
+                    <span class="material-symbols-outlined text-primary">inbox</span>
+                    <div>
+                        <p class="text-sm font-semibold text-on-surface" data-i18n="did_not_receive_email">¿No recibiste el email?</p>
+                        <p class="text-xs text-on-surface-variant mt-1">
+                            <span data-i18n="check_spam_folder">Revisa tu bandeja de spam o correo no deseado.</span><br>
+                            <span data-i18n="link_expires_in">El enlace expira en</span> <strong>24</strong> <span data-i18n="hours">horas</span>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Botón reenviar -->
+            <button id="resendConfirmBtn" class="w-full py-3 bg-primary text-white rounded-lg font-semibold hover:opacity-90 transition flex items-center justify-center gap-2 mb-3">
+                <span class="material-symbols-outlined text-base">refresh</span>
+                <span data-i18n="resend_confirmation">Reenviar email de confirmación</span>
+            </button>
+            
+            <!-- Botón ir a login -->
+            <a href="{% url 'usuarios:login' %}" class="block w-full text-center py-3 border border-outline-variant text-on-surface-variant rounded-lg font-semibold hover:bg-surface-container-high transition" data-i18n="go_to_login">
+                Ir al inicio de sesión
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+               document.querySelector('meta[name="csrf-token"]')?.content;
+    }
+
+    const confirmBtn = document.getElementById('resendConfirmBtn');
+    
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function() {
+            const btn = this;
+            const isEnglish = typeof currentLang !== 'undefined' && currentLang === 'en';
+            
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.innerHTML = '<span class="material-symbols-outlined text-base">hourglass_empty</span> ' + (isEnglish ? 'Sending...' : 'Enviando...');
+            
+            fetch("{% url 'usuarios:reenviar_confirmacion' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: "{{ user_email }}" })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    btn.innerHTML = '<span class="material-symbols-outlined text-base">check_circle</span> ' + (isEnglish ? 'Resent!' : '¡Reenviado!');
+                    btn.classList.add('bg-green-500');
+                    btn.classList.remove('bg-primary');
+                    setTimeout(() => {
+                        btn.innerHTML = '<span class="material-symbols-outlined text-base">refresh</span> ' + (isEnglish ? 'Resend confirmation email' : 'Reenviar email de confirmación');
+                        btn.classList.remove('bg-green-500');
+                        btn.classList.add('bg-primary');
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                    }, 3000);
+                } else {
+                    btn.innerHTML = '<span class="material-symbols-outlined text-base">error</span> ' + (isEnglish ? 'Error, try again' : 'Error, intenta de nuevo');
+                    setTimeout(() => {
+                        btn.innerHTML = '<span class="material-symbols-outlined text-base">refresh</span> ' + (isEnglish ? 'Resend confirmation email' : 'Reenviar email de confirmación');
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                    }, 3000);
+                }
+            })
+            .catch(() => {
+                btn.innerHTML = '<span class="material-symbols-outlined text-base">error</span> ' + (isEnglish ? 'Connection error' : 'Error de conexión');
+                setTimeout(() => {
+                    btn.innerHTML = '<span class="material-symbols-outlined text-base">refresh</span> ' + (isEnglish ? 'Resend confirmation email' : 'Reenviar email de confirmación');
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }, 3000);
+            });
+        });
+    }
+</script>
+{% endblock %}

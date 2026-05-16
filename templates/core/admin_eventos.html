@@ -2,6 +2,23 @@
 {% load static %}
 {% block title %}Eventos Pendientes - EventPulse{% endblock %}
 
+{% block extra_css %}
+<style>
+    .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        transition: opacity 0.2s ease;
+    }
+    .modal-content {
+        transform: scale(0.95);
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .modal-backdrop:not(.hidden) .modal-content {
+        transform: scale(1);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-6">
@@ -38,7 +55,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">{{ evento.categoria|default:"Sin categoría" }}</td>
                         <td class="px-6 py-4 whitespace-nowrap space-x-2">
                             <a href="{% url 'core:admin_aprobar_evento' evento.id evento.tipo %}" class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition" data-i18n="admin_panel_approve_event">Aprobar</a>
-                            <a href="#" class="reject-event-btn px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition" data-url="{% url 'core:admin_rechazar_evento' evento.id evento.tipo %}" data-i18n="admin_panel_reject_event">Rechazar</a>
+                            <a href="#" class="reject-event-btn px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition" data-url="{% url 'core:admin_rechazar_evento' evento.id evento.tipo %}" data-event-title="{{ evento.titulo }}" data-i18n="admin_panel_reject_event">Rechazar</a>
                         </td>
                     </tr>
                     {% empty %}
@@ -67,20 +84,88 @@
     {% endif %}
 </div>
 
+<!-- Modal de confirmación para rechazar evento -->
+<div id="rejectEventModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" style="background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
+    <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-200 scale-95 opacity-0 modal-content">
+        <div class="p-6 text-center">
+            <div class="mx-auto w-14 h-14 mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                <span class="material-symbols-outlined text-red-600 text-3xl">warning</span>
+            </div>
+            <h3 class="text-xl font-bold text-on-surface mb-2" data-i18n="reject_event_title">¿Rechazar evento?</h3>
+            <p class="text-on-surface-variant mb-4" id="rejectModalMessage" data-i18n="reject_event_message">Esta acción no se puede deshacer. El evento será rechazado.</p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button id="cancelRejectBtn" class="px-5 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant font-semibold hover:bg-surface-container-high transition w-full sm:w-auto">
+                    <span data-i18n="cancel">Cancelar</span>
+                </button>
+                <form id="rejectEventForm" method="post" action="" class="w-full sm:w-auto">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-sm">
+                        <span data-i18n="confirm_reject">Sí, rechazar</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Confirmación de rechazo traducible usando JavaScript (no tags de Django)
+    // Modal de rechazo de evento
+    const rejectModal = document.getElementById('rejectEventModal');
+    const rejectModalContent = rejectModal?.querySelector('.modal-content');
+    const rejectForm = document.getElementById('rejectEventForm');
+    const cancelRejectBtn = document.getElementById('cancelRejectBtn');
+
+    function openRejectModal(eventUrl, eventTitle) {
+        if (rejectForm) rejectForm.action = eventUrl;
+        const messageEl = document.getElementById('rejectModalMessage');
+        if (messageEl && eventTitle) {
+            const isEnglish = typeof currentLang !== 'undefined' && currentLang === 'en';
+            messageEl.innerHTML = isEnglish 
+                ? `The event "${eventTitle}" will be permanently rejected. This action cannot be undone.`
+                : `El evento "${eventTitle}" será rechazado permanentemente. Esta acción no se puede deshacer.`;
+        }
+        if (rejectModal) {
+            rejectModal.classList.remove('hidden');
+            rejectModal.classList.add('flex');
+            setTimeout(() => {
+                if (rejectModalContent) {
+                    rejectModalContent.classList.remove('scale-95', 'opacity-0');
+                    rejectModalContent.classList.add('scale-100', 'opacity-100');
+                }
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeRejectModal() {
+        if (rejectModalContent) {
+            rejectModalContent.classList.remove('scale-100', 'opacity-100');
+            rejectModalContent.classList.add('scale-95', 'opacity-0');
+        }
+        setTimeout(() => {
+            if (rejectModal) {
+                rejectModal.classList.remove('flex');
+                rejectModal.classList.add('hidden');
+            }
+            document.body.style.overflow = '';
+        }, 200);
+    }
+
+    if (cancelRejectBtn) cancelRejectBtn.addEventListener('click', closeRejectModal);
+    if (rejectModal) rejectModal.addEventListener('click', (e) => {
+        if (e.target === rejectModal) closeRejectModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && rejectModal && !rejectModal.classList.contains('hidden')) closeRejectModal();
+    });
+
+    // Reemplazar los botones de rechazo existentes
     document.querySelectorAll('.reject-event-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            let msg = '';
-            if (typeof currentLang !== 'undefined' && currentLang === 'en') {
-                msg = 'Reject this event?';
-            } else {
-                msg = '¿Rechazar este evento?';
-            }
-            if (confirm(msg)) {
-                window.location.href = this.dataset.url;
-            }
+            const rejectUrl = this.dataset.url;
+            const eventTitle = this.dataset.eventTitle || 'este evento';
+            openRejectModal(rejectUrl, eventTitle);
         });
     });
 </script>

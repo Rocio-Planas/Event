@@ -110,7 +110,7 @@
                 >
                     <div class="hero-image-container">
                         <img
-                            src="{% if event.image %}{{ event.image.url }}{% else %}https://picsum.photos/seed/event/1200/400{% endif %}"
+                            src="{% if event.image %}{{ event.image.url }}{% endif %}"
                             alt="{{ event.title }}"
                             referrerpolicy="no-referrer"
                         />
@@ -235,7 +235,7 @@
                                         <p
                                             class="h4 fw-black text-primary mb-0"
                                         >
-                                            {% if ticket.price == 0 %}<span data-i18n="free">Gratis</span>{% else %}${{ ticket.price|floatformat:"-1" }}{% endif %}
+                                            {% if ticket.price == 0 %}<span data-i18n="free">Gratis</span>{% else %}${{ ticket.price|floatformat:"2" }}{% endif %}
                                         </p>
                                     </div>
                                 </div>

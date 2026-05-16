@@ -1,4 +1,52 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Toast notification system
+    function showToast(message, type = 'error') {
+        const existingToast = document.querySelector('.custom-toast');
+        if (existingToast) existingToast.remove();
+
+        const toast = document.createElement('div');
+        toast.className = `custom-toast toast-notification position-fixed start-50 translate-middle-x`;
+        toast.style.cssText = 'min-width: 350px; max-width: 90vw; box-shadow: 0 4px 12px rgba(0,0,0,0.25); font-size: 0.95rem; z-index: 9999; border-radius: 8px; top: 70px;';
+        toast.innerHTML = `
+            <div class="alert alert-${type === 'error' ? 'danger' : type} d-flex align-items-center justify-content-between p-3 m-0">
+                <span>${message}</span>
+                <button type="button" class="btn-close ms-3" onclick="this.parentElement.parentElement.remove()"></button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            if (toast.parentElement) toast.remove();
+        }, 4000);
+    }
+
+    function clearFieldError(field) {
+        field.classList.remove('is-invalid');
+        const errorDiv = field.parentElement.querySelector('.invalid-feedback');
+        if (errorDiv) errorDiv.remove();
+    }
+
+    function validateDateInPast(field) {
+        const now = new Date();
+        const fieldDate = new Date(field.value);
+        
+        if (fieldDate < now) {
+            // Remove existing error message if any
+            let errorDiv = field.parentElement.querySelector('.invalid-feedback');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                field.parentElement.appendChild(errorDiv);
+            }
+            errorDiv.textContent = 'La fecha no puede ser en el pasado.';
+            
+            return false;
+        }
+        
+        clearFieldError(field);
+        return true;
+    }
+
     // Date Validation - Prevent past dates and ensure end_date > start_date
     const startDateField = document.querySelector('input[name="start_date"]');
     const endDateField = document.querySelector('input[name="end_date"]');
@@ -11,6 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     endDateField.value = "";
                 }
             }
+            validateDateInPast(startDateField);
+        });
+
+        endDateField.addEventListener("change", () => {
+            validateDateInPast(endDateField);
         });
     }
 
@@ -122,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <label class="ev-label mb-1">Precio</label>
                     <div class="d-flex align-items-center">
                         <span class="fw-bold me-1">€</span>
-                        <input type="number" class="form-control border-0 bg-transparent p-0 fw-bold shadow-none" value="${price}" min="0" />
+                        <input type="number" class="form-control border-0 bg-transparent p-0 fw-bold shadow-none" value="${price}" min="0" step="0.01" />
                     </div>
                 </div>
                 <button type="button" class="btn text-danger p-2 remove-ticket" data-ticket-id="${ticketId}">
@@ -159,6 +212,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (eventForm) {
         eventForm.addEventListener("submit", (e) => {
             updateTicketsData();
+            
+            // Validate dates on submit
+            let isValid = true;
+            if (startDateField && !validateDateInPast(startDateField)) {
+                isValid = false;
+            }
+            if (endDateField && !validateDateInPast(endDateField)) {
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                showToast('Por favor corrige los errores antes de enviar el formulario.');
+            }
         });
     }
 

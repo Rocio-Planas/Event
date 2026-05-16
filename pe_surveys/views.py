@@ -21,7 +21,9 @@ def send_pending_scheduled_surveys(event_id):
     """
     Verifica y envía encuestas programadas que están pendientes.
     Se ejecuta cada vez que se accede a la lista de encuestas.
+    Envía en background para no bloquear la carga de la página.
     """
+    import threading
     from django.utils import timezone
     from django.conf import settings
     from django.urls import reverse
@@ -36,46 +38,51 @@ def send_pending_scheduled_surveys(event_id):
         sent_at__isnull=True
     )
     
-    for survey in pending_surveys:
-        try:
-            survey_link = reverse('pe_surveys:survey_answer', kwargs={'event_id': event_id, 'survey_id': survey.pk})
-            
+    def send_surveys_in_background():
+        for survey in pending_surveys:
             try:
-                from django.contrib.sites.models import Site
-                site = Site.objects.get_current()
-                survey_link = f"{site.domain}{survey_link}"
-            except Exception:
-                survey_link = f"http://localhost:8000{survey_link}"
-            
-            Registration = apps.get_model('pe_registration', 'Registration')
-            registrations = Registration.objects.filter(
-                event_id=event_id,
-                status=Registration.Status.CONFIRMADA
-            ).select_related('user')
-            
-            from django.core.mail import send_mail
-            emails_sent = 0
-            
-            for reg in registrations:
-                if reg.user and reg.user.email:
-                    try:
-                        send_mail(
-                            subject=f"Encuesta: {survey.title}",
-                            message=f"Por favor, responde la encuesta '{survey.title}'.\n\nSigue este enlace: {survey_link}\n\nGracias por tu participación.",
-                            from_email=settings.DEFAULT_FROM_EMAIL,
-                            recipient_list=[reg.user.email],
-                            fail_silently=False,
-                        )
-                        emails_sent += 1
-                    except Exception as e:
-                        logger.error(f"Error sending survey email to {reg.user.email}: {e}")
-            
-            survey.sent_at = timezone.now()
-            survey.save(update_fields=['sent_at'])
-            logger.info(f"Sent scheduled survey {survey.id} ({survey.title}) to {emails_sent} recipients")
-            
-        except Exception as e:
-            logger.error(f"Error processing scheduled survey {survey.id}: {e}")
+                survey_link = reverse('pe_surveys:survey_answer', kwargs={'event_id': event_id, 'survey_id': survey.pk})
+                
+                try:
+                    from django.contrib.sites.models import Site
+                    site = Site.objects.get_current()
+                    survey_link = f"{site.domain}{survey_link}"
+                except Exception:
+                    survey_link = f"{settings.BASE_URL}{survey_link}"
+                
+                Registration = apps.get_model('pe_registration', 'Registration')
+                registrations = Registration.objects.filter(
+                    event_id=event_id,
+                    status=Registration.Status.CONFIRMADA
+                ).select_related('user')
+                
+                from django.core.mail import send_mail
+                emails_sent = 0
+                
+                for reg in registrations:
+                    if reg.user and reg.user.email:
+                        try:
+                            send_mail(
+                                subject=f"Encuesta: {survey.title}",
+                                message=f"Por favor, responde la encuesta '{survey.title}'.\nSigue este enlace: {survey_link}\nGracias por tu participación.",
+                                from_email=settings.DEFAULT_FROM_EMAIL,
+                                recipient_list=[reg.user.email],
+                                fail_silently=False,
+                            )
+                            emails_sent += 1
+                        except Exception as e:
+                            logger.error(f"Error sending survey email to {reg.user.email}: {e}")
+                
+                survey.sent_at = timezone.now()
+                survey.save(update_fields=['sent_at'])
+                logger.info(f"Sent scheduled survey {survey.id} ({survey.title}) to {emails_sent} recipients")
+                
+            except Exception as e:
+                logger.error(f"Error processing scheduled survey {survey.id}: {e}")
+    
+    # Ejecutar en background para no bloquear la página
+    survey_thread = threading.Thread(target=send_surveys_in_background)
+    survey_thread.start()
 
 
 @method_decorator(login_required, name='dispatch')
@@ -95,6 +102,7 @@ class SurveyManagementView(ListView):
         return queryset
 
     def get_context_data(self, **kwargs):
+        from django.utils import timezone
         context = super().get_context_data(**kwargs)
         event_id = self.kwargs.get('event_id')
         Event = apps.get_model('in_person_events', 'Event')
@@ -103,6 +111,7 @@ class SurveyManagementView(ListView):
         context['active_page'] = 'encuestas'
         context['form'] = SurveyForm()
         context['formset'] = SurveyOptionFormSet(prefix='options')
+        context['now'] = timezone.now()
         
         send_pending_scheduled_surveys(event_id)
         
@@ -163,7 +172,7 @@ class SurveyCreateUpdateView(TemplateView):
                             valid_options_count += 1
                 
                 if valid_options_count < 2:
-                    form.add_error(None, "Las encuestas de tipo TEXTO deben tener al menos 2 opciones.")
+                    form.add_error(None, "La encuesta debe tener al menos 2 opciones.")
             
             if not form.errors:
                 survey = form.save(commit=False)
@@ -189,40 +198,59 @@ class SurveyCreateUpdateView(TemplateView):
                 
                 return redirect('pe_surveys:survey_list', event_id=event_id)
 
+        has_errors = bool(form.errors) or bool(form.non_field_errors())
+
+        options_error = None
+        if form.non_field_errors():
+            options_error = form.non_field_errors()[0]
+
         return self.render_to_response({
             'form': form,
             'formset': formset,
             'survey': survey,
             'event': event,
-            'active_page': 'encuestas'
+            'active_page': 'encuestas',
+            'hasFormErrors': has_errors,
+            'options_error': options_error
         })
 
     def send_survey_emails(self, survey, event_id):
+        import threading
         from django.conf import settings
         from django.core.mail import send_mail
         from django.apps import apps
         from django.urls import reverse
 
-        Registration = apps.get_model('pe_registration', 'Registration')
-        registrations = Registration.objects.filter(
-            event_id=event_id,
-            status=Registration.Status.CONFIRMADA
-        ).select_related('user')
+        def send_emails_in_background():
+            try:
+                Registration = apps.get_model('pe_registration', 'Registration')
+                registrations = Registration.objects.filter(
+                    event_id=event_id,
+                    status=Registration.Status.CONFIRMADA
+                ).select_related('user')
 
-        survey_link = self.request.build_absolute_uri(reverse('pe_surveys:survey_answer', kwargs={'event_id': event_id, 'survey_id': survey.pk}))
-        
-        for reg in registrations:
-            if reg.user.email:
                 try:
-                    send_mail(
-                        subject=f"Encuesta: {survey.title}",
-                        message=f"Por favor, responde la encuesta '{survey.title}'.\n\nSigue este enlace: {survey_link}\n\nGracias por tu participación.",
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[reg.user.email],
-                        fail_silently=False,
-                    )
-                except Exception as e:
-                    print(f"Error sending email to {reg.user.email}: {e}")
+                    survey_link = self.request.build_absolute_uri(reverse('pe_surveys:survey_answer', kwargs={'event_id': event_id, 'survey_id': survey.pk}))
+                except Exception:
+                    survey_link = f"{settings.BASE_URL}/encuestas/{event_id}/responder/{survey.pk}/"
+                
+                for reg in registrations:
+                    if reg.user.email:
+                        try:
+                            send_mail(
+                                subject=f"Encuesta: {survey.title}",
+                                message=f"Por favor, responde la encuesta '{survey.title}'.\nSigue este enlace: {survey_link}\nGracias por tu participación.",
+                                from_email=settings.DEFAULT_FROM_EMAIL,
+                                recipient_list=[reg.user.email],
+                                fail_silently=False,
+                            )
+                        except Exception as e:
+                            print(f"Error sending email to {reg.user.email}: {e}")
+            except Exception as e:
+                print(f"Error in background email thread: {e}")
+
+        email_thread = threading.Thread(target=send_emails_in_background)
+        email_thread.start()
 
 
 @method_decorator(login_required, name='dispatch')
@@ -268,7 +296,10 @@ class SendSurveyAPIView(View):
                 status=Registration.Status.CONFIRMADA
             ).select_related('user')
 
-            survey_link = request.build_absolute_uri(reverse('pe_surveys:survey_answer', kwargs={'event_id': event_id, 'survey_id': survey.pk}))
+            try:
+                survey_link = request.build_absolute_uri(reverse('pe_surveys:survey_answer', kwargs={'event_id': event_id, 'survey_id': survey.pk}))
+            except Exception:
+                survey_link = f"{settings.BASE_URL}/encuestas/{event_id}/responder/{survey.pk}/"
             
             emails_sent = 0
             for reg in registrations:
@@ -276,7 +307,7 @@ class SendSurveyAPIView(View):
                     try:
                         send_mail(
                             subject=f"Encuesta: {survey.title}",
-                            message=f"Por favor, responde la encuesta '{survey.title}'.\n\nSigue este enlace: {survey_link}\n\nGracias por tu participación.",
+                            message=f"Por favor, responde la encuesta '{survey.title}'.\nSigue este enlace: {survey_link}\nGracias por tu participación.",
                             from_email=settings.DEFAULT_FROM_EMAIL,
                             recipient_list=[reg.user.email],
                             fail_silently=False,
@@ -314,13 +345,15 @@ class UpdateSurveyAPIView(View):
         survey.survey_type = 'texto'
         survey.is_active = is_active
         survey.is_multiple_choice = is_multiple_choice
-        survey.delivery_type = delivery_type
         
-        if scheduled_date:
-            from django.utils.dateparse import parse_datetime
-            survey.scheduled_date = parse_datetime(scheduled_date)
-        else:
-            survey.scheduled_date = None
+        if delivery_type is not None and scheduled_date is not None:
+            if survey.sent_at is None:
+                survey.delivery_type = delivery_type
+                if scheduled_date:
+                    from django.utils.dateparse import parse_datetime
+                    survey.scheduled_date = parse_datetime(scheduled_date)
+                else:
+                    survey.scheduled_date = None
         
         survey.save()
         
@@ -425,7 +458,22 @@ class SurveyAnswerView(TemplateView):
     template_name = 'pe_surveys/survey_answer.html'
 
     def get(self, request, event_id, survey_id, **kwargs):
-        survey = get_object_or_404(Survey, pk=survey_id, event_id=event_id, is_active=True)
+        survey = Survey.objects.filter(pk=survey_id, event_id=event_id).first()
+        
+        if not survey:
+            return self.render_to_response({
+                'error': 'encuesta_no_encontrada',
+                'message': 'La encuesta no existe o ha sido eliminada.',
+                'event_id': event_id
+            })
+        
+        if not survey.is_active:
+            return self.render_to_response({
+                'error': 'encuesta_inactiva',
+                'message': 'Esta encuesta ya no está disponible.',
+                'event_id': event_id
+            })
+        
         return self.render_to_response({
             'survey': survey,
             'event_id': event_id

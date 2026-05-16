@@ -1,11 +1,27 @@
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Invitación</title>
-</head>
-<body>
-    <h1>Ha ocurrido un problema</h1>
-    <p>{{ error|default:"Invitación no encontrada o ya procesada." }}</p>
-    <p><a href="/">Volver al inicio</a></p>
-</body>
-</html>
+{% extends "base_bootstrap.html" %}
+{% load static %}
+
+{% block title %}Invitación Inválida - EventPulse{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/event-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container pt-1 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <div class="card ev-form-card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5 ev-form-body text-center">
+                    <div class="py-5">
+                        <span class="material-symbols-outlined text-secondary" style="font-size: 80px;">error</span>
+                        <h2 class="h3 fw-extrabold mt-4 mb-3" style="color: var(--text-on-surface);">Invitación no encontrada</h2>
+                        <p class="text-muted mb-4">{{ error|default:"Esta invitación no existe o ya ha sido procesada anteriormente." }}</p>
+                        <a href="/" class="btn btn-primary px-4 py-2">Volver al inicio</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

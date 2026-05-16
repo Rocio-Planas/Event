@@ -1,0 +1,48 @@
+{% extends 'pe_communication/emails/email_base.html' %}
+
+{% block title %}Actividad Asignada{% endblock %}
+
+{% block content %}
+<h2>Tu Actividad en el Evento</h2>
+
+<p>Hola <strong>{{ member.user.get_full_name|default:member.user.email }}</strong>,</p>
+
+<p>Se te ha asignado una actividad como <strong>{{ member.get_role_display }}</strong>:</p>
+
+<div class="event-info">
+    <p><strong>📅 Evento:</strong> {{ event.title }}</p>
+    <p><strong>🎤 Actividad:</strong> {{ activity.title }}</p>
+    <p><strong>🕐 Horario:</strong> {{ activity.start_time|date:"d/m/Y H:i" }} - {{ activity.end_time|time:"H:i" }}</p>
+    {% if activity.location %}
+    <p><strong>📍 Ubicación/Stand:</strong> {{ activity.location }}</p>
+    {% endif %}
+    {% if activity.description %}
+    <p><strong>📋 Descripción:</strong> {{ activity.description|truncatewords:30 }}</p>
+    {% endif %}
+</div>
+
+<p><strong>Próximos pasos:</strong></p>
+<ul>
+    <li><strong>Prepara tu contenido:</strong> Asegúrate de tener tus materiales listos</li>
+    <li><strong>Llega temprano:</strong> Preséntate 15 minutos antes de tu hora</li>
+    <li><strong>Verifica el equipo:</strong> Confirma que el equipo audiovisual funcione</li>
+    <li><strong>Coordina con el staff:</strong> El equipo de soporte te ayudará</li>
+</ul>
+
+{% if activity.speaker_materials %}
+<div class="info-box">
+    <p><strong>📦 Materiales:</strong> Puedes subir tus presentaciones desde tu panel de ponente.</p>
+</div>
+{% endif %}
+
+<div class="warning-box">
+    <p><strong>⚠️ Recordatorio:</strong> Si necesitas hacer cambios en tu actividad, contacta al organizador lo antes posible.</p>
+</div>
+
+<p>¡Estamos emocionados de tenerte como ponente! Tu participación es clave para el éxito del evento. 🎤</p>
+
+<p style="margin-top: 30px;">
+    <strong>El equipo de EventPulse</strong><br>
+    <span style="color: #6b7280; font-size: 13px;">¿Tienes preguntas? Contáctanos</span>
+</p>
+{% endblock %}

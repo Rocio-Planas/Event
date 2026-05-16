@@ -1,20 +1,54 @@
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Invitación al evento</title>
-</head>
-<body>
-    <h1>¡Estás invitado!</h1>
-    <p>Te invitamos a participar en el evento <strong>{{ event.title }}</strong>.</p>
-    {% if organizer_name %}
-    <p>Organizador: <strong>{{ organizer_name }}</strong></p>
+{% extends 'pe_communication/emails/email_base.html' %}
+
+{% block title %}Invitación al Evento{% endblock %}
+
+{% block content %}
+<h2>¡Estás invitado! 🎉</h2>
+
+<p>Te invitamos a participar en el evento:</p>
+
+<div class="event-info">
+    <p><strong>📅 Evento:</strong> {{ event.title }}</p>
+    <p><strong>🗓️ Fecha:</strong> {{ event.start_date|date:"d/m/Y" }}</p>
+    {% if event.location %}
+    <p><strong>📍 Ubicación:</strong> {{ event.location }}</p>
     {% endif %}
-    {% if custom_message %}
+    {% if event.description %}
+    <p><strong>📝 Descripción:</strong> {{ event.description|truncatewords:30 }}</p>
+    {% endif %}
+</div>
+
+{% if organizer_name %}
+<p><strong>👤 Organizador:</strong> {{ organizer_name }}</p>
+{% endif %}
+
+{% if custom_message %}
+<div class="info-box">
     <p><strong>Mensaje del organizador:</strong></p>
     <p>{{ custom_message }}</p>
-    {% endif %}
-    <p>Encuentra todos los detalles del evento en el siguiente enlace:</p>
-    <p><a href="{{ event_url }}">Ver detalles del evento</a></p>
-    <p>Si no deseas recibir esta invitación, puedes ignorar este mensaje.</p>
-</body>
-</html>
+</div>
+{% endif %}
+
+<a href="{{ event_url }}" class="cta-button">📋 Ver detalles del evento</a>
+
+<div class="info-box">
+    <p><strong>¿Ya tienes cuenta en EventPulse?</strong></p>
+    <p>Si ya tienes una cuenta, solo inicia sesión y podrás ver los detalles del evento.</p>
+    <p style="margin-top: 10px;">
+        <a href="{{ base_url }}/login/?next={{ event_url }}" style="color: #2563eb; text-decoration: underline;">Iniciar sesión</a>
+    </p>
+</div>
+
+<div class="warning-box">
+    <p><strong>¿No tienes cuenta?</strong> Puedes crear una gratis para participar en eventos y recibir invitations.</p>
+    <p style="margin-top: 10px;">
+        <a href="{{ base_url }}/registro/" style="color: #92400e; text-decoration: underline;">Crear cuenta</a>
+    </p>
+</div>
+
+<p>Si no deseas recibir esta invitación, puedes ignorar este mensaje.</p>
+
+<p style="margin-top: 30px;">
+    <strong>El equipo de EventPulse</strong>
+</p>
+{% endblock %}

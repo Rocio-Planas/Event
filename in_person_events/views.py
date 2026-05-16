@@ -66,7 +66,7 @@ def create_event_form(request):
                     created_ticket_type = TicketType.objects.create(
                         event=event,
                         name='Entrada General',
-                        price=25,
+                        price=0,
                     )
 
                 if event.visibility == Event.Visibility.PRIVADO:
@@ -159,6 +159,10 @@ def dashboard_organizer(request, event_id):
 @login_required
 def dashboard_assistant(request, event_id):
     """Dashboard del asistente para un evento presencial inscrito."""
+    if not Event.objects.filter(id=event_id).exists():
+        messages.error(request, 'El evento no existe o ha sido eliminado.')
+        return redirect('usuarios:dashboard')
+    
     event = get_object_or_404(Event, id=event_id)
     activities = list(event.activities.order_by('start_time')[:5])
     for activity in activities:
@@ -273,6 +277,11 @@ def edit_event(request, event_id):
         if form.is_valid():
             try:
                 event = form.save(commit=False)
+                
+                # Handle image removal based on form field
+                if form.cleaned_data.get('remove_image'):
+                    event.image = None
+                
                 event.save()
             except Exception as e:
                 messages.error(request, f'Error al guardar el evento: {str(e)}')
@@ -327,9 +336,14 @@ def edit_event(request, event_id):
         form = EventForm(instance=event, user=request.user)
         # Verificar si la imagen existe, si no, limpiarla
         import os
-        if event.image and not os.path.exists(event.image.path):
-            event.image = None
-            event.save()
+        if event.image:
+            try:
+                if not os.path.exists(event.image.path):
+                    event.image = None
+                    event.save()
+            except (ValueError, FileNotFoundError):
+                event.image = None
+                event.save()
         tickets_json = json.dumps([
             {'name': t.name, 'price': float(t.price)}
             for t in event.ticket_types.all()

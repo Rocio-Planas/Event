@@ -39,7 +39,7 @@ Enviado - EventPulse{% endblock %} {% block extra_css %}
     <!-- Event Card -->
     <div class="event-card">
         <img
-            src="{% if event.image %}{{ event.image.url }}{% else %}https://picsum.photos/seed/tech/1200/600{% endif %}"
+            src="{% if event.image %}{{ event.image.url }}{% endif %}"
             alt="{{ event.title }}"
             class="event-card-img"
             referrerpolicy="no-referrer"

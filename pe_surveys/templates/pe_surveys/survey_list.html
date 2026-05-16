@@ -60,11 +60,13 @@
                                 <td class="py-3" style="background-color: var(--surface-container-lowest);">
                                     {% if survey.delivery_type == 'inmediato' %}
                                         <span data-i18n="sent_on">Enviado el</span> {{ survey.created_at|date:'d/m/Y H:i' }}
-                                    {% elif survey.delivery_type == 'programado' and survey.scheduled_date %}
-                                        {% if survey.scheduled_date < now %}
-                                            <span data-i18n="sent_on">Enviado el</span> {{ survey.scheduled_date|date:'d/m/Y H:i' }}
-                                        {% else %}
+                                    {% elif survey.delivery_type == 'programado' %}
+                                        {% if survey.sent_at %}
+                                            <span data-i18n="sent_on">Enviado el</span> {{ survey.sent_at|date:'d/m/Y H:i' }}
+                                        {% elif survey.scheduled_date %}
                                             <span data-i18n="scheduled_for">Programada para</span> {{ survey.scheduled_date|date:'d/m/Y H:i' }}
+                                        {% else %}
+                                            -
                                         {% endif %}
                                     {% else %}
                                         -
@@ -72,7 +74,7 @@
                                 </td>
                                 <td class="px-4 text-center" style="background-color: var(--surface-container-lowest);">
                                     <div class="btn-group">
-                                        <button class="btn btn-sm btn-outline-primary" title="Editar" data-i18n-title="edit_btn_title" onclick="openEditSurveyModal('{{ survey.pk }}', '{{ survey.title|escapejs }}', '{{ survey.survey_type }}', {% if survey.is_multiple_choice %}true{% else %}false{% endif %}, {% if survey.is_active %}true{% else %}false{% endif %}, '{{ survey.delivery_type }}', '{% if survey.scheduled_date %}{{ survey.scheduled_date|date:"Y-m-d H:i:s" }}{% else %}{% endif %}', [{% for opt in survey.options.all %}'{{ opt.text|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
+                                        <button class="btn btn-sm btn-outline-primary" title="Editar" data-i18n-title="edit_btn_title" onclick="openEditSurveyModal('{{ survey.pk }}', '{{ survey.title|escapejs }}', '{{ survey.survey_type }}', {% if survey.is_multiple_choice %}true{% else %}false{% endif %}, {% if survey.is_active %}true{% else %}false{% endif %}, '{{ survey.delivery_type }}', '{% if survey.scheduled_date %}{{ survey.scheduled_date|date:"Y-m-d H:i:s" }}{% else %}{% endif %}', [{% for opt in survey.options.all %}'{{ opt.text|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}], '{% if survey.sent_at %}{{ survey.sent_at|date:"Y-m-d H:i:s" }}{% else %}false{% endif %}')">
                                             <span class="material-symbols-outlined" style="font-size: 16px">edit</span>
                                         </button>
                                         <button class="btn btn-sm btn-outline-danger" onclick="openDeleteSurveyModal('{{ survey.pk }}', '{{ survey.title|escapejs }}')" title="Eliminar" data-i18n-title="delete_btn_title">
@@ -131,7 +133,7 @@
                                 <label class="form-check-label" for="editIsMultipleChoice" data-i18n="multiple_options">Múltiples Opciones</label>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4" id="editDeliveryTypeField">
                             <label class="text-primary small fw-bold text-uppercase mb-2 d-block" data-i18n="delivery_type_label">Tipo de Entrega</label>
                             <select id="editDeliveryType" class="form-select border-0 py-2" style="background-color: var(--surface-container-high);">
                                 <option value="inmediato" data-i18n="immediate_option">Inmediato</option>
@@ -168,7 +170,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <form method="post" action="{% if survey.pk %}{% url 'pe_surveys:survey_edit' event.id survey.pk %}{% else %}{% url 'pe_surveys:survey_create' event.id %}{% endif %}">
+                    <form method="post" action="{% if survey.pk %}{% url 'pe_surveys:survey_edit' event.id survey.pk %}{% else %}{% url 'pe_surveys:survey_create' event.id %}{% endif %}" onsubmit="return validateSurveyForm()">
                         {% csrf_token %}
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
@@ -205,9 +207,9 @@
                         <hr class="my-4" style="border-color: var(--border-outline-variant);" />
                         <h4 class="fw-bold mb-3" id="options_title" style="color: var(--text-on-surface);" data-i18n="options_label">Opciones</h4>
                         {{ formset.management_form }}
-                        <div id="options_error" class="alert" style="display: none; background-color: rgba(var(--error), 0.1); color: var(--error); border: none;" role="alert">
+                        <div id="options_error" class="alert" style="display: {% if options_error %}block{% else %}none{% endif %}; background-color: rgba(var(--error), 0.1); color: var(--error); border: none;" role="alert">
                             <span class="material-symbols-outlined me-2" style="font-size: 18px">error</span>
-                            <span id="options_error_text"></span>
+                            <span id="options_error_text">{% if options_error %}{{ options_error }}{% endif %}</span>
                         </div>
                         <div id="options_container">
                             {% for option_form in formset %}
@@ -300,21 +302,66 @@
     <script src="{% static 'pe_surveys/js/survey_list.js' %}"></script>
     <script>
         var eventId = {{ event.id }};
-        
-        function openEditSurveyModal(surveyId, title, surveyType, isMultipleChoice, isActive, deliveryType, scheduledDate, options) {
+        {% if hasFormErrors %}window.hasFormErrors = true;{% endif %}
+
+        function validateSurveyForm() {
+            var titleInput = document.querySelector('input[name="title"]');
+            if (!titleInput || !titleInput.value.trim()) {
+                alert('El título de la encuesta es requerido');
+                return false;
+            }
+
+            var optionsContainer = document.querySelector('#options_container');
+            var options = optionsContainer.querySelectorAll('.option-block input');
+            var validOptions = 0;
+            options.forEach(function(opt) {
+                if (opt.value.trim() !== '') validOptions++;
+            });
+
+            if (validOptions < 2) {
+                alert('Debes completar al menos 2 opciones');
+                return false;
+            }
+
+            return true;
+        }
+
+        {% if options_error %}
+        setTimeout(function() {
+            var errorDiv = document.getElementById('options_error');
+            if (errorDiv) errorDiv.style.display = 'none';
+        }, 5000);
+        {% endif %}
+
+        function openEditSurveyModal(surveyId, title, surveyType, isMultipleChoice, isActive, deliveryType, scheduledDate, options, sentAt) {
             document.getElementById('editSurveyId').value = surveyId;
             document.getElementById('editSurveyTitle').value = title;
             document.getElementById('editIsActive').checked = isActive;
             document.getElementById('editIsMultipleChoice').checked = isMultipleChoice;
-            document.getElementById('editDeliveryType').value = deliveryType;
             
-            if (scheduledDate) {
-                document.getElementById('editScheduledDate').value = scheduledDate.replace(' ', 'T');
+            var isSent = sentAt && sentAt !== 'false';
+            
+            var deliveryTypeField = document.getElementById('editDeliveryTypeField');
+            var scheduledDateField = document.getElementById('editScheduledDateField');
+            
+            if (isSent) {
+                document.getElementById('editDeliveryType').value = deliveryType;
+                if (scheduledDate) {
+                    document.getElementById('editScheduledDate').value = scheduledDate.replace(' ', 'T');
+                }
+                deliveryTypeField.style.display = 'none';
+                scheduledDateField.style.display = 'none';
             } else {
-                document.getElementById('editScheduledDate').value = '';
+                document.getElementById('editDeliveryType').value = deliveryType;
+                if (scheduledDate) {
+                    document.getElementById('editScheduledDate').value = scheduledDate.replace(' ', 'T');
+                } else {
+                    document.getElementById('editScheduledDate').value = '';
+                }
+                toggleEditFields();
             }
             
-            toggleEditFields();
+            window.isSurveySent = isSent;
             
             var container = document.getElementById('editOptionsContainer');
             container.innerHTML = '';
@@ -356,8 +403,7 @@
             var title = document.getElementById('editSurveyTitle').value;
             var isActive = document.getElementById('editIsActive').checked;
             var isMultipleChoice = document.getElementById('editIsMultipleChoice').checked;
-            var deliveryType = document.getElementById('editDeliveryType').value;
-            var scheduledDate = document.getElementById('editScheduledDate').value || null;
+            var isSent = window.isSurveySent || false;
             
             if (!title) {
                 alert(translations.title_required);
@@ -374,21 +420,27 @@
             
             var url = '/encuestas/' + eventId + '/api/update-survey/';
             console.log('Fetching URL:', url);
+            
+            var data = {
+                survey_id: surveyId,
+                title: title,
+                is_active: isActive,
+                is_multiple_choice: isMultipleChoice,
+                options: options
+            };
+            
+            if (!isSent) {
+                data.delivery_type = document.getElementById('editDeliveryType').value;
+                data.scheduled_date = document.getElementById('editScheduledDate').value || null;
+            }
+            
             fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 },
-                body: JSON.stringify({
-                    survey_id: surveyId,
-                    title: title,
-                    is_active: isActive,
-                    is_multiple_choice: isMultipleChoice,
-                    delivery_type: deliveryType,
-                    scheduled_date: scheduledDate,
-                    options: options
-                })
+                body: JSON.stringify(data)
             })
             .then(function(response) { return response.json(); })
             .then(function(data) {

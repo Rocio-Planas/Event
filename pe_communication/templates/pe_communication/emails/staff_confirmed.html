@@ -1,12 +1,38 @@
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Confirmación de invitación aceptada</title>
-</head>
-<body>
-    <h1>¡Bienvenido al equipo!</h1>
-    <p>Has aceptado la invitación para unirte al evento <strong>{{ event.title }}</strong>.</p>
-    <p>Tu rol es: <strong>{{ member.get_role_display }}</strong>.</p>
-    <p>Gracias por ser parte del equipo.</p>
-</body>
-</html>
+{% extends 'pe_communication/emails/email_base.html' %}
+
+{% block title %}Confirmación de Participación{% endblock %}
+
+{% block content %}
+<h2>¡Bienvenido al equipo! 🎉</h2>
+
+<p>Hola <strong>{{ member.user.get_full_name|default:member.user.email }}</strong>,</p>
+
+<p>¡Excelente noticia! Has confirmado tu participación como <strong>{{ member.get_role_display }}</strong> en el evento:</p>
+
+<div class="event-info">
+    <p><strong>📅 Evento:</strong> {{ event.title }}</p>
+    <p><strong>🗓️ Fecha:</strong> {{ event.start_date|date:"d/m/Y" }}</p>
+    {% if event.location %}
+    <p><strong>📍 Ubicación:</strong> {{ event.location }}</p>
+    {% endif %}
+</div>
+
+<p>Ya eres parte del equipo. Estos son tus próximos pasos:</p>
+
+<ul>
+    <li><strong>Accede al panel:</strong> Desde tu perfil podrás gestionar tu participación</li>
+    <li><strong>Revisa la agenda:</strong> Consulta las actividades programadas</li>
+    <li><strong>Mantente conectado:</strong> Comunícate con el organizador si tienes dudas</li>
+</ul>
+
+<div class="info-box">
+    <p><strong>¿Necesitas ayuda?</strong> El equipo de EventPulse está disponible para resolver cualquier consulta sobre tu participación.</p>
+</div>
+
+<p>Gracias por formar parte de nuestro equipo. ¡Juntos haremos de este evento una experiencia increíble! 🚀</p>
+
+<p style="margin-top: 30px;">
+    <strong>El equipo de EventPulse</strong><br>
+    <span style="color: #6b7280; font-size: 13px;">Plataforma de Gestión de Eventos</span>
+</p>
+{% endblock %}

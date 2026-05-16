@@ -23,6 +23,15 @@ from django.urls import reverse
 
 import datetime   # <-- Añadida esta importación para timedelta
 
+from usuarios.utils import (
+    enviar_email_aprobacion_evento,
+    enviar_email_rechazo_evento,
+    enviar_email_resena_aprobada,
+    enviar_email_resena_rechazada,
+    enviar_email_respuesta_consulta,
+    enviar_email_suscripcion_evento
+)
+
 # ---------- FUNCIÓN AUXILIAR DE NORMALIZACIÓN ----------
 def normalizar_categoria(categoria):
     """
@@ -307,6 +316,8 @@ def suscribirse(request):
                 follow, created = EventFollower.objects.get_or_create(user=request.user, event=event)
                 if created:
                     messages.success(request, f'✅ Te has suscrito al evento virtual "{titulo}"')
+                    # ✅ AGREGAR ESTA LÍNEA PARA ENVIAR CORREO
+                    enviar_email_suscripcion_evento(request.user, event, 'virtual')
                 else:
                     messages.info(request, f'ℹ️ Ya estabas suscrito a "{titulo}"')
             except VirtualEvent.DoesNotExist:
@@ -314,7 +325,6 @@ def suscribirse(request):
         else:
             # Lógica para eventos presenciales
             try:
-                # Verificar que el evento presencial exista usando el alias correcto
                 event = EventoPresencial.objects.get(id=evento_id)
                 
                 suscripcion, created = Suscripcion.objects.get_or_create(
@@ -325,10 +335,12 @@ def suscribirse(request):
                         'titulo_evento': titulo,
                         'fecha_evento': fecha_evento,
                         'imagen_evento': imagen,
-}
+                    }
                 )
                 if created:
                     messages.success(request, f'✅ Te has suscrito a "{titulo}"')
+                    # ✅ AGREGAR ESTA LÍNEA PARA ENVIAR CORREO
+                    enviar_email_suscripcion_evento(request.user, event, 'presencial')
                 else:
                     messages.info(request, f'ℹ️ Ya estabas suscrito a "{titulo}"')
             except EventoPresencial.DoesNotExist:
@@ -390,6 +402,14 @@ def admin_panel(request):
 def admin_usuarios(request):
     """Listado de usuarios con opciones de cambiar rol y eliminar."""
     usuarios = UsuarioModel.objects.all().order_by('-date_joined')
+    
+    # Filtro por verificación
+    verified_filter = request.GET.get('verified')
+    if verified_filter == 'yes':
+        usuarios = usuarios.filter(is_active=True)
+    elif verified_filter == 'no':
+        usuarios = usuarios.filter(is_active=False)
+    
     paginator = Paginator(usuarios, 15)
     page = request.GET.get('page', 1)
     usuarios_paginados = paginator.get_page(page)
@@ -438,7 +458,6 @@ def admin_eventos_pendientes(request):
     }
     return render(request, 'core/admin_eventos.html', context)
 
-
 @login_required
 @role_required(['administrador'])
 def admin_aprobar_evento(request, evento_id, tipo):
@@ -446,25 +465,15 @@ def admin_aprobar_evento(request, evento_id, tipo):
         evento = get_object_or_404(VirtualEvent, id=evento_id)
         evento.estado = 'aprobado'
         evento.save()
-        send_mail(
-            f'Tu evento "{evento.title}" ha sido aprobado',
-            f'Hola {evento.created_by.get_full_name()},\n\nTu evento virtual "{evento.title}" ha sido aprobado y ya es visible en la plataforma.\n\nSaludos,\nEquipo EventPulse',
-            settings.DEFAULT_FROM_EMAIL,
-            [evento.created_by.email],
-            fail_silently=False,
-        )
+        # ✅ Usar nueva función
+        enviar_email_aprobacion_evento(evento.created_by, evento, 'virtual')
         messages.success(request, f'Evento virtual "{evento.title}" aprobado.')
     else:
         evento = get_object_or_404(EventoPresencial, id=evento_id)
         evento.status = 'aprobado'
         evento.save()
-        send_mail(
-            f'Tu evento "{evento.title}" ha sido aprobado',
-            f'Hola {evento.organizer.get_full_name()},\n\nTu evento presencial "{evento.title}" ha sido aprobado y ya es visible en la plataforma.\n\nSaludos,\nEquipo EventPulse',
-            settings.DEFAULT_FROM_EMAIL,
-            [evento.organizer.email],
-            fail_silently=False,
-        )
+        # ✅ Usar nueva función
+        enviar_email_aprobacion_evento(evento.organizer, evento, 'presencial')
         messages.success(request, f'Evento presencial "{evento.title}" aprobado.')
     
     return redirect('core:admin_eventos')
@@ -477,34 +486,14 @@ def admin_rechazar_evento(request, evento_id, tipo):
         evento = get_object_or_404(VirtualEvent, id=evento_id)
         evento.estado = 'rechazado'
         evento.save()
-        # Enviar correo de notificación al organizador
-        send_mail(
-            f'Tu evento "{evento.title}" ha sido rechazado',
-            f'Hola {evento.created_by.get_full_name()},\n\n'
-            f'Lamentamos informarte que tu evento virtual "{evento.title}" no ha sido aprobado.\n\n'
-            f'Si consideras que ha sido un error, puedes ponerte en contacto con nosotros.\n\n'
-            f'Saludos,\nEquipo EventPulse',
-            settings.DEFAULT_FROM_EMAIL,
-            [evento.created_by.email],
-            fail_silently=False,
-        )
-        messages.warning(request, f'Evento virtual "{evento.title}" rechazado. Se ha notificado al organizador.')
+        enviar_email_rechazo_evento(evento.created_by, evento, 'virtual')
+        messages.warning(request, f'Evento virtual "{evento.title}" rechazado.')
     else:
         evento = get_object_or_404(EventoPresencial, id=evento_id)
         evento.status = 'rechazado'
         evento.save()
-        # Enviar correo de notificación al organizador
-        send_mail(
-            f'Tu evento "{evento.title}" ha sido rechazado',
-            f'Hola {evento.organizer.get_full_name()},\n\n'
-            f'Lamentamos informarte que tu evento presencial "{evento.title}" no ha sido aprobado.\n\n'
-            f'Si consideras que ha sido un error, puedes ponerte en contacto con nosotros.\n\n'
-            f'Saludos,\nEquipo EventPulse',
-            settings.DEFAULT_FROM_EMAIL,
-            [evento.organizer.email],
-            fail_silently=False,
-        )
-        messages.warning(request, f'Evento presencial "{evento.title}" rechazado. Se ha notificado al organizador.')
+        enviar_email_rechazo_evento(evento.organizer, evento, 'presencial')
+        messages.warning(request, f'Evento presencial "{evento.title}" rechazado.')
     
     return redirect('core:admin_eventos')
 
@@ -527,13 +516,8 @@ def admin_aprobar_resena(request, resena_id):
     resena = get_object_or_404(Resena, id=resena_id)
     resena.aprobada = True
     resena.save()
-    send_mail(
-        'Tu reseña ha sido aprobada',
-        f'Hola {resena.nombre},\n\nTu reseña para el evento "{resena.evento.title}" ha sido aprobada y ya está visible.\n\nGracias por tu contribución.\nEquipo EventPulse',
-        settings.DEFAULT_FROM_EMAIL,
-        [resena.email],
-        fail_silently=False,
-    )
+    # ✅ Usar nueva función
+    enviar_email_resena_aprobada(resena)
     messages.success(request, 'Reseña aprobada correctamente.')
     return redirect('core:admin_resenas')
 
@@ -541,27 +525,12 @@ def admin_aprobar_resena(request, resena_id):
 @role_required(['administrador'])
 def admin_rechazar_resena(request, resena_id):
     resena = get_object_or_404(Resena, id=resena_id)
-    # Guardar datos antes de eliminar
     nombre = resena.nombre
     email = resena.email
-    evento = resena.evento  # propiedad que devuelve el objeto evento (virtual o presencial)
-    titulo_evento = evento.title if evento else 'Evento desconocido'
-
-    # Eliminar la reseña
+    # ✅ Usar nueva función
+    enviar_email_resena_rechazada(resena)
     resena.delete()
-
-    # Enviar correo de notificación
-    send_mail(
-        'Tu reseña ha sido rechazada',
-        f'Hola {nombre},\n\n'
-        f'Lamentamos informarte que tu reseña para el evento "{titulo_evento}" no ha sido aprobada.\n\n'
-        'Si consideras que ha sido un error, puedes ponerte en contacto con nosotros.\n\n'
-        'Saludos,\nEl equipo de EventPulse',
-        settings.DEFAULT_FROM_EMAIL,
-        [email],
-        fail_silently=False,
-    )
-    messages.warning(request, f'Reseña de {nombre} rechazada y eliminada. Se ha notificado al usuario.')
+    messages.warning(request, f'Reseña de {nombre} rechazada.')
     return redirect('core:admin_resenas')
 
 
@@ -590,13 +559,8 @@ def admin_responder_consulta(request, consulta_id):
             consulta.respuesta = respuesta
             consulta.respondido = True
             consulta.save()
-            send_mail(
-                f'Respuesta a tu consulta: {consulta.asunto}',
-                f'Hola {consulta.nombre},\n\nTu consulta:\n"{consulta.mensaje}"\n\nRespuesta:\n{respuesta}\n\nSaludos,\nEquipo EventPulse',
-                settings.DEFAULT_FROM_EMAIL,
-                [consulta.email],
-                fail_silently=False,
-            )
+            # ✅ Usar nueva función
+            enviar_email_respuesta_consulta(consulta)
             messages.success(request, 'Respuesta enviada correctamente.')
         else:
             messages.error(request, 'Debes escribir una respuesta.')
@@ -662,6 +626,10 @@ def detalle_evento_presencial(request, evento_id):
         except EventoPresencial.DoesNotExist:
             from django.http import Http404
             raise Http404("Evento no encontrado.")
+        
+        if not request.user.is_authenticated:
+            from django.shortcuts import redirect
+            return redirect(f'/login/?next=/eventos-presenciales/{evento_id}/')
         
         if not request.user.is_authenticated:
             from django.http import Http404
@@ -866,20 +834,24 @@ def admin_metrics(request):
     }
     return render(request, 'core/admin_metrics.html', context)
 
-
+@login_required
 def contacto_view(request):
+    # Inicializar variables con valores por defecto
+    review_form = None
+    inquiry_form = None
+    
     if request.method == 'POST':
         form_type = request.POST.get('form_type')
         if form_type == 'review':
-            form = ResenaForm(request.POST)
-            if form.is_valid():
-                resena = form.save(commit=False)
+            review_form = ResenaForm(request.POST)
+            if review_form.is_valid():
+                resena = review_form.save(commit=False)
                 if request.user.is_authenticated:
                     resena.usuario = request.user
                     resena.nombre = request.user.get_full_name() or request.user.email
                     resena.email = request.user.email
-                tipo = form.cleaned_data['tipo_evento']
-                evento_id = form.cleaned_data['evento_id']
+                tipo = review_form.cleaned_data['tipo_evento']
+                evento_id = review_form.cleaned_data['evento_id']
                 if tipo == 'virtual':
                     resena.evento_virtual_id = evento_id
                 else:
@@ -889,16 +861,18 @@ def contacto_view(request):
                 return redirect('core:contacto')
             else:
                 messages.error(request, 'Hubo un error al enviar la reseña. Revisa los datos.')
-        else:
-            form = ConsultaForm(request.POST)
-            if form.is_valid():
-                consulta = form.save(commit=False)
+                # Crear formulario de consulta vacío para mostrar en el template
+                inquiry_form = ConsultaForm()
+        else:  # form_type == 'consulta' o cualquier otro
+            inquiry_form = ConsultaForm(request.POST)
+            if inquiry_form.is_valid():
+                consulta = inquiry_form.save(commit=False)
                 if request.user.is_authenticated:
                     consulta.usuario = request.user
                     consulta.nombre = request.user.get_full_name() or request.user.email
                     consulta.email = request.user.email
-                tipo = form.cleaned_data.get('tipo_evento')
-                evento_id = form.cleaned_data.get('evento_id')
+                tipo = inquiry_form.cleaned_data.get('tipo_evento')
+                evento_id = inquiry_form.cleaned_data.get('evento_id')
                 if tipo == 'virtual':
                     consulta.evento_virtual_id = evento_id
                 elif tipo == 'presencial':
@@ -908,10 +882,18 @@ def contacto_view(request):
                 return redirect('core:contacto')
             else:
                 messages.error(request, 'Hubo un error al enviar la consulta. Revisa los datos.')
-    else:
+                # Crear formulario de reseña vacío para mostrar en el template
+                review_form = ResenaForm()
+    else:  # GET request
         review_form = ResenaForm()
         inquiry_form = ConsultaForm()
-
+    
+    # Garantizar que ambos formularios existan antes de enviarlos al template
+    if review_form is None:
+        review_form = ResenaForm()
+    if inquiry_form is None:
+        inquiry_form = ConsultaForm()
+    
     # Convertir querysets a listas de diccionarios para json_script
     eventos_virtuales = list(
         VirtualEvent.objects.filter(estado='aprobado')
@@ -923,12 +905,12 @@ def contacto_view(request):
         .order_by('-start_date')
         .values('id', 'title')
     )
-
+    
     chat_config = {
         'available': is_chat_available(),
         'user_id': request.user.id if request.user.is_authenticated else 0,
     }
-
+    
     return render(request, 'contacto.html', {
         'review_form': review_form,
         'inquiry_form': inquiry_form,

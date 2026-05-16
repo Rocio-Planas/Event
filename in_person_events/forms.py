@@ -77,12 +77,18 @@ class EventForm(forms.ModelForm):
             'accept': 'image/*'
         })
     )
+    
+    remove_image = forms.BooleanField(
+        required=False,
+        initial=False,
+        widget=forms.HiddenInput()
+    )
 
     class Meta:
         model = Event
         fields = [
             'title', 'description', 'start_date', 'end_date', 'category',
-            'location', 'capacity', 'image', 'visibility'
+            'location', 'capacity', 'image', 'visibility', 'remove_image'
         ]
         widgets = {
             'title': forms.TextInput(attrs={
@@ -174,9 +180,9 @@ class EventForm(forms.ModelForm):
         # Solo validar fechas futuras en creación, no en edición
         if not self.instance.pk:
             if start_date and start_date < now:
-                raise forms.ValidationError("La fecha de inicio no puede ser en el pasado.")
+                self.add_error('start_date', "La fecha de inicio no puede ser en el pasado.")
             if end_date and end_date < now:
-                raise forms.ValidationError("La fecha de finalización no puede ser en el pasado.")
+                self.add_error('end_date', "La fecha de finalización no puede ser en el pasado.")
 
         if start_date and end_date and end_date <= start_date:
             raise forms.ValidationError("La fecha de finalización debe ser posterior a la fecha de inicio.")
