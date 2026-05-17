@@ -1,7 +1,6 @@
 // Stands Management - JavaScript
 
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("Stands JS loaded");
     // Initialize tooltips if Bootstrap tooltips are needed
     initializeTooltips();
 
@@ -23,17 +22,12 @@ function initializeTooltips() {
  * Setup event listeners for stand management
  */
 function setupEventListeners() {
-    console.log("Setting up event listeners");
     // "Ver Detalles" buttons are now real links, so we do not intercept their clicks here.
 
     // "Crear Stand" form submission
     const createStandForm = document.getElementById("createStandForm");
-    console.log("Create stand form:", createStandForm);
     if (createStandForm) {
         createStandForm.addEventListener("submit", handleCreateStand);
-        console.log("Event listener added to form");
-    } else {
-        console.error("Create stand form not found!");
     }
 }
 
@@ -42,8 +36,6 @@ function setupEventListeners() {
  * @param {string} standTitle - The title of the stand
  */
 function viewStandDetails(standTitle) {
-    console.log("View details for stand:", standTitle);
-    // TODO: Implement modal or redirect to stand detail page
     alert("Showing details for: " + standTitle);
 }
 
@@ -52,7 +44,6 @@ function viewStandDetails(standTitle) {
  * @param {Event} e - The form submit event
  */
 function handleCreateStand(e) {
-    console.log("Handle create stand called");
     e.preventDefault();
 
     const formData = new FormData(e.target);
@@ -88,11 +79,9 @@ function handleCreateStand(e) {
     }
     
     if (!eventId) {
-        console.error("No se pudo obtener el ID del evento");
-        alert("Error: No se pudo obtener el ID del evento");
+        showToast("Error: No se pudo obtener el ID del evento", "error");
         return;
     }
-    console.log("Event ID:", eventId);
 
     // Disable submit button
     const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -124,12 +113,11 @@ function handleCreateStand(e) {
                 // Reload page immediately
                 window.location.reload();
             } else {
-                alert(result.error || "Error al crear el stand");
+                showToast(result.error || "Error al crear el stand", "error");
             }
         })
         .catch((error) => {
-            console.error("Error:", error);
-            alert("Error de conexión");
+            showToast("Error de conexión", "error");
         })
         .finally(() => {
             // Re-enable submit button
@@ -186,11 +174,6 @@ function updateResourceStatus(resourceName, available, total) {
     if (percentage === 0) {
         status = "error"; // red
     }
-
-    console.log(
-        `Resource: ${resourceName}, Available: ${available}/${total}, Status: ${status}`,
-    );
-    // TODO: Implement real-time update of resource indicators
 }
 
 // Export functions for external use

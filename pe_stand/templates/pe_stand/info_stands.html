@@ -1,777 +1,9 @@
 {% extends "base_sidebar.html" %} {% load static %} {% block title %}Gestión de
 Stand - {{ stand.name }}{% endblock %} {% block extra_head %}
 <link rel="stylesheet" href="{% static 'pe_stand/info_stands/css/styles.css' %}">
+<script>var currentStandId = {{ stand.id }};</script>
+<script src="{% static 'pe_stand/info_stands/js/main.js' %}"></script>
 {% endblock %} {% block content %}
-<script>
-var currentStandId = {{ stand.id }};
-
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-function addSelectedStaff() {
-    var selectedCheckboxes = document.querySelectorAll('.staff-checkbox:checked');
-    var selectedUsers = Array.from(selectedCheckboxes).map(function(cb) {
-        return { user_id: cb.value, role: cb.dataset.role };
-    });
-    
-    if (selectedUsers.length === 0) return;
-    
-    var btn = document.getElementById('confirmAddStaffBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Añadiendo...';
-    
-    fetch('/stands/api/' + currentStandId + '/add-staff/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ users: selectedUsers })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.error || 'Error desconocido');
-            btn.disabled = false;
-            btn.textContent = 'Aceptar';
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-        btn.disabled = false;
-        btn.textContent = 'Aceptar';
-    });
-}
-
-function openNotificationModal(userId, userName) {
-    document.getElementById('notificationUserId').value = userId;
-    document.getElementById('notificationUserName').textContent = userName;
-    var modal = new bootstrap.Modal(document.getElementById('notificationModal'));
-    modal.show();
-}
-
-function sendNotification() {
-    var userId = document.getElementById('notificationUserId').value;
-    var title = document.getElementById('notificationTitle').value;
-    var message = document.getElementById('notificationMessage').value;
-    
-    if (!title || !message) {
-        alert('Completa todos los campos');
-        return;
-    }
-    
-    var btn = document.getElementById('sendNotificationBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Enviando...';
-    
-    fetch('/comunicacion/send/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            user_id: userId,
-            title: title,
-            message: message
-        })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            alert('Notificación enviada');
-            bootstrap.Modal.getInstance(document.getElementById('notificationModal')).hide();
-            document.getElementById('notificationTitle').value = '';
-            document.getElementById('notificationMessage').value = '';
-        } else {
-            alert(data.error || 'Error al enviar');
-        }
-        btn.disabled = false;
-        btn.textContent = 'Enviar';
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-        btn.disabled = false;
-        btn.textContent = 'Enviar';
-    });
-}
-
-document.addEventListener('change', function(e) {
-    if (e.target.classList.contains('staff-checkbox')) {
-        var anyChecked = document.querySelectorAll('.staff-checkbox:checked').length > 0;
-        document.getElementById('confirmAddStaffBtn').disabled = !anyChecked;
-    }
-    if (e.target.classList.contains('activity-checkbox')) {
-        var anyChecked = document.querySelectorAll('.activity-checkbox:checked').length > 0;
-        document.getElementById('confirmAssignActivityBtn').disabled = !anyChecked;
-    }
-    if (e.target.classList.contains('resource-checkbox')) {
-        var anyChecked = document.querySelectorAll('.resource-checkbox:checked').length > 0;
-        document.getElementById('confirmAddBtn').disabled = !anyChecked;
-    }
-});
-
-function removeStaffFromStand(userId, userName) {
-    var userIdInput = document.querySelector('#removeStaffUserId');
-    var userNameSpan = document.querySelector('#removeStaffModal #removeStaffUserName');
-    
-    console.log('userIdInput:', userIdInput);
-    console.log('userNameSpan:', userNameSpan);
-    console.log('userName:', userName);
-    
-    if (userIdInput) {
-        userIdInput.value = userId;
-    }
-    
-    if (userNameSpan) {
-        userNameSpan.textContent = userName;
-    } else {
-        console.error('userNameSpan still null');
-    }
-    
-    var modalEl = document.getElementById('removeStaffModal');
-    if (modalEl) {
-        var modal = new bootstrap.Modal(modalEl);
-        modal.show();
-    } else {
-        alert('Error: Modal no encontrado');
-    }
-}
-
-function confirmRemoveStaff() {
-    var userId = document.getElementById('removeStaffUserId').value;
-
-    fetch('/stands/api/' + currentStandId + '/remove-staff/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ user_id: userId })
-    })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
-        if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('removeStaffModal')).hide();
-            var row = document.querySelector('[data-staff-id="' + userId + '"]');
-            if (row) row.remove();
-            var container = document.getElementById('teamContainer');
-            var remainingStaff = container ? container.querySelectorAll('[data-staff-id]').length : 0;
-            var emptyState = document.getElementById('teamEmptyState');
-            if (remainingStaff === 0 && emptyState) {
-                emptyState.style.display = 'block';
-            }
-        } else {
-            alert(data.error || 'Error al remover');
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-    });
-}
-
-function addSelectedActivities() {
-    var selectedCheckboxes = document.querySelectorAll('.activity-checkbox:checked');
-    var selectedActivities = Array.from(selectedCheckboxes).map(function(cb) {
-        return { activity_id: cb.value };
-    });
-    
-    if (selectedActivities.length === 0) return;
-    
-    var btn = document.getElementById('confirmAssignActivityBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Asignando...';
-    
-    fetch('/stands/api/' + currentStandId + '/add-activities/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ activities: selectedActivities })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.error || 'Error desconocido');
-            btn.disabled = false;
-            btn.textContent = 'Asignar';
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-        btn.disabled = false;
-        btn.textContent = 'Asignar';
-    });
-}
-
-function addSelectedResources() {
-    var selectedCheckboxes = document.querySelectorAll('.resource-checkbox:checked');
-    var selectedItems = Array.from(selectedCheckboxes).map(function(cb) {
-        return cb.value;
-    });
-
-    if (selectedItems.length === 0) return;
-
-    var btn = document.getElementById('confirmAddBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Añadiendo...';
-
-    fetch('/stands/api/' + currentStandId + '/add-resources/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ item_ids: selectedItems })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('No se pudieron agregar los recursos');
-            btn.disabled = false;
-            btn.textContent = 'Añadir Seleccionados';
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-        btn.disabled = false;
-        btn.textContent = 'Añadir Seleccionados';
-    });
-}
-
-function updateQuantity(assignmentId, delta, maxStock) {
-    var currentQtySpan = document.querySelector('[data-assignment-id="' + assignmentId + '"] .assigned-val');
-    var currentQty = parseInt(currentQtySpan.textContent);
-    var newQty = currentQty + delta;
-    
-    if (newQty < 0 || newQty > maxStock) {
-        return;
-    }
-
-    fetch('/stands/' + currentStandId + '/update-resource/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ assignment_id: assignmentId, quantity: newQty })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        }
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-    });
-}
-
-function openActivityDetails(activityId, title, description, startDate, endDate, duration, location, speakerName, speakerEmail, status) {
-    document.getElementById('detailActivityId').value = activityId;
-    document.getElementById('detailActivityTitle').textContent = title;
-    document.getElementById('detailActivityDescription').textContent = description || 'Descripción no disponible';
-    document.getElementById('detailActivityTime').textContent = 'Inicio: ' + startDate;
-    document.getElementById('detailActivityDate').textContent = 'Fin: ' + endDate;
-    document.getElementById('detailActivityDuration').textContent = duration + ' min';
-    document.getElementById('detailActivityLocation').textContent = location || 'Sin ubicación';
-
-    var statusLabel = 'Programada';
-    var statusStyle = 'background-color: rgba(0, 87, 205, 0.1); color: var(--primary);';
-    if (status === 'en_curso') {
-        statusLabel = 'En curso';
-        statusStyle = 'background-color: rgba(248, 169, 0, 0.1); color: var(--warning);';
-    } else if (status === 'completada') {
-        statusLabel = 'Completada';
-        statusStyle = 'background-color: rgba(6, 167, 125, 0.1); color: var(--success);';
-    } else if (status === 'cancelada') {
-        statusLabel = 'Cancelada';
-        statusStyle = 'background-color: rgba(220, 38, 38, 0.1); color: var(--error);';
-    }
-    var statusElement = document.getElementById('detailActivityStatus');
-    statusElement.textContent = statusLabel;
-    statusElement.className = 'badge fw-bold';
-    statusElement.style.cssText = statusStyle;
-
-    if (speakerName) {
-        document.getElementById('detailActivitySpeaker').textContent = speakerName;
-        document.getElementById('detailActivitySpeakerEmail').textContent = speakerEmail || '';
-    } else {
-        document.getElementById('detailActivitySpeaker').textContent = 'Sin asignar';
-        document.getElementById('detailActivitySpeakerEmail').textContent = '';
-    }
-
-    if (!location) {
-        document.getElementById('detailActivityLocation').textContent = 'No asignada';
-    }
-
-    var modal = new bootstrap.Modal(document.getElementById('activityDetailsModal'));
-    modal.show();
-}
-
-function openEditResourceModal(assignmentId, itemName, itemCategory, currentDetails, currentRequired) {
-    document.getElementById('editAssignmentId').value = assignmentId;
-    document.getElementById('editResourceName').textContent = itemName + ' (' + itemCategory + ')';
-    document.getElementById('editReqInput').value = currentDetails || '';
-    document.getElementById('editRequiredInput').value = currentRequired || 0;
-    var modal = new bootstrap.Modal(document.getElementById('editResourceModal'));
-    modal.show();
-}
-
-function saveResourceEdit() {
-    var assignmentId = document.getElementById('editAssignmentId').value;
-    var details = document.getElementById('editReqInput').value;
-    var requiredQty = document.getElementById('editRequiredInput').value;
-    
-    if (details.length > 100) {
-        alert('El texto no puede exceder 100 caracteres');
-        return;
-    }
-    
-    var btn = document.getElementById('saveResourceEditBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
-    
-    fetch('/stands/' + currentStandId + '/update-resource/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ assignment_id: assignmentId, details: details, required_quantity: parseInt(requiredQty) || 0 })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.error || 'Error al guardar');
-        }
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-    })
-    .finally(function() {
-        btn.disabled = false;
-        btn.textContent = 'Guardar Cambios';
-    });
-}
-
-function removeResource(assignmentId) {
-    if (!confirm('¿Quitar este recurso del stand? La cantidad se liberará al stock available.')) {
-        return;
-    }
-    
-    fetch('/stands/' + currentStandId + '/delete-resource/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ assignment_id: assignmentId })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.error || 'Error al eliminar');
-        }
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-    });
-}
-
-function adjustQuantity(assignmentId, delta, button) {
-    var td = button.closest('td');
-    var span = td.querySelector('span');
-    var currentText = span.textContent.trim();
-    var parts = currentText.split(' / ');
-    var currentQty = parseInt(parts[0]) || 0;
-    var requiredQty = parseInt(parts[1]) || 0;
-    
-    var newQty = Math.max(0, currentQty + delta); // Don't go below 0
-    
-    fetch('/stands/' + currentStandId + '/update-resource/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ assignment_id: assignmentId, quantity: newQty })
-    })
-    .then(function(response) {
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.error || 'Error al actualizar cantidad');
-        }
-    })
-    .catch(function(error) {
-        console.error('Error:', error);
-        alert('Error al actualizar cantidad: ' + error.message);
-    });
-}
-
-function openMoveModal() {
-    var activityId = document.getElementById('detailActivityId').value;
-    if (!activityId) {
-        alert('Selecciona una actividad primero');
-        return;
-    }
-    var detailsModal = bootstrap.Modal.getInstance(document.getElementById('activityDetailsModal'));
-    if (detailsModal) {
-        detailsModal.hide();
-    }
-    var moveModal = new bootstrap.Modal(document.getElementById('moveActivityModal'));
-    moveModal.show();
-}
-
-function moveActivityToStand() {
-    var activityId = document.getElementById('detailActivityId').value;
-    var targetStandId = document.getElementById('moveStandSelect').value;
-
-    if (!targetStandId) {
-        alert('Selecciona un stand destino');
-        return;
-    }
-
-    var btn = document.querySelector('#moveActivityModal .btn-signature');
-    btn.disabled = true;
-    btn.textContent = 'Moviendo...';
-
-    fetch('/stands/api/' + currentStandId + '/move-activity/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ activity_id: activityId, target_stand_id: targetStandId })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            var moveModal = bootstrap.Modal.getInstance(document.getElementById('moveActivityModal'));
-            if (moveModal) moveModal.hide();
-            var detailsModal = bootstrap.Modal.getInstance(document.getElementById('activityDetailsModal'));
-            if (detailsModal) detailsModal.hide();
-            removeActivityCard(activityId);
-        } else {
-            alert(data.error || 'Error al mover la actividad');
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-    })
-    .finally(function() {
-        btn.disabled = false;
-        btn.textContent = 'Mover';
-    });
-}
-
-function deleteActivityFromStand() {
-    var activityId = document.getElementById('detailActivityId').value;
-    if (!activityId) return;
-
-    if (!confirm('¿Deseas quitar esta actividad del stand y dejar su zona como no asignada?')) {
-        return;
-    }
-
-    var btn = document.getElementById('deleteActivityBtn');
-    btn.disabled = true;
-    btn.textContent = 'Quitando...';
-
-    fetch('/stands/api/' + currentStandId + '/remove-activity/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ activity_id: activityId })
-    })
-    .then(function(response) {
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-        return response.json();
-    })
-    .then(function(data) {
-        if (data.success) {
-            var detailsModal = bootstrap.Modal.getInstance(document.getElementById('activityDetailsModal'));
-            if (detailsModal) detailsModal.hide();
-            removeActivityCard(activityId);
-        } else {
-            alert(data.error || 'Error al quitar la actividad del stand');
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-    })
-    .finally(function() {
-        btn.disabled = false;
-        btn.textContent = 'Quitar';
-    });
-}
-
-function removeActivityCard(activityId) {
-    var card = document.querySelector('[data-activity-id="' + activityId + '"]');
-    if (card) {
-        card.remove();
-    }
-    var container = document.getElementById('activitiesContainer');
-    if (container && container.querySelectorAll('.activity-card').length === 0) {
-        container.style.display = 'none';
-        var emptyDiv = document.getElementById('activitiesEmptyState');
-        if (emptyDiv) {
-            emptyDiv.style.display = 'block';
-        }
-    }
-}
-
-function filterActivities() {
-    var searchInput = document.getElementById('searchActivities');
-    var filter = searchInput.value.toLowerCase();
-    var activityCards = document.querySelectorAll('.activity-card');
-    
-    activityCards.forEach(function(card) {
-        var title = card.getAttribute('data-title') || '';
-        var titleLower = title.toLowerCase();
-        
-        if (titleLower.indexOf(filter) !== -1) {
-            card.style.display = '';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.modal').forEach(function(modal) {
-        if (!modal.hasAttribute('inert')) {
-            modal.setAttribute('inert', '');
-        }
-
-        modal.addEventListener('shown.bs.modal', function() {
-            modal.removeAttribute('inert');
-        });
-
-        modal.addEventListener('hidden.bs.modal', function() {
-            if (modal.contains(document.activeElement)) {
-                document.activeElement.blur();
-            }
-            modal.setAttribute('inert', '');
-        });
-    });
-});
-
-function openEditStandModal() {
-    console.log('openEditStandModal called');
-    
-    // Try to get data from data attributes first (most reliable)
-    var standContainer = document.querySelector('.p-4[data-stand-id]');
-    if (standContainer) {
-        var name = standContainer.getAttribute('data-stand-name');
-        var location = standContainer.getAttribute('data-stand-location');
-        var capacity = standContainer.getAttribute('data-stand-capacity');
-        
-        console.log('From data attributes - name:', name, 'location:', location, 'capacity:', capacity);
-        
-        if (name) document.getElementById('editStandName').value = name;
-        if (location) document.getElementById('editStandLocation').value = location;
-        if (capacity) document.getElementById('editStandCapacity').value = capacity;
-        
-        // If we got data from attributes, we're done
-        if (name && location && capacity) {
-            console.log('Data loaded from data attributes');
-            return;
-        }
-    }
-    
-    // Fallback: parse from DOM
-    var h2 = document.querySelector('h3.h2');
-    if (h2) {
-        document.getElementById('editStandName').value = h2.textContent.trim();
-    }
-    
-    // Find location from container with location_on icon
-    var infoContainer = document.querySelector('.d-flex.gap-3');
-    if (infoContainer) {
-        var spans = infoContainer.querySelectorAll(':scope > span');
-        for (var i = 0; i < spans.length; i++) {
-            var spanText = spans[i].textContent;
-            if (spanText.includes('location_on')) {
-                var locText = spanText.replace('location_on', '').trim();
-                document.getElementById('editStandLocation').value = locText;
-            }
-            if (spanText.includes('groups') || spanText.includes('Capacidad')) {
-                var match = spanText.match(/(\d+)/);
-                if (match) {
-                    document.getElementById('editStandCapacity').value = match[1];
-                }
-            }
-        }
-    }
-    
-    console.log('Final values - Name:', document.getElementById('editStandName').value, 'Location:', document.getElementById('editStandLocation').value, 'Capacity:', document.getElementById('editStandCapacity').value);
-}
-
-function saveStandEdit() {
-    var name = document.getElementById('editStandName').value.trim();
-    var location = document.getElementById('editStandLocation').value.trim();
-    var capacity = document.getElementById('editStandCapacity').value.trim();
-
-    if (!name || !location || !capacity) {
-        alert('Completa todos los campos.');
-        return;
-    }
-
-    var btn = document.getElementById('saveStandEditBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
-
-    fetch('/stands/api/stands/' + currentStandId + '/update/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ name: name, location: location, capacity: parseInt(capacity) })
-    })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
-        if (data.success) {
-            document.querySelector('h3.h2').textContent = data.stand.name;
-            var standDiv = document.querySelector('[data-stand-id]');
-            if (standDiv) {
-                var spans = standDiv.querySelectorAll('.d-flex.gap-3 span');
-                if (spans[0]) spans[0].innerHTML = '<span class="material-symbols-outlined fs-6">location_on</span> ' + data.stand.location;
-                if (spans[1]) spans[1].innerHTML = '<span class="material-symbols-outlined fs-6">groups</span> Capacidad: ' + data.stand.capacity;
-            }
-            bootstrap.Modal.getInstance(document.getElementById('editStandModal')).hide();
-        } else {
-            alert(data.error || 'Error al guardar');
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-    })
-    .finally(function() {
-        btn.disabled = false;
-        btn.textContent = 'Guardar Cambios';
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    var editStandModalEl = document.getElementById('editStandModal');
-    if (editStandModalEl) {
-        editStandModalEl.addEventListener('shown.bs.modal', openEditStandModal);
-    }
-});
-
-function openDeleteStandModal() {
-    var nameEl = document.getElementById('deleteStandName');
-    if (nameEl) {
-        nameEl.textContent = document.querySelector('h3.h2').textContent.trim();
-    }
-    var modalEl = document.getElementById('deleteStandModal');
-    if (modalEl) {
-        var modal = new bootstrap.Modal(modalEl);
-        modal.show();
-    }
-}
-
-function confirmDeleteStand() {
-    var btn = document.getElementById('confirmDeleteStandBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Eliminando...';
-
-    fetch('/stands/api/stands/' + currentStandId + '/delete/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
-        if (data.success) {
-            window.location.href = '/stands/' + data.event_id + '/';
-        } else {
-            alert(data.error || 'Error al eliminar');
-            btn.disabled = false;
-            btn.innerHTML = 'Sí, eliminar';
-        }
-    })
-    .catch(function(error) {
-        alert('Error de conexión');
-        btn.disabled = false;
-        btn.innerHTML = 'Sí, eliminar';
-    });
-}
-</script>
 <div class="p-4" data-event-id="{{ event_id }}" data-stand-id="{{ stand.id }}" data-stand-name="{{ stand.name }}" data-stand-location="{{ stand.location }}" data-stand-capacity="{{ stand.capacity }}">
     <a href="{% url 'pe_stand:dashboard' event_id %}" class="btn btn-link text-primary text-decoration-none mb-3 d-flex align-items-center gap-1 p-0">
         <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> <span data-i18n="back">Volver</span>
@@ -1065,7 +297,7 @@ function confirmDeleteStand() {
                                         class="btn btn-link btn-sm p-0 text-danger"
                                         title="Quitar recurso"
                                         data-i18n-title="remove_resource_tooltip"
-                                        onclick="removeResource('{{ assignment.id }}')"
+                                        onclick="openRemoveResourceModal('{{ assignment.id }}')"
                                     >
                                         <span class="material-symbols-outlined fs-6">delete</span>
                                     </button>
@@ -1207,6 +439,7 @@ function confirmDeleteStand() {
                             type="number"
                             id="editRequiredInput"
                             class="form-control rounded-3"
+                            style="background-color: var(--surface-container-high);"
                             min="0"
                             value="0"
                         />
@@ -1220,6 +453,7 @@ function confirmDeleteStand() {
                             type="text"
                             id="editReqInput"
                             class="form-control rounded-3"
+                            style="background-color: var(--surface-container-high);"
                             maxlength="100"
                             placeholder="Ej. Sala VIP, Entrada principal"
                         />
@@ -1403,7 +637,7 @@ function confirmDeleteStand() {
                             type="button"
                             id="deleteActivityBtn"
                             class="btn btn-outline-danger flex-grow-1 rounded-3"
-                            onclick="deleteActivityFromStand()"
+                            onclick="openRemoveActivityModal()"
                         >
                             <span
                                 class="material-symbols-outlined fs-6 me-1 align-middle"
@@ -1419,6 +653,25 @@ function confirmDeleteStand() {
                     >
                         Cerrar Detalles
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="removeActivityModal" tabindex="-1" aria-labelledby="removeActivityModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5 class="modal-title fw-bold text-danger" id="removeActivityModalLabel" data-i18n="remove_activity_title">Quitar Actividad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <input type="hidden" id="removeActivityId">
+                    <p>¿Estás seguro de que deseas quitar esta actividad del stand? La zona quedara como no asignada.</p>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" class="btn btn-danger rounded-3 px-4" onclick="confirmDeleteActivityFromStand()" data-i18n="remove">Quitar</button>
                 </div>
             </div>
         </div>
@@ -1464,11 +717,11 @@ function confirmDeleteStand() {
                     <input type="hidden" id="notificationUserId">
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted" data-i18n="subject_label">ASUNTO</label>
-                        <input type="text" id="notificationTitle" class="form-control rounded-3" placeholder="Ej. Información importante" data-i18n-placeholder="subject_placeholder">
+                        <input type="text" id="notificationTitle" class="form-control rounded-3" style="background-color: var(--surface-container-high);" placeholder="Ej. Información importante" data-i18n-placeholder="subject_placeholder">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted" data-i18n="message_label">MENSAJE</label>
-                        <textarea id="notificationMessage" class="form-control rounded-3" rows="4" placeholder="Escribe tu mensaje..." data-i18n-placeholder="message_placeholder"></textarea>
+                        <textarea id="notificationMessage" class="form-control rounded-3" style="background-color: var(--surface-container-high);" rows="4" placeholder="Escribe tu mensaje..." data-i18n-placeholder="message_placeholder"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
@@ -1498,6 +751,25 @@ function confirmDeleteStand() {
         </div>
     </div>
 
+    <div class="modal fade" id="removeResourceModal" tabindex="-1" aria-labelledby="removeResourceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5 class="modal-title fw-bold text-danger" id="removeResourceModalLabel" data-i18n="remove_resource_title">Eliminar Recurso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <input type="hidden" id="removeResourceAssignmentId">
+                    <p>¿Estás seguro de que deseas eliminar este recurso del stand? La cantidad se liberará al stock available.</p>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel">Cancelar</button>
+                    <button type="button" class="btn btn-danger rounded-3 px-4" onclick="confirmRemoveResource()" data-i18n="remove">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="editStandModal" tabindex="-1" aria-labelledby="editStandModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow">
@@ -1508,15 +780,15 @@ function confirmDeleteStand() {
                 <div class="modal-body px-4 pb-4">
                     <div class="mb-3">
                         <label class="form-label small fw-bold" style="color: var(--text-on-surface-variant);" data-i18n="stand_name_label">NOMBRE DEL STAND</label>
-                        <input type="text" id="editStandName" class="form-control rounded-3" placeholder="Ej. Stand Principal" data-i18n-placeholder="stand_name_placeholder" maxlength="200">
+                        <input type="text" id="editStandName" class="form-control rounded-3" style="background-color: var(--surface-container-high);" placeholder="Ej. Stand Principal" data-i18n-placeholder="stand_name_placeholder" maxlength="200">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold" style="color: var(--text-on-surface-variant);" data-i18n="location_label">UBICACIÓN</label>
-                        <input type="text" id="editStandLocation" class="form-control rounded-3" placeholder="Ej. Zona A, Piso 1" data-i18n-placeholder="location_placeholder" maxlength="200">
+                        <input type="text" id="editStandLocation" class="form-control rounded-3" style="background-color: var(--surface-container-high);" placeholder="Ej. Zona A, Piso 1" data-i18n-placeholder="location_placeholder" maxlength="200">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold" style="color: var(--text-on-surface-variant);" data-i18n="capacity_label_form">CAPACIDAD</label>
-                        <input type="number" id="editStandCapacity" class="form-control rounded-3" placeholder="Ej. 50" data-i18n-placeholder="capacity_placeholder" min="1">
+                        <input type="number" id="editStandCapacity" class="form-control rounded-3" style="background-color: var(--surface-container-high);" placeholder="Ej. 50" data-i18n-placeholder="capacity_placeholder" min="1">
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4">
@@ -1536,7 +808,7 @@ function confirmDeleteStand() {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
-                    <p class="mb-2" data-i18n="delete_stand_confirm">¿Estás seguro de que deseas eliminar el stand <strong id="deleteStandName"></strong>?</p>
+                    <p class="mb-2" data-i18n="delete_stand_confirm">¿Estás seguro de que deseas eliminar el stand?</p>
                     <p class="text-muted small mb-0" data-i18n="delete_stand_warning">Esta acción eliminará el stand y todas sus asignaciones. No se pueden deshacer los cambios.</p>
                 </div>
                 <div class="modal-footer border-top-0 px-4 pb-4">
