@@ -217,7 +217,7 @@ def event_delete(request, pk):
         event_title = event.title
         event.delete()
         messages.success(request, f'Evento "{event_title}" eliminado.')
-        return redirect("core:home")
+        return redirect("usuarios:perfil")
     return render(request, "virtualEvents/event_confirm_delete.html", {"event": event})
 
 
