@@ -307,7 +307,7 @@ def edit_event(request, event_id):
                         price=t_data.get('price', 0)
                     )
                 
-                # Find default ticket (lowest price)
+# Find default ticket (lowest price)
                 default_ticket = event.ticket_types.order_by('price').first()
                 
                 # Reassign registrations with deleted ticket
@@ -320,6 +320,7 @@ def edit_event(request, event_id):
                             reg.save(update_fields=['ticket_type'])
                             reassigned_count += 1
                 
+                messages.success(request, 'Evento actualizado correctamente.')
                 return redirect('in_person_events:dashboard_organizer', event_id=event.id)
                 
             except json.JSONDecodeError as e:
