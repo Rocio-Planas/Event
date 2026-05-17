@@ -470,6 +470,8 @@ def send_announcement(request, event_id):
         message = request.POST.get('message', '').strip()
         
         if not title or not message:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': 'El título y el mensaje son obligatorios.'})
             messages.error(request, 'El título y el mensaje son obligatorios.')
             return redirect('in_person_events:dashboard_organizer', event_id=event.id)
         
@@ -498,6 +500,9 @@ def send_announcement(request, event_id):
                         print(f"Error sending email to {registration.user.email}: {e}")
                 
                 sent_count += 1
+        
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': f'Anuncio enviado a {sent_count} asistente(s).', 'sent_count': sent_count})
         
         messages.success(request, f'Anuncio enviado a {sent_count} asistente(s).')
     

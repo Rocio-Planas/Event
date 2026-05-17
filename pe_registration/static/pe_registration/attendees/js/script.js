@@ -7,10 +7,8 @@ if (!eventId) {
     const container = document.querySelector("[data-event-id]");
     if (container) {
         eventId = container.getAttribute("data-event-id");
-        console.log("EventId obtenido del data-attribute:", eventId);
     }
 }
-console.log("EventId inicial:", eventId);
 
 // Paginación
 let currentPage = 1;
@@ -262,14 +260,13 @@ async function deleteAttendee() {
                 bootstrap.Modal.getInstance(modalElement)?.hide();
             }
             deleteRegistrationId = null;
+            showToast('Asistente eliminado correctamente.', 'success');
             loadAttendees();
         } else {
-            console.error("Error eliminando asistente:", data);
-            alert(data.error || "No se pudo eliminar el asistente.");
+            showToast(data.error || "No se pudo eliminar el asistente.", 'error');
         }
     } catch (error) {
-        console.error("Error eliminando asistente:", error);
-        alert("Ocurrió un error al eliminar el asistente.");
+        showToast("Ocurrió un error al eliminar el asistente.", 'error');
     }
 }
 
@@ -304,13 +301,6 @@ if (confirmDeleteBtn) {
 
 // Cargar datos desde API
 async function loadAttendees() {
-    console.log(
-        "Iniciando loadAttendees(), eventId:",
-        eventId,
-        "filters:",
-        filters,
-    );
-
     try {
         const params = new URLSearchParams({
             search: filters.search,
@@ -321,23 +311,17 @@ async function loadAttendees() {
         }
 
         const url = `/tickets/api/attendees/${eventId}/?${params}`;
-        console.log("URL del fetch:", url);
 
         const response = await fetch(url);
-        console.log("Response status:", response.status, response.statusText);
 
         const data = await response.json();
-        console.log("Datos recibidos:", data);
 
         if (data.success) {
             attendeesData = data.attendees;
-            console.log("Asistentes cargados:", attendeesData.length);
             renderTable();
-        } else {
-            console.warn("La respuesta no fue exitosa:", data);
         }
     } catch (error) {
-        console.error("Error loading attendees:", error);
+        showToast('Error al cargar asistentes', 'error');
     }
 }
 
@@ -409,23 +393,16 @@ function toggleWaitlistView(isWaitlist) {
 }
 
 function loadWaitlist() {
-    console.log("Cargando waitlist para eventId:", eventId);
     const url = `/tickets/api/waitlist/${eventId}/`;
     fetch(url)
-        .then((res) => {
-            console.log("Response status:", res.status);
-            return res.json();
-        })
+        .then((res) => res.json())
         .then((data) => {
-            console.log("Waitlist data:", data);
-            console.log("waitlistData:", data.waitlist);
             waitlistData = data.waitlist || [];
-            console.log("waitlistData длиnа:", waitlistData.length);
             renderWaitlistTable();
             document.getElementById("totalWaitlist").textContent =
                 waitlistData.length;
         })
-        .catch((err) => console.error("Error cargando waitlist:", err));
+        .catch((err) => showToast('Error al cargar lista de espera', 'error'));
 }
 
 function renderWaitlistTable() {
@@ -526,10 +503,10 @@ function doPromoteFromWaitlist() {
                 loadWaitlist();
                 loadAttendees();
             } else {
-                alert(data.error || "Error al promover");
+                showToast(data.error || "Error al promover", 'error');
             }
         })
-        .catch((err) => console.error("Error:", err));
+        .catch((err) => showToast("Error al promover", 'error'));
 }
 
 function removeFromWaitlist(waitlistId) {
@@ -560,12 +537,13 @@ function doRemoveFromWaitlist(waitlistId) {
         .then((res) => res.json())
         .then((data) => {
             if (data.success) {
+                showToast('Eliminado de la lista de espera.', 'success');
                 loadWaitlist();
             } else {
-                alert(data.error || "Error al eliminar");
+                showToast(data.error || "Error al eliminar", 'error');
             }
         })
-        .catch((err) => console.error("Error:", err));
+        .catch((err) => showToast("Error al eliminar", 'error'));
 }
 
 // Inicializar
