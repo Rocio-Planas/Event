@@ -2,6 +2,23 @@
 {% load static %}
 {% block title %}Reseñas Pendientes - EventPulse{% endblock %}
 
+{% block extra_css %}
+<style>
+    .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        transition: opacity 0.2s ease;
+    }
+    .modal-content {
+        transform: scale(0.95);
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .modal-backdrop:not(.hidden) .modal-content {
+        transform: scale(1);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-6">
@@ -51,7 +68,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex gap-2">
                                 <a href="{% url 'core:admin_aprobar_resena' resena.id %}" class="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition" data-i18n="admin_panel_approve">Aprobar</a>
-                                <a href="{% url 'core:admin_rechazar_resena' resena.id %}" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition" data-i18n="admin_panel_reject_event">Rechazar</a>
+                                <button type="button" class="reject-review-btn px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition" data-review-id="{{ resena.id }}" data-review-name="{{ resena.nombre }}" data-i18n="admin_panel_reject_event">Rechazar</button>
                             </div>
                         </td>
                     </tr>
@@ -80,4 +97,88 @@
     </div>
     {% endif %}
 </div>
+
+<!-- Modal de confirmación para rechazar reseña -->
+<div id="rejectReviewModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" style="background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
+    <div class="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-200 scale-95 opacity-0 modal-content">
+        <div class="p-6 text-center">
+            <div class="mx-auto w-14 h-14 mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                <span class="material-symbols-outlined text-red-600 text-3xl">warning</span>
+            </div>
+            <h3 class="text-xl font-bold text-on-surface mb-2">¿Rechazar reseña?</h3>
+            <p class="text-on-surface-variant mb-4" id="rejectReviewModalMessage">Esta acción no se puede deshacer. La reseña será rechazada y eliminada.</p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button id="cancelRejectReviewBtn" class="px-5 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant font-semibold hover:bg-surface-container-high transition w-full sm:w-auto">
+                    Cancelar
+                </button>
+                <form id="rejectReviewForm" method="post" action="" class="w-full sm:w-auto">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition shadow-sm">
+                        Sí, rechazar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Modal de rechazo de reseña
+    const rejectModal = document.getElementById('rejectReviewModal');
+    const rejectModalContent = rejectModal?.querySelector('.modal-content');
+    const rejectForm = document.getElementById('rejectReviewForm');
+    const cancelRejectBtn = document.getElementById('cancelRejectReviewBtn');
+
+    function openRejectModal(reviewUrl, reviewName) {
+        if (rejectForm) rejectForm.action = reviewUrl;
+        const messageEl = document.getElementById('rejectReviewModalMessage');
+        if (messageEl && reviewName) {
+            messageEl.innerHTML = `¿Rechazar la reseña de "${reviewName}"? Esta acción no se puede deshacer.`;
+        }
+        if (rejectModal) {
+            rejectModal.classList.remove('hidden');
+            rejectModal.classList.add('flex');
+            setTimeout(() => {
+                if (rejectModalContent) {
+                    rejectModalContent.classList.remove('scale-95', 'opacity-0');
+                    rejectModalContent.classList.add('scale-100', 'opacity-100');
+                }
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeRejectModal() {
+        if (rejectModalContent) {
+            rejectModalContent.classList.remove('scale-100', 'opacity-100');
+            rejectModalContent.classList.add('scale-95', 'opacity-0');
+        }
+        setTimeout(() => {
+            if (rejectModal) {
+                rejectModal.classList.remove('flex');
+                rejectModal.classList.add('hidden');
+            }
+            document.body.style.overflow = '';
+        }, 200);
+    }
+
+    if (cancelRejectBtn) cancelRejectBtn.addEventListener('click', closeRejectModal);
+    if (rejectModal) rejectModal.addEventListener('click', (e) => {
+        if (e.target === rejectModal) closeRejectModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && rejectModal && !rejectModal.classList.contains('hidden')) closeRejectModal();
+    });
+
+    // Configurar botones de rechazo
+    document.querySelectorAll('.reject-review-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const reviewId = this.dataset.reviewId;
+            const reviewName = this.dataset.reviewName;
+            const rejectUrl = "{% url 'core:admin_rechazar_resena' 0 %}".replace('0', reviewId);
+            openRejectModal(rejectUrl, reviewName);
+        });
+    });
+</script>
 {% endblock %}
