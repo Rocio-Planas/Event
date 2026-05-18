@@ -4,12 +4,9 @@ let invitationsData = window.invitationsData || [];
 let activitiesData = window.activitiesData || [];
 let activitiesMap = window.activitiesMap || {};
 let eventId = window.eventId || null;
-
-console.log("Loaded - membersData:", membersData.length, "activitiesData:", activitiesData.length);
-
 // Resolver nombres de actividades en la tabla al cargar
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll(".zone-cell").forEach(function(cell) {
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".zone-cell").forEach(function (cell) {
         const zone = cell.getAttribute("data-zone");
         const userType = cell.getAttribute("data-user-type");
         if (zone && userType === "ponente" && zone.startsWith("actividad:")) {
@@ -46,12 +43,12 @@ document
         const role = document.getElementById("inviteRole").value;
 
         if (!email) {
-            alert("Por favor ingresa un correo electrónico");
+            showToast("Por favor ingresa un correo electrónico", "error");
             return;
         }
 
         if (userType === "staff" && !role) {
-            alert("Por favor selecciona un rol para el staff");
+            showToast("Por favor selecciona un rol para el staff", "error");
             return;
         }
 
@@ -72,19 +69,19 @@ document
             const data = await response.json();
 
             if (data.success) {
-                alert("¡Invitación enviada con éxito!");
+                showToast("¡Invitación enviada con éxito!", "success");
                 // Cerrar modal y recargar
                 const modal = bootstrap.Modal.getInstance(
                     document.getElementById("inviteStaffModal"),
                 );
                 modal.hide();
-                window.location.reload();
+                setTimeout(() => window.location.reload(), 600);
             } else {
-                alert(data.error || "Error al enviar invitación");
+                showToast(data.error || "Error al enviar invitación", "error");
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("Error al enviar invitación");
+            showToast("Error al enviar invitación", "error");
         }
     });
 
@@ -96,20 +93,16 @@ document
 
         const memberId = document.getElementById("memberId").value;
         const memberType = document.getElementById("memberType").value;
-        
-        console.log("Submit - memberId:", memberId, "memberType:", memberType);
-
         if (!memberId) {
-            alert("Datos incompletos");
+            showToast("Datos incompletos", "error");
             return;
         }
 
         if (memberType === "ponente") {
             // Asignar actividad al ponente
             const activityId = document.getElementById("activitySelect").value;
-            console.log("Ponente - activityId:", activityId);
             if (!activityId) {
-                alert("Selecciona una actividad");
+                showToast("Selecciona una actividad", "error");
                 return;
             }
 
@@ -127,10 +120,8 @@ document
                 );
 
                 const data = await response.json();
-                console.log("Response:", data);
-
                 if (data.success) {
-                    alert("¡Actividad asignada correctamente!");
+                    showToast("¡Actividad asignada correctamente!", "success");
                     // Actualizar la tabla sin recargar
                     const row = document.querySelector(
                         `tr[data-member-id="${memberId}"]`,
@@ -138,10 +129,18 @@ document
                     if (row) {
                         const zoneCell = row.querySelector("td.zone-cell");
                         if (zoneCell) {
-                            const selectedOption = document.getElementById("activitySelect").selectedOptions[0];
+                            const selectedOption =
+                                document.getElementById("activitySelect")
+                                    .selectedOptions[0];
                             zoneCell.textContent = selectedOption.textContent;
-                            zoneCell.setAttribute("data-zone", "actividad:" + activityId);
-                            zoneCell.setAttribute("data-activity-title", selectedOption.textContent);
+                            zoneCell.setAttribute(
+                                "data-zone",
+                                "actividad:" + activityId,
+                            );
+                            zoneCell.setAttribute(
+                                "data-activity-title",
+                                selectedOption.textContent,
+                            );
                             zoneCell.setAttribute("data-user-type", "ponente");
                         }
                     }
@@ -151,17 +150,20 @@ document
                     );
                     if (modal) modal.hide();
                 } else {
-                    alert(data.error || "Error al asignar actividad");
+                    showToast(
+                        data.error || "Error al asignar actividad",
+                        "error",
+                    );
                 }
             } catch (error) {
                 console.error("Error:", error);
-                alert("Error al asignar actividad");
+                showToast("Error al asignar actividad", "error");
             }
         } else {
             // Asignar zona al staff
             const standId = document.getElementById("standSelect").value;
             if (!standId) {
-                alert("Selecciona una zona");
+                showToast("Selecciona una zona", "error");
                 return;
             }
 
@@ -181,7 +183,7 @@ document
                 const data = await response.json();
 
                 if (data.success) {
-                    alert("¡Zona asignada correctamente!");
+                    showToast("¡Zona asignada correctamente!", "success");
                     // Actualizar la tabla sin recargar
                     const row = document.querySelector(
                         `tr[data-member-id="${memberId}"]`,
@@ -203,11 +205,11 @@ document
                     );
                     if (modal) modal.hide();
                 } else {
-                    alert(data.error || "Error al asignar zona");
+                    showToast(data.error || "Error al asignar zona", "error");
                 }
             } catch (error) {
                 console.error("Error:", error);
-                alert("Error al asignar zona");
+                showToast("Error al asignar zona", "error");
             }
         }
     });
@@ -219,38 +221,43 @@ document
         const button = event.relatedTarget;
         const memberId = button?.getAttribute("data-member-id");
         const memberType = button?.getAttribute("data-member-type") || "staff";
-        
+
         document.getElementById("memberId").value = memberId || "";
         document.getElementById("memberType").value = memberType;
-        
-        const zoneSelectContainer = document.getElementById("zoneSelectContainer");
-        const activitySelectContainer = document.getElementById("activitySelectContainer");
+
+        const zoneSelectContainer = document.getElementById(
+            "zoneSelectContainer",
+        );
+        const activitySelectContainer = document.getElementById(
+            "activitySelectContainer",
+        );
         const modalLabel = document.getElementById("assignZoneModalLabel");
         const assignBtn = document.getElementById("assignZoneBtn");
-        
+
         if (memberType === "ponente") {
             // Mostrar selector de actividades
             modalLabel.textContent = "Asignar Actividad";
             assignBtn.textContent = "Asignar Actividad";
             zoneSelectContainer.style.display = "none";
             activitySelectContainer.style.display = "block";
-            
+
             // Cambiar label de actividad
-            document.querySelector('label[for="activitySelect"]').textContent = "Selecciona una Actividad";
-            
+            document.querySelector('label[for="activitySelect"]').textContent =
+                "Selecciona una Actividad";
+
             const activitySelect = document.getElementById("activitySelect");
-            console.log("Activities data:", activitiesData);
             if (activitiesData && activitiesData.length > 0) {
-                activitySelect.innerHTML = '<option value="">Selecciona una actividad</option>';
+                activitySelect.innerHTML =
+                    '<option value="">Selecciona una actividad</option>';
                 activitiesData.forEach((activity) => {
-                    console.log("Activity:", activity);
                     const option = document.createElement("option");
                     option.value = activity.id;
                     option.textContent = activity.title || activity;
                     activitySelect.appendChild(option);
                 });
             } else {
-                activitySelect.innerHTML = '<option value="">No hay actividades disponibles</option>';
+                activitySelect.innerHTML =
+                    '<option value="">No hay actividades disponibles</option>';
             }
         } else {
             // Mostrar selector de zonas
@@ -258,18 +265,19 @@ document
             assignBtn.textContent = "Asignar Zona";
             zoneSelectContainer.style.display = "block";
             activitySelectContainer.style.display = "none";
-            
+
             // Cambiar label de zona usando traducciones
-            const t = (window.translations && window.translations[window.currentLang]) || window.translations.es;
+            const t =
+                (window.translations &&
+                    window.translations[window.currentLang]) ||
+                window.translations.es;
             if (t && t.select_zone_stand) {
-                document.querySelector('label[for="standSelect"]').textContent = t.select_zone_stand;
+                document.querySelector('label[for="standSelect"]').textContent =
+                    t.select_zone_stand;
             }
 
             // Cargar los stands disponibles
             const url = `/equipo/staff/${eventId}/stands/`;
-            console.log("Intentando cargar stands desde:", url);
-            console.log("Event ID:", eventId);
-
             try {
                 const response = await fetch(url, {
                     method: "GET",
@@ -278,20 +286,15 @@ document
                         "X-CSRFToken": getCSRFToken(),
                     },
                 });
-
-                console.log("Response status:", response.status);
-
                 const data = await response.json();
-                console.log("Response data:", data);
-
                 if (data.success && data.stands) {
-                    const selectElement = document.getElementById("standSelect");
-                    const t = (window.translations && window.translations[window.currentLang]) || window.translations.es;
-                    selectElement.innerHTML =
-                        `<option value="">${t.select_zone_stand || "Selecciona una zona/stand"}</option>`;
-
-                    console.log("Stands recibidos:", data.stands.length);
-
+                    const selectElement =
+                        document.getElementById("standSelect");
+                    const t =
+                        (window.translations &&
+                            window.translations[window.currentLang]) ||
+                        window.translations.es;
+                    selectElement.innerHTML = `<option value="">${t.select_zone_stand || "Selecciona una zona/stand"}</option>`;
                     data.stands.forEach((stand) => {
                         const option = document.createElement("option");
                         option.value = stand.id;
@@ -300,18 +303,23 @@ document
                         selectElement.appendChild(option);
                     });
                 } else {
-                    const selectElement = document.getElementById("standSelect");
-                    const t = (window.translations && window.translations[window.currentLang]) || window.translations.es;
-                    selectElement.innerHTML =
-                        `<option value="">${t.no_zones_available || "No hay zonas disponibles"}</option>`;
+                    const selectElement =
+                        document.getElementById("standSelect");
+                    const t =
+                        (window.translations &&
+                            window.translations[window.currentLang]) ||
+                        window.translations.es;
+                    selectElement.innerHTML = `<option value="">${t.no_zones_available || "No hay zonas disponibles"}</option>`;
                     console.warn("Sin stands o error:", data);
                 }
             } catch (error) {
                 console.error("Error cargando stands:", error);
                 const selectElement = document.getElementById("standSelect");
-                const t = (window.translations && window.translations[window.currentLang]) || window.translations.es;
-                selectElement.innerHTML =
-                    `<option value="">${t.error_loading_zones || "Error al cargar zonas"}</option>`;
+                const t =
+                    (window.translations &&
+                        window.translations[window.currentLang]) ||
+                    window.translations.es;
+                selectElement.innerHTML = `<option value="">${t.error_loading_zones || "Error al cargar zonas"}</option>`;
             }
         }
     });
@@ -351,7 +359,8 @@ document.addEventListener("click", async function (event) {
 
     const cancelModalEl = document.getElementById("cancelInvitationModal");
     const cancelModal = new bootstrap.Modal(cancelModalEl);
-    document.getElementById("cancelInvitationName").textContent = invitationName;
+    document.getElementById("cancelInvitationName").textContent =
+        invitationName;
     document.getElementById("confirmCancelInvitationBtn").dataset.invitationId =
         invitationId;
     cancelModal.show();
@@ -373,13 +382,17 @@ document.addEventListener("click", async function (event) {
                 const data = await response.json();
                 if (data.success) {
                     cancelModal.hide();
-                    window.location.reload();
+                    showToast("Invitación cancelada correctamente.", "success");
+                    setTimeout(() => window.location.reload(), 600);
                 } else {
-                    alert(data.error || "Error al cancelar la invitación");
+                    showToast(
+                        data.error || "Error al cancelar la invitación",
+                        "error",
+                    );
                 }
             } catch (error) {
                 console.error("Error:", error);
-                alert("Error al cancelar la invitación");
+                showToast("Error al cancelar la invitación", "error");
             }
         };
 });
@@ -425,11 +438,14 @@ document.addEventListener("click", async function (event) {
                     deleteModal.hide();
                     window.location.reload();
                 } else {
-                    alert(data.error || "Error al eliminar la invitación");
+                    showToast(
+                        data.error || "Error al eliminar la invitación",
+                        "error",
+                    );
                 }
             } catch (error) {
                 console.error("Error:", error);
-                alert("Error al eliminar la invitación");
+                showToast("Error al eliminar la invitación", "error");
             }
         };
 });
@@ -443,45 +459,58 @@ document.addEventListener("click", function (event) {
         viewBtn.dataset.memberName || "";
     document.getElementById("viewMemberEmail").textContent =
         viewBtn.dataset.memberEmail || "";
-    
+
     // Mostrar tipo de usuario (con rol si es staff)
     const memberType = viewBtn.dataset.memberType || "";
     const memberRole = viewBtn.dataset.memberRole || "";
-    
+
     if (memberType === "Staff" && memberRole) {
-        document.getElementById("viewMemberType").textContent = memberType + " (" + memberRole + ")";
+        document.getElementById("viewMemberType").textContent =
+            memberType + " (" + memberRole + ")";
     } else {
         document.getElementById("viewMemberType").textContent = memberType;
     }
-    
+
     // Zona o Actividad
     let zoneText = viewBtn.dataset.memberZone || "";
     const userType = viewBtn.dataset.memberUserType || "";
-    
+
     if (userType === "ponente") {
         // Si tiene prefijo actividad:, resolver el nombre
         if (zoneText.startsWith("actividad:")) {
-            const activityTitle = viewBtn.dataset.memberActivityTitle || activitiesMap[parseInt(zoneText.replace("actividad:", ""))] || zoneText;
+            const activityTitle =
+                viewBtn.dataset.memberActivityTitle ||
+                activitiesMap[parseInt(zoneText.replace("actividad:", ""))] ||
+                zoneText;
             zoneText = activityTitle;
         }
-        document.getElementById("viewMemberZone").textContent = zoneText || "No asignada";
+        document.getElementById("viewMemberZone").textContent =
+            zoneText || "No asignada";
     } else {
-        document.getElementById("viewMemberZone").textContent = zoneText || "No asignada";
+        document.getElementById("viewMemberZone").textContent =
+            zoneText || "No asignada";
     }
-    
+
     // Teléfono
-    document.getElementById("viewMemberPhone").textContent = viewBtn.dataset.memberPhone || "No disponible";
-    
+    document.getElementById("viewMemberPhone").textContent =
+        viewBtn.dataset.memberPhone || "No disponible";
+
     // Redes sociales
     const twitter = viewBtn.dataset.memberTwitter || "";
     const instagram = viewBtn.dataset.memberInstagram || "";
     const linkedin = viewBtn.dataset.memberLinkedin || "";
     const website = viewBtn.dataset.memberWebsite || "";
-    
-    document.getElementById("viewMemberTwitter").textContent = twitter ? "@" + twitter : "No disponible";
-    document.getElementById("viewMemberInstagram").textContent = instagram ? "@" + instagram : "No disponible";
-    document.getElementById("viewMemberLinkedin").textContent = linkedin || "No disponible";
-    document.getElementById("viewMemberWebsite").textContent = website || "No disponible";
+
+    document.getElementById("viewMemberTwitter").textContent = twitter
+        ? "@" + twitter
+        : "No disponible";
+    document.getElementById("viewMemberInstagram").textContent = instagram
+        ? "@" + instagram
+        : "No disponible";
+    document.getElementById("viewMemberLinkedin").textContent =
+        linkedin || "No disponible";
+    document.getElementById("viewMemberWebsite").textContent =
+        website || "No disponible";
 });
 
 // Ver invitaciones aceptadas
@@ -541,18 +570,23 @@ document.addEventListener("click", async function (event) {
                 const data = await response.json();
                 if (data.success) {
                     deleteModal.hide();
-                    window.location.reload();
+                    showToast("Miembro eliminado correctamente.", "success");
+                    setTimeout(() => window.location.reload(), 600);
+                } else {
+                    showToast(
+                        data.error || "Error al eliminar el miembro",
+                        "error",
+                    );
                 }
             } catch (error) {
                 console.error("Error:", error);
+                showToast("Error al eliminar el miembro", "error");
             }
         };
 });
 
 // Inicializar
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("Staff management initialized");
-
     // Filtros
     const searchInput = document.getElementById("searchMember");
     const roleSelect = document.getElementById("filterRole");
@@ -572,13 +606,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const rows = tableBody.querySelectorAll(
             "tr[data-member-id], tr[data-invitation-id]",
         );
-
-        console.log("Filtrando:", {
-            searchTerm,
-            selectedRole,
-            selectedStatus,
-            rowCount: rows.length,
-        });
 
         let totalMembers = 0;
         let activeMembers = 0;
@@ -653,15 +680,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const paginationInfo = document.getElementById("paginationInfo");
 
         if (paginationInfo) {
-            console.log('window.translations:', window.translations);
             const t = window.translations?.es || window.translations;
-            console.log('t:', t);
-            console.log('t.showing_members:', t?.showing_members);
-            console.log('t.member_singular:', t?.member_singular);
-            const showingText = t?.showing_members || 'Mostrando';
-            const membersText = totalMembers === 1 ? (t?.member_singular || 'miembro') : (t?.members_count || 'miembros');
+            const showingText = t?.showing_members || "Mostrando";
+            const membersText =
+                totalMembers === 1
+                    ? t?.member_singular || "miembro"
+                    : t?.members_count || "miembros";
             paginationInfo.textContent = `${showingText} ${totalMembers} ${membersText}`;
-            console.log('Final text:', paginationInfo.textContent);
         }
     }
 
@@ -670,5 +695,4 @@ document.addEventListener("DOMContentLoaded", function () {
     statusSelect.addEventListener("change", filterTable);
 
     filterTable();
-    console.log("Filtros inicializados correctamente");
 });
