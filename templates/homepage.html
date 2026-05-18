@@ -27,6 +27,35 @@
             width: 100% !important;
         }
     }
+    .toast {
+        min-width: 250px;
+        background: var(--surface-container-lowest);
+        color: var(--text-on-surface);
+        border-left: 4px solid var(--primary);
+        border-radius: 12px;
+        padding: 12px 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateX(120%);
+        transition: transform 0.3s ease;
+        pointer-events: none;
+    }
+    .toast.show {
+        transform: translateX(0);
+    }
+    .toast.success {
+        border-left-color: #10b981;
+    }
+    .toast.error {
+        border-left-color: #ef4444;
+    }
+    .toast.info {
+        border-left-color: var(--primary);
+    }
 </style>
 {% endblock %}
 
@@ -77,7 +106,6 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for evento in eventos %}
             <div class="rounded-xl shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow relative" style="background-color: var(--surface-container-lowest); border: 1px solid var(--border-outline-variant);">
-                <!-- Enlace a detalle -->
                 <a href="{{ evento.url_detalle }}" class="absolute inset-0 z-10"></a>
                 
                 <div class="h-48 overflow-hidden">
@@ -91,7 +119,6 @@
                         </span>
                     </div>
 
-                    <!-- Calificación + corazón -->
                     <div class="flex items-center justify-between mt-2">
                         <div class="flex items-center gap-1">
                             <span class="material-symbols-outlined text-yellow-500 text-base" style="font-variation-settings: 'FILL' 1;">star</span>
@@ -115,7 +142,6 @@
                         {% endif %}
                     </div>
 
-                    <!-- Botones de acción -->
                     <div class="flex flex-col gap-2 mt-4 relative z-20">
                         {% if user.is_authenticated %}
                             {% if evento.creado_por != user.id %}
@@ -142,9 +168,7 @@
                             <a href="{% url 'usuarios:login' %}" class="w-full py-2.5 bg-primary text-white rounded-xl text-sm font-semibold text-center hover:opacity-90 transition relative z-20" data-i18n="login_to_subscribe">Iniciar sesión</a>
                         {% endif %}
 
-                        <!-- Botones: Compartir y Detalles (CORREGIDO) -->
                         <div class="flex gap-2">
-                            <!-- Compartir (abre modal único) -->
                             <button class="flex-1 py-2.5 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition relative z-20"
                                 style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);"
                                 data-event-title="{{ evento.titulo }}"
@@ -152,7 +176,6 @@
                                 onclick="event.stopPropagation(); openShareModal(this.dataset);">
                                 <i class="bi bi-share-fill"></i> <span data-i18n="share_btn">Compartir</span>
                             </button>
-                            <!-- Ver detalles -->
                             <a href="{{ evento.url_detalle }}" class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition text-center relative z-20" style="background-color: var(--surface-container-high); color: var(--text-on-surface-variant);" data-i18n="view_reviews">
                                 <span class="material-symbols-outlined text-base align-middle">info</span> Detalles
                             </a>
@@ -163,7 +186,6 @@
             {% endfor %}
         </div>
 
-        <!-- Paginación -->
         {% if paginator.num_pages > 1 %}
         <div class="flex justify-center mt-12 gap-2">
             {% if page_obj.has_previous %}
@@ -205,15 +227,10 @@
 <!-- Datos para el mapa -->
 {{ eventos_presenciales_mapa|json_script:"eventos-presenciales-data" }}
 
-<!-- ==================== MODAL DE COMPARTIR ÚNICO ==================== -->
+<!-- Modal de compartir -->
 <div class="share-overlay hidden fixed inset-0 z-[9999] flex items-center justify-center p-0 md:p-4" id="share-overlay-unico" onclick="if(event.target===this) this.classList.add('hidden')">
-    <!-- Fondo oscuro -->
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-    
-    <!-- Contenedor del modal -->
     <div class="relative w-full max-w-md bg-surface-container-lowest rounded-t-2xl md:rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
-        
-        <!-- Encabezado -->
         <div class="flex items-center justify-between px-4 py-3 border-b border-outline-variant/30">
             <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors" onclick="document.getElementById('share-overlay-unico').classList.add('hidden')">
                 <i class="bi bi-x text-on-surface" style="font-size: 1.5rem;"></i>
@@ -221,11 +238,7 @@
             <h2 class="text-lg font-semibold text-on-surface">Compartir evento</h2>
             <div class="w-10 h-10"></div>
         </div>
-
-        <!-- Contenido -->
         <div class="overflow-y-auto p-4 space-y-5">
-            
-            <!-- Previsualización del enlace -->
             <div class="flex items-center gap-3 p-3 bg-surface-container rounded-xl">
                 <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
                     <i class="bi bi-link-45deg text-white text-xl"></i>
@@ -235,33 +248,27 @@
                     <p class="text-xs text-on-surface-variant truncate" id="share-url-text">https://...</p>
                 </div>
             </div>
-
-            <!-- Grid de plataformas -->
             <div>
                 <h3 class="text-sm font-medium text-on-surface-variant mb-3 px-1">Compartir en</h3>
                 <div class="grid grid-cols-4 gap-3">
-                    <!-- WhatsApp -->
                     <button class="flex flex-col items-center gap-2 group" id="share-btn-whatsapp">
                         <div class="w-14 h-14 rounded-full bg-[#25D366]/10 flex items-center justify-center group-hover:bg-[#25D366]/20 transition-colors">
                             <i class="bi bi-whatsapp text-[#25D366] text-2xl"></i>
                         </div>
                         <span class="text-xs text-on-surface-variant">WhatsApp</span>
                     </button>
-                    <!-- Facebook -->
                     <button class="flex flex-col items-center gap-2 group" id="share-btn-facebook">
                         <div class="w-14 h-14 rounded-full bg-[#1877F2]/10 flex items-center justify-center group-hover:bg-[#1877F2]/20 transition-colors">
                             <i class="bi bi-facebook text-[#1877F2] text-2xl"></i>
                         </div>
                         <span class="text-xs text-on-surface-variant">Facebook</span>
                     </button>
-                    <!-- Telegram -->
                     <button class="flex flex-col items-center gap-2 group" id="share-btn-telegram">
                         <div class="w-14 h-14 rounded-full bg-[#0088cc]/10 flex items-center justify-center group-hover:bg-[#0088cc]/20 transition-colors">
                             <i class="bi bi-telegram text-[#0088cc] text-2xl"></i>
                         </div>
                         <span class="text-xs text-on-surface-variant">Telegram</span>
                     </button>
-                    <!-- X (Twitter) -->
                     <button class="flex flex-col items-center gap-2 group" id="share-btn-twitter">
                         <div class="w-14 h-14 rounded-full bg-[#0f1419]/10 flex items-center justify-center group-hover:bg-[#0f1419]/20 transition-colors">
                             <svg width="15" height="15" viewBox="0 0 1200 1227" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -272,8 +279,6 @@
                     </button>
                 </div>
             </div>
-
-            <!-- Barra de copiar enlace -->
             <div class="bg-surface-container-low rounded-xl border border-outline-variant/30 p-2 flex items-center gap-2">
                 <div class="flex-1 px-2 text-sm text-on-surface-variant truncate" id="share-url-bar">https://...</div>
                 <button class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:opacity-90 active:scale-95 transition-all whitespace-nowrap flex items-center gap-1" id="share-btn-copy">
@@ -281,8 +286,6 @@
                 </button>
             </div>
         </div>
-
-        <!-- Botón cancelar -->
         <div class="p-4 pt-0">
             <button class="w-full py-3 bg-surface-container-high text-on-surface font-medium rounded-xl hover:bg-surface-container-highest transition-colors active:scale-[0.98] duration-200" onclick="document.getElementById('share-overlay-unico').classList.add('hidden')">
                 Cancelar
@@ -295,6 +298,27 @@
 
 {% block extra_js %}
 <script>
+    // ========== TOAST NOTIFICATIONS ==========
+    function showToast(message, type = 'info') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        let icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+        toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+
     // ========== DATOS DE EVENTOS PRESENCIALES ==========
     let eventosPresenciales = [];
     try {
@@ -363,35 +387,45 @@
         markersLayer.clearLayers();
         const infoDiv = document.getElementById('map-results-info');
         const eventosCercanos = [];
+        
         for (const evento of eventosPresenciales) {
             const ubicacionEvento = await geocodeEventDirection(evento.direccion, evento.id);
             if (ubicacionEvento) {
                 const distance = calculateDistance(lat, lon, ubicacionEvento.lat, ubicacionEvento.lon);
-                if (distance <= 50) eventosCercanos.push({ evento, ubicacionEvento, distance });
+                eventosCercanos.push({ evento, ubicacionEvento, distance });
             }
         }
+        
+        // Ordenar por distancia (más cercanos primero)
+        eventosCercanos.sort((a, b) => a.distance - b.distance);
+        
         map.setView([lat, lon], 12);
+        
         const searchIcon = L.divIcon({
             html: '<div style="background-color: #ef4444; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>',
             iconSize: [16, 16], popupAnchor: [0, -8]
         });
         L.marker([lat, lon], { icon: searchIcon }).addTo(markersLayer).bindPopup(`<b>📍 ${locationName}</b>`);
+        
         for (const item of eventosCercanos) {
+            const distanciaMostrar = Math.round(item.distance);
             const popupContent = `
                 <div class="p-2" style="min-width: 200px; max-width: 260px;">
                     <div class="font-bold text-sm mb-1">${escapeHtml(item.evento.titulo)}</div>
                     <div class="text-xs text-gray-600">📅 ${item.evento.fecha}</div>
                     <div class="text-xs text-gray-600">📍 ${escapeHtml(item.evento.direccion)}</div>
                     <div class="text-xs text-gray-500 mt-1">🎭 ${escapeHtml(item.evento.categoria)}</div>
-                    <div class="text-xs text-blue-600 mt-1">📏 a ${Math.round(item.distance)} km</div>
+                    <div class="text-xs text-blue-600 mt-1">📏 a ${distanciaMostrar} km</div>
                     <a href="/eventos-presenciales/${item.evento.id}/" class="inline-block mt-2 px-2 py-1 bg-primary text-white text-xs rounded hover:opacity-90">Ver evento →</a>
                 </div>
             `;
+            
             const marker = L.marker([item.ubicacionEvento.lat, item.ubicacionEvento.lon]).addTo(markersLayer);
             marker.bindPopup(popupContent);
         }
+        
         if (eventosCercanos.length) {
-            infoDiv.innerHTML = `<span class="text-green-600">✅ Encontrados ${eventosCercanos.length} eventos cerca de "${locationName}"</span>`;
+            infoDiv.innerHTML = `<span class="text-green-600">✅ Encontrados ${eventosCercanos.length} eventos. El más cercano a ${Math.round(eventosCercanos[0].distance)} km.</span>`;
             infoDiv.classList.remove('hidden');
         } else {
             infoDiv.innerHTML = `<span class="text-yellow-600">⚠️ No hay eventos presenciales cerca de "${locationName}". Prueba con otra ubicación.</span>`;
@@ -408,17 +442,22 @@
     
     async function searchAndShowEvents() {
         const address = document.getElementById('search-location').value.trim();
-        if (!address) { alert('Por favor, ingresa una ciudad, dirección o código postal'); return; }
+        if (!address) { 
+            showToast('Por favor, ingresa una ciudad, dirección o código postal', 'info');
+            return; 
+        }
         const location = await geocodeAddress(address);
         if (location) await showEventsNearLocation(location.lat, location.lon, address);
-        else alert('No se pudo encontrar la ubicación. Intenta con una dirección más específica.');
+        else showToast('No se pudo encontrar la ubicación. Intenta con una dirección más específica.', 'error');
     }
     
     // ========== INICIALIZACIÓN ==========
     document.addEventListener('DOMContentLoaded', function() {
         initMap();
+        
         const searchBtn = document.getElementById('search-map');
         if (searchBtn) searchBtn.addEventListener('click', (e) => { e.preventDefault(); searchAndShowEvents(); });
+        
         const searchInputMap = document.getElementById('search-location');
         if (searchInputMap) searchInputMap.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); searchAndShowEvents(); } });
         
@@ -428,7 +467,6 @@
                    document.querySelector('meta[name="csrf-token"]')?.content;
         }
         
-        // Virtuales
         document.querySelectorAll('.like-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault(); e.stopPropagation();
@@ -469,7 +507,6 @@
             });
         });
         
-        // Presenciales
         document.querySelectorAll('.like-btn-presencial').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault(); e.stopPropagation();
@@ -509,22 +546,18 @@
                 });
             });
         });
-
     });
 
-    // ========== FUNCIONALIDAD DE COMPARTIR (CORREGIDA) ==========
-    // Abre el modal único con los datos del evento
+    // ========== FUNCIONALIDAD DE COMPARTIR ==========
     function openShareModal(data) {
         const overlay = document.getElementById('share-overlay-unico');
         const title = data.eventTitle;
         const url = data.eventUrl;
 
-        // Actualizar textos
         document.getElementById('share-event-title').textContent = title;
         document.getElementById('share-url-text').textContent = url;
         document.getElementById('share-url-bar').textContent = url;
 
-        // Configurar botones
         document.getElementById('share-btn-facebook').onclick = () => {
             window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'width=600,height=400');
             overlay.classList.add('hidden');
@@ -582,7 +615,6 @@
             });
         }
         
-        // Envío automático del formulario al escribir (debounce)
         let debounceTimer;
         if (searchInput) {
             searchInput.addEventListener('input', function() {

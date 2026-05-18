@@ -171,19 +171,18 @@ def home(request):
         eventos_filtrados = [e for e in eventos_filtrados if busqueda.lower() in e['titulo'].lower() or busqueda.lower() in e['categoria'].lower()]
 
     
-    # 9. Personalización por preferencias (solo si no es "Todas" explícito)
+# 9. Personalización por preferencias (solo si no es "Todas" explícito)
+        mostrar_todos = request.GET.get('all') == '1'
+        preferencias = []  # Inicializar variable
 
-    mostrar_todos = request.GET.get('all') == '1'
-    if not categoria_filtro and not busqueda and request.user.is_authenticated and not mostrar_todos:
-        preferencias = list(request.user.preferencias.values_list('nombre', flat=True))
-    if preferencias:
-        categorias_pref_norm = [normalizar_categoria(c) for c in preferencias]
-        eventos_preferidos = [e for e in eventos_filtrados if normalizar_categoria(e['categoria']) in categorias_pref_norm]
-        
-        # ✅ CORREGIDO: No limitar a 6 eventos aquí, dejar que la paginación haga su trabajo
-        # Solo ordenar los eventos para que los preferidos aparezcan primero
-        eventos_no_preferidos = [e for e in eventos_filtrados if e not in eventos_preferidos]
-        eventos_filtrados = eventos_preferidos + eventos_no_preferidos
+        if not categoria_filtro and not busqueda and request.user.is_authenticated and not mostrar_todos:
+            preferencias = list(request.user.preferencias.values_list('nombre', flat=True))
+
+        if preferencias:
+            categorias_pref_norm = [normalizar_categoria(c) for c in preferencias]
+            eventos_preferidos = [e for e in eventos_filtrados if normalizar_categoria(e['categoria']) in categorias_pref_norm]
+            eventos_no_preferidos = [e for e in eventos_filtrados if e not in eventos_preferidos]
+            eventos_filtrados = eventos_preferidos + eventos_no_preferidos
 
     # 10. Paginación
     paginator = Paginator(eventos_filtrados, 6)
