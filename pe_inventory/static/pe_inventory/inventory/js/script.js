@@ -1,26 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Stratos Inventory Manager Initialized");
-
-    // Helper function to get CSRF token
     const getCsrfToken = () => {
         const token = document.querySelector("[name=csrfmiddlewaretoken]");
         if (!token) {
-            console.error("CSRF token not found in DOM");
             return null;
         }
         return token.value;
     };
 
-    // Validate event ID exists
     const inventoryModalEl = document.getElementById("inventoryModal");
     const eventId = inventoryModalEl?.dataset?.eventId;
-    if (!eventId) {
-        console.error("Event ID not found in modal data attribute");
-    } else {
-        console.log("Event ID detected:", eventId);
-    }
 
-    // Simple search functionality
     const searchInput = document.getElementById("activitySearch");
     const inventoryTableBody = document.getElementById("inventoryTableBody");
 
@@ -40,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Filter Logic for Select Inputs
     const filterCategory = document.getElementById("filterCategory");
     const filterStatus = document.getElementById("filterStatus");
 
@@ -112,15 +100,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // Action button handlers
     let editingRow = null;
     let inventoryModal = null;
     if (typeof bootstrap !== "undefined" && inventoryModalEl) {
         inventoryModal = new bootstrap.Modal(inventoryModalEl);
-    } else {
-        console.warn(
-            "Bootstrap modal is not available. The inventory modal will still render but animation features may not work.",
-        );
     }
     const inventoryForm = document.getElementById("inventoryForm");
     const modalTitle = document.getElementById("inventoryModalLabel");
@@ -162,11 +145,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (exportExcelBtn) {
         exportExcelBtn.addEventListener("click", async () => {
             try {
-                console.log("Iniciando exportación de Excel...");
-                console.log("Event ID:", eventId);
-
                 if (!eventId) {
-                    alert("Error: ID de evento no disponible");
+                    showToast("Error: ID de evento no disponible", "error");
                     return;
                 }
 
@@ -175,18 +155,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     '<span class="material-symbols-outlined" style="font-size: 18px;">downloading</span> Descargando...';
 
                 const url = `/inventario/${eventId}/export-excel/`;
-                console.log("URL de descarga:", url);
 
                 const response = await fetch(url, {
                     credentials: "same-origin",
                 });
-
-                console.log("Response status:", response.status);
-                console.log("Response OK:", response.ok);
-                console.log(
-                    "Content-Type:",
-                    response.headers.get("content-type"),
-                );
 
                 if (!response.ok) {
                     let message = "Error desconocido";
@@ -197,41 +169,31 @@ document.addEventListener("DOMContentLoaded", () => {
                         message = error.error || message;
                     } else {
                         const text = await response.text();
-                        console.log("Response text:", text.substring(0, 200));
                         message = text ? text.substring(0, 400) : message;
                     }
-                    alert("Error: " + message);
+                    showToast("Error: " + message, "error");
                     return;
                 }
 
-                console.log("Creando blob...");
                 const blob = await response.blob();
-                console.log("Blob size:", blob.size, "bytes");
-                console.log("Blob type:", blob.type);
 
                 const downloadUrl = window.URL.createObjectURL(blob);
-                console.log("Download URL creada:", downloadUrl);
 
                 const a = document.createElement("a");
                 a.href = downloadUrl;
                 a.download = `inventario_${new Date().toISOString().split("T")[0]}.xlsx`;
-                console.log("Download name:", a.download);
 
                 document.body.appendChild(a);
                 a.click();
-                console.log("Click realizado");
 
                 setTimeout(() => {
                     window.URL.revokeObjectURL(downloadUrl);
                     document.body.removeChild(a);
-                    console.log("Limpieza realizada");
                 }, 500);
 
-                alert("¡Archivo exportado correctamente!");
+                showToast("Archivo exportado correctamente", "success");
             } catch (error) {
-                console.error("Error completo:", error);
-                console.error("Stack:", error.stack);
-                alert("Error al exportar: " + error.message);
+                showToast("Error al exportar: " + error.message, "error");
             } finally {
                 exportExcelBtn.disabled = false;
                 exportExcelBtn.innerHTML =
@@ -281,11 +243,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (response.ok) {
                     await loadItems();
                     updateGlobalStats();
+                    showToast("Inventario importado correctamente", "success");
                 } else {
-                    console.error("Import error:", data?.error);
+                    showToast(data?.error || "Error al importar", "error");
                 }
             } catch (error) {
-                console.error("Error:", error);
+                showToast("Error al importar inventario", "error");
             } finally {
                 if (importExcelBtn) {
                     importExcelBtn.disabled = false;
@@ -300,8 +263,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const itemImageInput = document.getElementById("itemImage");
     const itemImageData = document.getElementById("itemImageData");
 
-    // No need for FileReader since we send the file directly
-
     document.addEventListener("click", (e) => {
         const editBtn = e.target.closest(".edit-btn");
         const deleteBtn = e.target.closest(".delete-btn");
@@ -311,7 +272,6 @@ document.addEventListener("DOMContentLoaded", () => {
             editingRow = editBtn.closest("tr");
             modalTitle.textContent = "Editar Artículo";
 
-            // Fetch fresh data from server
             fetch(`/inventario/${eventId}/item/${itemId}/`)
                 .then((response) => response.json())
                 .then((data) => {
@@ -336,13 +296,11 @@ document.addEventListener("DOMContentLoaded", () => {
                             inventoryModal.show();
                         }
                     } else {
-                        console.error("Error fetching item data:", data.error);
-                        alert("Error al cargar los datos del artículo");
+                        showToast("Error al cargar los datos del artículo", "error");
                     }
                 })
                 .catch((error) => {
-                    console.error("Error:", error);
-                    alert("Error al cargar los datos del artículo");
+                    showToast("Error al cargar los datos del artículo", "error");
                 });
         }
 
@@ -363,7 +321,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.getElementById("inventoryModal").dataset.eventId;
                 const csrfToken = getCsrfToken();
                 if (!csrfToken) {
-                    console.error("Token CSRF no encontrado");
+                    showToast("Token CSRF no encontrado", "error");
                     return;
                 }
 
@@ -379,12 +337,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (result.success) {
                             loadItems();
                             deleteModal.hide();
+                            showToast("Artículo eliminado correctamente", "success");
                         } else {
-                            console.error("Error:", result.error);
+                            showToast(result.error || "Error al eliminar", "error");
                         }
                     })
                     .catch((error) => {
-                        console.error("Error:", error);
+                        showToast("Error al eliminar artículo", "error");
                     });
             };
         }
@@ -403,13 +362,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const notes = document.getElementById("itemNotes").value.trim();
             const imageFile = document.getElementById("itemImage").files[0];
 
-            // Validaciones básicas
             if (!name) {
-                console.error("El nombre del artículo es requerido");
+                showToast("El nombre del artículo es requerido", "error");
                 return;
             }
             if (!total || total < 1) {
-                console.error("El stock total debe ser mayor a 0");
+                showToast("El stock total debe ser mayor a 0", "error");
                 return;
             }
 
@@ -422,40 +380,28 @@ document.addEventListener("DOMContentLoaded", () => {
                 formData.append("image", imageFile);
             }
 
-            // Agregar CSRF token al FormData
             const csrfToken = getCsrfToken();
             if (!csrfToken) {
-                console.error("Token CSRF no encontrado");
+                showToast("Token CSRF no encontrado", "error");
                 return;
             }
             formData.append("csrfmiddlewaretoken", csrfToken);
 
             try {
-                let url, method;
+                let url;
 
                 if (itemId) {
-                    // Actualizar
                     url = `/inventario/${currentEventId}/update/${itemId}/`;
-                    method = "POST";
-                    console.log("Actualizando item:", itemId);
                 } else {
-                    // Crear
                     url = `/inventario/${currentEventId}/create/`;
-                    method = "POST";
-                    console.log("Creando nuevo item");
                 }
 
-                console.log("Enviando formulario a:", url);
-                console.log("Event ID:", currentEventId);
-
                 const response = await fetch(url, {
-                    method: method,
+                    method: "POST",
                     body: formData,
                 });
 
-                console.log("Response status:", response.status);
                 const result = await response.json();
-                console.log("Response data:", result);
 
                 if (response.ok) {
                     if (inventoryModal) {
@@ -466,11 +412,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                     document.getElementById("itemId").value = "";
                     loadItems();
+                    showToast(itemId ? "Artículo actualizado correctamente" : "Artículo creado correctamente", "success");
                 } else {
-                    console.error("Error en la operación:", result);
+                    showToast(result.error || "Error en la operación", "error");
                 }
             } catch (error) {
-                console.error("Error completo:", error);
+                showToast("Error al guardar artículo", "error");
             }
         });
     }
@@ -480,25 +427,21 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("inventoryModal").dataset.eventId;
 
         if (!currentEventId) {
-            console.error("Event ID no disponible para cargar items");
             document.getElementById("inventoryTableBody").innerHTML =
                 '<tr><td colspan="6" class="text-center py-4 text-danger">Error: ID de evento no disponible</td></tr>';
             return;
         }
 
         try {
-            console.log("Cargando items para evento:", currentEventId);
             const response = await fetch(
                 `/inventario/${currentEventId}/items/`,
             );
-            console.log("Response status:", response.status);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
-            console.log("Items data received:", data);
 
             if (data.success) {
                 const items = data.items;
@@ -565,12 +508,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 updateGlobalStats();
                 updatePaginationInfo();
             } else {
-                console.error("No success flag in response");
                 document.getElementById("inventoryTableBody").innerHTML =
                     '<tr><td colspan="6" class="text-center py-4 text-danger">Error al cargar los items</td></tr>';
             }
         } catch (error) {
-            console.error("Error loading items:", error);
             document.getElementById("inventoryTableBody").innerHTML =
                 '<tr><td colspan="6" class="text-center py-4 text-danger">Error: ' +
                 error.message +
@@ -578,7 +519,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // Initial load
     loadItems();
     updatePaginationInfo();
 });

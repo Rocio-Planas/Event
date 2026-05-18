@@ -19,10 +19,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Ensure exactly 2 options when opening create modal
-    const createModal = document.getElementById('createSurveyModal');
+    const createModal = document.getElementById("createSurveyModal");
     if (createModal && optionsContainer) {
-        createModal.addEventListener('shown.bs.modal', function () {
-            let optionBlocks = optionsContainer.querySelectorAll('.option-block');
+        createModal.addEventListener("shown.bs.modal", function () {
+            let optionBlocks =
+                optionsContainer.querySelectorAll(".option-block");
             if (optionBlocks.length < 2) {
                 // Add options until we have at least 2
                 for (let i = optionBlocks.length; i < 2; i++) {
@@ -30,14 +31,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
             // Re-check after potential additions
-            optionBlocks = optionsContainer.querySelectorAll('.option-block');
+            optionBlocks = optionsContainer.querySelectorAll(".option-block");
             // If still less than 2, manually create them
             if (optionBlocks.length < 2) {
                 for (let i = optionBlocks.length; i < 2; i++) {
-                    const newBlock = document.createElement('div');
-                    newBlock.className = 'option-block border rounded-3 p-3 mb-3';
+                    const newBlock = document.createElement("div");
+                    newBlock.className =
+                        "option-block border rounded-3 p-3 mb-3";
                     const idx = i;
-                    newBlock.innerHTML = '<div class="row g-3 align-items-end"><div class="col-md-10"><label class="small text-muted">Opción</label><input type="text" class="form-control" name="options-' + idx + '-text" id="id_options-' + idx + '-text" placeholder="Texto de la opción"></div><div class="col-md-2 text-end"><button type="button" class="btn btn-outline-danger btn-sm remove-option-btn" title="Eliminar opción"><span class="material-symbols-outlined" style="font-size: 16px">delete</span></button></div></div>';
+                    newBlock.innerHTML =
+                        '<div class="row g-3 align-items-end"><div class="col-md-10"><label class="small text-muted">Opción</label><input type="text" class="form-control" name="options-' +
+                        idx +
+                        '-text" id="id_options-' +
+                        idx +
+                        '-text" placeholder="Texto de la opción"></div><div class="col-md-2 text-end"><button type="button" class="btn btn-outline-danger btn-sm remove-option-btn" title="Eliminar opción"><span class="material-symbols-outlined" style="font-size: 16px">delete</span></button></div></div>';
                     optionsContainer.appendChild(newBlock);
                 }
             }
@@ -46,16 +53,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Usar event delegation para los botones de agregar y eliminar opción
     document.addEventListener("click", function (e) {
-        if (e.target && e.target.id === "add_option_btn") {
+        const addOptionBtn = e.target.closest
+            ? e.target.closest("#add_option_btn")
+            : null;
+        if (addOptionBtn) {
             e.preventDefault();
             addOption();
+            return;
         }
-        
+
         // Manejar eliminación de opciones
-        if (e.target && (e.target.classList.contains("remove-option-btn") || e.target.closest(".remove-option-btn"))) {
+        const removeOptionBtn = e.target.closest
+            ? e.target.closest(".remove-option-btn")
+            : null;
+        if (removeOptionBtn) {
             e.preventDefault();
-            const button = e.target.classList.contains("remove-option-btn") ? e.target : e.target.closest(".remove-option-btn");
-            removeOption(button);
+            removeOption(removeOptionBtn);
         }
     });
 
@@ -98,8 +111,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Función para agregar opción dinámicamente
 function addOption() {
-    console.log("Iniciando addOption()");
-
     const optionsContainer = document.querySelector("#options_container");
 
     // Buscar el input de TOTAL_FORMS - puede tener diferentes variaciones de nombres
@@ -108,66 +119,54 @@ function addOption() {
         managementForm = document.querySelector('input[name*="TOTAL_FORMS"]');
     }
 
-    console.log("optionsContainer:", optionsContainer);
-    console.log("managementForm:", managementForm);
-    console.log("managementForm queryselector value:", managementForm?.value);
-
     if (!optionsContainer) {
-        console.error("No se encontró #options_container");
         return;
     }
 
     if (!managementForm) {
-        console.error("No se encontró el input TOTAL_FORMS");
-        console.log(
-            "Inputs disponibles en la página:",
-            document.querySelectorAll('input[name*="TOTAL"]'),
-        );
         return;
     }
 
-    const currentTotal = parseInt(managementForm.value);
-    console.log("currentTotal:", currentTotal);
+    const currentTotal = parseInt(managementForm.value) || 0;
 
     // Clonar la última fila de opción
     const optionBlocks = optionsContainer.querySelectorAll(".option-block");
-    console.log("optionBlocks encontrados:", optionBlocks.length);
+    let newBlock;
 
     if (optionBlocks.length === 0) {
-        console.error("No hay option-blocks para clonar");
-        return;
+        newBlock = document.createElement("div");
+        newBlock.className = "option-block border rounded-3 p-3 mb-3";
+        newBlock.innerHTML =
+            '<div class="row g-3 align-items-end"><div class="col-md-10"><label class="small text-muted">Opción</label><input type="text" class="form-control border-0 py-2 option-input" style="background-color: var(--surface-container-high);" name="options-' +
+            currentTotal +
+            '-text" id="id_options-' +
+            currentTotal +
+            '-text" placeholder="Opción"></div><div class="col-md-2 text-end"><button type="button" class="btn btn-outline-danger btn-sm remove-option-btn"><span class="material-symbols-outlined" style="font-size: 16px">delete</span></button></div></div>';
+    } else {
+        const lastBlock = optionBlocks[optionBlocks.length - 1];
+        newBlock = lastBlock.cloneNode(true);
     }
-
-    const lastBlock = optionBlocks[optionBlocks.length - 1];
-    const newBlock = lastBlock.cloneNode(true);
-
-    console.log("Bloqueado clonado, actualizando índices...");
 
     // Actualizar índices en los inputs del nuevo bloque
     const inputs = newBlock.querySelectorAll("[name], [id]");
-    console.log("Inputs a actualizar:", inputs.length);
 
     inputs.forEach((input) => {
         // Actualizar atributo name
         if (input.name) {
-            const oldName = input.name;
             const newName = input.name.replace(
                 /options-\d+-/,
                 `options-${currentTotal}-`,
             );
             input.name = newName;
-            console.log(`Nombre actualizado: ${oldName} -> ${newName}`);
         }
 
         // Actualizar atributo id
         if (input.id) {
-            const oldId = input.id;
             const newId = input.id.replace(
                 /id_options-\d+-/,
                 `id_options-${currentTotal}-`,
             );
             input.id = newId;
-            console.log(`ID actualizado: ${oldId} -> ${newId}`);
         }
 
         // Limpiar valores
@@ -184,8 +183,10 @@ function addOption() {
         const forAttr = label.getAttribute("for");
         if (forAttr) {
             const newFor = forAttr.replace(
-                /id_form-\d+-/,
-                `id_form-${currentTotal}-`,
+                /(id_form|id_options)-\d+-/,
+                function (match, prefix) {
+                    return `${prefix}-${currentTotal}-`;
+                },
             );
             label.setAttribute("for", newFor);
         }
@@ -193,61 +194,55 @@ function addOption() {
 
     // Agregar el nuevo bloque
     optionsContainer.appendChild(newBlock);
-    console.log("Nuevo bloque agregado al contenedor");
 
     // Incrementar TOTAL_FORMS
     managementForm.value = currentTotal + 1;
 
-    console.log(`✓ Opción agregada. Total formas: ${managementForm.value}`);
-    
     // Ocultar mensaje de error si estaba visible
     hideOptionsError();
 }
 
 // Función para eliminar opción dinámicamente
 function removeOption(button) {
-    console.log("Iniciando removeOption()");
-    
     const optionsContainer = document.querySelector("#options_container");
+    if (!optionsContainer) {
+        return;
+    }
+
     const optionBlocks = optionsContainer.querySelectorAll(".option-block");
-    
+
     // Verificar que no queden menos de 2 opciones
     if (optionBlocks.length <= 2) {
         showOptionsError("Debes mantener al menos 2 opciones.");
         return;
     }
-    
+
     // Buscar el input de TOTAL_FORMS
     let managementForm = document.querySelector("#id_form-TOTAL_FORMS");
     if (!managementForm) {
         managementForm = document.querySelector('input[name*="TOTAL_FORMS"]');
     }
-    
+
     if (!managementForm) {
-        console.error("No se encontró el input TOTAL_FORMS");
         return;
     }
-    
+
     // Encontrar el bloque de opción que contiene el botón
     const optionBlock = button.closest(".option-block");
     if (!optionBlock) {
-        console.error("No se encontró el bloque de opción");
         return;
     }
-    
+
     // Remover el bloque
     optionBlock.remove();
-    console.log("Bloque de opción removido");
-    
+
     // Re-indexar los bloques restantes
     reindexOptions();
-    
+
     // Decrementar TOTAL_FORMS
     const currentTotal = parseInt(managementForm.value);
     managementForm.value = currentTotal - 1;
-    
-    console.log(`✓ Opción eliminada. Total formas: ${managementForm.value}`);
-    
+
     // Ocultar mensaje de error si estaba visible
     hideOptionsError();
 }
@@ -255,47 +250,58 @@ function removeOption(button) {
 // Función para re-indexar las opciones después de eliminar una
 function reindexOptions() {
     const optionsContainer = document.querySelector("#options_container");
+    if (!optionsContainer) {
+        return;
+    }
+
     const optionBlocks = optionsContainer.querySelectorAll(".option-block");
-    
+
     optionBlocks.forEach((block, index) => {
         const inputs = block.querySelectorAll("[name], [id]");
         inputs.forEach((input) => {
             // Actualizar atributo name
             if (input.name) {
-                const newName = input.name.replace(/options-\d+-/, `options-${index}-`);
+                const newName = input.name.replace(
+                    /options-\d+-/,
+                    `options-${index}-`,
+                );
                 input.name = newName;
             }
-            
+
             // Actualizar atributo id
             if (input.id) {
-                const newId = input.id.replace(/id_options-\d+-/, `id_options-${index}-`);
+                const newId = input.id.replace(
+                    /id_options-\d+-/,
+                    `id_options-${index}-`,
+                );
                 input.id = newId;
             }
         });
-        
+
         // Actualizar labels asociados
         const labels = block.querySelectorAll("label");
         labels.forEach((label) => {
             const forAttr = label.getAttribute("for");
             if (forAttr) {
-                const newFor = forAttr.replace(/id_options-\d+-/, `id_options-${index}-`);
+                const newFor = forAttr.replace(
+                    /id_options-\d+-/,
+                    `id_options-${index}-`,
+                );
                 label.setAttribute("for", newFor);
             }
         });
     });
-    
-    console.log("Opciones re-indexadas");
 }
 
 // Función para mostrar mensaje de error
 function showOptionsError(message) {
     const errorDiv = document.querySelector("#options_error");
     const errorText = document.querySelector("#options_error_text");
-    
+
     if (errorDiv && errorText) {
         errorText.textContent = message;
         errorDiv.style.display = "block";
-        
+
         // Auto-ocultar después de 5 segundos
         setTimeout(() => {
             hideOptionsError();

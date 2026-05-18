@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Stratos Event Suite initialized');
-
     // Initialize Lucide icons if using the library
     if (window.lucide) {
         window.lucide.createIcons();

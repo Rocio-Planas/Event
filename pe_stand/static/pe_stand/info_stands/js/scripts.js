@@ -308,7 +308,7 @@ function updateQuantity(assignmentId, delta, maxStock) {
             }
         })
         .catch(function (error) {
-            console.error("Error:", error);
+            showToast('Error al actualizar cantidad', 'error');
         });
 }
 
@@ -434,7 +434,7 @@ function saveResourceEdit() {
             }
         })
         .catch(function (error) {
-            console.error("Error:", error);
+            showToast('Error al guardar', 'error');
         })
         .finally(function () {
             btn.disabled = false;
@@ -473,7 +473,7 @@ function removeResource(assignmentId) {
             }
         })
         .catch(function (error) {
-            console.error("Error:", error);
+            showToast('Error al eliminar recurso', 'error');
         });
 }
 
@@ -503,12 +503,11 @@ function adjustQuantity(assignmentId, delta, button) {
                 // Update the display
                 span.textContent = newQty + " / " + requiredQty;
             } else {
-                console.warn("No se pudo actualizar cantidad:", data.error);
+                showToast("No se pudo actualizar cantidad", 'error');
             }
         })
         .catch(function (error) {
-            console.error("Error:", error);
-            alert("Error al actualizar cantidad: " + error.message);
+            showToast("Error al actualizar cantidad", 'error');
         });
 }
 

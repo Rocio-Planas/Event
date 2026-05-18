@@ -148,6 +148,10 @@
                     <div id="editOptionsSection">
                         <hr class="my-4" style="border-color: var(--border-outline-variant);">
                         <h4 class="fw-bold mb-3" style="color: var(--text-on-surface);" data-i18n="options_label">Opciones</h4>
+                        <div id="edit_options_error" class="alert" style="display: none; background-color: rgba(var(--error), 0.1); color: var(--error); border: none;" role="alert">
+                            <span class="material-symbols-outlined me-2" style="font-size: 18px">error</span>
+                            <span id="edit_options_error_text"></span>
+                        </div>
                         <div id="editOptionsContainer"></div>
                         <button type="button" class="btn btn-outline-secondary" id="editAddOptionBtn">
                             <span class="material-symbols-outlined me-1" style="font-size: 18px">add</span>
@@ -307,7 +311,7 @@
         function validateSurveyForm() {
             var titleInput = document.querySelector('input[name="title"]');
             if (!titleInput || !titleInput.value.trim()) {
-                alert('El título de la encuesta es requerido');
+                showToast('El título de la encuesta es requerido', 'error');
                 return false;
             }
 
@@ -319,7 +323,7 @@
             });
 
             if (validOptions < 2) {
-                alert('Debes completar al menos 2 opciones');
+                showToast('Debes completar al menos 2 opciones', 'error');
                 return false;
             }
 
@@ -391,13 +395,42 @@
             var div = document.createElement('div');
             div.className = 'option-block border rounded-3 p-3 mb-3';
             div.style.backgroundColor = 'var(--surface-container-lowest)';
-            div.innerHTML = '<div class="row g-3 align-items-end"><div class="col-md-10"><label class="small text-muted">Opción</label><input type="text" class="form-control border-0 py-2 option-input" style="background-color: var(--surface-container-high);" value="' + (textValue || '') + '" placeholder="Opción"></div><div class="col-md-2 text-end"><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest(\'.option-block\').remove()"><span class="material-symbols-outlined" style="font-size: 16px">delete</span></button></div></div>';
+            div.innerHTML = '<div class="row g-3 align-items-end"><div class="col-md-10"><label class="small text-muted">Opción</label><input type="text" class="form-control border-0 py-2 option-input" style="background-color: var(--surface-container-high);" value="' + (textValue || '') + '" placeholder="Opción"></div><div class="col-md-2 text-end"><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeEditOption(this)"><span class="material-symbols-outlined" style="font-size: 16px">delete</span></button></div></div>';
             container.appendChild(div);
+        }
+
+        function removeEditOption(button) {
+            var container = document.getElementById('editOptionsContainer');
+            var optionBlocks = container.querySelectorAll('.option-block');
+            if (optionBlocks.length <= 2) {
+                showEditOptionsError('La encuesta debe tener al menos 2 opciones');
+                return;
+            }
+            button.closest('.option-block').remove();
         }
         
         document.getElementById('editDeliveryType').addEventListener('change', toggleEditFields);
         document.getElementById('editAddOptionBtn').addEventListener('click', function() { addEditOption(''); });
         
+        function hideModalAndShowToast(modalId, message, type, callback) {
+            var modalEl = document.getElementById(modalId);
+            if (!modalEl) {
+                showToast(message, type);
+                if (callback) callback();
+                return;
+            }
+
+            var onHidden = function () {
+                showToast(message, type);
+                modalEl.removeEventListener('hidden.bs.modal', onHidden);
+                if (callback) callback();
+            };
+
+            modalEl.addEventListener('hidden.bs.modal', onHidden);
+            var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modal.hide();
+        }
+
         function saveSurveyEdit() {
             var surveyId = document.getElementById('editSurveyId').value;
             var title = document.getElementById('editSurveyTitle').value;
@@ -406,7 +439,7 @@
             var isSent = window.isSurveySent || false;
             
             if (!title) {
-                alert(translations.title_required);
+                showToast(translations.title_required, 'error');
                 return;
             }
             
@@ -416,10 +449,13 @@
                     options.push(input.value.trim());
                 }
             });
-            console.log('Options collected:', options);
+            
+            if (options.length < 2) {
+                showEditOptionsError('Debes completar al menos 2 opciones');
+                return;
+            }
             
             var url = '/encuestas/' + eventId + '/api/update-survey/';
-            console.log('Fetching URL:', url);
             
             var data = {
                 survey_id: surveyId,
@@ -445,14 +481,15 @@
             .then(function(response) { return response.json(); })
             .then(function(data) {
                 if (data.success) {
-                    location.reload();
+                    hideModalAndShowToast('editSurveyModal', 'Encuesta editada correctamente.', 'success', function() {
+                        setTimeout(function() { location.reload(); }, 3200);
+                    });
                 } else {
-                    alert(data.error || translations.error_saving);
+                    showToast(data.error || translations.error_saving, 'error');
                 }
             })
-            .catch(function(error) {
-                console.error('Error:', error);
-                alert(translations.connection_error);
+            .catch(function() {
+                showToast(translations.connection_error, 'error');
             });
         }
         
@@ -470,15 +507,24 @@
             }
             return cookieValue;
         }
+
+        function showEditOptionsError(message) {
+            var errorDiv = document.getElementById('edit_options_error');
+            var errorText = document.getElementById('edit_options_error_text');
+            if (!errorDiv || !errorText) return;
+            errorText.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(function() {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
         
         var deleteSurveyId = null;
         
         function openDeleteSurveyModal(surveyId, title) {
-            console.log('openDeleteSurveyModal called', surveyId, title);
             deleteSurveyId = surveyId;
             var titleEl = document.getElementById('surveyTitleToDelete');
             var modalEl = document.getElementById('surveyDeleteModal');
-            console.log('titleEl:', titleEl, 'modalEl:', modalEl);
             if (titleEl) {
                 titleEl.textContent = title;
             }
@@ -502,14 +548,15 @@
             .then(function(response) { return response.json(); })
             .then(function(data) {
                 if (data.success) {
-                    location.reload();
+                    hideModalAndShowToast('surveyDeleteModal', 'Encuesta eliminada correctamente.', 'success', function() {
+                        setTimeout(function() { location.reload(); }, 600);
+                    });
                 } else {
-                    alert(data.error || 'Error al eliminar');
+                    showToast(data.error || 'Error al eliminar', 'error');
                 }
             })
-            .catch(function(error) {
-                console.error('Error:', error);
-                alert('Error de conexión');
+            .catch(function() {
+                showToast('Error de conexión', 'error');
             });
         }
         

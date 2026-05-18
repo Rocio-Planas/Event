@@ -281,7 +281,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                <form id="announcementForm" method="post" action="{% url 'in_person_events:send_announcement' event.id %}">
+                <form id="announcementForm">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-uppercase text-primary" data-i18n="announcement_title_label">Título del mensaje</label>
@@ -293,7 +293,7 @@
                     </div>
                     <div class="d-flex justify-content-end gap-2 mt-4">
                         <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" data-i18n="cancel_btn">Cancelar</button>
-                        <button type="submit" class="btn btn-gradient px-4 py-2 fw-bold" data-i18n="send_btn">Enviar</button>
+                        <button type="button" class="btn btn-gradient px-4 py-2 fw-bold" id="sendAnnouncementBtn" data-i18n="send_btn">Enviar</button>
                     </div>
                 </form>
             </div>
@@ -304,5 +304,8 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script>
+    var dashboardEventId = {{ event.id }};
+</script>
 <script src="{% static 'in_person_events/dashboard/js/script.js' %}"></script>
 {% endblock %}
