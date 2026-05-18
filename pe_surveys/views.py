@@ -1,6 +1,7 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, View, TemplateView
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.http import JsonResponse
 from django.urls import reverse_lazy, reverse
@@ -193,6 +194,11 @@ class SurveyCreateUpdateView(TemplateView):
                     formset.instance = survey
                     formset.save()
                 
+                if is_new:
+                    messages.success(request, 'Encuesta creada correctamente.')
+                else:
+                    messages.success(request, 'Encuesta editada correctamente.')
+
                 if is_new and survey.delivery_type == 'inmediato':
                     self.send_survey_emails(survey, event_id)
                 

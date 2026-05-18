@@ -1,8 +1,6 @@
 // EventPro Stand Manager Interactions
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('EventPro Stand Manager Initialized');
-
     // Handle "Nuevo Recurso" Catalog Injection
     const resourceCatalog = document.getElementById('resourceCatalog');
     const catalogItems = [
@@ -455,10 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const mainContainer = document.querySelector('[data-stand-id]');
     const standId = mainContainer ? mainContainer.dataset.standId : null;
     
-    console.log('Stand ID:', standId);
-    
     if (!standId) {
-        console.log('Missing standId');
         return;
     }
     
@@ -489,8 +484,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 role: cb.dataset.role
             }));
             
-            console.log('Selected users:', selectedUsers);
-            
             if (selectedUsers.length === 0) return;
             
             confirmAddStaffBtn.disabled = true;
@@ -508,10 +501,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                 });
                 
-                console.log('Response status:', response.status);
-                
                 const data = await response.json();
-                console.log('Response data:', data);
                 
                 if (data.success) {
                     location.reload();
@@ -521,7 +511,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     confirmAddStaffBtn.textContent = 'Aceptar';
                 }
             } catch (error) {
-                console.error('Error:', error);
+                showToast('Error al añadir personal', 'error');
                 alert('Error al comunicar con el servidor');
                 confirmAddStaffBtn.disabled = false;
                 confirmAddStaffBtn.textContent = 'Aceptar';
