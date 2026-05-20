@@ -73,6 +73,9 @@ def event_create(request):
                 start_datetime = make_aware(start_datetime)
                 if start_datetime < timezone.now():
                     errors["start_time"] = "La fecha no puede ser pasada"
+                elif start_datetime < timezone.now() + timedelta(hours=24):
+                    min_allowed = timezone.now() + timedelta(hours=24)
+                    errors["start_time"] = f"El evento debe programarse con al menos 24 horas de antelación (mínimo: {min_allowed.strftime('%d/%m/%Y %H:%M')})"
         if not duration:
             errors["duration"] = "Duración requerida"
         else:
@@ -112,6 +115,7 @@ def event_create(request):
                 "predefined_categories": VirtualEvent.PREDEFINED_CATEGORIES,
                 "now": now().isoformat(),
                 "temp_image_url": temp_image_url,
+                "min_datetime": (timezone.now() + timedelta(hours=24)).isoformat(),
             }
             return render(request, "virtualEvents/event_form.html", context)
 

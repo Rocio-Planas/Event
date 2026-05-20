@@ -103,7 +103,7 @@
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
                                 <label for="id_start_time" class="ev-label small fw-bold text-uppercase tracking-wider mb-2 d-block" data-i18n="schedule_label">Schedule</label>
-                                <input type="datetime-local" name="start_time" id="id_start_time" class="form-control ev-input py-3 px-4 rounded-3" value="{{ start_time|default:'' }}" min="{{ now|date:'Y-m-d\TH:i' }}" required>
+                                <input type="datetime-local" name="start_time" id="id_start_time" class="form-control ev-input py-3 px-4 rounded-3" value="{{ start_time|default:'' }}" min="{{ min_datetime }}" required>
                                 {% if errors.start_time %}
                                     <div class="text-danger small mt-1">{{ errors.start_time }}</div>
                                 {% endif %}
