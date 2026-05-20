@@ -3,6 +3,7 @@ import json
 from django import forms
 from django.contrib.auth.models import User
 from django.utils import timezone
+from datetime import timedelta
 from .models import Event
 from pe_registration.models import TicketType
 from virtualEvent.models import VirtualEvent
@@ -140,12 +141,11 @@ class EventForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         
-        # En creación, establecer fecha mínima a hoy
-        from datetime import datetime
-        # Set minimum date to today (for both new and edit)
-        today = datetime.now().strftime('%Y-%m-%dT%H:%M')
-        self.fields['start_date'].widget.attrs['min'] = today
-        self.fields['end_date'].widget.attrs['min'] = today
+        # En creación, establecer fecha mínima a 24 horas en el futuro
+        min_start = timezone.localtime(timezone.now()) + timedelta(hours=24)
+        min_start_str = min_start.strftime('%Y-%m-%dT%H:%M')
+        self.fields['start_date'].widget.attrs['min'] = min_start_str
+        self.fields['end_date'].widget.attrs['min'] = min_start_str
 
         # En edición no es obligatorio volver a subir la imagen si ya existe
         if self.instance and self.instance.pk:
@@ -179,8 +179,9 @@ class EventForm(forms.ModelForm):
         
         # Solo validar fechas futuras en creación, no en edición
         if not self.instance.pk:
-            if start_date and start_date < now:
-                self.add_error('start_date', "La fecha de inicio no puede ser en el pasado.")
+            min_start = now + timedelta(hours=24)
+            if start_date and start_date < min_start:
+                self.add_error('start_date', "La fecha de inicio debe ser al menos 24 horas en el futuro.")
             if end_date and end_date < now:
                 self.add_error('end_date', "La fecha de finalización no puede ser en el pasado.")
 

@@ -1,14 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
     // Toast notification system
-    function showToast(message, type = 'error') {
-        const existingToast = document.querySelector('.custom-toast');
+    function showToast(message, type = "error") {
+        const existingToast = document.querySelector(".custom-toast");
         if (existingToast) existingToast.remove();
 
-        const toast = document.createElement('div');
+        const toast = document.createElement("div");
         toast.className = `custom-toast toast-notification position-fixed start-50 translate-middle-x`;
-        toast.style.cssText = 'min-width: 350px; max-width: 90vw; box-shadow: 0 4px 12px rgba(0,0,0,0.25); font-size: 0.95rem; z-index: 9999; border-radius: 8px; top: 70px;';
+        toast.style.cssText =
+            "min-width: 350px; max-width: 90vw; box-shadow: 0 4px 12px rgba(0,0,0,0.25); font-size: 0.95rem; z-index: 9999; border-radius: 8px; top: 70px;";
         toast.innerHTML = `
-            <div class="alert alert-${type === 'error' ? 'danger' : type} d-flex align-items-center justify-content-between p-3 m-0">
+            <div class="alert alert-${type === "error" ? "danger" : type} d-flex align-items-center justify-content-between p-3 m-0">
                 <span>${message}</span>
                 <button type="button" class="btn-close ms-3" onclick="this.parentElement.parentElement.remove()"></button>
             </div>
@@ -21,28 +22,53 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function clearFieldError(field) {
-        field.classList.remove('is-invalid');
-        const errorDiv = field.parentElement.querySelector('.invalid-feedback');
+        field.classList.remove("is-invalid");
+        const errorDiv = field.parentElement.querySelector(".invalid-feedback");
         if (errorDiv) errorDiv.remove();
     }
 
     function validateDateInPast(field) {
         const now = new Date();
         const fieldDate = new Date(field.value);
-        
+
         if (fieldDate < now) {
             // Remove existing error message if any
-            let errorDiv = field.parentElement.querySelector('.invalid-feedback');
+            let errorDiv =
+                field.parentElement.querySelector(".invalid-feedback");
             if (!errorDiv) {
-                errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv = document.createElement("div");
+                errorDiv.className = "invalid-feedback d-block";
                 field.parentElement.appendChild(errorDiv);
             }
-            errorDiv.textContent = 'La fecha no puede ser en el pasado.';
-            
+            errorDiv.textContent = "La fecha no puede ser en el pasado.";
+
             return false;
         }
-        
+
+        clearFieldError(field);
+        return true;
+    }
+
+    function validateDate24Hours(field) {
+        if (!field.value) return true;
+
+        const now = new Date();
+        const minDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        const fieldDate = new Date(field.value);
+
+        if (fieldDate < minDate) {
+            let errorDiv =
+                field.parentElement.querySelector(".invalid-feedback");
+            if (!errorDiv) {
+                errorDiv = document.createElement("div");
+                errorDiv.className = "invalid-feedback d-block";
+                field.parentElement.appendChild(errorDiv);
+            }
+            errorDiv.textContent =
+                "La fecha de inicio debe ser al menos 24 horas en el futuro.";
+            return false;
+        }
+
         clearFieldError(field);
         return true;
     }
@@ -55,11 +81,15 @@ document.addEventListener("DOMContentLoaded", () => {
         startDateField.addEventListener("change", () => {
             if (startDateField.value) {
                 endDateField.setAttribute("min", startDateField.value);
-                if (endDateField.value && endDateField.value <= startDateField.value) {
+                if (
+                    endDateField.value &&
+                    endDateField.value <= startDateField.value
+                ) {
                     endDateField.value = "";
                 }
             }
             validateDateInPast(startDateField);
+            validateDate24Hours(startDateField);
         });
 
         endDateField.addEventListener("change", () => {
@@ -92,7 +122,8 @@ document.addEventListener("DOMContentLoaded", () => {
         publicCard.addEventListener("click", () => {
             publicCard.classList.add("active");
             privateCard.classList.remove("active");
-            const invitationsGroup = document.getElementById("evInvitationsGroup");
+            const invitationsGroup =
+                document.getElementById("evInvitationsGroup");
             if (invitationsGroup) {
                 invitationsGroup.classList.add("d-none");
             }
@@ -104,7 +135,8 @@ document.addEventListener("DOMContentLoaded", () => {
         privateCard.addEventListener("click", () => {
             privateCard.classList.add("active");
             publicCard.classList.remove("active");
-            const invitationsGroup = document.getElementById("evInvitationsGroup");
+            const invitationsGroup =
+                document.getElementById("evInvitationsGroup");
             if (invitationsGroup) {
                 invitationsGroup.classList.remove("d-none");
             }
@@ -113,10 +145,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Handle radio button changes for visibility
-    const visibilityRadios = document.querySelectorAll('input[name="visibility"]');
+    const visibilityRadios = document.querySelectorAll(
+        'input[name="visibility"]',
+    );
     visibilityRadios.forEach((radio) => {
         radio.addEventListener("change", (e) => {
-            const invitationsGroup = document.getElementById("evInvitationsGroup");
+            const invitationsGroup =
+                document.getElementById("evInvitationsGroup");
             if (invitationsGroup) {
                 if (e.target.value === "privado") {
                     invitationsGroup.classList.remove("d-none");
@@ -129,8 +164,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    const currentVisibility = document.querySelector('input[name="visibility"]:checked');
-    if (currentVisibility && currentVisibility.value === 'privado') {
+    const currentVisibility = document.querySelector(
+        'input[name="visibility"]:checked',
+    );
+    if (currentVisibility && currentVisibility.value === "privado") {
         toggleInvitationsRequired(true);
     } else {
         toggleInvitationsRequired(false);
@@ -188,7 +225,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (addTicketBtn && ticketContainer) {
         addTicketBtn.addEventListener("click", () => {
             const ticketId = Date.now();
-            ticketContainer.insertAdjacentHTML("beforeend", createTicketItem(ticketId));
+            ticketContainer.insertAdjacentHTML(
+                "beforeend",
+                createTicketItem(ticketId),
+            );
             updateTicketsData();
         });
     }
@@ -212,19 +252,24 @@ document.addEventListener("DOMContentLoaded", () => {
     if (eventForm) {
         eventForm.addEventListener("submit", (e) => {
             updateTicketsData();
-            
+
             // Validate dates on submit
             let isValid = true;
             if (startDateField && !validateDateInPast(startDateField)) {
                 isValid = false;
             }
+            if (startDateField && !validateDate24Hours(startDateField)) {
+                isValid = false;
+            }
             if (endDateField && !validateDateInPast(endDateField)) {
                 isValid = false;
             }
-            
+
             if (!isValid) {
                 e.preventDefault();
-                showToast('Por favor corrige los errores antes de enviar el formulario.');
+                showToast(
+                    "Por favor corrige los errores antes de enviar el formulario.",
+                );
             }
         });
     }
@@ -254,10 +299,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (evImageInput) {
-        evImageInput.addEventListener("change", function(e) {
+        evImageInput.addEventListener("change", function (e) {
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(evt) {
+                reader.onload = function (evt) {
                     showPreview(evt.target.result);
                 };
                 reader.readAsDataURL(this.files[0]);
@@ -266,7 +311,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (evRemoveImage) {
-        evRemoveImage.addEventListener("click", function(e) {
+        evRemoveImage.addEventListener("click", function (e) {
             e.preventDefault();
             hidePreview();
         });

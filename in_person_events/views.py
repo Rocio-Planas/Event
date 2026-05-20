@@ -13,8 +13,6 @@ from django.views.decorators.http import require_POST
 from django.db.models import Count, Sum
 from django.utils import timezone
 from django.utils.text import slugify
-
-# Importamos tus modelos y el formulario
 from .models import Event
 from pe_registration.models import TicketType, Registration
 from pe_agenda.models import Activity
